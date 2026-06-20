@@ -867,6 +867,20 @@
       climate:            'RIGHT',
     };
 
+    // Plain-language position per issue, keyed by lean letter (A = left-leaning stance, C = right-leaning, B = middle).
+    // Non-partisan substance — what the candidate actually supports, no "liberal/conservative" labels.
+    const POSITION_PHRASE = {
+      reproductiveRights: { A: 'Supports abortion access',     B: 'Middle-ground on abortion',     C: 'Supports abortion limits' },
+      immigration:        { A: 'Favors legal pathways',        B: 'Mixed on immigration',          C: 'Favors tougher border enforcement' },
+      gunPolicy:          { A: 'Backs gun-safety limits',      B: 'Mixed on guns',                 C: 'Defends gun rights' },
+      education:          { A: 'Backs public schools',         B: 'Mixed on schools',              C: 'Backs school choice' },
+      healthcare:         { A: 'Wants to expand coverage',     B: 'Mixed on healthcare',           C: 'Favors free-market care' },
+      climate:            { A: 'Backs clean energy',           B: 'Mixed on energy',               C: 'Backs oil & gas' },
+      moneyInPolitics:    { A: 'More voting access',           B: 'Mixed on elections',            C: 'Tighter election security' },
+      socialSecurity:     { A: 'Protect benefits, no cuts',    B: 'Mixed on benefits',             C: 'Open to benefit reform' },
+      affordability:      { A: 'Renter & wage protections',    B: 'Mixed on affordability',        C: 'Free-market on costs' },
+    };
+
     function calcMatch(candidate, answers, checkedStatements, ranks) {
       // New V2 scoring: use reactions if available, fall back to A/B/C
       const answered = Object.keys(answers).filter(id => answers[id] !== 'D');
@@ -3332,7 +3346,13 @@
                   )}
             <div className="divide-y divide-slate-100">
               {issues && issues.map((issue, idx) => {
-                const pos = candidate.positions?.[issue.id];
+                const rawPos = candidate.positions?.[issue.id];
+                // Normalize new Agree/Disagree/Unknown data into a lean letter using the issue's voice
+                const voice = ISSUE_VOICE[issue.id];
+                let pos = rawPos;
+                if (rawPos === 'Agree') pos = voice === 'RIGHT' ? 'C' : 'A';
+                else if (rawPos === 'Disagree') pos = voice === 'RIGHT' ? 'A' : 'C';
+                else if (rawPos === 'Unknown') pos = null;
                 const hasStance = pos === 'A' || pos === 'B' || pos === 'C';
                 const voterLean = hasAnswers ? getVoterLean(issue.id) : null;
                 const isSplit = voterLean === 'split';
@@ -3344,10 +3364,8 @@
                 const evidence = rawEvidence && startsWithVerb && !rawEvidence.trimStart().toLowerCase().startsWith(lastName.toLowerCase())
                   ? `${lastName} ${rawEvidence.trimStart().charAt(0).toLowerCase()}${rawEvidence.trimStart().slice(1)}`
                   : rawEvidence;
-                const stance = pos === 'A' ? { label: 'Liberal position', word: 'liberal', chip: 'bg-blue-100 text-blue-700' }
-                  : pos === 'B' ? { label: 'Moderate position', word: 'moderate', chip: 'bg-purple-100 text-purple-700' }
-                  : pos === 'C' ? { label: 'Conservative position', word: 'conservative', chip: 'bg-red-100 text-red-700' }
-                  : null;
+                const phrase = (POSITION_PHRASE[issue.id] || {})[pos] || null;
+                const stance = phrase ? { label: phrase, bar: isMatch ? 'bg-emerald-600' : 'bg-slate-600' } : null;
                 const expandable = stance && posText;
                 const isOpen = !!openIssues[issue.id];
                 return (
@@ -3362,23 +3380,30 @@
                     </div>
                     <div className="flex items-center gap-2">
                       {stance ? (
-                        <span className={`inline-flex items-center gap-1.5 text-[11px] lg:text-xs font-bold uppercase tracking-wide px-2.5 py-1 rounded-full ${stance.chip}`}>
-                          {stance.label}
-                          {expandable && (
-                            <button
-                              onClick={e => { e.stopPropagation(); setOpenIssues(o => ({...o, [issue.id]: !o[issue.id]})); }}
-                              className={`w-4 h-4 rounded-full flex items-center justify-center leading-none font-black text-[10px] flex-shrink-0 transition-all ${isOpen ? 'border-2 border-slate-400 text-slate-400' : 'border-2 border-current opacity-50 hover:opacity-100'}`}
-                              title={isOpen ? 'Close definition' : 'What does this mean?'}
-                            >{isOpen ? '–' : 'i'}</button>
-                          )}
-                        </span>
+                        expandable ? (
+                          <button
+                            onClick={e => { e.stopPropagation(); setOpenIssues(o => ({...o, [issue.id]: !o[issue.id]})); }}
+                            className={`inline-flex items-center gap-2 text-xs lg:text-sm font-bold tracking-tight px-3 py-1.5 rounded-lg text-white transition-all hover:brightness-110 active:scale-[0.98] ${stance.bar}`}
+                            title={isOpen ? 'Hide details' : 'What this means'}
+                          >
+                            {stance.label}
+                            <span className="inline-flex items-center gap-1 pl-2 ml-1 border-l border-white/40 font-medium opacity-90">
+                              <span className="text-[10px]">{isOpen ? 'Hide' : 'What this means'}</span>
+                              <span className="text-[9px] leading-none">{isOpen ? '▲' : '▼'}</span>
+                            </span>
+                          </button>
+                        ) : (
+                          <span className={`inline-flex items-center text-xs lg:text-sm font-bold tracking-tight px-3 py-1.5 rounded-lg text-white ${stance.bar}`}>
+                            {stance.label}
+                          </span>
+                        )
                       ) : (
                         !evidence && <span className="text-sm text-slate-400 italic">No published position found</span>
                       )}
                     </div>
                     {isOpen && expandable && (
                       <p className="text-sm text-slate-500 italic leading-relaxed mt-2">
-                        <span className="font-semibold not-italic text-slate-400">The {stance.word} view: </span>
+                        <span className="font-semibold not-italic text-slate-400">In plain terms: </span>
                         "{posText}"
                       </p>
                     )}
