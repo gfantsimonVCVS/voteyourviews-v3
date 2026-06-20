@@ -185,10 +185,10 @@
     const SHEETS = {
       master: '1V1oaEy6ToV3LZt0et9bIWEJQbPrYZg73tDxGelhiFn8',
       counties: {
-        hays:   '1V1oaEy6ToV3LZt0et9bIWEJQbPrYZg73tDxGelhiFn8', // same sheet for now — candidates tab
-        travis: '',
-        bexar:  '',
-        harris: '',
+        hays:   { sheetId: '1V1oaEy6ToV3LZt0et9bIWEJQbPrYZg73tDxGelhiFn8', tab: 'HaysCounty' },
+        travis: { sheetId: '1V1oaEy6ToV3LZt0et9bIWEJQbPrYZg73tDxGelhiFn8', tab: 'TravisCounty' },
+        bexar:  null,
+        harris: null,
       }
     };
 
@@ -1026,7 +1026,7 @@
     }
 
     // ─── ADDRESS LOOKUP ───
-    function AddressScreen({ county, onContinue, onSkip, onBack }) {
+    function AddressScreen({ county, onCountyDetected, onContinue, onSkip, onBack }) {
       const [isSearching, setIsSearching] = useState(false);
       const [error, setError] = useState(null);
       const [districts, setDistricts] = useState(null);
@@ -1085,8 +1085,11 @@
             return;
           }
           const components = result.address_components || {};
-          if (county === 'hays' && components.county && !components.county.toLowerCase().includes('hays')) {
-            setError(`This guide covers Hays County. Your address appears to be in ${components.county}. Please enter a Hays County address.`);
+          const detectedCounty = (components.county || '').toLowerCase().replace(' county', '').trim();
+          const SUPPORTED_COUNTIES = { hays: 'hays', travis: 'travis' };
+          const matchedCounty = Object.keys(SUPPORTED_COUNTIES).find(k => detectedCounty.includes(k));
+          if (!matchedCounty) {
+            setError(`This guide currently covers Hays and Travis counties. Your address appears to be in ${components.county || 'an unsupported county'}.`);
             setIsSearching(false);
             return;
           }
@@ -1099,14 +1102,22 @@
 
           let commPrecinct = null, jpPrecinct = null;
           try {
-            const [commData, jpData] = await Promise.all([
-              fetch(`https://services5.arcgis.com/bVphnK8rPe5MHUSr/arcgis/rest/services/HaysCountyCommissionerPrecincts/FeatureServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=CommPrcnt&f=json`).then(r => r.json()).catch(() => null),
-              fetch(`https://services5.arcgis.com/bVphnK8rPe5MHUSr/arcgis/rest/services/HaysCoJusticeOfPeace/FeatureServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=PRECINCT&f=json`).then(r => r.json()).catch(() => null)
-            ]);
-            if (commData?.features?.[0]?.attributes?.CommPrcnt != null) commPrecinct = String(commData.features[0].attributes.CommPrcnt);
-            if (jpData?.features?.[0]?.attributes?.PRECINCT != null) jpPrecinct = String(jpData.features[0].attributes.PRECINCT);
+            if (matchedCounty === 'hays') {
+              const [commData, jpData] = await Promise.all([
+                fetch(`https://services5.arcgis.com/bVphnK8rPe5MHUSr/arcgis/rest/services/HaysCountyCommissionerPrecincts/FeatureServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=CommPrcnt&f=json`).then(r => r.json()).catch(() => null),
+                fetch(`https://services5.arcgis.com/bVphnK8rPe5MHUSr/arcgis/rest/services/HaysCoJusticeOfPeace/FeatureServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=PRECINCT&f=json`).then(r => r.json()).catch(() => null)
+              ]);
+              if (commData?.features?.[0]?.attributes?.CommPrcnt != null) commPrecinct = String(commData.features[0].attributes.CommPrcnt);
+              if (jpData?.features?.[0]?.attributes?.PRECINCT != null) jpPrecinct = String(jpData.features[0].attributes.PRECINCT);
+            } else if (matchedCounty === 'travis') {
+              // Travis County uses Geocodio precinct data — extract from fields
+              const precincts = fields.state_legislative_districts || {};
+              // Travis commissioner and JP precincts come from address lookup fields
+              commPrecinct = components.county_fips ? null : null; // placeholder — Travis precinct via ArcGIS TBD
+            }
           } catch(e) {}
 
+          if (onCountyDetected) onCountyDetected(matchedCounty);
           setDistricts({
             congressionalDistrict: cd ? String(cd.district_number) : null,
             stateSenate: senate ? String(senate.district_number) : null,
@@ -1292,7 +1303,9 @@
           const result = data.results && data.results[0];
           if (!result) { setError('Address not found. Try the full address with city and state.'); setIsSearching(false); return; }
           const components = result.address_components || {};
-          if (county === 'hays' && components.county && !components.county.toLowerCase().includes('hays')) {
+          const detectedCounty2 = (components.county || '').toLowerCase().replace(' county', '').trim();
+          const matchedCounty2 = ['hays', 'travis'].find(k => detectedCounty2.includes(k));
+          if (!matchedCounty2) {
             setOutOfArea(components.county || 'your area');
             setIsSearching(false); return;
           }
@@ -1304,13 +1317,16 @@
           const house = stateLeg.house && stateLeg.house[0];
           let commPrecinct = null, jpPrecinct = null;
           try {
-            const [commData, jpData] = await Promise.all([
-              fetch(`https://services5.arcgis.com/bVphnK8rPe5MHUSr/arcgis/rest/services/HaysCountyCommissionerPrecincts/FeatureServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=CommPrcnt&f=json`).then(r=>r.json()).catch(()=>null),
-              fetch(`https://services5.arcgis.com/bVphnK8rPe5MHUSr/arcgis/rest/services/HaysCoJusticeOfPeace/FeatureServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=PRECINCT&f=json`).then(r=>r.json()).catch(()=>null)
-            ]);
-            if (commData?.features?.[0]?.attributes?.CommPrcnt != null) commPrecinct = String(commData.features[0].attributes.CommPrcnt);
-            if (jpData?.features?.[0]?.attributes?.PRECINCT != null) jpPrecinct = String(jpData.features[0].attributes.PRECINCT);
+            if (matchedCounty2 === 'hays') {
+              const [commData, jpData] = await Promise.all([
+                fetch(`https://services5.arcgis.com/bVphnK8rPe5MHUSr/arcgis/rest/services/HaysCountyCommissionerPrecincts/FeatureServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=CommPrcnt&f=json`).then(r=>r.json()).catch(()=>null),
+                fetch(`https://services5.arcgis.com/bVphnK8rPe5MHUSr/arcgis/rest/services/HaysCoJusticeOfPeace/FeatureServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=PRECINCT&f=json`).then(r=>r.json()).catch(()=>null)
+              ]);
+              if (commData?.features?.[0]?.attributes?.CommPrcnt != null) commPrecinct = String(commData.features[0].attributes.CommPrcnt);
+              if (jpData?.features?.[0]?.attributes?.PRECINCT != null) jpPrecinct = String(jpData.features[0].attributes.PRECINCT);
+            }
           } catch(e) {}
+          if (onCountyDetected) onCountyDetected(matchedCounty2);
           // Skip the districts confirmation step — go straight to the ballot/results
           onContinue({ congressionalDistrict: cd ? String(cd.district_number) : null, stateSenate: senate ? String(senate.district_number) : null, stateHouse: house ? String(house.district_number) : null, commissionerPrecinct: commPrecinct, jpPrecinct: jpPrecinct });
           setIsSearching(false);
@@ -4921,9 +4937,8 @@
         setScreen('loading');
         setLoadError(null);
         try {
-          const [issueRows, statewideRows, stmtRows] = await Promise.all([
+          const [issueRows, stmtRows] = await Promise.all([
             fetchSheet(SHEETS.master, 'issues'),
-            fetchSheet(SHEETS.master, 'HaysCounty'),
             fetchSheet(SHEETS.master, 'Statements').catch(() => []),
           ]);
           if (stmtRows.length > 0) {
@@ -4940,21 +4955,18 @@
           }
           const rawIssues = buildIssues(issueRows);
           const builtIssues = [...GRID_ORDER.map(id => rawIssues.find(i => i.id === id)).filter(Boolean), ...rawIssues.filter(i => !GRID_ORDER.includes(i.id))];
-          const statewideRaces = buildRaces(statewideRows);
-
           const builtCounties = {};
           for (const [key, meta] of Object.entries(COUNTY_META)) {
-            builtCounties[key] = { ...meta, available: false, statewide: statewideRaces, local: [] };
-            const countySheetId = SHEETS.counties[key];
-            let localRaces = [];
-            if (countySheetId) {
+            builtCounties[key] = { ...meta, available: false, statewide: [], local: [] };
+            const countySheet = SHEETS.counties[key];
+            if (countySheet) {
               try {
-                const localRows = await fetchSheet(countySheetId, 'candidates');
-                localRaces = buildRaces(localRows);
+                const countyRows = await fetchSheet(countySheet.sheetId, countySheet.tab);
+                const countyRaces = buildRaces(countyRows);
+                Object.assign(builtCounties[key], buildCountyRaces([], countyRaces));
+                builtCounties[key].available = countyRaces.length > 0;
               } catch (_) {}
-              builtCounties[key].available = statewideRaces.length > 0;
             }
-            Object.assign(builtCounties[key], buildCountyRaces(statewideRaces, localRaces));
           }
 
           const patchedIssues = builtIssues.map(iss =>
@@ -5016,6 +5028,7 @@
         return (
           <AddressScreen
             county={county}
+            onCountyDetected={setCounty}
             onContinue={districts => {
               setUserDistricts(districts);
               if (pendingScreen === 'quiz') { setAnswers({}); setRanks({}); setSelected({}); }
