@@ -1297,42 +1297,68 @@
         const addr = inputRef.current?.value?.trim() || '';
         if (!addr) { setError('Please enter your street address.'); return; }
         setIsSearching(true); setError(null);
+
+        // STEP 1 — Geocode the address (its own try/catch so failures here say so honestly)
+        let result;
         try {
           const GEOCODIO_KEY = '59cc9999fb36698b393c3f1c3861cab815fb35c';
           const res = await fetch(`https://api.geocod.io/v1.9/geocode?q=${encodeURIComponent(addr)}&fields=cd120,stateleg&api_key=${GEOCODIO_KEY}`);
-          if (!res.ok) throw new Error('Lookup failed');
-          const data = await res.json();
-          const result = data.results && data.results[0];
-          if (!result) { setError('Address not found. Try the full address with city and state.'); setIsSearching(false); return; }
-          const components = result.address_components || {};
-          const detectedCounty2 = (components.county || '').toLowerCase().replace(' county', '').trim();
-          const matchedCounty2 = ['hays', 'travis'].find(k => detectedCounty2.includes(k));
-          if (!matchedCounty2) {
-            setOutOfArea(components.county || 'your area');
+          if (!res.ok) {
+            let detail = '';
+            try { const e = await res.json(); detail = e.error || ''; } catch(_) {}
+            console.error('[VYV] Geocodio HTTP', res.status, detail);
+            if (res.status === 422) { setError('That address could not be found. Please include street, city, and ZIP.'); }
+            else if (res.status === 403) { setError('Address lookup is temporarily over its limit. Please try again shortly.'); }
+            else { setError(`Address lookup failed (error ${res.status}). Please try again.`); }
             setIsSearching(false); return;
           }
-          const fields = result.fields || {};
-          const loc = result.location;
-          const cd = fields.congressional_districts && fields.congressional_districts[0];
-          const stateLeg = fields.state_legislative_districts || {};
-          const senate = stateLeg.senate && stateLeg.senate[0];
-          const house = stateLeg.house && stateLeg.house[0];
-          let commPrecinct = null, jpPrecinct = null;
-          try {
-            if (matchedCounty2 === 'hays') {
-              const [commData, jpData] = await Promise.all([
-                fetch(`https://services5.arcgis.com/bVphnK8rPe5MHUSr/arcgis/rest/services/HaysCountyCommissionerPrecincts/FeatureServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=CommPrcnt&f=json`).then(r=>r.json()).catch(()=>null),
-                fetch(`https://services5.arcgis.com/bVphnK8rPe5MHUSr/arcgis/rest/services/HaysCoJusticeOfPeace/FeatureServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=PRECINCT&f=json`).then(r=>r.json()).catch(()=>null)
-              ]);
-              if (commData?.features?.[0]?.attributes?.CommPrcnt != null) commPrecinct = String(commData.features[0].attributes.CommPrcnt);
-              if (jpData?.features?.[0]?.attributes?.PRECINCT != null) jpPrecinct = String(jpData.features[0].attributes.PRECINCT);
-            }
-          } catch(e) {}
-          if (onCountyDetected) onCountyDetected(matchedCounty2);
-          // Skip the districts confirmation step — go straight to the ballot/results
-          onContinue({ congressionalDistrict: cd ? String(cd.district_number) : null, stateSenate: senate ? String(senate.district_number) : null, stateHouse: house ? String(house.district_number) : null, commissionerPrecinct: commPrecinct, jpPrecinct: jpPrecinct });
-          setIsSearching(false);
-        } catch(err) { setError('Could not look up your address. Please try again.'); setIsSearching(false); }
+          const data = await res.json();
+          result = data.results && data.results[0];
+          if (!result) { setError('Address not found. Try the full address with city and state.'); setIsSearching(false); return; }
+        } catch (err) {
+          console.error('[VYV] Geocodio fetch threw:', err);
+          setError('Could not reach the address lookup service. Check your connection and try again.');
+          setIsSearching(false); return;
+        }
+
+        // STEP 2 — County match + district extraction (cannot fail the lookup; defaults are safe)
+        const components = result.address_components || {};
+        const detectedCounty2 = (components.county || '').toLowerCase().replace(' county', '').trim();
+        const matchedCounty2 = ['hays', 'travis'].find(k => detectedCounty2.includes(k));
+        if (!matchedCounty2) {
+          setOutOfArea(components.county || 'your area');
+          setIsSearching(false); return;
+        }
+        const fields = result.fields || {};
+        const loc = result.location || {};
+        const cd = fields.congressional_districts && fields.congressional_districts[0];
+        const stateLeg = fields.state_legislative_districts || {};
+        const senate = stateLeg.senate && stateLeg.senate[0];
+        const house = stateLeg.house && stateLeg.house[0];
+
+        // STEP 3 — Optional precinct lookup (Hays only). Never blocks the result.
+        let commPrecinct = null, jpPrecinct = null;
+        try {
+          if (matchedCounty2 === 'hays' && loc.lng != null && loc.lat != null) {
+            const [commData, jpData] = await Promise.all([
+              fetch(`https://services5.arcgis.com/bVphnK8rPe5MHUSr/arcgis/rest/services/HaysCountyCommissionerPrecincts/FeatureServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=CommPrcnt&f=json`).then(r=>r.json()).catch(()=>null),
+              fetch(`https://services5.arcgis.com/bVphnK8rPe5MHUSr/arcgis/rest/services/HaysCoJusticeOfPeace/FeatureServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=PRECINCT&f=json`).then(r=>r.json()).catch(()=>null)
+            ]);
+            if (commData?.features?.[0]?.attributes?.CommPrcnt != null) commPrecinct = String(commData.features[0].attributes.CommPrcnt);
+            if (jpData?.features?.[0]?.attributes?.PRECINCT != null) jpPrecinct = String(jpData.features[0].attributes.PRECINCT);
+          }
+        } catch(e) { console.warn('[VYV] precinct lookup skipped:', e); }
+
+        // STEP 4 — Hand off to results. Done.
+        if (onCountyDetected) onCountyDetected(matchedCounty2);
+        onContinue({
+          congressionalDistrict: cd ? String(cd.district_number) : null,
+          stateSenate: senate ? String(senate.district_number) : null,
+          stateHouse: house ? String(house.district_number) : null,
+          commissionerPrecinct: commPrecinct,
+          jpPrecinct: jpPrecinct
+        });
+        setIsSearching(false);
       }
 
       const DistrictRow = ({ label, value }) => value ? (
