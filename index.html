@@ -1042,6 +1042,7 @@
         function initAutocomplete() {
           try {
             if (!inputRef.current || !window.google?.maps?.places?.Autocomplete) return;
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') return;
             const ac = new window.google.maps.places.Autocomplete(inputRef.current, {
               types: ['address'],
               componentRestrictions: { country: 'us' },
@@ -1268,6 +1269,7 @@
         function initAutocomplete() {
           try {
             if (!inputRef.current || !window.google?.maps?.places?.Autocomplete) return;
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') return;
             const ac = new window.google.maps.places.Autocomplete(inputRef.current, {
               types: ['address'],
               componentRestrictions: { country: 'us' },
