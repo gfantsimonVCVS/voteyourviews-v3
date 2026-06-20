@@ -2723,7 +2723,7 @@
 
 
 
-    function Results({ county, counties, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onBack, onBrowse, onCompare, onAddress, onQuiz }) {
+    function Results({ county, counties, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onBack, onBrowse, onCompare, onAddress, onQuiz, onRateIssue }) {
       const countyData = counties[county];
       const [profileData, setProfileData] = React.useState(null); // { candidate, race }
       const [compareRace, setCompareRace] = React.useState(null); // race object for RaceDetail overlay
@@ -3017,7 +3017,7 @@
             }}
             isOpponent={!profileData.isBest}
             onClose={() => setProfileData(null)}
-            onRateIssue={onQuiz ? (issueId) => onQuiz(issueId, profileData.race) : undefined}
+            onRateIssue={onRateIssue}
             onCompare={profileData.race.candidates.find(c => c && c.name !== profileData.candidate.name) ? () => {
               const opponent = profileData.race.candidates.find(c => c && c.name !== profileData.candidate.name);
               setProfileData({ candidate: opponent, race: profileData.race, isBest: !profileData.isBest });
@@ -4090,7 +4090,7 @@
       );
     }
 
-    function Browse({ county, counties, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onHome, onBack = onHome, backLabel = '← Home', onQuiz, initialRace, clearInitialRace }) {
+    function Browse({ county, counties, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onHome, onBack = onHome, backLabel = '← Home', onQuiz, onRateIssue, initialRace, clearInitialRace }) {
       const countyData = counties[county];
       const [activeTab, setActiveTab] = useState('federal');
       const [expandedRaces, setExpandedRaces] = useState(new Set());
@@ -4367,7 +4367,7 @@
               checkedStatements={checkedStatements}
               ranks={ranks}
               onClose={() => setBrowseProfile(null)}
-              onRateIssue={onQuiz ? (issueId) => onQuiz(issueId, browseProfile.race) : undefined}
+              onRateIssue={onRateIssue}
               isSelected={selected[browseProfile.race.office] === browseProfile.candidate.name}
               onSelect={() => setSelected(prev => {
                 const isChosen = prev[browseProfile.race.office] === browseProfile.candidate.name;
@@ -4995,6 +4995,8 @@
         setSelected(prev => ({ ...autoSelected, ...prev }));
       }, [answers, ranks, checkedStatements, counties]);
       const [startIssueId, setStartIssueId] = useState(null);
+      const [quizReturnScreen, setQuizReturnScreen] = useState(null); // single-issue "rate this" → return here after one answer
+      const rateIssueReturn = (id, ret) => { setQuizReturnScreen(ret); setStartIssueId(id || null); setScreen('quiz'); };
       const [returnToSummary, setReturnToSummary] = useState(false);
       const [returnToRace, setReturnToRace] = useState(null);   // { office } → go back to RaceDetail after quiz
       const [initialRace, setInitialRace] = useState(null);     // passed to Browse to auto-open a race
@@ -5130,7 +5132,12 @@
                 setRanks(prev => { const n = { ...prev, [issue.id]: rank }; try { store.setItem('vyv_ranks', JSON.stringify(n)); } catch(e) {} return n; });
                 if (stmtData) setCheckedStatements(prev => { const n = { ...prev, [issue.id]: stmtData }; try { store.setItem('vyv_stmts', JSON.stringify(n)); } catch(e) {} return n; });
               }
-              if (returnToRace) {
+              if (quizReturnScreen) {
+                const ret = quizReturnScreen;
+                setQuizReturnScreen(null);
+                setStartIssueId(null);
+                setScreen(ret);
+              } else if (returnToRace) {
                 setInitialRace(returnToRace);
                 setReturnToRace(null);
                 setStartIssueId(null);
@@ -5147,6 +5154,7 @@
               }
             }}
             onBack={() => {
+              if (quizReturnScreen) { const ret = quizReturnScreen; setQuizReturnScreen(null); setStartIssueId(null); setScreen(ret); return; }
               const currentIdx = issues.findIndex(i => i.id === issue.id);
               const prevIssue = issues[currentIdx - 1];
               if (prevIssue) {
@@ -5245,6 +5253,7 @@
             onCompare={(race) => { setBrowseReturn('results'); setInitialRace(race.office); setScreen('browse'); }}
             onAddress={() => setScreen('address')}
             onQuiz={(id, race) => { setStartIssueId(id || null); if (race) setReturnToRace({ office: race.office }); setScreen('quiz'); }}
+            onRateIssue={(id) => rateIssueReturn(id, 'results')}
           />
         );
       }
@@ -5271,6 +5280,7 @@
               if (race) setReturnToRace({ office: race.office });
               setScreen('quiz');
             }}
+            onRateIssue={(id) => rateIssueReturn(id, 'browse')}
             initialRace={initialRace}
             clearInitialRace={() => setInitialRace(null)}
           />
