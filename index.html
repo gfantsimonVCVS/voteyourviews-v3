@@ -2723,7 +2723,7 @@
 
 
 
-    function Results({ county, counties, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onBack, onBrowse, onCompare, onAddress }) {
+    function Results({ county, counties, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onBack, onBrowse, onCompare, onAddress, onQuiz }) {
       const countyData = counties[county];
       const [profileData, setProfileData] = React.useState(null); // { candidate, race }
       const [compareRace, setCompareRace] = React.useState(null); // race object for RaceDetail overlay
@@ -3017,6 +3017,7 @@
             }}
             isOpponent={!profileData.isBest}
             onClose={() => setProfileData(null)}
+            onRateIssue={onQuiz ? (issueId) => onQuiz(issueId, profileData.race) : undefined}
             onCompare={profileData.race.candidates.find(c => c && c.name !== profileData.candidate.name) ? () => {
               const opponent = profileData.race.candidates.find(c => c && c.name !== profileData.candidate.name);
               setProfileData({ candidate: opponent, race: profileData.race, isBest: !profileData.isBest });
@@ -3206,7 +3207,7 @@
       );
     }
 
-    function CandidateProfile({ candidate, issues, answers, checkedStatements, ranks, onClose, onSelect, isSelected, raceName, raceCategory, onCompare, isOpponent }) {
+    function CandidateProfile({ candidate, issues, answers, checkedStatements, ranks, onClose, onSelect, isSelected, raceName, raceCategory, onCompare, isOpponent, onRateIssue }) {
       const _cs = checkedStatements || {};
       const hasAnswers = answers && Object.keys(answers).length > 0;
       const [openIssues, setOpenIssues] = useState({});
@@ -3382,7 +3383,14 @@
                       {isMatch && <span className="ml-auto text-[10px] lg:text-xs font-bold text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-full">✓ Match</span>}
                       {isMismatch && <span className="ml-auto text-[10px] lg:text-xs font-bold text-rose-500 bg-rose-100 px-1.5 py-0.5 rounded-full">✗ Differs</span>}
                       {isSplit && hasStance && <span className="ml-auto text-[10px] lg:text-xs font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-full">∼ Split</span>}
-                      {hasAnswers && !voterLean && !isSplit && <span className="ml-auto text-[10px] lg:text-xs font-bold text-slate-300 px-1.5 py-0.5 rounded-full italic">Not rated</span>}
+                      {!voterLean && !isSplit && (
+                        onRateIssue
+                          ? <button onClick={e => { e.stopPropagation(); onRateIssue(issue.id); }}
+                              className="ml-auto text-[10px] lg:text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 px-2 py-0.5 rounded-full transition-colors flex items-center gap-1 flex-shrink-0">
+                              Where do you stand? →
+                            </button>
+                          : <span className="ml-auto text-[10px] lg:text-xs font-bold text-slate-300 px-1.5 py-0.5 rounded-full italic">Not rated</span>
+                      )}
                     </div>
                     <div className="flex items-center gap-2">
                       {stance ? (
@@ -3551,6 +3559,7 @@
               checkedStatements={checkedStatements}
               ranks={ranks}
               onClose={() => setProfileCandidate(null)}
+              onRateIssue={onQuiz ? (issueId) => onQuiz(issueId) : undefined}
             />
           )}
 
@@ -4358,6 +4367,7 @@
               checkedStatements={checkedStatements}
               ranks={ranks}
               onClose={() => setBrowseProfile(null)}
+              onRateIssue={onQuiz ? (issueId) => onQuiz(issueId, browseProfile.race) : undefined}
               isSelected={selected[browseProfile.race.office] === browseProfile.candidate.name}
               onSelect={() => setSelected(prev => {
                 const isChosen = prev[browseProfile.race.office] === browseProfile.candidate.name;
@@ -5234,6 +5244,7 @@
             onBrowse={() => { setBrowseReturn('results'); setScreen('browse'); }}
             onCompare={(race) => { setBrowseReturn('results'); setInitialRace(race.office); setScreen('browse'); }}
             onAddress={() => setScreen('address')}
+            onQuiz={(id, race) => { setStartIssueId(id || null); if (race) setReturnToRace({ office: race.office }); setScreen('quiz'); }}
           />
         );
       }
