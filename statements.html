@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Statement Review — VoteYourViews.org</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #0f172a; color: #e2e8f0; }
+    h1, h2, h3 { font-family: 'Barlow Condensed', sans-serif; }
+    textarea { resize: vertical; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- Header -->
+  <div class="bg-slate-900 border-b border-slate-700 px-6 py-4 flex items-center gap-4">
+    <a href="/" class="text-slate-400 hover:text-white text-sm font-medium">← Back to App</a>
+    <div class="flex-1">
+      <h1 class="text-2xl font-black uppercase tracking-wide text-white leading-none">Statement Review</h1>
+      <p class="text-slate-400 text-xs mt-0.5">VoteYourViews.org · Internal Tool</p>
+    </div>
+  </div>
+
+  <!-- Intro -->
+  <div class="max-w-3xl mx-auto px-6 py-8">
+    <div class="bg-slate-800 border border-slate-600 rounded-xl p-5 mb-8">
+      <p class="text-slate-300 text-sm leading-relaxed">
+        These are the belief statements shown to voters in the quiz. Each statement is shown as a swipe card — voters react with <strong class="text-white">agree</strong> or <strong class="text-white">disagree</strong>. Use the form below each statement to suggest an edit. Submissions go to a review sheet for approval before any change is made to the live app.
+      </p>
+    </div>
+
+    <div id="statements-container">
+      <p class="text-slate-500 text-sm">Loading statements...</p>
+    </div>
+  </div>
+
+  <!-- Submission confirmation toast -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-sm font-semibold px-5 py-3 rounded-full shadow-xl opacity-0 transition-opacity duration-300 pointer-events-none z-50">
+    ✓ Suggestion submitted — thank you!
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script>
+    const SHEET_ID = '1V1oaEy6ToV3LZt0et9bIWEJQbPrYZg73tDxGelhiFn8';
+
+    async function loadStatements() {
+      const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Statements`;
+      try {
+        const res = await fetch(url);
+        const text = await res.text();
+        const { data } = Papa.parse(text, { header: true, skipEmptyLines: true });
+        const built = {};
+        data.forEach(r => {
+          const issue = (r.issue || '').trim();
+          const text  = (r.text  || '').trim();
+          if (issue && text) {
+            if (!built[issue]) built[issue] = [];
+            built[issue].push(text);
+          }
+        });
+        return Object.keys(built).length > 0 ? built : null;
+      } catch (_) { return null; }
+    }
+
+    // ── Google Form config ────────────────────────────────────────────────────
+    // Replace FORM_ID and entry IDs after creating your Google Form
+    // Form fields: Issue (entry.ISSUE), Statement # (entry.STMT_NUM),
+    //              Current Text (entry.CURRENT), Suggested Edit (entry.SUGGESTION),
+    //              Reason (entry.REASON)
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyq0l2PJfmQW6LbR_j-R4ooOyHP5Zvrr-RfexaTr9ugVo-F8oAFHSbI9xyQPrlhCmA/exec';
+
+    function formatDateTime(d) {
+      return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) +
+        ' · ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    }
+
+    // ── Render ────────────────────────────────────────────────────────────────
+    function render() {
+      const container = document.getElementById('statements-container');
+      container.innerHTML = '';
+
+      if (!window.ISSUE_STATEMENTS) {
+        container.innerHTML = '<p class="text-red-400 text-sm">Could not load statements from sheet. Check that the Statements tab is published to web.</p>';
+        return;
+      }
+
+      Object.entries(window.ISSUE_STATEMENTS).forEach(([topic, stmts]) => {
+        const section = document.createElement('div');
+        section.className = 'mb-12';
+
+        const heading = document.createElement('h2');
+        heading.className = 'text-2xl font-black uppercase tracking-widest text-white mb-4 pb-2 border-b border-slate-700';
+        heading.textContent = topic;
+        section.appendChild(heading);
+
+        stmts.forEach((text, idx) => {
+          const card = document.createElement('div');
+          card.className = 'bg-slate-800 border border-slate-700 rounded-xl p-5 mb-4';
+
+          card.innerHTML = `
+            <div class="flex gap-3 items-start mb-4">
+              <span class="shrink-0 w-6 h-6 rounded-full bg-slate-600 text-slate-300 text-xs font-black flex items-center justify-center">${idx + 1}</span>
+              <p class="text-white text-sm leading-relaxed">${text}</p>
+            </div>
+            <details class="group">
+              <summary class="cursor-pointer text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-blue-400 transition-colors list-none flex items-center gap-1">
+                <span class="group-open:hidden">▶ Suggest an edit</span>
+                <span class="hidden group-open:inline">▼ Suggest an edit</span>
+              </summary>
+              <form class="mt-4 space-y-3 suggest-form"
+                    data-issue="${topic}"
+                    data-stmt="${idx + 1}"
+                    data-current="${text.replace(/"/g, '&quot;')}">
+                <div>
+                  <label class="block text-xs font-bold text-slate-400 uppercase tracking-wide mb-1">Your suggested edit</label>
+                  <textarea name="suggestion" rows="3"
+                    class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                    placeholder="Paste the full revised statement here…"></textarea>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-400 uppercase tracking-wide mb-1">Reason / notes (optional)</label>
+                  <textarea name="reason" rows="2"
+                    class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                    placeholder="Why this change? Any context?"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wide mb-1">Your name</label>
+                    <input type="text" name="submitter_name"
+                      class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                      placeholder="First Last" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wide mb-1">Email</label>
+                    <input type="email" name="submitter_email"
+                      class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                      placeholder="you@example.com" />
+                  </div>
+                </div>
+                <button type="submit"
+                  class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-black uppercase tracking-widest px-4 py-2 rounded-lg transition-colors">
+                  Submit Suggestion
+                </button>
+              </form>
+            </details>
+          `;
+
+          section.appendChild(card);
+        });
+
+        container.appendChild(section);
+      });
+
+      // Attach submit handlers
+      document.querySelectorAll('.suggest-form').forEach(form => {
+        form.addEventListener('submit', handleSubmit);
+      });
+    }
+
+    function handleSubmit(e) {
+      e.preventDefault();
+      const form = e.target;
+      const issue      = form.dataset.issue;
+      const stmtNum    = form.dataset.stmt;
+      const current    = form.dataset.current;
+      const suggestion = form.querySelector('[name="suggestion"]').value.trim();
+      const reason     = form.querySelector('[name="reason"]').value.trim();
+      const name       = form.querySelector('[name="submitter_name"]').value.trim();
+      const email      = form.querySelector('[name="submitter_email"]').value.trim();
+
+      if (!suggestion) {
+        alert('Please enter your suggested edit before submitting.');
+        return;
+      }
+
+      const btn = form.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.textContent = 'Submitting…';
+
+      const params = new URLSearchParams({
+        issue,
+        stmtNum:     `Statement ${stmtNum}`,
+        currentText: current,
+        suggestion,
+        reason,
+        name,
+        email,
+        submitted:   formatDateTime(new Date()),
+      });
+
+      fetch(`${APPS_SCRIPT_URL}?${params.toString()}`, { mode: 'no-cors' })
+        .catch(() => {})
+        .finally(() => {
+          btn.disabled = false;
+          btn.textContent = 'Submit Suggestion';
+          form.reset();
+          form.closest('details').removeAttribute('open');
+          showToast();
+        });
+    }
+
+    function showToast() {
+      const toast = document.getElementById('toast');
+      toast.style.opacity = '1';
+      setTimeout(() => { toast.style.opacity = '0'; }, 3000);
+    }
+
+    loadStatements().then(data => {
+      window.ISSUE_STATEMENTS = data;
+      render();
+    });
+  </script>
+</body>
+</html>
