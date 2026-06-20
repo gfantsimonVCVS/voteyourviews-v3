@@ -892,7 +892,13 @@
       answered.forEach(id => {
         const importance = (ranks && ranks[id]) ? ranks[id] : 5;
         const stmtData = checkedStatements && checkedStatements[id];
-        const candPos = candidate.positions[id];
+        // Normalize new Agree/Disagree/Unknown data to a lean letter via the issue's voice,
+        // so match scoring works for both old (A/B/C) and new candidates.
+        const voiceForId = ISSUE_VOICE[id] || 'LEFT';
+        let candPos = candidate.positions[id];
+        if (candPos === 'Agree') candPos = voiceForId === 'RIGHT' ? 'C' : 'A';
+        else if (candPos === 'Disagree') candPos = voiceForId === 'RIGHT' ? 'A' : 'C';
+        else if (candPos === 'Unknown') candPos = null;
 
         if (stmtData && stmtData.reactions) {
           // V2: reactions-based scoring
