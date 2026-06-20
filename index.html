@@ -1226,7 +1226,7 @@
     }
 
     // ─── ADDRESS MODAL ───
-    function AddressModal({ county, onContinue, onClose, onShowAll, accentColor, accentColorDark }) {
+    function AddressModal({ county, onContinue, onClose, onShowAll, onCountyDetected, accentColor, accentColorDark }) {
       const btnColor = accentColor || '#2563eb';
       const btnColorDark = accentColorDark || btnColor;
       const [isSearching, setIsSearching] = useState(false);
@@ -5043,6 +5043,7 @@
               county={county}
               accentColor="#3b82f6"
               accentColorDark="#1d4ed8"
+              onCountyDetected={setCounty}
               onClose={() => setAddrModal(null)}
               onContinue={(districts) => { const dest = addrModal; setUserDistricts(districts); setAddrModal(null); setScreen(dest); }}
               onShowAll={() => { const dest = addrModal; setAddrModal(null); setScreen(dest); }}
@@ -5143,6 +5144,7 @@
               county={county}
               accentColor="#3b82f6"
               accentColorDark="#1d4ed8"
+              onCountyDetected={setCounty}
               onClose={() => setAddrModal(null)}
               onContinue={(districts) => { const dest = addrModal; setUserDistricts(districts); setAddrModal(null); setScreen(dest); }}
               onShowAll={() => { const dest = addrModal; setAddrModal(null); setScreen(dest); }}
