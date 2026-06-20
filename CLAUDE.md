@@ -87,6 +87,25 @@ Values: `A` (liberal), `B` (moderate), `C` (conservative), `D` (no position/n/a)
 - No build step — Netlify just serves `index.html` as static
 - Icons folder must be committed to git (not gitignored)
 
+## API Keys (NEVER LOSE THESE)
+- **Democracy Works Elections API**
+  - Key: `7ya5QclfLmVay7rTfmyD9BntG0ZSvEb4ZII3q3f5`
+  - Header: `x-api-key` (lowercase, required)
+  - Endpoint: `https://api.democracy.works/v2/elections`
+  - Required params: `addressStreet`, `addressCity`, `addressStateCode`, `addressZip`, `startDate`, `includeBallotData=true`
+  - Working curl: `curl "https://api.democracy.works/v2/elections?addressStreet=14360+Falcon+Head+Blvd&addressCity=Bee+Cave&addressStateCode=TX&addressZip=78738&startDate=2026-06-01&includeBallotData=true" --header "x-api-key: 7ya5QclfLmVay7rTfmyD9BntG0ZSvEb4ZII3q3f5"`
+  - Returns: `data.elections[].contests[].candidates[]` with `fullName`, `partyAffiliation[]`, `contact.campaign.website`, `ballotpediaUrl`
+- **Geocodio API**: `59cc9999fb36698b393c3f1c3861cab815fb35c`
+- **Google Sheets Service Account**: `/Users/ginafant-simon/Downloads/State Over Party V3/voteyourviews-db39fac73eed.json`
+- **Sheet ID**: `1V1oaEy6ToV3LZt0et9bIWEJQbPrYZg73tDxGelhiFn8`
+
+## Engineering Standards (REQUIRED)
+- **Renames must be complete — no band-aids, no aliases.** When you rename an issue name, `id`, icon, field, or column, change it across EVERY layer in the same edit: all code references (ids, `ISSUE_KEYS`/`GRID_ORDER`/`POS_*`/`ISSUE_VOICE`/`POSITION_PHRASE`, match logic), the Google Sheet column headers + data, AND the asset filename. Then load the app and confirm it renders.
+  - **Never** override the old name at runtime (e.g. `iss.id === 'moneyInPolitics' ? {...iss, topic: 'Election Integrity'} : iss`).
+  - **Never** add a compatibility alias for old names (e.g. `ID_ALIASES = { democracy: 'moneyInPolitics' }`) — delete the old name everywhere instead.
+  - **Never** leave an icon `src`, column, or key pointing at a file/field that was renamed or deleted.
+  - Before calling a rename done: `grep` the whole file for the old id/name and confirm zero stragglers.
+
 ## Important Notes
 - **Token cost warning:** index.html is large (3,244 lines). Read in sections, not all at once.
 - The app has NO backend — everything runs in the browser

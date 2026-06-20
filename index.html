@@ -194,7 +194,7 @@
 
     const POSITION_KEYS = [
       'reproductiveRights','immigration','gunPolicy','education',
-      'healthcare','climate','moneyInPolitics','socialSecurity','affordability'
+      'healthcare','climate','electionIntegrity','socialSecurity','affordability'
     ];
 
     // ─── CHALLENGE ENCODE / DECODE ───
@@ -246,11 +246,8 @@
     }
 
     function buildIssues(rows) {
-      // Legacy ID renames — sheet may still use old IDs
-      const ID_ALIASES = { democracy: 'moneyInPolitics', water: 'affordability' };
       return rows.map(row => {
-        const rawId = row.id || row.ID;
-        const id = ID_ALIASES[rawId] || rawId;
+        const id = row.id || row.ID;
         const builtin = ISSUES.find(i => i.id === id) || {};
         const pick = (sheetVal, fallback) => (sheetVal && !sheetVal.endsWith('…')) ? sheetVal : fallback;
         return {
@@ -456,8 +453,8 @@
         hoverDesc: 'Texas is the nation\'s top producer of oil, gas, wind, and solar energy — energy is central to the Texas economy and identity. The 2021 winter storm killed 246 Texans and caused $130B+ in damages, exposing critical grid vulnerabilities. Climate-driven extremes — heat, drought, and floods — increasingly threaten Texas agriculture and infrastructure. How Texas balances energy production with climate risk is a defining question for its future.',
       },
       {
-        id: 'moneyInPolitics',
-        icon: 'democracy',
+        id: 'electionIntegrity',
+        icon: 'electionIntegrity',
         symbol: 'Election_Integrity_Symbol',
         topic: 'Election Integrity',
         emphasis: 'election integrity and voting rights',
@@ -510,7 +507,7 @@
     // Row 1: reproductiveRights | education(TX) | immigration
     // Row 2: gunPolicy | democracy | healthcare(TX)
     // Row 3: climate(TX) | socialSecurity | affordability
-    const GRID_ORDER = ['reproductiveRights','immigration','affordability','education','moneyInPolitics','healthcare','socialSecurity','gunPolicy','climate'];
+    const GRID_ORDER = ['reproductiveRights','immigration','affordability','education','electionIntegrity','healthcare','socialSecurity','gunPolicy','climate'];
     const ISSUES = GRID_ORDER.map(id => ISSUES_RAW.find(i => i.id === id)).filter(Boolean);
 
     // ─────────────────────────────────────────────
@@ -519,8 +516,8 @@
     // Democratic nominees reflect May 2026 primary runoff winners (pending certification).
     // Republican nominees reflect 2026 primary winners.
     // ─────────────────────────────────────────────
-    const POS_D = { reproductiveRights: 'A', immigration: 'A', gunPolicy: 'A', education: 'A', healthcare: 'A', climate: 'A', moneyInPolitics: 'A', socialSecurity: 'A', affordability: 'A' };
-    const POS_R = { reproductiveRights: 'C', immigration: 'C', gunPolicy: 'C', education: 'C', healthcare: 'C', climate: 'C', moneyInPolitics: 'C', socialSecurity: 'C', affordability: 'C' };
+    const POS_D = { reproductiveRights: 'A', immigration: 'A', gunPolicy: 'A', education: 'A', healthcare: 'A', climate: 'A', electionIntegrity: 'A', socialSecurity: 'A', affordability: 'A' };
+    const POS_R = { reproductiveRights: 'C', immigration: 'C', gunPolicy: 'C', education: 'C', healthcare: 'C', climate: 'C', electionIntegrity: 'C', socialSecurity: 'C', affordability: 'C' };
     const TBD_D = (summary) => ({ name: 'TBD — Democratic Nominee', party: 'D', photo: null, website: null, confirmed: false, uncontested: false, summary: summary || 'Democratic nominee to be confirmed after primary.', positions: POS_D });
     const TBD_R = (summary) => ({ name: 'TBD — Republican Nominee', party: 'R', photo: null, website: null, confirmed: false, uncontested: false, summary: summary || 'Republican nominee to be confirmed after primary.', positions: POS_R });
     const UNCONTESTED = (name, party, summary) => ({ name, party, photo: null, website: null, confirmed: true, uncontested: true, summary: summary || 'Running unopposed — no opponent filed from the other party.', positions: party === 'D' ? POS_D : POS_R });
@@ -860,7 +857,7 @@
       immigration:        'RIGHT',
       affordability:      'LEFT',
       education:          'LEFT',
-      moneyInPolitics:    'LEFT',
+      electionIntegrity:    'LEFT',
       healthcare:         'RIGHT',
       socialSecurity:     'LEFT',
       gunPolicy:          'RIGHT',
@@ -876,7 +873,7 @@
       education:          { A: 'Backs public schools',         B: 'Mixed on schools',              C: 'Backs school choice' },
       healthcare:         { A: 'Wants to expand coverage',     B: 'Mixed on healthcare',           C: 'Favors free-market care' },
       climate:            { A: 'Backs clean energy',           B: 'Mixed on energy',               C: 'Backs oil & gas' },
-      moneyInPolitics:    { A: 'More voting access',           B: 'Mixed on elections',            C: 'Tighter election security' },
+      electionIntegrity:    { A: 'More voting access',           B: 'Mixed on elections',            C: 'Tighter election security' },
       socialSecurity:     { A: 'Protect benefits, no cuts',    B: 'Mixed on benefits',             C: 'Open to benefit reform' },
       affordability:      { A: 'Renter & wage protections',    B: 'Mixed on affordability',        C: 'Free-market on costs' },
     };
@@ -1470,6 +1467,16 @@
                       className="w-full py-2 text-slate-400 hover:text-white text-sm font-medium transition-colors">
                       ← Try a different address
                     </button>
+                    {onShowAll && (
+                      <div className="mt-1 pt-4 border-t border-white/10 text-center">
+                        <p className="text-slate-300 text-sm font-semibold mb-2">Just exploring, or not in Hays or Travis County?</p>
+                        <button onClick={onShowAll}
+                          className="w-full py-3.5 rounded-xl text-sm font-black uppercase tracking-widest transition-all active:scale-[0.98] hover:bg-white/10"
+                          style={{background:'rgba(255,255,255,0.06)', border:'1.5px solid #fcd34d', color:'#fff', letterSpacing:'0.1em'}}>
+                          Keep Exploring →
+                        </button>
+                      </div>
+                    )}
                     <p className="text-xs text-slate-500 text-center mt-3">We'll only email you about this guide. No spam, ever.</p>
                   </>
                 )
@@ -1675,7 +1682,7 @@
               <div className="hidden lg:flex flex-col gap-2.5 mt-8 w-80">
                 {answeredCount === 0 && (
                   <div className="flex items-center gap-2">
-                    <button onClick={() => onQuiz()} className="flex-1 py-2.5 text-white font-black text-xs uppercase tracking-widest rounded-full transition-all duration-150 hover:opacity-90 active:scale-[0.97]" style={{background:'#2563eb', border:'1px solid #60a5fa', letterSpacing:'0.12em'}}>
+                    <button onClick={() => onQuiz()} className="flex-1 py-2.5 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all duration-150 hover:opacity-90 active:scale-[0.97]" style={{background:'#2563eb', border:'1px solid #60a5fa', letterSpacing:'0.12em'}}>
                       Choose Your Views →
                     </button>
                     <div className="shrink-0 w-11 h-11" />
@@ -1683,7 +1690,7 @@
                 )}
                 {answeredCount > 0 && (
                   <div className="flex items-center gap-2">
-                    <button onClick={onSummary} className="flex-1 py-2.5 text-white font-black text-xs uppercase tracking-widest rounded-full transition-all duration-150 hover:opacity-95 active:scale-[0.97]" style={{background:'#2563eb', letterSpacing:'0.12em'}}>
+                    <button onClick={onSummary} className="flex-1 py-2.5 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all duration-150 hover:opacity-95 active:scale-[0.97]" style={{background:'#2563eb', border:'1px solid #60a5fa', letterSpacing:'0.12em'}}>
                       Build My Ballot ({answeredCount}/9) →
                     </button>
                     {confirmReset ? (
@@ -1705,7 +1712,7 @@
                 )}
                 <div className="flex items-center gap-2">
                   <button onClick={() => onBrowse()} disabled={!available}
-                    className="flex-1 py-2.5 font-bold text-xs uppercase tracking-widest text-white rounded-full transition-all duration-150 hover:opacity-90 active:scale-[0.97] disabled:opacity-40"
+                    className="flex-1 py-2.5 font-bold text-xs uppercase tracking-widest text-white rounded-xl transition-all duration-150 hover:opacity-90 active:scale-[0.97] disabled:opacity-40"
                     style={{letterSpacing:'0.12em', background:'#b91c1c', border:'1px solid #ef4444'}}>
                     Compare Candidates
                   </button>
@@ -1726,11 +1733,16 @@
                     className={`group relative flex flex-col items-center gap-1 disabled:opacity-40 transition-opacity duration-200 ${hoveredIssue && hoveredIssue !== issue.id ? 'lg:opacity-50' : 'opacity-100'}`}
                   >
                     <div className="relative w-full aspect-square rounded-2xl overflow-hidden ring-1 ring-white/10 group-hover:ring-white/30 group-active:scale-95 transition-all duration-150 shadow-lg">
+                      {/* Fallback layer (revealed if the icon fails to load) */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-gradient-to-br from-blue-900 via-slate-800 to-red-900">
+                        <span className="text-3xl">🗳️</span>
+                        <span className="px-1 text-[10px] font-bold uppercase tracking-wide text-white/80 text-center leading-tight">{issue.topic}</span>
+                      </div>
                       <img
                         src={`./icons/${issue.icon || issue.id}.png`}
                         alt={issue.topic}
-                        className="w-full h-full object-cover"
-                        onError={e => { e.target.style.display='none'; e.target.parentNode.style.background='#1e293b'; }}
+                        className="relative w-full h-full object-cover"
+                        onError={e => { e.target.style.display='none'; }}
                       />
                       {answers[issue.id] && answers[issue.id] !== 'D' && (() => {
                         const dotColor = {A:'#3b82f6', B:'#a855f7', C:'#ef4444'}[answers[issue.id]] || '#3b82f6';
@@ -1761,7 +1773,7 @@
               <div className="lg:hidden flex flex-col gap-2.5 mt-2">
                 {answeredCount > 0 ? (
                   <div className="flex items-center gap-2">
-                    <button onClick={onSummary} className="flex-1 py-2.5 text-white font-black text-xs uppercase tracking-widest rounded-full transition-all duration-150 hover:opacity-90 active:scale-[0.97]" style={{background:'#2563eb', letterSpacing:'0.12em'}}>
+                    <button onClick={onSummary} className="flex-1 py-2.5 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all duration-150 hover:opacity-90 active:scale-[0.97]" style={{background:'#2563eb', border:'1px solid #60a5fa', letterSpacing:'0.12em'}}>
                       Build My Ballot ({answeredCount}/9) →
                     </button>
                     {confirmReset ? (
@@ -1783,7 +1795,7 @@
                 ) : (
                   <div className="flex items-center gap-2">
                     <button onClick={available ? () => onQuiz(null) : undefined} disabled={!available}
-                      className="flex-1 py-2.5 text-white font-black text-xs uppercase tracking-widest rounded-full transition-all duration-150 hover:opacity-90 active:scale-[0.97] disabled:opacity-40"
+                      className="flex-1 py-2.5 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all duration-150 hover:opacity-90 active:scale-[0.97] disabled:opacity-40"
                       style={{background:'#2563eb', letterSpacing:'0.12em', border:'1px solid #60a5fa'}}>
                       Choose Your Views →
                     </button>
@@ -1792,7 +1804,7 @@
                 )}
                 <div className="flex items-center gap-2">
                   <button onClick={available ? onBrowse : undefined} disabled={!available}
-                    className="flex-1 py-2.5 font-bold text-xs uppercase tracking-widest text-white rounded-full transition-all duration-150 disabled:opacity-40 hover:opacity-90 active:scale-[0.97]"
+                    className="flex-1 py-2.5 font-bold text-xs uppercase tracking-widest text-white rounded-xl transition-all duration-150 disabled:opacity-40 hover:opacity-90 active:scale-[0.97]"
                     style={{letterSpacing:'0.12em', background:'#b91c1c', border:'1px solid #ef4444'}}>
                     Compare Candidates
                   </button>
@@ -2699,6 +2711,158 @@
       );
     }
 
+    // ─── HEADER: shared category tabs + county switcher ───
+    // Monochrome glyphs (recolor with tab state) — distinct + visible at small size.
+    const CATEGORY_ICON = {
+      federal: (cls) => (
+        <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 3a3.5 3.5 0 013.5 3.5h-7A3.5 3.5 0 0112 3z"/>
+          <path d="M6 10.5h12l-2.5-4h-7l-2.5 4z"/>
+          <path d="M7 10.5v8m3.5-8v8m3.5-8v8m3-8v8"/>
+          <path d="M4.5 21h15"/>
+        </svg>
+      ),
+      state: (cls) => ( // Lone Star
+        <svg className={cls} viewBox="0 0 24 24" fill="currentColor" stroke="none">
+          <path d="M12 2l2.7 6.1 6.6.6-5 4.4 1.5 6.5L12 16.7 6.2 20.1l1.5-6.5-5-4.4 6.6-.6L12 2z"/>
+        </svg>
+      ),
+      county: (cls) => ( // civic building
+        <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 21V8l8-4 8 4v13"/>
+          <path d="M3.5 21h17"/>
+          <path d="M9.5 21v-4.5h5V21"/>
+          <path d="M8 10.5h.01M16 10.5h.01M8 13.5h.01M16 13.5h.01"/>
+        </svg>
+      ),
+      judicial: (cls) => ( // scales of justice
+        <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 4v16"/><path d="M7.5 20h9"/><path d="M5 7.5h14"/>
+          <path d="M5 7.5l-2.3 4.8a2.7 2.7 0 005.6 0L6 7.5"/>
+          <path d="M19 7.5l-2.3 4.8a2.7 2.7 0 005.6 0L20 7.5"/>
+          <circle cx="12" cy="5" r="1.4" fill="currentColor" stroke="none"/>
+        </svg>
+      ),
+    };
+
+    // Segmented control — contained group, filled active segment, high-contrast tappable inactives.
+    function CategoryTabs({ tabs, activeTab, setActiveTab, size = 'desktop' }) {
+      const isMobile = size === 'mobile';
+      return (
+        <div className={`${isMobile ? 'flex w-full' : 'inline-flex'} gap-1 p-1 rounded-xl`}
+          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)' }}>
+          {tabs.map(tab => {
+            const isActive = tab.key === activeTab;
+            return (
+              <button key={tab.key} onClick={() => setActiveTab(tab.key)}
+                className={`flex items-center justify-center gap-1.5 rounded-lg font-black uppercase transition-all duration-150 ${isMobile ? 'flex-1 py-2 text-[11px] tracking-tight' : 'px-5 py-2 text-sm tracking-widest'}`}
+                style={isActive
+                  ? { background: '#fff', color: '#0f172a', boxShadow: '0 2px 10px rgba(0,0,0,0.30)' }
+                  : { background: 'transparent', color: '#cbd5e1' }}>
+                {CATEGORY_ICON[tab.key] && CATEGORY_ICON[tab.key](isMobile ? 'w-3.5 h-3.5 shrink-0' : 'w-4 h-4 shrink-0')}
+                <span>{tab.label}</span>
+                {tab.count > 0 && <span style={{ color: isActive ? '#059669' : '#34d399' }}>·{tab.count}</span>}
+              </button>
+            );
+          })}
+        </div>
+      );
+    }
+
+    // County switcher — replaces the static "{County} Beta V1" label. Switching clears
+    // any address-narrowed districts (they belong to the prior county) and shows the new
+    // county's full slate — also lets "Keep Exploring" users flip counties freely.
+    // The prominent "{County} Candidates" banner IS the county switcher (replaces the old corner pulldown).
+    // Works in both explore mode and address ("Showing your candidates") mode. Dropdown drops below the banner.
+    function CountyBanner({ county, counties, setCounty, userDistricts, setUserDistricts, onMyCandidates }) {
+      const [open, setOpen] = useState(false);
+      const ref = useRef(null);
+      useEffect(() => {
+        if (!open) return;
+        const h = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+        document.addEventListener('mousedown', h);
+        return () => document.removeEventListener('mousedown', h);
+      }, [open]);
+
+      const entries = Object.keys(counties).map(key => {
+        const c = counties[key] || {};
+        const hasRaces = ['federal', 'state', 'county', 'judicial'].some(s => (c[s] || []).length > 0);
+        return { key, name: c.name || key, hasRaces };
+      }).sort((a, b) => (b.hasRaces - a.hasRaces) || a.name.localeCompare(b.name));
+
+      function pick(key) {
+        if (key !== county) { setCounty(key); if (setUserDistricts) setUserDistricts(null); }
+        setOpen(false);
+      }
+
+      const name = (counties[county] && counties[county].name) || 'County';
+      const chevron = <svg className={`w-4 h-4 shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth={2.6} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/></svg>;
+
+      return (
+        <div ref={ref} className="relative flex-1">
+          {userDistricts ? (
+            <div onClick={() => setOpen(o => !o)}
+              className="h-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 cursor-pointer hover:-translate-y-0.5"
+              style={{background:'linear-gradient(135deg, rgba(22,163,74,0.30), rgba(20,83,45,0.18))', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', border:'1px solid rgba(134,239,172,0.35)', boxShadow:'0 8px 22px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.18)', color:'#fff'}}>
+              <svg className="w-5 h-5 shrink-0" style={{color:'#4ade80'}} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
+              <div className="min-w-0">
+                <div className="text-[10px] font-bold uppercase tracking-widest" style={{color:'rgba(255,255,255,0.7)'}}>Showing your candidates</div>
+                <div className="text-sm font-black uppercase tracking-wide truncate">{name}</div>
+              </div>
+              {chevron}
+              <button onClick={(e) => { e.stopPropagation(); setUserDistricts(null); }} className="ml-auto text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shrink-0" style={{background:'rgba(255,255,255,0.18)', color:'#fff'}}>✕ Clear</button>
+            </div>
+          ) : (
+            <button onClick={() => setOpen(o => !o)}
+              className="w-full h-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99] text-left"
+              style={{background:'linear-gradient(135deg, rgba(37,99,235,0.22), rgba(30,58,138,0.12))', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', border:'1px solid rgba(147,197,253,0.28)', boxShadow:'0 8px 22px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.18)', color:'#fff'}}>
+              <svg className="w-5 h-5 shrink-0" style={{color:'#60a5fa'}} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
+              <div className="text-sm font-black uppercase tracking-wide truncate">{name} Candidates</div>
+              <span className="ml-auto">{chevron}</span>
+            </button>
+          )}
+          {open && (
+            <div className="absolute left-0 mt-2 z-50 w-full min-w-[240px] rounded-xl overflow-hidden"
+              style={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.14)', boxShadow: '0 12px 30px rgba(0,0,0,0.5)' }}>
+              {onMyCandidates && (
+                <button onClick={() => { onMyCandidates(); setOpen(false); }}
+                  className="w-full flex items-center gap-2.5 px-4 py-3 text-xs font-black uppercase tracking-widest text-left transition-colors"
+                  style={{ color: '#fff', background: 'linear-gradient(135deg, rgba(37,99,235,0.30), rgba(29,78,216,0.18))', borderBottom: '1px solid rgba(255,255,255,0.10)' }}>
+                  <svg className="w-4 h-4 shrink-0" style={{ color: '#60a5fa' }} fill="none" stroke="currentColor" strokeWidth={2.4} viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path strokeLinecap="round" d="M12 2v3m0 14v3m10-10h-3M5 12H2"/></svg>
+                  <span>My Candidates</span>
+                </button>
+              )}
+              <div className="px-4 pt-2.5 pb-1 text-[9px] font-bold uppercase tracking-wider" style={{ color: '#64748b' }}>Browse a county</div>
+              {entries.map(e => e.hasRaces ? (
+                <button key={e.key} onClick={() => pick(e.key)}
+                  className="w-full flex items-center justify-between gap-3 px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-colors text-left hover:bg-white/5"
+                  style={{ color: e.key === county ? '#fff' : '#cbd5e1' }}>
+                  <span>{e.name}</span>
+                  {e.key === county && <svg className="w-4 h-4 shrink-0" style={{ color: '#4ade80' }} fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>}
+                </button>
+              ) : (
+                <div key={e.key} className="flex items-center justify-between gap-3 px-4 py-2.5 text-xs font-black uppercase tracking-widest"
+                  style={{ color: '#475569' }}>
+                  <span>{e.name}</span>
+                  <span className="text-[9px] font-bold tracking-wider" style={{ color: '#64748b' }}>Soon</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Small "Beta V1" pill — moved out of the county label so the corner is a clean switcher.
+    function BetaChip() {
+      return (
+        <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0"
+          style={{ background: 'rgba(217,119,6,0.16)', color: '#f59e0b', border: '1px solid rgba(217,119,6,0.35)' }}>
+          Beta V1
+        </span>
+      );
+    }
+
     // ─── RESULTS ───
     const RACE_SECTIONS = [
       { key: 'federal',  label: 'Federal Races' },
@@ -2723,12 +2887,13 @@
 
 
 
-    function Results({ county, counties, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onBack, onBrowse, onCompare, onAddress, onQuiz, onRateIssue }) {
+    function Results({ county, counties, setCounty, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onBack, onBrowse, onCompare, onAddress, onQuiz, onRateIssue }) {
       const countyData = counties[county];
       const [profileData, setProfileData] = React.useState(null); // { candidate, race }
       const [compareRace, setCompareRace] = React.useState(null); // race object for RaceDetail overlay
       const [showFilterModal, setShowFilterModal] = React.useState(false);
       const [activeTab, setActiveTab] = React.useState('federal');
+      const [showAddr, setShowAddr] = React.useState(false);
 
       const answeredCount = Object.keys(answers).filter(id => answers[id] !== 'D').length;
 
@@ -2744,67 +2909,40 @@
         <div className="min-h-screen flex flex-col" style={{background:'linear-gradient(160deg,#1e1b4b 0%,#0f172a 60%,#0c1a2e 100%)'}}>
 
           {/* Header — matches Compare Page */}
-          <header className="sticky top-0 z-10" style={{background:'#0f172a', borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
+          <header className="sticky top-0 z-50" style={{background:'#0f172a', borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
             {/* Mobile */}
-            <div className="lg:hidden px-4 py-3.5">
-              <div className="flex items-center justify-center relative">
-                <button onClick={onBack} className="absolute left-0 text-sm font-medium flex items-center gap-1" style={{color:'#94a3b8'}}>← Back</button>
-                <div className="text-xs font-black uppercase tracking-widest" style={{color:'#64748b', letterSpacing:'0.15em'}}>{counties[county].name} <span style={{color:'#d97706'}}>Beta V1</span></div>
+            <div className="lg:hidden px-4 py-3">
+              <div className="flex items-center justify-between gap-2">
+                <button onClick={onBack} className="text-sm font-medium flex items-center gap-1 shrink-0" style={{color:'#94a3b8'}}>← Back</button>
+                <BetaChip />
               </div>
-              <div className="mt-3 flex gap-1 p-1 rounded-xl" style={{background:'#0f172a'}}>
-                {TABS.map(tab => {
-                  const isActive = tab.key === activeTab;
-                  return (
-                    <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-                      className="flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-tight transition-all duration-150"
-                      style={isActive ? {background:'#fff', color:'#0f172a', boxShadow:'0 2px 8px rgba(0,0,0,0.25)'} : {background:'transparent', color:'#94a3b8'}}>
-                      {tab.label}
-                    </button>
-                  );
-                })}
+              <div className="mt-3">
+                <CategoryTabs tabs={TABS} activeTab={activeTab} setActiveTab={setActiveTab} size="mobile" />
               </div>
             </div>
             {/* Desktop */}
             <div className="hidden lg:flex items-center h-16 px-8 relative">
-              <button onClick={onBack} className="absolute left-8 text-sm font-semibold flex items-center gap-1.5 transition-colors" style={{color:'#94a3b8'}}>← Back</button>
-              <div className="flex gap-2 mx-auto">
-                {TABS.map(tab => {
-                  const isActive = tab.key === activeTab;
-                  return (
-                    <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-                      className="px-6 py-2 rounded-full text-sm font-black uppercase tracking-widest transition-all duration-150"
-                      style={isActive ? {background:'#fff', color:'#0f172a', boxShadow:'0 2px 12px rgba(0,0,0,0.3)'} : {background:'transparent', color:'#64748b'}}>
-                      {tab.label}
-                    </button>
-                  );
-                })}
+              <div className="absolute left-8 flex items-center gap-2.5">
+                <button onClick={onBack} className="text-sm font-semibold flex items-center gap-1.5 transition-colors" style={{color:'#94a3b8'}}>← Back</button>
+                <BetaChip />
               </div>
-              <div className="absolute right-8 text-xs font-black uppercase tracking-widest" style={{color:'#64748b', letterSpacing:'0.15em'}}>{counties[county].name} <span style={{color:'#d97706'}}>Beta V1</span></div>
+              <div className="mx-auto">
+                <CategoryTabs tabs={TABS} activeTab={activeTab} setActiveTab={setActiveTab} size="desktop" />
+              </div>
             </div>
           </header>
+          {showAddr && (
+            <AddressModal county={county} accentColor="#3b82f6" accentColorDark="#1d4ed8"
+              onCountyDetected={setCounty}
+              onClose={() => setShowAddr(false)}
+              onContinue={(districts) => { setUserDistricts(districts); setShowAddr(false); }}
+              onShowAll={() => setShowAddr(false)} />
+          )}
 
           {/* 3-item action row: Address | Compare Opponents | My Ballot — frosted glass set */}
           <div className="max-w-5xl mx-auto w-full px-4 pt-3 flex flex-col sm:flex-row items-stretch gap-3">
-            {/* Dynamic county header (green "your candidates" once an address is entered) */}
-            <div className="flex-1">
-              {userDistricts ? (
-                <div className="h-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200"
-                  style={{background:'linear-gradient(135deg, rgba(22,163,74,0.30), rgba(20,83,45,0.18))', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', border:'1px solid rgba(134,239,172,0.35)', boxShadow:'0 8px 22px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.18)', color:'#fff'}}>
-                  <svg className="w-5 h-5 shrink-0" style={{color:'#4ade80'}} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
-                  <div className="min-w-0">
-                    <div className="text-[10px] font-bold uppercase tracking-widest" style={{color:'rgba(255,255,255,0.7)'}}>Showing your candidates</div>
-                    <div className="text-sm font-black uppercase tracking-wide truncate">{counties[county].name}</div>
-                  </div>
-                  <button onClick={() => setUserDistricts(null)} className="ml-auto text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shrink-0" style={{background:'rgba(255,255,255,0.18)', color:'#fff'}}>✕ Clear</button>
-                </div>
-              ) : (
-                <div className="h-full flex items-center gap-3 px-4 py-3 rounded-2xl"
-                  style={{background:'linear-gradient(135deg, rgba(37,99,235,0.22), rgba(30,58,138,0.12))', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', border:'1px solid rgba(147,197,253,0.28)', boxShadow:'0 8px 22px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.18)', color:'#fff'}}>
-                  <svg className="w-5 h-5 shrink-0" style={{color:'#60a5fa'}} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
-                  <div className="text-sm font-black uppercase tracking-wide truncate">{counties[county].name} Candidates</div>
-                </div>
-              )}
-            </div>
+            {/* County banner = county switcher (My Candidates + county list) */}
+            <CountyBanner county={county} counties={counties} setCounty={setCounty} userDistricts={userDistricts} setUserDistricts={setUserDistricts} onMyCandidates={() => setShowAddr(true)} />
             {/* Compare Opponents — frosted red glass */}
             <button onClick={onBrowse}
               className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-black text-sm uppercase tracking-widest transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
@@ -2847,7 +2985,7 @@
                     const displayCand = isOverridden ? cands.find(c => c.name === selected[race.office]) : cand;
                     const displayScore = displayCand ? calcMatch(displayCand, answers, checkedStatements, ranks) : match;
                     const partyColor = displayCand?.party === 'R' ? '#ef4444' : displayCand?.party === 'D' ? '#3b82f6' : '#a855f7';
-                    const ISSUE_KEYS = ['reproductiveRights','immigration','gunPolicy','education','healthcare','climate','moneyInPolitics','socialSecurity','affordability'];
+                    const ISSUE_KEYS = ['reproductiveRights','immigration','gunPolicy','education','healthcare','climate','electionIntegrity','socialSecurity','affordability'];
                     const isJudicialRace = race.category === 'judicial' || (displayCand && !ISSUE_KEYS.some(k => displayCand.positions?.[k] && displayCand.positions[k] !== 'D'));
 
                     const isOnBallot = selected[race.office] === displayCand?.name || (!selected[race.office] && !isOverridden && !!cand);
@@ -3124,8 +3262,8 @@
 
     // ─── BROWSE ───
     const SECTION_META = {
-      federal:  { img: './icons/Federal2.png', accent: 'from-[#0f172a] to-[#1e3a5f]' },
-      state:    { img: './icons/State2.png',   accent: 'from-[#1a1a2e] to-[#16213e]' },
+      federal:  { img: './icons/Federal.png', accent: 'from-[#0f172a] to-[#1e3a5f]' },
+      state:    { img: './icons/State.png',   accent: 'from-[#1a1a2e] to-[#16213e]' },
       county:   { img: './icons/County.png',   accent: 'from-[#1a1a2e] to-[#0f3460]' },
       judicial: { img: './icons/Judicial.png', accent: 'from-[#1a1a2e] to-[#2d1b69]' },
     };
@@ -3216,7 +3354,7 @@
       const border = candidate.party === 'D' ? 'border-blue-500' : candidate.party === 'R' ? 'border-red-500' : 'border-slate-300';
       const accentBg = candidate.party === 'D' ? 'bg-blue-800' : candidate.party === 'R' ? 'bg-red-800' : 'bg-slate-800';
       const matchScore = hasAnswers ? calcMatch(candidate, answers, _cs, ranks || {}) : null;
-      const _ISSUE_KEYS = ['reproductiveRights','immigration','gunPolicy','education','healthcare','climate','moneyInPolitics','socialSecurity','affordability'];
+      const _ISSUE_KEYS = ['reproductiveRights','immigration','gunPolicy','education','healthcare','climate','electionIntegrity','socialSecurity','affordability'];
       const isJudicialCandidate = raceCategory === 'judicial' || !_ISSUE_KEYS.some(k => candidate.positions?.[k] && candidate.positions[k] !== 'D');
       function getVoterLean(issueId) {
         const stmtData = _cs[issueId];
@@ -4090,12 +4228,13 @@
       );
     }
 
-    function Browse({ county, counties, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onHome, onBack = onHome, backLabel = '← Home', onQuiz, onRateIssue, initialRace, clearInitialRace }) {
+    function Browse({ county, counties, setCounty, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onHome, onBack = onHome, backLabel = '← Home', onQuiz, onRateIssue, initialRace, clearInitialRace }) {
       const countyData = counties[county];
       const [activeTab, setActiveTab] = useState('federal');
       const [expandedRaces, setExpandedRaces] = useState(new Set());
       const [showFilterModal, setShowFilterModal] = useState(false);
       const [browseProfile, setBrowseProfile] = useState(null); // {candidate, race}
+      const [showAddr, setShowAddr] = useState(false);
 
       const TABS = [
         { key: 'federal',  label: 'Federal' },
@@ -4126,87 +4265,50 @@
 
       const races = filterRacesByDistrict(countyData[activeTab] || [], userDistricts);
       const selectedCount = Object.keys(selected).length;
+      const tabsWithCounts = TABS.map(tab => {
+        const tabRaces = filterRacesByDistrict(countyData[tab.key] || [], userDistricts);
+        return { ...tab, count: tabRaces.filter(r => selected[r.office]).length };
+      });
       const [showHeaderDrop, setShowHeaderDrop] = useState(false);
 
       return (
         <div className="min-h-screen" style={{background:'linear-gradient(160deg,#1e1b4b 0%,#0f172a 60%,#0c1a2e 100%)'}}>
           {/* Header */}
-          <header className="sticky top-0 z-10" style={{background:'#0f172a', borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
+          <header className="sticky top-0 z-50" style={{background:'#0f172a', borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
             {/* Mobile: stacked layout */}
-            <div className="lg:hidden px-4 py-3.5">
-              <div className="flex items-center justify-center relative">
-                <button onClick={onBack} className="absolute left-0 text-sm text-slate-400 hover:text-white font-medium flex items-center gap-1 transition-colors">{backLabel}</button>
-                <div className="text-xs font-black uppercase tracking-widest text-slate-400" style={{letterSpacing:'0.15em'}}>{counties[county].name} <span style={{color:'#d97706'}}>Beta V1</span></div>
+            <div className="lg:hidden px-4 py-3">
+              <div className="flex items-center justify-between gap-2">
+                <button onClick={onBack} className="text-sm text-slate-400 hover:text-white font-medium flex items-center gap-1 transition-colors shrink-0">{backLabel}</button>
+                <BetaChip />
               </div>
-              <div className="mt-3 flex gap-1 p-1 rounded-xl" style={{background:'#0f172a'}}>
-                {TABS.map(tab => {
-                  const isActive = tab.key === activeTab;
-                  const tabRaces = filterRacesByDistrict(countyData[tab.key] || [], userDistricts);
-                  const tabSelected = tabRaces.filter(r => selected[r.office]).length;
-                  return (
-                    <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-                      className="flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-tight transition-all duration-150"
-                      style={isActive
-                        ? {background:'#fff', color:'#0f172a', boxShadow:'0 2px 8px rgba(0,0,0,0.25)'}
-                        : {background:'transparent', color:'#94a3b8'}}>
-                      {tab.label}
-                      {tabSelected > 0 && <span className="ml-1.5 text-emerald-400">·{tabSelected}</span>}
-                    </button>
-                  );
-                })}
+              <div className="mt-3">
+                <CategoryTabs tabs={tabsWithCounts} activeTab={activeTab} setActiveTab={setActiveTab} size="mobile" />
               </div>
             </div>
 
             {/* Desktop: single dark row */}
             <div className="hidden lg:flex items-center h-16 px-8 relative">
-              <button onClick={onBack} className="absolute left-8 text-sm text-slate-400 hover:text-white font-semibold flex items-center gap-1.5 transition-colors">{backLabel}</button>
-              <div className="flex gap-2 mx-auto">
-                {TABS.map(tab => {
-                  const isActive = tab.key === activeTab;
-                  const tabRaces = filterRacesByDistrict(countyData[tab.key] || [], userDistricts);
-                  const tabSelected = tabRaces.filter(r => selected[r.office]).length;
-                  return (
-                    <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-                      className="px-6 py-2 rounded-full text-sm font-black uppercase tracking-widest transition-all duration-150"
-                      style={isActive
-                        ? {background:'#fff', color:'#0f172a', boxShadow:'0 2px 12px rgba(0,0,0,0.3)'}
-                        : {background:'transparent', color:'#64748b'}}>
-                      {tab.label}
-                      {tabSelected > 0 && <span className="ml-1.5 text-emerald-400">·{tabSelected}</span>}
-                    </button>
-                  );
-                })}
+              <div className="absolute left-8 flex items-center gap-2.5">
+                <button onClick={onBack} className="text-sm text-slate-400 hover:text-white font-semibold flex items-center gap-1.5 transition-colors">{backLabel}</button>
+                <BetaChip />
               </div>
-              <div className="absolute right-8 text-xs font-black uppercase tracking-widest text-slate-500" style={{letterSpacing:'0.15em'}}>{counties[county].name} <span style={{color:'#d97706'}}>Beta V1</span></div>
+              <div className="mx-auto">
+                <CategoryTabs tabs={tabsWithCounts} activeTab={activeTab} setActiveTab={setActiveTab} size="desktop" />
+              </div>
             </div>
           </header>
+          {showAddr && (
+            <AddressModal county={county} accentColor="#3b82f6" accentColorDark="#1d4ed8"
+              onCountyDetected={setCounty}
+              onClose={() => setShowAddr(false)}
+              onContinue={(districts) => { setUserDistricts(districts); setShowAddr(false); }}
+              onShowAll={() => setShowAddr(false)} />
+          )}
 
           {/* County indicator + Build My Ballot — frosted glass row */}
           <div className="max-w-5xl mx-auto px-4 pt-3 flex flex-col sm:flex-row items-stretch gap-3">
-            {/* Left — dynamic county header (green "your candidates" once an address is entered) */}
-            <div className="flex-1">
-              {userDistricts ? (
-                <div className="h-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200"
-                  style={{background:'linear-gradient(135deg, rgba(22,163,74,0.30), rgba(20,83,45,0.18))', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', border:'1px solid rgba(134,239,172,0.35)', boxShadow:'0 8px 22px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.18)', color:'#fff'}}>
-                  <svg className="w-5 h-5 shrink-0" style={{color:'#4ade80'}} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
-                  <div className="min-w-0">
-                    <div className="text-[10px] font-bold uppercase tracking-widest" style={{color:'rgba(255,255,255,0.7)'}}>Showing your candidates</div>
-                    <div className="text-sm font-black uppercase tracking-wide truncate">{counties[county].name}</div>
-                  </div>
-                  <button onClick={() => setUserDistricts(null)}
-                    className="ml-auto text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full transition-all active:scale-95 shrink-0"
-                    style={{background:'rgba(255,255,255,0.18)', color:'#fff'}}>
-                    ✕ Clear
-                  </button>
-                </div>
-              ) : (
-                <div className="h-full flex items-center gap-3 px-4 py-3 rounded-2xl"
-                  style={{background:'linear-gradient(135deg, rgba(37,99,235,0.22), rgba(30,58,138,0.12))', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', border:'1px solid rgba(147,197,253,0.28)', boxShadow:'0 8px 22px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.18)', color:'#fff'}}>
-                  <svg className="w-5 h-5 shrink-0" style={{color:'#60a5fa'}} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
-                  <div className="text-sm font-black uppercase tracking-wide truncate">{counties[county].name} Candidates</div>
-                </div>
-              )}
-            </div>
+            {/* County banner = county switcher (My Candidates + county list) */}
+            <CountyBanner county={county} counties={counties} setCounty={setCounty} userDistricts={userDistricts} setUserDistricts={setUserDistricts} onMyCandidates={() => setShowAddr(true)} />
             {/* Right — Build My Ballot (frosted glass; green when races selected, blue lead otherwise) */}
             <button onClick={onBallot}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-sm uppercase tracking-widest transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
@@ -5040,10 +5142,7 @@
             }
           }
 
-          const patchedIssues = builtIssues.map(iss =>
-            iss.id === 'moneyInPolitics' ? { ...iss, topic: 'Election Integrity' } : iss
-          );
-          setIssues(patchedIssues);
+          setIssues(builtIssues);
           setCounties(builtCounties);
           setDataSource('sheets');
           setScreen(new URLSearchParams(window.location.search).get('testBallot') === '1' ? 'ballot' : 'landing');
@@ -5239,6 +5338,7 @@
           <Results
             county={county}
             counties={counties}
+            setCounty={setCounty}
             issues={issues}
             answers={answers}
             ranks={ranks}
@@ -5263,6 +5363,7 @@
           <Browse
             county={county}
             counties={counties}
+            setCounty={setCounty}
             issues={issues}
             answers={answers}
             ranks={ranks}
