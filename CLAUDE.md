@@ -106,6 +106,11 @@ Values: `A` (liberal), `B` (moderate), `C` (conservative), `D` (no position/n/a)
   - **Never** leave an icon `src`, column, or key pointing at a file/field that was renamed or deleted.
   - Before calling a rename done: `grep` the whole file for the old id/name and confirm zero stragglers.
 
+## UI / Asset Conventions
+- **Buttons:** use the canonical `BTN.std` class + a `BTN_STYLE` color variant (blue/red/green/amber/slate) for any standard button — rounded rectangle, 1px lighter border, 320px (home-page) width. Don't hand-roll `rounded-full` pills. (Legacy `BTN.primary/outline` remain only for the split "Candidates ▾" control.)
+- **Shape grammar (two families):** rounded rectangles (`rounded-xl`) = action buttons that move you forward/commit (Agree, Disagree, Next Issue, Build My Ballot, home CTAs). Pills (`rounded-full`) = small inline chips/tags/badges (BETA chip, ✓ Match / ✗ Differs badges, "Get the Facts"). Keep these consistent *within* each family; don't square off the chips.
+- **Asset filenames are case-sensitive on Netlify (Linux) but NOT on macOS.** A path that works locally can 404 in production. When referencing an asset, match the committed file's case EXACTLY (e.g. folder is `icons/Symbols/`, not `symbols/`). For NEW assets, prefer all-lowercase, hyphenated names. Do NOT mass-rename existing files — candidate photos are referenced by exact filename from the Google Sheet `photo` column, so renaming them breaks production images.
+
 ## Important Notes
 - **Token cost warning:** index.html is large (3,244 lines). Read in sections, not all at once.
 - The app has NO backend — everything runs in the browser

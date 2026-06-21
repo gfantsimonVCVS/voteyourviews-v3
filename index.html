@@ -169,12 +169,23 @@
     // ─────────────────────────────────────────────
     // ── Shared button styles ──────────────────────────────────────────
     const BTN = {
-      // Primary filled pill (gradient set inline per-screen)
+      // Primary filled pill (gradient set inline per-screen) — legacy, used by the split "Candidates ▾" control
       primary: "py-2.5 px-8 rounded-full font-black text-xs uppercase tracking-widest text-white transition-all duration-150 hover:opacity-90 active:scale-[0.97]",
-      // Outlined pill
+      // Outlined pill — legacy
       outline: "py-2.5 px-8 rounded-full font-black text-xs uppercase tracking-widest transition-all duration-150 hover:opacity-90 active:scale-[0.97]",
       // Wrapper: centers & constrains width
       wrap: "w-72 mx-auto",
+      // ▶ CANONICAL standard button — use this for any new/standard button.
+      //   Rounded rectangle, 320px (home-page width), uppercase bold. Pair with a BTN_STYLE color.
+      std: "w-full max-w-xs mx-auto py-3 rounded-xl font-black text-sm uppercase tracking-widest text-white text-center transition-all duration-150 hover:brightness-110 active:scale-[0.98] disabled:opacity-40",
+    };
+    // Color variants for BTN.std — fill + matching lighter border.
+    const BTN_STYLE = {
+      blue:  { background: '#2563eb', border: '1px solid #60a5fa', letterSpacing: '0.1em' },
+      red:   { background: '#b91c1c', border: '1px solid #ef4444', letterSpacing: '0.1em' },
+      green: { background: '#16a34a', border: '1px solid #4ade80', letterSpacing: '0.1em' },
+      amber: { background: '#d97706', border: '1px solid #fbbf24', letterSpacing: '0.1em' },
+      slate: { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.25)', color: 'rgba(255,255,255,0.85)', letterSpacing: '0.1em' },
     };
 
     // Mailing-list endpoint (Google Apps Script web app URL). When a voter enters
@@ -355,7 +366,7 @@
     const ISSUES_RAW = [
       {
         id: 'reproductiveRights',
-        symbol: 'Reproductive_Symbol_New',
+        symbol: 'Reproductive_Symbol',
         topic: 'Reproductive Rights',
         emphasis: 'reproductive healthcare',
         question: 'When it comes to reproductive healthcare decisions, I believe:',
@@ -2018,7 +2029,7 @@
               <div className="w-full max-w-lg rounded-2xl p-6" style={{background:'linear-gradient(160deg,#1e1b4b,#0f172a)', border:'1px solid rgba(255,255,255,0.2)'}}>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden shrink-0" style={{background:'rgba(255,255,255,0.1)'}}>
-                    <img src={`./icons/symbols/${issue.symbol}.png`} alt={issue.topic} style={{width:'80%',height:'80%',objectFit:'contain'}} onError={e=>{e.target.style.display='none'}}/>
+                    <img src={`./icons/Symbols/${issue.symbol}.png`} alt={issue.topic} style={{width:'80%',height:'80%',objectFit:'contain'}} onError={e=>{e.target.style.display='none'}}/>
                   </div>
                   <p className="text-white font-black text-base uppercase tracking-wide">{issue.topic}</p>
                 </div>
@@ -2045,7 +2056,7 @@
               <>
                 {/* Issue header — icon + title */}
                 <div className="w-full flex items-center gap-4 px-1 py-3">
-                  <img src={`./icons/symbols/${issue.symbol}.png`} alt={issue.topic}
+                  <img src={`./icons/Symbols/${issue.symbol}.png`} alt={issue.topic}
                     style={{width:'70px', height:'70px', objectFit:'contain', flexShrink:0}}
                     onError={e => { e.target.style.display='none'; }} />
                   <div className="flex-1">
@@ -2130,27 +2141,27 @@
                             )}
                             {/* Mobile buttons */}
                             <div className="flex gap-2 justify-center lg:hidden">
-                              <button onClick={() => react('up')} className="flex items-center justify-center gap-1.5 rounded-full font-black text-xs uppercase tracking-widest text-white transition-all hover:brightness-125 active:scale-95" style={{width:'42.5%', height:'38px', background:'#16a34a', border:'1px solid #4ade80', opacity: 1, boxShadow: r === 'up' ? '0 0 0 3px rgba(255,255,255,0.95)' : 'none', letterSpacing:'0.1em'}}>
+                              <button onClick={() => react('up')} className="flex items-center justify-center gap-1.5 rounded-xl font-black text-xs uppercase tracking-widest text-white transition-all hover:brightness-125 active:scale-95" style={{width:'42.5%', height:'38px', background:'#16a34a', border:'1px solid #4ade80', opacity: 1, boxShadow: r === 'up' ? '0 0 0 3px rgba(255,255,255,0.95)' : 'none', letterSpacing:'0.1em'}}>
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)"><path d="M2 20h2c.55 0 1-.45 1-1v-9c0-.55-.45-1-1-1H2v11zm19.83-7.12c.11-.25.17-.52.17-.88v-2c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 2 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01.84.61z"/></svg>
                                 Agree
                               </button>
-                              <button onClick={() => react('down')} className="flex items-center justify-center gap-1.5 rounded-full font-black text-xs uppercase tracking-widest text-white transition-all hover:brightness-125 active:scale-95" style={{width:'42.5%', height:'38px', background:'#b91c1c', border:'1px solid #ef4444', opacity: 1, boxShadow: r === 'down' ? '0 0 0 3px rgba(255,255,255,0.95)' : 'none', letterSpacing:'0.1em'}}>
+                              <button onClick={() => react('down')} className="flex items-center justify-center gap-1.5 rounded-xl font-black text-xs uppercase tracking-widest text-white transition-all hover:brightness-125 active:scale-95" style={{width:'42.5%', height:'38px', background:'#b91c1c', border:'1px solid #ef4444', opacity: 1, boxShadow: r === 'down' ? '0 0 0 3px rgba(255,255,255,0.95)' : 'none', letterSpacing:'0.1em'}}>
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)"><path d="M22 4h-2c-.55 0-1 .45-1 1v9c0 .55.45 1 1 1h2V4zM2.17 11.12c-.11.25-.17.52-.17.88v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L10.83 22l5.59-5.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2H6c-.83 0-1.54.5-1.84 1.22L1.14 13.27c-.09.23-.14.47-.14.73v1.91l.01.01-.84-.6z"/></svg>
                                 Disagree
                               </button>
                             </div>
                             {/* Desktop buttons */}
                             <div className="hidden lg:flex flex-col gap-2 shrink-0 items-center">
-                              <button onClick={() => react('up')} className="flex items-center justify-center gap-1.5 rounded-full font-black text-xs uppercase tracking-widest text-white transition-all hover:brightness-125 active:scale-95" style={{width:'148px', height:'38px', background:'#16a34a', border:'1px solid #4ade80', opacity: 1, boxShadow: r === 'up' ? '0 0 0 3px rgba(255,255,255,0.95)' : 'none', letterSpacing:'0.1em'}}>
+                              <button onClick={() => react('up')} className="flex items-center justify-center gap-1.5 rounded-xl font-black text-xs uppercase tracking-widest text-white transition-all hover:brightness-125 active:scale-95" style={{width:'148px', height:'38px', background:'#16a34a', border:'1px solid #4ade80', opacity: 1, boxShadow: r === 'up' ? '0 0 0 3px rgba(255,255,255,0.95)' : 'none', letterSpacing:'0.1em'}}>
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)"><path d="M2 20h2c.55 0 1-.45 1-1v-9c0-.55-.45-1-1-1H2v11zm19.83-7.12c.11-.25.17-.52.17-.88v-2c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 2 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01.84.61z"/></svg>
                                 Agree
                               </button>
-                              <button onClick={() => react('down')} className="flex items-center justify-center gap-1.5 rounded-full font-black text-xs uppercase tracking-widest text-white transition-all hover:brightness-125 active:scale-95" style={{width:'148px', height:'38px', background:'#b91c1c', border:'1px solid #ef4444', opacity: 1, boxShadow: r === 'down' ? '0 0 0 3px rgba(255,255,255,0.95)' : 'none', letterSpacing:'0.1em'}}>
+                              <button onClick={() => react('down')} className="flex items-center justify-center gap-1.5 rounded-xl font-black text-xs uppercase tracking-widest text-white transition-all hover:brightness-125 active:scale-95" style={{width:'148px', height:'38px', background:'#b91c1c', border:'1px solid #ef4444', opacity: 1, boxShadow: r === 'down' ? '0 0 0 3px rgba(255,255,255,0.95)' : 'none', letterSpacing:'0.1em'}}>
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)"><path d="M22 4h-2c-.55 0-1 .45-1 1v9c0 .55.45 1 1 1h2V4zM2.17 11.12c-.11.25-.17.52-.17.88v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L10.83 22l5.59-5.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2H6c-.83 0-1.54.5-1.84 1.22L1.14 13.27c-.09.23-.14.47-.14.73v1.91l.01.01-.84-.6z"/></svg>
                                 Disagree
                               </button>
                               <button onClick={skipCard}
-                                className="mt-1 text-[11px] font-black uppercase tracking-widest transition-all active:scale-95 px-4 py-1.5 rounded-full hover:border-white hover:text-white"
+                                className="mt-1 text-[11px] font-black uppercase tracking-widest transition-all active:scale-95 px-4 py-1.5 rounded-xl hover:border-white hover:text-white"
                                 style={{color: skippedSet[cardIndex] ? '#fff' : 'rgba(255,255,255,0.5)', border: skippedSet[cardIndex] ? '1px solid rgba(255,255,255,0.9)' : '1px solid rgba(255,255,255,0.2)', boxShadow: skippedSet[cardIndex] ? '0 0 0 1px rgba(255,255,255,0.4)' : 'none', letterSpacing:'0.08em'}}>
                                 No Opinion
                               </button>
@@ -2164,17 +2175,13 @@
 
                 {/* Build My Ballot shortcut */}
                 {Object.keys(answers).length > 0 && onSummary && (
-                  <button onClick={onSummary}
-                    className="mt-2 w-full lg:w-96 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all hover:opacity-90 active:scale-95 lg:self-center"
-                    style={{background:'#2563eb', border:'1px solid #60a5fa', color:'#fff', letterSpacing:'0.1em'}}>
+                  <button onClick={onSummary} className={`mt-2 ${BTN.std}`} style={BTN_STYLE.blue}>
                     Build My Ballot ({Object.keys(answers).length}/9) →
                   </button>
                 )}
 
                 {/* Skip entire issue */}
-                <button onClick={handleSkip}
-                  className="mt-2 mb-4 w-full lg:w-96 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all hover:border-white hover:text-white active:scale-95 lg:self-center"
-                  style={{color:'rgba(255,255,255,0.5)', border:'1px solid rgba(255,255,255,0.2)', letterSpacing:'0.1em'}}>
+                <button onClick={handleSkip} className={`mt-2 mb-4 ${BTN.std}`} style={BTN_STYLE.slate}>
                   Skip This Issue
                 </button>
               </>
@@ -2183,7 +2190,7 @@
               <div className="w-full max-w-xl mx-auto flex flex-col gap-3 py-2 fade-in">
                 {/* Issue header */}
                 <div className="w-full flex items-center gap-4 px-1 pb-1">
-                  <img src={`./icons/symbols/${issue.symbol}.png`} alt={issue.topic}
+                  <img src={`./icons/Symbols/${issue.symbol}.png`} alt={issue.topic}
                     style={{width:'56px', height:'56px', objectFit:'contain', flexShrink:0}}
                     onError={e => { e.target.style.display='none'; }} />
                   <div className="flex-1">
@@ -2241,17 +2248,13 @@
                 </div>
 
                 {rank && (
-                  <button onClick={handleSave}
-                    className="w-full lg:w-96 lg:self-center py-4 rounded-full text-sm font-black text-white uppercase tracking-widest transition-all hover:opacity-90"
-                    style={{background:`linear-gradient(90deg,#b45309,${ACCENT})`, letterSpacing:'0.12em'}}>
+                  <button onClick={handleSave} className={BTN.std} style={BTN_STYLE.amber}>
                     Next Issue →
                   </button>
                 )}
 
                 {Object.keys(answers).length > 0 && onSummary && (
-                  <button onClick={onSummary}
-                    className="w-full lg:w-96 lg:self-center py-3 rounded-full text-xs font-black uppercase tracking-widest transition-all hover:opacity-90 active:scale-95"
-                    style={{background:'#2563eb', color:'#fff', letterSpacing:'0.1em'}}>
+                  <button onClick={onSummary} className={BTN.std} style={BTN_STYLE.blue}>
                     Build My Ballot ({Object.keys(answers).length}/9) →
                   </button>
                 )}
@@ -2378,7 +2381,7 @@
                         <div className="w-full px-3 pt-3 flex-shrink-0">
                           <div className="w-full" style={{height:'85px', display:'flex', alignItems:'center', justifyContent:'center'}}>
                             <img
-                              src={`./icons/symbols/${issue.symbol}.png`}
+                              src={`./icons/Symbols/${issue.symbol}.png`}
                               alt={issue.topic}
                               style={{maxWidth:'90%', maxHeight:'85px', objectFit:'contain'}}
                               onError={e => { e.target.style.display='none'; }}
@@ -2903,9 +2906,13 @@
 
 
 
-    function Results({ county, counties, setCounty, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onBack, onBrowse, onCompare, onAddress, onQuiz, onRateIssue }) {
+    function Results({ county, counties, setCounty, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onBack, onBrowse, onCompare, onAddress, onQuiz, onRateIssue, initialProfile, clearInitialProfile }) {
       const countyData = counties[county];
       const [profileData, setProfileData] = React.useState(null); // { candidate, race }
+      // Reopen the candidate profile after returning from a single-issue "rate this" quiz.
+      React.useEffect(() => {
+        if (initialProfile) { setProfileData(initialProfile); clearInitialProfile?.(); }
+      }, [initialProfile]);
       const [compareRace, setCompareRace] = React.useState(null); // race object for RaceDetail overlay
       const [showFilterModal, setShowFilterModal] = React.useState(false);
       const [activeTab, setActiveTab] = React.useState('federal');
@@ -3171,7 +3178,7 @@
             }}
             isOpponent={!profileData.isBest}
             onClose={() => setProfileData(null)}
-            onRateIssue={onRateIssue}
+            onRateIssue={onRateIssue ? (id) => onRateIssue(id, profileData) : undefined}
             onCompare={profileData.race.candidates.find(c => c && c.name !== profileData.candidate.name) ? () => {
               const opponent = profileData.race.candidates.find(c => c && c.name !== profileData.candidate.name);
               setProfileData({ candidate: opponent, race: profileData.race, isBest: !profileData.isBest });
@@ -3531,42 +3538,47 @@
                 const isOpen = !!openIssues[issue.id];
                 return (
                   <div key={issue.id} className={`px-5 lg:px-6 py-3 lg:py-4 border-b border-slate-100 ${isMatch ? 'bg-emerald-50' : isMismatch ? 'bg-rose-50' : isSplit ? 'bg-slate-50' : ''}`}>
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${POS_DOT[pos] || 'bg-slate-300'}`} />
-                      <span className="text-[11px] lg:text-xs font-black text-slate-500 uppercase tracking-wider">{issue.topic}</span>
-                      {isMatch && <span className="ml-auto text-[10px] lg:text-xs font-bold text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-full">✓ Match</span>}
-                      {isMismatch && <span className="ml-auto text-[10px] lg:text-xs font-bold text-rose-500 bg-rose-100 px-1.5 py-0.5 rounded-full">✗ Differs</span>}
+                    <div className="flex items-center gap-2">
+                      {/* Issue title sits in the colored box; box color conveys match/neutral, expander reveals the candidate's stance */}
+                      {expandable ? (
+                        <button
+                          onClick={e => { e.stopPropagation(); setOpenIssues(o => ({...o, [issue.id]: !o[issue.id]})); }}
+                          className={`inline-flex items-center gap-2 text-xs lg:text-sm font-black uppercase tracking-wide px-3 py-1.5 rounded-lg text-white transition-all hover:brightness-110 active:scale-[0.98] ${stance.bar}`}
+                          title={isOpen ? 'Hide details' : 'What this means'}
+                        >
+                          {issue.topic}
+                          <span className="inline-flex items-center gap-1 pl-2 ml-1 border-l border-white/40 font-medium opacity-90 normal-case">
+                            <span className="text-[10px]">{isOpen ? 'Hide' : 'What this means'}</span>
+                            <span className="text-[9px] leading-none">{isOpen ? '▲' : '▼'}</span>
+                          </span>
+                        </button>
+                      ) : (
+                        <span className={`inline-flex items-center text-xs lg:text-sm font-black uppercase tracking-wide px-3 py-1.5 rounded-lg text-white ${stance ? stance.bar : 'bg-slate-400'}`}>
+                          {issue.topic}
+                        </span>
+                      )}
+                      {isMatch && (onRateIssue
+                        ? <button onClick={e => { e.stopPropagation(); onRateIssue(issue.id); }}
+                            className="ml-auto text-[10px] lg:text-xs font-bold text-emerald-700 bg-emerald-100 hover:bg-emerald-200 px-2 py-0.5 rounded-full transition-colors flex items-center gap-1 flex-shrink-0">
+                            ✓ Match →
+                          </button>
+                        : <span className="ml-auto text-[10px] lg:text-xs font-bold text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-full">✓ Match</span>
+                      )}
+                      {isMismatch && (onRateIssue
+                        ? <button onClick={e => { e.stopPropagation(); onRateIssue(issue.id); }}
+                            className="ml-auto text-[10px] lg:text-xs font-bold text-rose-600 bg-rose-100 hover:bg-rose-200 px-2 py-0.5 rounded-full transition-colors flex items-center gap-1 flex-shrink-0">
+                            ✗ Differs →
+                          </button>
+                        : <span className="ml-auto text-[10px] lg:text-xs font-bold text-rose-500 bg-rose-100 px-1.5 py-0.5 rounded-full">✗ Differs</span>
+                      )}
                       {isSplit && hasStance && <span className="ml-auto text-[10px] lg:text-xs font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-full">∼ Split</span>}
                       {!voterLean && !isSplit && (
                         onRateIssue
                           ? <button onClick={e => { e.stopPropagation(); onRateIssue(issue.id); }}
-                              className="ml-auto text-[10px] lg:text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 px-2 py-0.5 rounded-full transition-colors flex items-center gap-1 flex-shrink-0">
+                              className="ml-auto text-[10px] lg:text-xs font-bold text-amber-700 bg-amber-100 hover:bg-amber-200 px-2 py-0.5 rounded-full transition-colors flex items-center gap-1 flex-shrink-0">
                               Where do you stand? →
                             </button>
                           : <span className="ml-auto text-[10px] lg:text-xs font-bold text-slate-300 px-1.5 py-0.5 rounded-full italic">Not rated</span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {stance ? (
-                        expandable ? (
-                          <button
-                            onClick={e => { e.stopPropagation(); setOpenIssues(o => ({...o, [issue.id]: !o[issue.id]})); }}
-                            className={`inline-flex items-center gap-2 text-xs lg:text-sm font-bold tracking-tight px-3 py-1.5 rounded-lg text-white transition-all hover:brightness-110 active:scale-[0.98] ${stance.bar}`}
-                            title={isOpen ? 'Hide details' : 'What this means'}
-                          >
-                            {stance.label}
-                            <span className="inline-flex items-center gap-1 pl-2 ml-1 border-l border-white/40 font-medium opacity-90">
-                              <span className="text-[10px]">{isOpen ? 'Hide' : 'What this means'}</span>
-                              <span className="text-[9px] leading-none">{isOpen ? '▲' : '▼'}</span>
-                            </span>
-                          </button>
-                        ) : (
-                          <span className={`inline-flex items-center text-xs lg:text-sm font-bold tracking-tight px-3 py-1.5 rounded-lg text-white ${stance.bar}`}>
-                            {stance.label}
-                          </span>
-                        )
-                      ) : (
-                        !evidence && <span className="text-sm text-slate-400 italic">No published position found</span>
                       )}
                     </div>
                     {isOpen && expandable && (
@@ -3574,6 +3586,9 @@
                         <span className="font-semibold not-italic text-slate-400">In plain terms: </span>
                         "{posText}"
                       </p>
+                    )}
+                    {!stance && !evidence && (
+                      <p className="text-sm text-slate-400 italic mt-2">No published position found</p>
                     )}
                     {evidence && (
                       <p className="text-sm text-slate-600 leading-relaxed mt-2 pl-2.5 border-l-2 border-slate-300">{evidence}</p>
@@ -3947,7 +3962,7 @@
                           {/* Issue col — large icon */}
                           <div className="w-1/4 border-r-2 border-slate-400 flex flex-col items-center justify-center gap-2 px-4 py-4 text-center">
                             <div className="w-16 h-16 rounded-2xl bg-slate-800 flex items-center justify-center shadow-sm">
-                              <img src={`./icons/symbols/${issue.symbol}.png`} alt="" className="w-10 h-10 object-contain"
+                              <img src={`./icons/Symbols/${issue.symbol}.png`} alt="" className="w-10 h-10 object-contain"
                                 onError={e=>{e.target.parentNode.style.background='#334155';e.target.style.display='none';}} />
                             </div>
                             <span className="text-xs font-black text-slate-700 uppercase tracking-wide leading-tight">{issue.topic}</span>
@@ -4089,7 +4104,7 @@
                         {/* Frozen: Issue icon + name only */}
                         <div className="flex-shrink-0 border-r-2 border-slate-400 flex flex-col items-center justify-center gap-2 text-center px-2 py-3" style={{width:'33.333%'}}>
                           <div className="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center flex-shrink-0 shadow-sm">
-                            <img src={`./icons/symbols/${issue.symbol}.png`} alt="" className="w-8 h-8 object-contain"
+                            <img src={`./icons/Symbols/${issue.symbol}.png`} alt="" className="w-8 h-8 object-contain"
                               onError={e=>{e.target.parentNode.style.background='#334155';e.target.style.display='none';}} />
                           </div>
                           <span className="text-[10px] font-black text-slate-700 uppercase tracking-wide leading-tight">{issue.topic}</span>
@@ -4244,7 +4259,7 @@
       );
     }
 
-    function Browse({ county, counties, setCounty, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onHome, onBack = onHome, backLabel = '← Home', onQuiz, onRateIssue, initialRace, clearInitialRace }) {
+    function Browse({ county, counties, setCounty, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onHome, onBack = onHome, backLabel = '← Home', onQuiz, onRateIssue, initialRace, clearInitialRace, initialProfile, clearInitialProfile }) {
       const countyData = counties[county];
       const [activeTab, setActiveTab] = useState('federal');
       const [expandedRaces, setExpandedRaces] = useState(new Set());
@@ -4270,6 +4285,11 @@
           clearInitialRace?.();
         }
       }, [initialRace]);
+
+      // Reopen the candidate profile after returning from a single-issue "rate this" quiz.
+      useEffect(() => {
+        if (initialProfile) { setBrowseProfile(initialProfile); clearInitialProfile?.(); }
+      }, [initialProfile]);
 
       function toggleRace(office) {
         setExpandedRaces(prev => {
@@ -4485,7 +4505,7 @@
               checkedStatements={checkedStatements}
               ranks={ranks}
               onClose={() => setBrowseProfile(null)}
-              onRateIssue={onRateIssue}
+              onRateIssue={onRateIssue ? (id) => onRateIssue(id, browseProfile) : undefined}
               isSelected={selected[browseProfile.race.office] === browseProfile.candidate.name}
               onSelect={() => setSelected(prev => {
                 const isChosen = prev[browseProfile.race.office] === browseProfile.candidate.name;
@@ -5114,7 +5134,9 @@
       }, [answers, ranks, checkedStatements, counties]);
       const [startIssueId, setStartIssueId] = useState(null);
       const [quizReturnScreen, setQuizReturnScreen] = useState(null); // single-issue "rate this" → return here after one answer
-      const rateIssueReturn = (id, ret) => { setQuizReturnScreen(ret); setStartIssueId(id || null); setScreen('quiz'); };
+      const [quizEntryIssueId, setQuizEntryIssueId] = useState(null);  // the issue the quiz was ENTERED on → BACK past it returns to origin, not the positional-previous issue
+      const [reopenProfile, setReopenProfile] = useState(null); // candidate profile to reopen when returning from "rate this"
+      const rateIssueReturn = (id, ret, profile) => { setQuizReturnScreen(ret); setReopenProfile(profile || null); setStartIssueId(id || null); setQuizEntryIssueId(id || null); setScreen('quiz'); };
       const [returnToSummary, setReturnToSummary] = useState(false);
       const [returnToRace, setReturnToRace] = useState(null);   // { office } → go back to RaceDetail after quiz
       const [initialRace, setInitialRace] = useState(null);     // passed to Browse to auto-open a race
@@ -5191,7 +5213,7 @@
             dataSource={dataSource}
             issues={issues}
             answers={answers}
-            onQuiz={(id) => { setStartIssueId(id || null); setPendingScreen('landing'); setScreen('quiz'); }}
+            onQuiz={(id) => { const startId = id || (issues[0] && issues[0].id); setStartIssueId(startId); setQuizEntryIssueId(startId); setPendingScreen('landing'); setScreen('quiz'); }}
             onSummary={() => { setResultsReturn('landing'); setAddrModal('results'); }}
             onStartOver={() => { setAnswers({}); setRanks({}); setCheckedStatements({}); setSelected({}); setStartIssueId(null); store.removeItem('vyv_answers'); store.removeItem('vyv_ranks'); store.removeItem('vyv_stmts'); }}
             onBrowse={() => { setBrowseReturn('landing'); setAddrModal('browse'); }}
@@ -5269,13 +5291,17 @@
               }
             }}
             onBack={() => {
-              if (quizReturnScreen) { const ret = quizReturnScreen; setQuizReturnScreen(null); setStartIssueId(null); setScreen(ret); return; }
+              if (quizReturnScreen) { const ret = quizReturnScreen; setQuizReturnScreen(null); setQuizEntryIssueId(null); setStartIssueId(null); setScreen(ret); return; }
               const currentIdx = issues.findIndex(i => i.id === issue.id);
-              const prevIssue = issues[currentIdx - 1];
+              // Stop at the issue we entered on — BACK past it returns to where we came from,
+              // not the positional-previous issue (which the user never visited).
+              const atEntry = issue.id === quizEntryIssueId || currentIdx <= 0;
+              const prevIssue = atEntry ? null : issues[currentIdx - 1];
               if (prevIssue) {
                 setStartIssueId(prevIssue.id);
               } else {
                 setStartIssueId(null);
+                setQuizEntryIssueId(null);
                 if (returnToRace) { setInitialRace(returnToRace); setReturnToRace(null); setScreen('browse'); }
                 else if (pendingScreen === 'summary') setScreen('summary');
                 else setScreen('landing');
@@ -5368,8 +5394,10 @@
             onBrowse={() => { setBrowseReturn('results'); setScreen('browse'); }}
             onCompare={(race) => { setBrowseReturn('results'); setInitialRace(race.office); setScreen('browse'); }}
             onAddress={() => setScreen('address')}
-            onQuiz={(id, race) => { setStartIssueId(id || null); if (race) setReturnToRace({ office: race.office }); setScreen('quiz'); }}
-            onRateIssue={(id) => rateIssueReturn(id, 'results')}
+            onQuiz={(id, race) => { setStartIssueId(id || null); setQuizEntryIssueId(id || null); if (race) setReturnToRace({ office: race.office }); setScreen('quiz'); }}
+            onRateIssue={(id, profile) => rateIssueReturn(id, 'results', profile)}
+            initialProfile={reopenProfile}
+            clearInitialProfile={() => setReopenProfile(null)}
           />
         );
       }
@@ -5394,12 +5422,15 @@
             backLabel={browseReturn === 'landing' ? '← Home' : '← Back'}
             onQuiz={(id, race) => {
               setStartIssueId(id || null);
+              setQuizEntryIssueId(id || null);
               if (race) setReturnToRace({ office: race.office });
               setScreen('quiz');
             }}
-            onRateIssue={(id) => rateIssueReturn(id, 'browse')}
+            onRateIssue={(id, profile) => rateIssueReturn(id, 'browse', profile)}
             initialRace={initialRace}
             clearInitialRace={() => setInitialRace(null)}
+            initialProfile={reopenProfile}
+            clearInitialProfile={() => setReopenProfile(null)}
           />
         );
       }
