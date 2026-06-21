@@ -111,6 +111,9 @@ Values: `A` (liberal), `B` (moderate), `C` (conservative), `D` (no position/n/a)
 - **Shape grammar (two families):** rounded rectangles (`rounded-xl`) = action buttons that move you forward/commit (Agree, Disagree, Next Issue, Build My Ballot, home CTAs). Pills (`rounded-full`) = small inline chips/tags/badges (BETA chip, ✓ Match / ✗ Differs badges, "Get the Facts"). Keep these consistent *within* each family; don't square off the chips.
 - **Asset filenames are case-sensitive on Netlify (Linux) but NOT on macOS.** A path that works locally can 404 in production. When referencing an asset, match the committed file's case EXACTLY (e.g. folder is `icons/Symbols/`, not `symbols/`). For NEW assets, prefer all-lowercase, hyphenated names. Do NOT mass-rename existing files — candidate photos are referenced by exact filename from the Google Sheet `photo` column, so renaming them breaks production images.
 
+## Office-name separator
+- In the sheet, office names use an em dash as the separator (e.g. `U.S. House — District 37`, `Travis County Court at Law — No. 1`). The **Compare race title auto-converts any em/en dash to a bullet `•`** at display (regex on `race.office`), so new races need no manual bullet — just type the em dash. (PreBallot/Ballot stack the parts on separate lines instead.)
+
 ## Important Notes
 - **Token cost warning:** index.html is large (3,244 lines). Read in sections, not all at once.
 - The app has NO backend — everything runs in the browser

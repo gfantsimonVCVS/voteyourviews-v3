@@ -908,6 +908,10 @@
         else if (candPos === 'Disagree') candPos = voiceForId === 'RIGHT' ? 'A' : 'C';
         else if (candPos === 'Unknown') candPos = null;
 
+        // Candidate has no position on this issue — exclude it from the match entirely
+        // (don't count it against them, and a candidate with no positions scores null, not 0%).
+        if (candPos === null || candPos === 'D') return;
+
         if (stmtData && stmtData.reactions) {
           // V2: reactions-based scoring
           const reactions = stmtData.reactions;
@@ -973,24 +977,18 @@
     }
 
     function formatOfficeLines(office) {
-      const parts = office
-        .replace(/\s*[—–]\s*/g, ',')
-        .split(',')
-        .map(s => s.trim())
-        .filter(Boolean)
-        .map(s => s.replace(/\bPl\b/gi, 'Place').replace(/\bPct\b/gi, 'PCT'));
-      const result = [];
-      for (let i = 0; i < parts.length; i++) {
-        const cur = parts[i].toUpperCase();
-        const next = parts[i + 1] ? parts[i + 1].toUpperCase() : '';
-        if (cur.startsWith('PCT') && next.startsWith('PLACE')) {
-          result.push(parts[i] + ' · ' + parts[i + 1]);
-          i++;
-        } else {
-          result.push(parts[i]);
-        }
-      }
-      return result;
+      const clean = office.replace(/ of Texas$/i, '').replace(/ of the State of Texas$/i, '');
+      const lines = [];
+      let rest = clean;
+      // "X County" goes on its own top line
+      const county = rest.match(/^(.+? County)\s+(.+)$/);
+      if (county) { lines.push(county[1]); rest = county[2]; }
+      // Remaining parts split on the em/en-dash separator (office on its own line, Place/Precinct/seat on the last)
+      rest.split(/\s*[—–]\s*/).forEach(p => {
+        const t = p.trim().replace(/\bPl\b/gi, 'Place').replace(/\bPct\b/gi, 'Precinct');
+        if (t) lines.push(t);
+      });
+      return lines;
     }
 
     function getInitials(name) {
@@ -3378,7 +3376,7 @@
       const accentBg = candidate.party === 'D' ? 'bg-blue-800' : candidate.party === 'R' ? 'bg-red-800' : 'bg-slate-800';
       const matchScore = hasAnswers ? calcMatch(candidate, answers, _cs, ranks || {}) : null;
       const _ISSUE_KEYS = ['reproductiveRights','immigration','gunPolicy','education','healthcare','climate','electionIntegrity','socialSecurity','affordability'];
-      const isJudicialCandidate = raceCategory === 'judicial' || !_ISSUE_KEYS.some(k => candidate.positions?.[k] && candidate.positions[k] !== 'D');
+      const isJudicialCandidate = raceCategory === 'judicial' || !_ISSUE_KEYS.some(k => { const p = candidate.positions?.[k]; return p && p !== 'D' && p !== 'Unknown'; });
       function getVoterLean(issueId) {
         const stmtData = _cs[issueId];
         if (stmtData && stmtData.reactions && Object.keys(stmtData.reactions).length > 0) {
@@ -3572,7 +3570,9 @@
                         : <span className="ml-auto text-[10px] lg:text-xs font-bold text-rose-500 bg-rose-100 px-1.5 py-0.5 rounded-full">✗ Differs</span>
                       )}
                       {isSplit && hasStance && <span className="ml-auto text-[10px] lg:text-xs font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-full">∼ Split</span>}
-                      {!voterLean && !isSplit && (
+                      {/* Candidate has no position on this issue — show consistently, regardless of whether the voter answered */}
+                      {!hasStance && <span className="ml-auto text-[10px] lg:text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">No position</span>}
+                      {hasStance && !voterLean && !isSplit && (
                         onRateIssue
                           ? <button onClick={e => { e.stopPropagation(); onRateIssue(issue.id); }}
                               className="ml-auto text-[10px] lg:text-xs font-bold text-amber-700 bg-amber-100 hover:bg-amber-200 px-2 py-0.5 rounded-full transition-colors flex items-center gap-1 flex-shrink-0">
@@ -4381,7 +4381,12 @@
                         {isSelected && <span className="text-sm text-emerald-400 font-bold mr-2 lg:mr-0 lg:mb-2">✓</span>}
                         <h2 className="text-white font-black uppercase leading-tight text-center"
                           style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'20px', letterSpacing:'0.04em'}}>
-                          {race.office.replace(/ of Texas$/i,'').replace(/ of the State of Texas$/i,'').replace(/\s*[–—-]\s*(?=District)/i,' • ')}
+                          {(() => {
+                            const o = race.office.replace(/ of Texas$/i,'').replace(/ of the State of Texas$/i,'');
+                            return /^.+? County\s/.test(o)
+                              ? formatOfficeLines(race.office).map((line, i) => <span key={i} className="block">{line}</span>)
+                              : o.replace(/\s*[—–]\s*/g,' • ');
+                          })()}
                         </h2>
                       </div>
                       {/* Description col — desktop only */}
@@ -4425,7 +4430,6 @@
                               )}
                             </div>
                             <span className={`text-[10px] font-bold uppercase tracking-wide ${partyColor}`}>{partyLabel}</span>
-                            {c.uncontested && <span className="text-[9px] font-bold uppercase tracking-wide text-slate-400 border border-slate-600 rounded px-1.5 py-0.5">Uncontested</span>}
                             <span className="text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full" style={{background:'rgba(217,119,6,0.2)', color:'#f59e0b', border:'1px solid rgba(217,119,6,0.5)'}}>★ Get the Facts</span>
                             {(() => {
                               const isCandSelected = selected[race.office] === c.name;
@@ -4448,6 +4452,28 @@
                           </button>
                         );
                       })}
+                      {/* Placeholder opponent for uncontested races */}
+                      {(() => {
+                        const reals = race.candidates.filter(Boolean);
+                        if (reals.length !== 1 || !reals[0].uncontested) return null;
+                        const missing = reals[0].party === 'D' ? 'Republican' : 'Democratic';
+                        return (
+                          <div className="flex-1 flex flex-col items-center justify-center py-4 lg:py-5 gap-2"
+                            style={{margin:'8px', borderRadius:'14px', border:'1.5px dashed rgba(255,255,255,0.18)', background:'rgba(255,255,255,0.02)'}}>
+                            <p className="text-[12px] font-black uppercase tracking-widest text-center leading-tight" style={{color:'rgba(255,255,255,0.45)'}}>No {missing}<br/>Candidate</p>
+                            <div className="relative" style={{width:75, height:75}}>
+                              <div className="absolute rounded-full overflow-hidden" style={{inset:0, background:'#1e293b', border:'4px solid #334155'}}>
+                                <img src="./icons/candidate-undefined.png" alt="" className="w-full h-full object-cover object-top" style={{opacity:0.3}} />
+                              </div>
+                              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" aria-hidden="true">
+                                <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(148,163,184,0.6)" strokeWidth="5"/>
+                                <line x1="22" y1="78" x2="78" y2="22" stroke="rgba(148,163,184,0.6)" strokeWidth="5"/>
+                              </svg>
+                            </div>
+                            <span className="text-[9px] font-bold uppercase tracking-wide text-slate-400 border border-slate-600 rounded px-1.5 py-0.5">Uncontested</span>
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
 
