@@ -688,31 +688,31 @@
             ]
           },
           {
-            office: 'Criminal District Attorney',
+            office: 'Hays County Criminal District Attorney',
             category: 'county',
             description: 'Prosecutes criminal cases in Hays County, including misdemeanors and felonies. Sets prosecution priorities and manages the DA\'s office.',
             candidates: [UNCONTESTED('Alfonso Salazar', 'D', 'Military veteran and Democratic nominee. No Republican filed — running unopposed in November.')]
           },
           {
-            office: 'District Clerk',
+            office: 'Hays County District Clerk',
             category: 'county',
             description: 'Maintains court records, processes legal filings, and manages jury pools for the district courts of Hays County.',
             candidates: [UNCONTESTED('Amanda Calvert', 'D', 'Incumbent District Clerk. No Republican filed — running unopposed in November.')]
           },
           {
-            office: 'County Clerk',
+            office: 'Hays County Clerk',
             category: 'county',
             description: 'Manages elections, vital records (births, deaths, marriages), real estate documents, and county court records for Hays County.',
             candidates: [UNCONTESTED('Elaine H. Cárdenas', 'D', 'Democratic nominee. No Republican filed — running unopposed in November.')]
           },
           {
-            office: 'County Treasurer',
+            office: 'Hays County Treasurer',
             category: 'county',
             description: 'Receives, deposits, and disburses county funds. Manages Hays County\'s financial accounts and investment portfolio.',
             candidates: [UNCONTESTED('Daphne Tenorio', 'D', 'Incumbent County Treasurer. No Republican filed — running unopposed in November.')]
           },
           {
-            office: 'Commissioner, Pct 2',
+            office: 'Hays County Commissioner — Precinct 2',
             category: 'county',
             districtType: 'commissioner',
             districtNumber: 2,
@@ -720,7 +720,7 @@
             candidates: [TBD_D(), TBD_R()]
           },
           {
-            office: 'Commissioner, Pct 4',
+            office: 'Hays County Commissioner — Precinct 4',
             category: 'county',
             districtType: 'commissioner',
             districtNumber: 4,
@@ -728,7 +728,7 @@
             candidates: [TBD_D(), TBD_R()]
           },
           {
-            office: 'Justice of Peace, Pct 1, Pl 2',
+            office: 'Hays County Justice of the Peace — Precinct 1, Place 2',
             category: 'county',
             districtType: 'jpPrecinct',
             districtNumber: 1,
@@ -736,7 +736,7 @@
             candidates: [UNCONTESTED('Maggie Hernandez-Moreno', 'D', 'Incumbent JP. No Republican filed — running unopposed in November.')]
           },
           {
-            office: 'Justice of Peace, Pct 2, Pl 1',
+            office: 'Hays County Justice of the Peace — Precinct 2, Place 1',
             category: 'county',
             districtType: 'jpPrecinct',
             districtNumber: 2,
@@ -744,7 +744,7 @@
             candidates: [UNCONTESTED('Beth Smith', 'D', 'Incumbent JP. No Republican filed — running unopposed in November.')]
           },
           {
-            office: 'Justice of Peace, Pct 5',
+            office: 'Hays County Justice of the Peace — Precinct 5',
             category: 'county',
             districtType: 'jpPrecinct',
             districtNumber: 5,
@@ -820,20 +820,20 @@
             candidates: [TBD_D(), TBD_R()]
           },
           {
-            office: '428th District Judge',
+            office: 'Hays County District Court — 428th',
             category: 'judicial',
             description: 'Presides over the 428th Judicial District Court in Hays County — handles felony criminal cases and civil matters.',
             candidates: [UNCONTESTED('Cassie Benoist-Templeton', 'D', 'Democratic nominee. No Republican filed — running unopposed in November.')]
           },
           {
-            office: 'County Court at Law No. 1',
-            category: 'judicial',
+            office: 'Hays County Court at Law No. 1',
+            category: 'county',
             description: 'Handles misdemeanor criminal cases, civil disputes, and probate matters in Hays County.',
             candidates: [UNCONTESTED('Jimmy Alan Hall', 'D', 'Incumbent judge. No Republican filed — running unopposed in November.')]
           },
           {
-            office: 'County Court at Law No. 2',
-            category: 'judicial',
+            office: 'Hays County Court at Law No. 2',
+            category: 'county',
             description: 'Handles misdemeanor criminal cases, civil disputes, Juvenile Court, and Veterans Treatment Court — Hays County\'s specialty court with a 98% success rate.',
             candidates: [
               { name: 'Chris Johnson', party: 'D', photo: null, website: null, confirmed: true, uncontested: false, summary: 'Incumbent judge who won May 26 Democratic runoff. Running for another term.', positions: POS_D },
@@ -3448,12 +3448,12 @@
             {/* Compare / Uncontested */}
             {onCompare ? (
               <button onClick={onCompare}
-                className="mt-4 w-full py-2.5 rounded-full text-[12px] font-black uppercase tracking-widest text-white/90 hover:text-white transition-colors"
+                className="mt-4 w-full py-2.5 rounded-xl text-[12px] font-black uppercase tracking-widest text-white/90 hover:text-white transition-colors"
                 style={{background:'rgba(255,255,255,0.15)', border:'1px solid rgba(255,255,255,0.3)', letterSpacing:'0.08em'}}>
                 {isOpponent ? '← Back to Your Match' : 'Compare to Opponent →'}
               </button>
             ) : (
-              <div className="mt-4 w-full py-2.5 rounded-full text-center text-[12px] font-black uppercase tracking-widest text-white/35"
+              <div className="mt-4 w-full py-2.5 rounded-xl text-center text-[12px] font-black uppercase tracking-widest text-white/35"
                 style={{background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.12)', letterSpacing:'0.08em'}}>
                 No Opponent — Uncontested
               </div>
@@ -3490,7 +3490,7 @@
             {onSelect && (
               <div className="hidden lg:block mt-5">
                 <button onClick={onSelect}
-                  className={`w-full py-3 rounded-full font-black text-sm uppercase tracking-wide transition-all active:scale-95 ${isSelected ? 'bg-white text-slate-900' : 'bg-white/20 text-white border-2 border-white/40 hover:bg-white/30'}`}>
+                  className={`w-full py-3 rounded-xl font-black text-sm uppercase tracking-wide transition-all active:scale-95 ${isSelected ? 'bg-white text-slate-900' : 'bg-white/20 text-white border-2 border-white/40 hover:bg-white/30'}`}>
                   {isSelected ? '✓ On Your Ballot' : '+ Add to Ballot'}
                 </button>
               </div>
@@ -3576,14 +3576,14 @@
                         onRateIssue
                           ? <button onClick={e => { e.stopPropagation(); onRateIssue(issue.id); }}
                               className="ml-auto text-[10px] lg:text-xs font-bold text-amber-700 bg-amber-100 hover:bg-amber-200 px-2 py-0.5 rounded-full transition-colors flex items-center gap-1 flex-shrink-0">
-                              Where do you stand? →
+                              Not answered →
                             </button>
                           : <span className="ml-auto text-[10px] lg:text-xs font-bold text-slate-300 px-1.5 py-0.5 rounded-full italic">Not rated</span>
                       )}
                     </div>
                     {isOpen && expandable && (
-                      <p className="text-sm text-slate-500 italic leading-relaxed mt-2">
-                        <span className="font-semibold not-italic text-slate-400">In plain terms: </span>
+                      <p className="text-sm text-slate-600 italic leading-relaxed mt-2 bg-slate-100 rounded-lg px-3 py-2.5 border border-slate-200">
+                        <span className="font-bold not-italic text-slate-500 text-[11px] uppercase tracking-wide">In plain terms: </span>
                         "{posText}"
                       </p>
                     )}
@@ -3619,7 +3619,7 @@
               {onSelect && (
                 <button
                   onClick={onSelect}
-                  className={`ml-auto whitespace-nowrap flex items-center gap-2 px-5 py-2.5 rounded-full font-black text-sm uppercase tracking-wide transition-all active:scale-95 ${isSelected ? 'bg-white text-slate-900' : 'bg-white/20 text-white border-2 border-white/50 hover:bg-white/30'}`}
+                  className={`ml-auto whitespace-nowrap flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-sm uppercase tracking-wide transition-all active:scale-95 ${isSelected ? 'bg-white text-slate-900' : 'bg-white/20 text-white border-2 border-white/50 hover:bg-white/30'}`}
                 >
                   {isSelected ? '✓ On Ballot' : '+ Add to Ballot'}
                 </button>
