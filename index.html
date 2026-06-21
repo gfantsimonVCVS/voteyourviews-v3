@@ -1970,6 +1970,8 @@
       }
 
       function skipCard() {
+        // Clear any prior Agree/Disagree so changing an answer to "No Opinion" actually sticks
+        setReactions(prev => { const n = {...prev}; delete n[cardIndex]; return n; });
         setSkippedSet(prev => ({ ...prev, [cardIndex]: true }));
         if (cardIndex + 1 >= statements.length && !anyReacted) {
           handleSkip();
