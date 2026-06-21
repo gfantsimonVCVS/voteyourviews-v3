@@ -49,6 +49,10 @@
       50%  { background: #2563eb; border-color: #dc2626; box-shadow: 0 0 14px rgba(37,99,235,0.5); }
       100% { background: #dc2626; border-color: #3b82f6; box-shadow: 0 0 14px rgba(220,38,38,0.5); }
     }
+    input[type="range"].importance-slider {
+      touch-action: none;               /* let horizontal drag work on mobile instead of being treated as a scroll */
+      -webkit-tap-highlight-color: transparent;
+    }
     input[type="range"].importance-slider::-webkit-slider-runnable-track {
       background: transparent;
       height: 8px;
