@@ -5107,9 +5107,9 @@
     function App() {
       const _params = new URLSearchParams(window.location.search);
       const [screen, setScreen] = useState(_params.get('testBallot') === '1' ? 'loading' : SHEETS.master ? 'loading' : 'landing');
-      const [county, setCounty] = useState('hays');
       // ?persist=1 in URL uses localStorage (for testing); otherwise sessionStorage (clears on new visit)
       const store = new URLSearchParams(window.location.search).get('persist') === '1' ? localStorage : sessionStorage;
+      const [county, setCounty] = useState(() => store.getItem('vyv_county') || 'hays');
       const [answers, setAnswers] = useState(() => {
         try {
           const a = JSON.parse(store.getItem('vyv_answers') || '{}');
@@ -5136,11 +5136,14 @@
       const [counties, setCounties] = useState(COUNTIES);
       const [loadError, setLoadError] = useState(null);
       const [dataSource, setDataSource] = useState(SHEETS.master ? 'loading' : 'demo');
-      const [userDistricts, setUserDistricts] = useState(
-        new URLSearchParams(window.location.search).get('testDistricts') === '1'
-          ? { congressionalDistrict:'21', stateSenate:'25', stateHouse:'73', commissionerPrecinct:'4', jpPrecinct:'4' }
-          : null
-      );
+      const [userDistricts, setUserDistricts] = useState(() => {
+        if (new URLSearchParams(window.location.search).get('testDistricts') === '1')
+          return { congressionalDistrict:'21', stateSenate:'25', stateHouse:'73', commissionerPrecinct:'4', jpPrecinct:'4' };
+        try { return JSON.parse(store.getItem('vyv_districts') || 'null'); } catch(e) { return null; }
+      });
+      // Persist county + looked-up districts so a returning voter isn't re-asked for their address
+      React.useEffect(() => { try { store.setItem('vyv_county', county); } catch(e) {} }, [county]);
+      React.useEffect(() => { try { userDistricts ? store.setItem('vyv_districts', JSON.stringify(userDistricts)) : store.removeItem('vyv_districts'); } catch(e) {} }, [userDistricts]);
       const [pendingScreen, setPendingScreen] = useState('quiz');
 
       // Persist answers + ranks + checkedStatements
@@ -5246,9 +5249,9 @@
             issues={issues}
             answers={answers}
             onQuiz={(id) => { const startId = id || (issues[0] && issues[0].id); setStartIssueId(startId); setQuizEntryIssueId(startId); setPendingScreen('landing'); setScreen('quiz'); }}
-            onSummary={() => { setResultsReturn('landing'); setAddrModal('results'); }}
+            onSummary={() => { setResultsReturn('landing'); userDistricts ? setScreen('results') : setAddrModal('results'); }}
             onStartOver={() => { setAnswers({}); setRanks({}); setCheckedStatements({}); setSelected({}); setStartIssueId(null); store.removeItem('vyv_answers'); store.removeItem('vyv_ranks'); store.removeItem('vyv_stmts'); }}
-            onBrowse={() => { setBrowseReturn('landing'); setAddrModal('browse'); }}
+            onBrowse={() => { setBrowseReturn('landing'); userDistricts ? setScreen('browse') : setAddrModal('browse'); }}
           />
           {addrModal && (
             <AddressModal
@@ -5359,7 +5362,7 @@
             onHome={() => { setStartIssueId(null); setScreen('landing'); }}
             onStartOver={() => { setAnswers({}); setRanks({}); setSelected({}); setStartIssueId(null); setScreen('landing'); store.removeItem('vyv_answers'); store.removeItem('vyv_ranks'); }}
             answers={answers}
-            onSummary={() => { setStartIssueId(null); setResultsReturn('landing'); setAddrModal('results'); }}
+            onSummary={() => { setStartIssueId(null); setResultsReturn('landing'); userDistricts ? setScreen('results') : setAddrModal('results'); }}
           />
           {addrModal && (
             <AddressModal
