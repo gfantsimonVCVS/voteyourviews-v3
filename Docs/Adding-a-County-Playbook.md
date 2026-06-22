@@ -93,12 +93,32 @@ The app's beliefs run off the **Statements** tab: 9 issues × 3 statements, each
 Do it **one race at a time** (both opponents together) so the contrast is visible: research → draft all 9 + hooks → write to sheet. Owner can fine-tune wording directly in the sheet afterward.
 
 ## 7. Wire the code (one-time per new county)
-- The app currently fetches only the `HaysCounty` tab. Add a **county → tab mapping** so the app loads the right tab based on the user's looked-up county, and flip the county from placeholder (`available: false`) to live.
-- District filtering must use the county's actual districts.
-- (Hays uses ArcGIS for commissioner/JP precincts; replicate equivalent precinct lookup for the new county if it has precinct-based local races.)
+Three things must be wired in `index.html`, or down-ballot races will be wrong:
+
+### 7a. Register the county
+- Add the tab to the **`SHEETS` config**: `<county>: { sheetId: '<same master sheet id>', tab: '<County>County' }`.
+- Add the county to **`SUPPORTED_COUNTIES`** (the address-flow gate) and the county metadata/explore buttons.
+- (Done so far: `hays`, `travis`.)
+
+### 7b. Per-county precinct lookup — REQUIRED, this is the part that bites
+Commissioner, JP, and Constable races filter by **precinct**, and **every county publishes its own GIS service** — there is no shared endpoint. If you skip this, `filterRacesByDistrict` falls through to "show all," so a voter sees **every** precinct's commissioner/JP/constable race instead of only their own. (That was the Travis bug — data was present but unfiltered.)
+
+For each new county, in **both** address-flow `handleSearch` blocks, add an `else if (matchedCounty === '<county>')` branch that queries that county's ArcGIS REST service:
+1. **Find the county's GIS endpoints.** Search `<county> county GIS ArcGIS REST commissioner precinct` / `justice of peace constable precinct`. Most TX counties run an ArcGIS server (e.g. Travis = `gis.traviscountytx.gov/server1/...`; Hays = `services5.arcgis.com/bVphnK8rPe5MHUSr/...`).
+2. **Discover the field name** before coding — hit `<layer>?f=json` and read the `fields` array. It is NOT consistent: Hays commissioner = `CommPrcnt`, Travis commissioner = `PRECINCT`. JP layers tend to be `PRECINCT`. Don't assume.
+3. **Constable:** in Travis, JP and Constable share **one layer with identical precinct numbers**, so the constable lookup reuses the JP precinct. Confirm this per county — some may split them.
+4. Wrap every fetch in `.then(r=>r.json()).catch(()=>null)` and the whole block in `try/catch` (the Hays/Travis pattern). A slow or down GIS service must **never block or crash** the result — it just leaves that race type unfiltered.
+
+Reference (live examples in the code):
+- Hays: `HaysCountyCommissionerPrecincts` (`CommPrcnt`) + `HaysCoJusticeOfPeace` (`PRECINCT`).
+- Travis: `Travis_County_Commissioner_Precincts/FeatureServer/0` (`PRECINCT`) + `Travis_County_Judge_and_Constable_Precincts/MapServer/0` (`PRECINCT`, shared JP/Constable).
+
+### 7c. Confirm the filter handles every districtType you used
+`filterRacesByDistrict` understands: `congressional`, `stateSenate`, `stateHouse`, `commissioner` (→ `commissionerPrecinct`), `jpPrecinct` (→ `jpPrecinct`), `constable` (→ `jpPrecinct`, shared boundaries). If a county introduces a **new** precinct/district type (e.g. a separate constable precinct layer, or SBOE), you must add a matching `setDistricts` field AND a `filterRacesByDistrict` case — otherwise that race silently shows to everyone.
 
 ## 8. QA before going live
 - Address test: enter several addresses across the county → correct districts + correct races show.
+- **Precinct test (per §7b):** enter addresses in *different* commissioner/JP precincts → each sees ONLY their own commissioner, JP, and constable race (not all of them). This catches a missing/broken precinct lookup.
 - Out-of-county address → the waitlist modal still fires correctly.
 - Every candidate has: photo, hook1, hook2, 9 positions, evidence, description.
 - Spot-check matching math on a known profile.

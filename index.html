@@ -1140,11 +1140,14 @@
               ]);
               if (commData?.features?.[0]?.attributes?.CommPrcnt != null) commPrecinct = String(commData.features[0].attributes.CommPrcnt);
               if (jpData?.features?.[0]?.attributes?.PRECINCT != null) jpPrecinct = String(jpData.features[0].attributes.PRECINCT);
-            } else if (matchedCounty === 'travis') {
-              // Travis County uses Geocodio precinct data — extract from fields
-              const precincts = fields.state_legislative_districts || {};
-              // Travis commissioner and JP precincts come from address lookup fields
-              commPrecinct = components.county_fips ? null : null; // placeholder — Travis precinct via ArcGIS TBD
+            } else if (matchedCounty === 'travis' && loc?.lng != null && loc?.lat != null) {
+              // Travis County GIS — commissioner precincts + shared JP/Constable precincts
+              const [commData, jpData] = await Promise.all([
+                fetch(`https://gis.traviscountytx.gov/server1/rest/services/Boundaries_and_Jurisdictions/Travis_County_Commissioner_Precincts/FeatureServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=PRECINCT&returnGeometry=false&f=json`).then(r => r.json()).catch(() => null),
+                fetch(`https://gis.traviscountytx.gov/server1/rest/services/Boundaries_and_Jurisdictions/Travis_County_Judge_and_Constable_Precincts/MapServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=PRECINCT&returnGeometry=false&f=json`).then(r => r.json()).catch(() => null)
+              ]);
+              if (commData?.features?.[0]?.attributes?.PRECINCT != null) commPrecinct = String(commData.features[0].attributes.PRECINCT);
+              if (jpData?.features?.[0]?.attributes?.PRECINCT != null) jpPrecinct = String(jpData.features[0].attributes.PRECINCT);
             }
           } catch(e) {}
 
@@ -1398,6 +1401,13 @@
               fetch(`https://services5.arcgis.com/bVphnK8rPe5MHUSr/arcgis/rest/services/HaysCoJusticeOfPeace/FeatureServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=PRECINCT&f=json`).then(r=>r.json()).catch(()=>null)
             ]);
             if (commData?.features?.[0]?.attributes?.CommPrcnt != null) commPrecinct = String(commData.features[0].attributes.CommPrcnt);
+            if (jpData?.features?.[0]?.attributes?.PRECINCT != null) jpPrecinct = String(jpData.features[0].attributes.PRECINCT);
+          } else if (matchedCounty2 === 'travis' && loc.lng != null && loc.lat != null) {
+            const [commData, jpData] = await Promise.all([
+              fetch(`https://gis.traviscountytx.gov/server1/rest/services/Boundaries_and_Jurisdictions/Travis_County_Commissioner_Precincts/FeatureServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=PRECINCT&returnGeometry=false&f=json`).then(r=>r.json()).catch(()=>null),
+              fetch(`https://gis.traviscountytx.gov/server1/rest/services/Boundaries_and_Jurisdictions/Travis_County_Judge_and_Constable_Precincts/MapServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=PRECINCT&returnGeometry=false&f=json`).then(r=>r.json()).catch(()=>null)
+            ]);
+            if (commData?.features?.[0]?.attributes?.PRECINCT != null) commPrecinct = String(commData.features[0].attributes.PRECINCT);
             if (jpData?.features?.[0]?.attributes?.PRECINCT != null) jpPrecinct = String(jpData.features[0].attributes.PRECINCT);
           }
         } catch(e) { console.warn('[VYV] precinct lookup skipped:', e); }
@@ -2904,6 +2914,7 @@
         if (race.districtType === 'stateHouse') return !userDistricts.stateHouse || userDistricts.stateHouse === num;
         if (race.districtType === 'jpPrecinct') return !userDistricts.jpPrecinct || userDistricts.jpPrecinct === num;
         if (race.districtType === 'commissioner') return !userDistricts.commissionerPrecinct || userDistricts.commissionerPrecinct === num;
+        if (race.districtType === 'constable') return !userDistricts.jpPrecinct || userDistricts.jpPrecinct === num; // Travis: constable precincts share JP boundaries
         return true;
       });
     }
