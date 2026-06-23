@@ -1,1 +1,11 @@
 voteyourviews-*.json
+
+# Google API creds for photo proxy (never commit)
+tools/photo-proxy.config.json
+
+# OS + editor junk
+.DS_Store
+.claude/
+
+# Photo export artifacts
+images/travis-photos.zip

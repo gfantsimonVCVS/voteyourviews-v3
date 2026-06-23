@@ -36,6 +36,7 @@
       <div>
         <label class="block text-xs font-semibold text-slate-500 mb-1">County</label>
         <select id="county" class="border border-slate-300 rounded-lg px-3 py-2 text-sm">
+          <option value="statewide">★ Statewide (shared by all counties)</option>
           <option value="hays">Hays</option>
           <option value="travis">Travis</option>
         </select>
@@ -71,6 +72,7 @@
     <span class="flex-1"></span>
     <span id="counts" class="text-sm font-semibold text-slate-600"></span>
     <label class="text-sm text-slate-600 flex items-center gap-1 select-none cursor-pointer"><input type="checkbox" id="onlyMissing"> Only missing</label>
+    <button id="getMissing" class="bg-violet-600 text-white text-sm font-semibold rounded-lg px-4 py-2 hover:bg-violet-700 disabled:opacity-40" disabled>✨ Get missing photos</button>
     <button id="approveAll" class="bg-emerald-100 text-emerald-700 text-sm font-semibold rounded-lg px-4 py-2 hover:bg-emerald-200 disabled:opacity-40" disabled>Approve all</button>
     <button id="saveFolder" class="bg-indigo-600 text-white text-sm font-semibold rounded-lg px-4 py-2 hover:bg-indigo-700 disabled:opacity-40" disabled>Save approved → folder</button>
     <button id="download" class="bg-emerald-600 text-white text-sm font-semibold rounded-lg px-4 py-2 hover:bg-emerald-700 disabled:opacity-40" disabled>Download .zip</button>
@@ -124,6 +126,7 @@ document.addEventListener('paste', e=>{
       const card=pasteTarget; pasteTarget=null;
       const el=document.getElementById(card.id); if(el) el.style.boxShadow='';
       enqueue(()=>runCard(card, URL.createObjectURL(file), true));
+      if(guidedQueue) guidedNext();   // advance the guided flow (keep the popup within this gesture)
       e.preventDefault(); return;
     }
   }
@@ -143,7 +146,87 @@ function updateCounts(){
   $('#download').disabled = ap===0;
   $('#saveFolder').disabled = ap===0;
   $('#approveAll').disabled = !cards.some(c=>c.png && c.state!=='approved' && c.state!=='rejected');
+  if($('#getMissing')) $('#getMissing').disabled = !cards.some(c=>!c.png && c.state!=='processing');
   applyFilter();
+}
+const missingCards = () => cards.filter(c=>!c.png && c.state!=='processing' && !/\btbd\b/i.test(c.name));
+
+// Stage 1 — auto-fetch a photo from Wikidata/Wikimedia (CORS-friendly). Flags each for human verify.
+async function tryWikidata(card){
+  const name = card.candidate ? card.candidate.name : card.name;
+  try{
+    const s = await fetch(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(name)}&language=en&format=json&origin=*`).then(r=>r.json());
+    for(const hit of (s.search||[]).slice(0,2)){
+      const e = await fetch(`https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${hit.id}&props=claims&format=json&origin=*`).then(r=>r.json());
+      const claims = e.entities[hit.id].claims||{};
+      const isHuman = (claims.P31||[]).some(c=>c.mainsnak?.datavalue?.value?.id==='Q5');
+      const img = claims.P18?.[0]?.mainsnak?.datavalue?.value;
+      if(isHuman && img){
+        // get the direct upload.wikimedia.org URL (CORS-fetchable; Special:FilePath redirect is not)
+        const ii = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&titles=File:${encodeURIComponent(img)}&prop=imageinfo&iiprop=url&iiurlwidth=600&format=json&origin=*`).then(r=>r.json());
+        const thumb = Object.values(ii.query?.pages||{})[0]?.imageinfo?.[0]?.thumburl;
+        if(thumb){
+          await runCard(card, thumb, true);
+          if(card.png) flag(card,'⚠ auto-matched (Wikidata) — VERIFY it’s the right person','text-amber-600');
+          return !!card.png;
+        }
+      }
+    }
+  }catch(e){ console.warn('wikidata',name,e); }
+  return false;
+}
+
+// Stage 2 — guided: open each remaining candidate's image search, you Copy→⌘V, auto-advances.
+let guidedQueue=null;
+function startGuided(){
+  guidedQueue = missingCards().slice();
+  guidedNext();
+}
+function guidedNext(){
+  if(!guidedQueue){ return; }
+  if(!guidedQueue.length){ guidedQueue=null; pasteTarget=null; setStatus('✅ Done with the guided list. Paste any you skipped manually.'); return; }
+  const card = guidedQueue.shift();
+  if(card.png){ return guidedNext(); }              // got filled meanwhile
+  pasteTarget = card;
+  const el = document.getElementById(card.id);
+  document.querySelectorAll('#grid > div').forEach(d=>d.style.boxShadow='');
+  el.style.boxShadow='0 0 0 3px #0ea5e9'; el.scrollIntoView({block:'center'});
+  flag(card,'🔍 search opened — Copy a photo, then ⌘V','text-sky-600');
+  setStatus(`Guided ${missingCards().length} left · current: ${card.name} — Copy a headshot, press ⌘V (or click another card’s Paste to skip)`);
+  window.open('https://www.google.com/search?tbm=isch&q='+encodeURIComponent((card.candidate?card.candidate.name:card.name)+' Texas'), 'vyv-search');
+}
+
+// local photo proxy (tools/photo-proxy.py): Google image -> bg-removed square PNG. Best coverage.
+async function proxyUp(){ try{ const r=await fetch('http://localhost:8770/health'); return r.ok; }catch(e){ return false; } }
+async function tryProxy(card){
+  const name = card.candidate ? card.candidate.name : card.name;
+  try{
+    const r = await fetch(`http://localhost:8770/find?name=${encodeURIComponent(name)}`);
+    if(r.ok && (r.headers.get('content-type')||'').includes('png')){
+      const dataUrl = await blobToDataURL(await r.blob());
+      const el = document.getElementById(card.id);
+      card.png=dataUrl; el.querySelector('.cut').src=dataUrl; el.querySelector('.orig').src=dataUrl;
+      card.faces = await countFaces(await loadImg(dataUrl)); card.state='ready';
+      flag(card,'⚠ auto (Google) — VERIFY it’s the right person','text-amber-600');
+      // persist so a reload doesn't lose auto-fetched photos
+      saveFix($('#county').value, card.candidate?slugify(card.candidate.name):slugify(card.name), card.name, dataUrl);
+      updateCounts(); return true;
+    }
+  }catch(e){}
+  return false;
+}
+async function getMissing(){
+  const btn=$('#getMissing'); btn.disabled=true;
+  const useProxy = await proxyUp();
+  const fetcher = useProxy ? tryProxy : tryWikidata;
+  const label = useProxy ? 'Google' : 'Wikidata';
+  if(!useProxy) setStatus('Photo proxy not running → using Wikidata (thin). Start tools/photo-proxy.py for Google. Continuing…');
+  const miss = missingCards();
+  let found=0;
+  for(let i=0;i<miss.length;i++){ setStatus(`Stage 1 · ${label} ${i+1}/${miss.length}… (${found} found)`); if(await fetcher(miss[i])) found++; }
+  setStatus(`Auto-found ${found} via ${label}. Stage 2: guided search for the remaining ${missingCards().length}.`);
+  startGuided();
+  btn.disabled=false;
 }
 function applyFilter(){
   const only = $('#onlyMissing') && $('#onlyMissing').checked;
@@ -258,7 +341,7 @@ function addCard({name, office, srcUrl, candidate}){
       <a class="findbtn block mt-1 text-[11px] font-semibold bg-amber-100 text-amber-700 rounded py-1 text-center hover:bg-amber-200" target="_blank" rel="noopener">🔍 Find photo →</a>
     </div>`;
   grid.appendChild(el);
-  el.querySelector('.findbtn').href = 'https://www.google.com/search?tbm=isch&q=' + encodeURIComponent(`${card.name} ${card.office||''} Texas candidate headshot`);
+  el.querySelector('.findbtn').href = 'https://www.google.com/search?tbm=isch&q=' + encodeURIComponent(`${card.name} Texas`);
   if(card.srcUrl) el.querySelector('.orig').src=card.srcUrl;
   el.querySelector('[data-act="approve"]').onclick=()=>setState(card,'approved');
   el.querySelector('[data-act="reject"]').onclick=()=>setState(card,'rejected');
@@ -292,16 +375,26 @@ function setState(card,state,persist=true){
 }
 
 function blobToDataURL(b){return new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(b);});}
-// look for an already-processed PNG sitting in the repo (same-origin → no CORS); the CLI may have made it.
-// photos live in per-party folders: images/candidates/<county>/<PARTY>/<slug>.png (flat folder = legacy fallback)
+// manifest.json lists every self-hosted photo → instant have/need check (no per-card 404 fetches)
+let PHOTO_MANIFEST = null;
+async function ensureManifest(){
+  if(PHOTO_MANIFEST) return PHOTO_MANIFEST;
+  try{ const r=await fetch('images/candidates/manifest.json?t='+Date.now()); if(r.ok) PHOTO_MANIFEST=new Set(await r.json()); }catch(e){}
+  PHOTO_MANIFEST = PHOTO_MANIFEST || new Set();
+  return PHOTO_MANIFEST;
+}
+// photos live in per-party folders: images/candidates/<county>/<PARTY>/<slug>.png; statewide/<party>/ is shared
 async function existingProcessed(slug, party){
   const county=$('#county').value;
   const dirs=[]; const p=(party||'').toUpperCase();
   if(p){ dirs.push(`${county}/${p}`); dirs.push(`statewide/${p}`); }  // county-local first, then shared statewide
   dirs.push(county);                                   // legacy/flat fallback
+  const m = PHOTO_MANIFEST || new Set();
   for(const d of dirs){
+    const rel=`${d}/${slug}.png`;
+    if(!m.has(rel)) continue;                           // not in manifest → skip (no network call)
     try{
-      const r=await fetch(`images/candidates/${d}/${slug}.png?t=${Date.now()}`);  // cache-bust so re-runs show
+      const r=await fetch(`images/candidates/${rel}?t=${Date.now()}`);  // only fetch ones that exist
       if(r.ok && (r.headers.get('content-type')||'').includes('png')) return await blobToDataURL(await r.blob());
     }catch(e){}
   }
@@ -363,19 +456,26 @@ const SHEET_ID='1V1oaEy6ToV3LZt0et9bIWEJQbPrYZg73tDxGelhiFn8';
 const tabFor=c=>c[0].toUpperCase()+c.slice(1)+'County';
 function gdrive(u){const m=u.match(/\/d\/([\w-]+)/)||u.match(/[?&]id=([\w-]+)/);return m?`https://drive.google.com/uc?export=download&id=${m[1]}`:u;}
 
+const STATEWIDE_BLOCK = 36;   // first 36 candidate rows (sheet rows 2-37) = the 18 shared statewide races
 async function loadSheet(){
   const county=$('#county').value, party=$('#party').value;
-  setStatus('Loading '+tabFor(county)+'…');
-  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${tabFor(county)}`;
+  const statewideMode = county==='statewide';
+  const tab = statewideMode ? 'HaysCounty' : tabFor(county);   // statewide block lives in the Hays master
+  setStatus('Loading '+tab+'…');
+  await ensureManifest();   // know instantly which photos already exist
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${tab}`;
   const txt=await (await fetch(url)).text();
   const rows=parseCSV(txt);
   const hdr=rows[0].map(h=>h.trim().toLowerCase());
   const iN=hdr.indexOf('name'),iP=hdr.indexOf('party'),iO=hdr.indexOf('office'),iPh=hdr.indexOf('photo');
-  candidates=rows.slice(1).filter(r=>r[iN]&&r[iN].trim())
+  let allRows=rows.slice(1).filter(r=>r[iN]&&r[iN].trim());     // candidate rows, in sheet order
+  // statewide mode = just the shared block; a county = everything BELOW the block (skip the 36 statewide)
+  allRows = statewideMode ? allRows.slice(0, STATEWIDE_BLOCK) : allRows.slice(STATEWIDE_BLOCK);
+  candidates=allRows
     .map(r=>({name:r[iN].trim(),party:(r[iP]||'').trim(),office:(r[iO]||'').trim(),photo:(r[iPh]||'').trim()}))
     .filter(c=>!party||c.party.toUpperCase()===party)
     .filter(c=>!/\btbd\b/i.test(c.name));   // skip "TBD — …Nominee" placeholders (not real candidates)
-  setStatus(`Loaded ${candidates.length} candidates from ${tabFor(county)}. Building cards…`);
+  setStatus(`Loaded ${candidates.length} candidates from ${tab}. Building cards…`);
   grid.innerHTML=''; cards=[];
   for(const c of candidates){
     addCard({name:c.name, office:c.office, srcUrl: c.photo?gdrive(c.photo):null, candidate:c});
@@ -456,6 +556,7 @@ $('#download').onclick=async()=>{
 // ---------- init ----------
 $('#pad').oninput=e=>$('#padVal').textContent=e.target.value;
 $('#onlyMissing').onchange=applyFilter;
+$('#getMissing').onclick=()=>getMissing().catch(e=>{console.error(e);setStatus('Get-missing failed: '+e.message);});
 $('#loadSheet').onclick=()=>loadSheet().catch(e=>{console.error(e);setStatus('Sheet load failed: '+e.message);});
 setStatus('Loading background-removal + face models…');
 initFace().finally(()=>setStatus('Ready. Load a county or drag photos in.'));
