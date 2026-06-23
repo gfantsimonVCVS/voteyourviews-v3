@@ -40,6 +40,13 @@
     @keyframes slideIn { from { opacity: 0; transform: translateY(18px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
     .issue-enter { animation: issueEnter 0.45s cubic-bezier(0.22,1,0.36,1); }
     @keyframes issueEnter { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); } }
+    /* Lightbulb "turns on" when the Facts tab opens: yellow bulb fades in + glows */
+    .bulb-on { animation: bulbLight 1s cubic-bezier(0.22,1,0.36,1) both; }
+    @keyframes bulbLight {
+      0%   { opacity: 0; filter: drop-shadow(0 0 0 rgba(250,204,21,0)); transform: scale(0.9); }
+      55%  { opacity: 1; transform: scale(1.04); }
+      100% { opacity: 1; filter: drop-shadow(0 0 14px rgba(250,204,21,0.75)); transform: scale(1); }
+    }
     .patriot-pulse {
       animation: patriotPulse 2.8s ease-in-out infinite;
       border: 3px solid #3b82f6;
@@ -3110,6 +3117,7 @@
         {profileData && (
           <CandidateProfile
             candidate={profileData.candidate}
+            opponent={profileData.race.candidates.find(c => c && c.name !== profileData.candidate.name) || null}
             issues={issues}
             answers={answers}
             checkedStatements={checkedStatements}
@@ -3301,7 +3309,7 @@
               <h3 className="font-black text-slate-900 text-lg">Sources & Methodology</h3>
               <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 font-bold text-sm">✕</button>
             </div>
-            <div className="px-5 py-4 overflow-y-auto max-h-[70vh] space-y-4 text-sm text-slate-600 leading-relaxed">
+            <div className="px-5 py-4 overflow-y-auto max-h-[70vh] space-y-4 text-sm text-slate-700 leading-relaxed">
               <p><span className="font-bold text-slate-800">Voting records</span> — For candidates currently serving in the Texas Legislature or U.S. Congress, positions are based on how they voted on specific bills. Sources include <a href="https://capitol.texas.gov" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Texas Legislature Online</a>, <a href="https://www.texastribune.org" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Texas Tribune</a>, and <a href="https://justfacts.votesmart.org" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">VoteSmart</a>.</p>
               <p><span className="font-bold text-slate-800">Campaign platforms</span> — For first-time candidates with no voting record, positions are drawn from their published campaign platforms and public statements. These are labeled <span className="italic">[Campaign platform]</span> in the evidence. Self-reported positions are not independently verified.</p>
               <p><span className="font-bold text-slate-800">Judicial candidates</span> — Judicial ethics rules prohibit judges from taking public positions on policy issues. These candidates have filed under a party affiliation.</p>
@@ -3314,10 +3322,12 @@
       );
     }
 
-    function CandidateProfile({ candidate, issues, answers, checkedStatements, ranks, onClose, onSelect, isSelected, raceName, raceCategory, onCompare, isOpponent, onRateIssue }) {
+    function CandidateProfile({ candidate, opponent, issues, answers, checkedStatements, ranks, onClose, onSelect, isSelected, raceName, raceCategory, onCompare, isOpponent, onRateIssue }) {
       const _cs = checkedStatements || {};
       const hasAnswers = answers && Object.keys(answers).length > 0;
-      const [openIssues, setOpenIssues] = useState({});
+      // Per-issue active tab: undefined = collapsed, else 'their' | 'opp' | 'facts'
+      const [issueTab, setIssueTab] = useState({});
+      const setTab = (id, tab) => setIssueTab(o => ({ ...o, [id]: o[id] === tab ? undefined : tab }));
       const [showSources, setShowSources] = useState(false);
       const [hookCollapsed, setHookCollapsed] = useState(false);
       const border = candidate.party === 'D' ? 'border-blue-500' : candidate.party === 'R' ? 'border-red-500' : 'border-slate-300';
@@ -3421,7 +3431,7 @@
                       </p>
                     )}
                     {candidate.summary && (
-                      <p className="text-white/80 mt-2 leading-relaxed text-[14px]">{candidate.summary}</p>
+                      <p className="text-white/80 mt-2 leading-snug text-[14px]">{candidate.summary}</p>
                     )}
                     <button onClick={() => setHookCollapsed(true)}
                       className="mt-2 text-white/50 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest">
@@ -3458,7 +3468,7 @@
                   {sharedEvidence && (
                     <p className="text-sm text-slate-500 leading-relaxed px-5 lg:px-6 pt-4 pb-2 border-b border-slate-100 italic">{sharedEvidence}</p>
                   )}
-            <div className="divide-y divide-slate-100">
+            <div className="flex flex-col gap-2.5 px-0 lg:px-5 py-3">
               {issues && issues.map((issue, idx) => {
                 const rawPos = candidate.positions?.[issue.id];
                 // Normalize new Agree/Disagree/Unknown data into a lean letter using the issue's voice
@@ -3481,65 +3491,91 @@
                 const phrase = (POSITION_PHRASE[issue.id] || {})[pos] || null;
                 const stance = phrase ? { label: phrase, bar: isMatch ? 'bg-emerald-600' : 'bg-slate-600' } : null;
                 const expandable = stance && posText;
-                const isOpen = !!openIssues[issue.id];
+                // Opponent's position on this same issue (for the swap tab)
+                const oppRaw = opponent?.positions?.[issue.id];
+                let oppPos = oppRaw;
+                if (oppRaw === 'Agree') oppPos = voice === 'RIGHT' ? 'C' : 'A';
+                else if (oppRaw === 'Disagree') oppPos = voice === 'RIGHT' ? 'A' : 'C';
+                else if (oppRaw === 'Unknown') oppPos = null;
+                const oppPosText = oppPos ? (issue[oppPos] || '') : '';
+                const oppEvidence = opponent?.evidence?.[issue.id] || null;
+                const oppHasInfo = !!opponent && (oppPosText || oppEvidence);
+                const missingParty = candidate.party === 'D' ? 'Republican' : candidate.party === 'R' ? 'Democrat' : 'other-party';
+                const issueFact = issue.issueFact || '';
+                const tab = issueTab[issue.id];   // undefined (collapsed) | 'their' | 'opp' | 'facts'
+                const isOpen = !!tab;
+                const defaultTab = expandable ? 'their' : (oppHasInfo ? 'opp' : 'facts');
+                const oppLastName = opponent?.name ? opponent.name.split(' ').filter(Boolean).pop() : '';
+                const partyBase = (p) => p === 'D' ? '#1d4ed8' : p === 'R' ? '#b91c1c' : '#475569';
+                const partyDim = (p) => p === 'D' ? '#1e3a8a' : p === 'R' ? '#7f1d1d' : '#334155';
+                const segStyle = (active, kind, party) => kind === 'facts'
+                  ? { background: active ? '#ffffff' : '#cbd5e1', color: '#0f172a', borderBottom: active ? '3px solid #facc15' : '3px solid transparent' }
+                  : { background: active ? partyBase(party) : partyDim(party), color: '#fff', borderBottom: active ? '3px solid #facc15' : '3px solid transparent' };
+                const segCls = "flex-1 text-[10px] lg:text-xs font-black uppercase tracking-wide px-2 py-2.5 leading-tight transition-all hover:brightness-110";
+                // Active tab's heading + body
+                let aHead = '', aBody = '', aItalic = false;
+                if (tab === 'their') { aHead = candidate.name; if (evidence) aBody = evidence; else if (posText) { aBody = `"${posText}"`; aItalic = true; } else { aBody = 'No published view on this issue yet.'; aItalic = true; } }
+                else if (tab === 'opp') { if (oppHasInfo) { aHead = opponent.name; aBody = oppEvidence || (oppPosText ? `"${oppPosText}"` : ''); aItalic = !oppEvidence; } else { aHead = 'Unopposed'; aBody = `No ${missingParty} filed to run, so ${lastName} is the only choice in this race — vote for them or skip it.`; } }
+                else if (tab === 'facts') { aHead = 'The Facts'; aBody = issueFact || 'No facts available yet.'; }
+                const matchDot = isMatch ? '#34d399' : isMismatch ? '#fb7185' : isSplit ? '#94a3b8' : hasStance ? '#38bdf8' : '#64748b';
+                // Colors derive from the candidate's party so the card connects to the (party-colored) profile header above it.
+                const tintFor = (p) => p === 'D' ? '#1d2b63' : p === 'R' ? '#401621' : '#23304d';   // content panel
+                const cardHeaderBg = candidate.party === 'D' ? '#0f1b47' : candidate.party === 'R' ? '#2c0e16' : '#0f172a'; // header + footer bar
+                const isFactsTab = tab === 'facts';
+                const contentBg = isFactsTab ? '#eef2f7' : (tab === 'opp' ? tintFor(opponent?.party) : tintFor(candidate.party));
+                const headCls = isFactsTab ? 'text-slate-900' : 'text-white';
+                const bodyCls = isFactsTab ? 'text-slate-700' : 'text-slate-200';
+                const artSrc = isFactsTab ? './icons/illustrations/facts.png' : `./icons/Symbols/${issue.symbol}.png`;
                 return (
-                  <div key={issue.id} className={`px-5 lg:px-6 py-3 lg:py-4 border-b border-slate-100 ${isMatch ? 'bg-emerald-50' : isMismatch ? 'bg-rose-50' : isSplit ? 'bg-slate-50' : ''}`}>
-                    <div className="flex items-center gap-2">
-                      {/* Issue title sits in the colored box; box color conveys match/neutral, expander reveals the candidate's stance */}
-                      {expandable ? (
-                        <button
-                          onClick={e => { e.stopPropagation(); setOpenIssues(o => ({...o, [issue.id]: !o[issue.id]})); }}
-                          className={`inline-flex items-center gap-2 text-xs lg:text-sm font-black uppercase tracking-wide px-3 py-1.5 rounded-lg text-white transition-all hover:brightness-110 active:scale-[0.98] ${stance.bar}`}
-                          title={isOpen ? 'Hide details' : 'What this means'}
-                        >
-                          {issue.topic}
-                          <span className="inline-flex items-center gap-1 pl-2 ml-1 border-l border-white/40 font-medium opacity-90 normal-case">
-                            <span className="text-[10px]">{isOpen ? 'Hide' : 'What this means'}</span>
-                            <span className="text-[9px] leading-none">{isOpen ? '▲' : '▼'}</span>
-                          </span>
-                        </button>
-                      ) : (
-                        <span className={`inline-flex items-center text-xs lg:text-sm font-black uppercase tracking-wide px-3 py-1.5 rounded-lg text-white ${stance ? stance.bar : 'bg-slate-400'}`}>
-                          {issue.topic}
-                        </span>
-                      )}
-                      {isMatch && (onRateIssue
-                        ? <button onClick={e => { e.stopPropagation(); onRateIssue(issue.id); }}
-                            className="ml-auto text-[10px] lg:text-xs font-bold text-emerald-700 bg-emerald-100 hover:bg-emerald-200 px-2 py-0.5 rounded-full transition-colors flex items-center gap-1 flex-shrink-0">
-                            ✓ Match →
-                          </button>
-                        : <span className="ml-auto text-[10px] lg:text-xs font-bold text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-full">✓ Match</span>
-                      )}
-                      {isMismatch && (onRateIssue
-                        ? <button onClick={e => { e.stopPropagation(); onRateIssue(issue.id); }}
-                            className="ml-auto text-[10px] lg:text-xs font-bold text-rose-600 bg-rose-100 hover:bg-rose-200 px-2 py-0.5 rounded-full transition-colors flex items-center gap-1 flex-shrink-0">
-                            ✗ Differs →
-                          </button>
-                        : <span className="ml-auto text-[10px] lg:text-xs font-bold text-rose-500 bg-rose-100 px-1.5 py-0.5 rounded-full">✗ Differs</span>
-                      )}
-                      {isSplit && hasStance && <span className="ml-auto text-[10px] lg:text-xs font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-full">∼ Split</span>}
-                      {/* Candidate has no position on this issue — show consistently, regardless of whether the voter answered */}
-                      {!hasStance && <span className="ml-auto text-[10px] lg:text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">No position</span>}
-                      {hasStance && !voterLean && !isSplit && (
-                        onRateIssue
-                          ? <button onClick={e => { e.stopPropagation(); onRateIssue(issue.id); }}
-                              className="ml-auto text-[10px] lg:text-xs font-bold text-blue-700 bg-blue-100 hover:bg-blue-200 px-2 py-0.5 rounded-full transition-colors flex items-center gap-1 flex-shrink-0">
-                              Do you match? →
-                            </button>
-                          : <span className="ml-auto text-[10px] lg:text-xs font-bold text-slate-300 px-1.5 py-0.5 rounded-full italic">Not rated</span>
-                      )}
+                  <div key={issue.id}
+                    className="slide-in rounded-xl overflow-hidden border border-slate-700/40 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
+                    style={{ animationDelay: `${Math.min(idx, 8) * 55}ms`, animationFillMode: 'backwards' }}>
+                    {/* Dark header — topic only (clickable); a dot hints match, full line is at the bottom */}
+                    <div className="flex items-center justify-between gap-2 px-4 py-3 cursor-pointer" style={{ background: cardHeaderBg }} onClick={() => setTab(issue.id, isOpen ? tab : defaultTab)}>
+                      <span className="text-white font-black uppercase tracking-wide text-base lg:text-lg leading-tight">{issue.topic}</span>
+                      <span className="flex items-center gap-2 shrink-0">
+                        <span className="w-2.5 h-2.5 rounded-full" style={{ background: matchDot }} />
+                        <span className="text-white/50 text-xs leading-none transition-transform duration-200" style={{ transform: isOpen ? 'rotate(180deg)' : 'none' }}>▼</span>
+                      </span>
                     </div>
-                    {isOpen && expandable && (
-                      <p className="text-sm text-slate-600 italic leading-relaxed mt-2 bg-slate-100 rounded-lg px-3 py-2.5 border border-slate-200">
-                        <span className="font-bold not-italic text-slate-500 text-[11px] uppercase tracking-wide">In plain terms: </span>
-                        "{posText}"
-                      </p>
-                    )}
-                    {!stance && !evidence && (
-                      <p className="text-sm text-slate-400 italic mt-2">No published position found</p>
-                    )}
-                    {evidence && (
-                      <p className="text-sm text-slate-600 leading-relaxed mt-2 pl-2.5 border-l-2 border-slate-300">{evidence}</p>
+                    {isOpen && (
+                      <>
+                        {/* Party-colored tabs: you · The Facts · opponent; active = gold underline */}
+                        <div className="flex">
+                          <button onClick={() => setTab(issue.id, 'their')} style={segStyle(tab === 'their', 'cand', candidate.party)} className={segCls}>{lastName}'s View</button>
+                          {issueFact && <button onClick={() => setTab(issue.id, 'facts')} style={segStyle(tab === 'facts', 'facts')} className={segCls}>The Facts</button>}
+                          <button onClick={() => setTab(issue.id, 'opp')} style={segStyle(tab === 'opp', 'opp', opponent?.party)} className={segCls}>{oppHasInfo ? `${oppLastName}'s View` : `No ${missingParty} Opponent`}</button>
+                        </div>
+                        {/* Dark content — symbol + heading + body; slides in on each tab change */}
+                        <div key={tab} className="issue-enter flex items-center gap-4 px-4 py-5" style={{ background: contentBg }}>
+                          {isFactsTab ? (
+                            <div className="relative shrink-0 w-20 lg:w-28 h-20 lg:h-28">
+                              <img src="./icons/illustrations/light-bulb-off.png" alt="" className="absolute inset-0 w-full h-full object-contain opacity-40" onError={e => { e.currentTarget.style.display = 'none'; }} />
+                              <img src="./icons/illustrations/light-bulb-on.png" alt="" className="bulb-on absolute inset-0 w-full h-full object-contain" onError={e => { e.currentTarget.style.display = 'none'; }} />
+                            </div>
+                          ) : (
+                            <img src={artSrc} alt="" className="shrink-0 object-contain w-16 lg:w-20 h-16 lg:h-20" onError={e => { e.currentTarget.style.display = 'none'; }} />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <h4 className={`font-black uppercase text-base lg:text-lg mb-1 leading-tight ${headCls}`}>{aHead}</h4>
+                            <p className={`text-sm leading-snug ${bodyCls} ${aItalic ? 'italic' : ''}`}>{aBody}</p>
+                          </div>
+                        </div>
+                        {/* Match line at the bottom */}
+                        <div className="flex justify-center px-4 py-2.5" style={{ background: cardHeaderBg }}>
+                          {isMatch && (onRateIssue
+                            ? <button onClick={e => { e.stopPropagation(); onRateIssue(issue.id); }} className="text-[11px] font-black uppercase tracking-wide text-emerald-300 hover:text-emerald-200 transition-colors">✓ Matches your views →</button>
+                            : <span className="text-[11px] font-black uppercase tracking-wide text-emerald-300">✓ Matches your views</span>)}
+                          {isMismatch && (onRateIssue
+                            ? <button onClick={e => { e.stopPropagation(); onRateIssue(issue.id); }} className="text-[11px] font-black uppercase tracking-wide text-rose-300 hover:text-rose-200 transition-colors">✗ Differs from you →</button>
+                            : <span className="text-[11px] font-black uppercase tracking-wide text-rose-300">✗ Differs from you</span>)}
+                          {isSplit && hasStance && <span className="text-[11px] font-black uppercase tracking-wide text-slate-400">∼ Mixed</span>}
+                          {!hasStance && <span className="text-[11px] font-black uppercase tracking-wide text-slate-400">No position on file</span>}
+                          {hasStance && !voterLean && !isSplit && (onRateIssue
+                            ? <button onClick={e => { e.stopPropagation(); onRateIssue(issue.id); }} className="text-[11px] font-black uppercase tracking-wide text-sky-300 hover:text-sky-200 transition-colors">Do you match? →</button>
+                            : <span className="text-[11px] font-black uppercase tracking-wide text-sky-300">Do you match?</span>)}
+                        </div>
+                      </>
                     )}
                   </div>
                 );
@@ -3671,6 +3707,7 @@
           {profileCandidate && (
             <CandidateProfile
               candidate={profileCandidate}
+              opponent={candidates.find(c => c && c.name !== profileCandidate.name) || null}
               issues={issues}
               answers={answers}
               checkedStatements={checkedStatements}
@@ -4474,6 +4511,7 @@
             return (
             <CandidateProfile
               candidate={browseProfile.candidate}
+              opponent={browseProfile.race.candidates.find(c => c && c.name !== browseProfile.candidate.name) || null}
               issues={issues}
               answers={answers}
               checkedStatements={checkedStatements}
