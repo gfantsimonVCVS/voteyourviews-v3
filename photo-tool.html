@@ -70,6 +70,7 @@
     <span id="status" class="text-sm text-slate-500"></span>
     <span class="flex-1"></span>
     <span id="counts" class="text-sm font-semibold text-slate-600"></span>
+    <label class="text-sm text-slate-600 flex items-center gap-1 select-none cursor-pointer"><input type="checkbox" id="onlyMissing"> Only missing</label>
     <button id="approveAll" class="bg-emerald-100 text-emerald-700 text-sm font-semibold rounded-lg px-4 py-2 hover:bg-emerald-200 disabled:opacity-40" disabled>Approve all</button>
     <button id="saveFolder" class="bg-indigo-600 text-white text-sm font-semibold rounded-lg px-4 py-2 hover:bg-indigo-700 disabled:opacity-40" disabled>Save approved → folder</button>
     <button id="download" class="bg-emerald-600 text-white text-sm font-semibold rounded-lg px-4 py-2 hover:bg-emerald-700 disabled:opacity-40" disabled>Download .zip</button>
@@ -136,11 +137,17 @@ function setStatus(t){ statusEl.textContent = t; }
 
 function updateCounts(){
   const ap = cards.filter(c=>c.state==='approved').length;
-  const rj = cards.filter(c=>c.state==='rejected').length;
-  $('#counts').textContent = `${cards.length} loaded · ${ap} approved · ${rj} rejected`;
+  const have = cards.filter(c=>c.png).length;
+  const need = cards.filter(c=>!c.png && c.state!=='processing').length;
+  $('#counts').textContent = `${cards.length} loaded · ${have} have photo · ${need} need a photo · ${ap} approved`;
   $('#download').disabled = ap===0;
   $('#saveFolder').disabled = ap===0;
   $('#approveAll').disabled = !cards.some(c=>c.png && c.state!=='approved' && c.state!=='rejected');
+  applyFilter();
+}
+function applyFilter(){
+  const only = $('#onlyMissing') && $('#onlyMissing').checked;
+  for(const c of cards){ const el=document.getElementById(c.id); if(el) el.style.display = (only && c.png) ? 'none' : ''; }
 }
 
 // fuzzy-ish name match: compare slugs, allow subset/startswith
@@ -248,8 +255,10 @@ function addCard({name, office, srcUrl, candidate}){
         </label>
         <button data-act="paste" class="text-[11px] font-semibold bg-sky-100 text-sky-700 rounded py-1 hover:bg-sky-200">Paste image</button>
       </div>
+      <a class="findbtn block mt-1 text-[11px] font-semibold bg-amber-100 text-amber-700 rounded py-1 text-center hover:bg-amber-200" target="_blank" rel="noopener">🔍 Find photo →</a>
     </div>`;
   grid.appendChild(el);
+  el.querySelector('.findbtn').href = 'https://www.google.com/search?tbm=isch&q=' + encodeURIComponent(`${card.name} ${card.office||''} Texas candidate headshot`);
   if(card.srcUrl) el.querySelector('.orig').src=card.srcUrl;
   el.querySelector('[data-act="approve"]').onclick=()=>setState(card,'approved');
   el.querySelector('[data-act="reject"]').onclick=()=>setState(card,'rejected');
@@ -288,7 +297,7 @@ function blobToDataURL(b){return new Promise(res=>{const fr=new FileReader();fr.
 async function existingProcessed(slug, party){
   const county=$('#county').value;
   const dirs=[]; const p=(party||'').toUpperCase();
-  if(p) dirs.push(`${county}/${p}`);
+  if(p){ dirs.push(`${county}/${p}`); dirs.push(`statewide/${p}`); }  // county-local first, then shared statewide
   dirs.push(county);                                   // legacy/flat fallback
   for(const d of dirs){
     try{
@@ -305,7 +314,8 @@ function setFlagByFaces(card, faces, suffix){
   else flag(card,'✓ ready'+suffix,'text-emerald-600');
 }
 async function applyResult(card, dataUrl, el, fromRepo){
-  card.png=dataUrl; el.querySelector('.cut').src=dataUrl;
+  // already-finished photo (repo or saved fix) — show it on BOTH sides, not the stale sheet URL on the left
+  card.png=dataUrl; el.querySelector('.cut').src=dataUrl; el.querySelector('.orig').src=dataUrl;
   const faces = await countFaces(await loadImg(dataUrl));   // still face-check repo images (catches Bo French's family)
   card.faces=faces; card.state='ready';
   setFlagByFaces(card, faces, fromRepo?' (from repo)':'');
@@ -363,7 +373,8 @@ async function loadSheet(){
   const iN=hdr.indexOf('name'),iP=hdr.indexOf('party'),iO=hdr.indexOf('office'),iPh=hdr.indexOf('photo');
   candidates=rows.slice(1).filter(r=>r[iN]&&r[iN].trim())
     .map(r=>({name:r[iN].trim(),party:(r[iP]||'').trim(),office:(r[iO]||'').trim(),photo:(r[iPh]||'').trim()}))
-    .filter(c=>!party||c.party.toUpperCase()===party);
+    .filter(c=>!party||c.party.toUpperCase()===party)
+    .filter(c=>!/\btbd\b/i.test(c.name));   // skip "TBD — …Nominee" placeholders (not real candidates)
   setStatus(`Loaded ${candidates.length} candidates from ${tabFor(county)}. Building cards…`);
   grid.innerHTML=''; cards=[];
   for(const c of candidates){
@@ -444,6 +455,7 @@ $('#download').onclick=async()=>{
 
 // ---------- init ----------
 $('#pad').oninput=e=>$('#padVal').textContent=e.target.value;
+$('#onlyMissing').onchange=applyFilter;
 $('#loadSheet').onclick=()=>loadSheet().catch(e=>{console.error(e);setStatus('Sheet load failed: '+e.message);});
 setStatus('Loading background-removal + face models…');
 initFace().finally(()=>setStatus('Ready. Load a county or drag photos in.'));
