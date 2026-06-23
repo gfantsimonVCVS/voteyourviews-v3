@@ -47,6 +47,13 @@
       55%  { opacity: 1; transform: scale(1.04); }
       100% { opacity: 1; filter: drop-shadow(0 0 14px rgba(250,204,21,0.75)); transform: scale(1); }
     }
+    /* Issue symbol glows in the active candidate's party color when you switch views */
+    .symbol-glow { animation: symbolGlow 0.85s cubic-bezier(0.22,1,0.36,1) both; }
+    @keyframes symbolGlow {
+      0%   { filter: drop-shadow(0 0 0 transparent); transform: scale(0.92); }
+      55%  { transform: scale(1.05); }
+      100% { filter: drop-shadow(0 0 13px var(--glow)); transform: scale(1); }
+    }
     .patriot-pulse {
       animation: patriotPulse 2.8s ease-in-out infinite;
       border: 3px solid #3b82f6;
@@ -3526,6 +3533,8 @@
                 const headCls = isFactsTab ? 'text-slate-900' : 'text-white';
                 const bodyCls = isFactsTab ? 'text-slate-700' : 'text-slate-200';
                 const artSrc = isFactsTab ? './icons/illustrations/facts.png' : `./icons/Symbols/${issue.symbol}.png`;
+                const glowParty = tab === 'opp' ? opponent?.party : candidate.party;
+                const glowColor = glowParty === 'D' ? 'rgba(96,165,250,0.95)' : glowParty === 'R' ? 'rgba(248,113,113,0.98)' : 'rgba(148,163,184,0.85)';
                 return (
                   <div key={issue.id}
                     className="slide-in rounded-xl overflow-hidden border border-slate-700/40 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
@@ -3554,7 +3563,7 @@
                               <img src="./icons/illustrations/light-bulb-on.png" alt="" className="bulb-on absolute inset-0 w-full h-full object-contain" onError={e => { e.currentTarget.style.display = 'none'; }} />
                             </div>
                           ) : (
-                            <img src={artSrc} alt="" className="shrink-0 object-contain w-16 lg:w-20 h-16 lg:h-20" onError={e => { e.currentTarget.style.display = 'none'; }} />
+                            <img src={artSrc} alt="" className="symbol-glow shrink-0 object-contain w-16 lg:w-20 h-16 lg:h-20" style={{ '--glow': glowColor }} onError={e => { e.currentTarget.style.display = 'none'; }} />
                           )}
                           <div className="flex-1 min-w-0">
                             <h4 className={`font-black uppercase text-base lg:text-lg mb-1 leading-tight ${headCls}`}>{aHead}</h4>
