@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VoteYourViews — Candidate Photo Tool</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<!-- face detection (best-effort; page still works if it fails to load) -->
+<script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
+<style>
+  .checker {
+    background-image:
+      linear-gradient(45deg, #d6d6da 25%, transparent 25%),
+      linear-gradient(-45deg, #d6d6da 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #d6d6da 75%),
+      linear-gradient(-45deg, transparent 75%, #d6d6da 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+    background-color: #eee;
+  }
+  .dropzone.drag { outline: 3px dashed #2563eb; outline-offset: -6px; background:#eff6ff; }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+<div class="max-w-6xl mx-auto p-5">
+
+  <header class="mb-5">
+    <h1 class="text-2xl font-black text-slate-900">VoteYourViews — Candidate Photo Tool</h1>
+    <p class="text-sm text-slate-500">Drop photos → background removed → uniform <b>square transparent PNG</b>. Catches group/family photos automatically. Approve the good ones, download the set.</p>
+  </header>
+
+  <!-- Controls -->
+  <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-5">
+    <div class="flex flex-wrap items-end gap-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-500 mb-1">County</label>
+        <select id="county" class="border border-slate-300 rounded-lg px-3 py-2 text-sm">
+          <option value="hays">Hays</option>
+          <option value="travis">Travis</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-500 mb-1">Party filter</label>
+        <select id="party" class="border border-slate-300 rounded-lg px-3 py-2 text-sm">
+          <option value="">All</option>
+          <option value="D">Democrats</option>
+          <option value="R">Republicans</option>
+          <option value="G">Green</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-500 mb-1">Headroom <span id="padVal">12</span>%</label>
+        <input id="pad" type="range" min="0" max="40" value="12" class="w-32 align-middle" />
+      </div>
+      <button id="loadSheet" class="bg-slate-800 text-white text-sm font-semibold rounded-lg px-4 py-2 hover:bg-slate-900">Load candidate list from sheet</button>
+      <div class="text-xs text-slate-400 max-w-xs leading-snug">Loads names + tries to fetch each existing photo. Some gov hosts block browser fetch (CORS) — drag those photos in instead.</div>
+    </div>
+  </section>
+
+  <!-- Dropzone -->
+  <section id="dropzone" class="dropzone bg-white rounded-xl border-2 border-dashed border-slate-300 p-8 text-center mb-5 cursor-pointer">
+    <p class="text-slate-600 font-semibold">Drag &amp; drop candidate photos here</p>
+    <p class="text-xs text-slate-400 mt-1">or click to choose files. Name files like <code>jane-doe.jpg</code> to auto-match a loaded candidate.</p>
+    <input id="fileInput" type="file" accept="image/*" multiple class="hidden" />
+  </section>
+
+  <!-- Status / export bar -->
+  <div class="flex flex-wrap items-center gap-3 mb-4">
+    <span id="status" class="text-sm text-slate-500"></span>
+    <span class="flex-1"></span>
+    <span id="counts" class="text-sm font-semibold text-slate-600"></span>
+    <button id="approveAll" class="bg-emerald-100 text-emerald-700 text-sm font-semibold rounded-lg px-4 py-2 hover:bg-emerald-200 disabled:opacity-40" disabled>Approve all</button>
+    <button id="saveFolder" class="bg-indigo-600 text-white text-sm font-semibold rounded-lg px-4 py-2 hover:bg-indigo-700 disabled:opacity-40" disabled>Save approved → folder</button>
+    <button id="download" class="bg-emerald-600 text-white text-sm font-semibold rounded-lg px-4 py-2 hover:bg-emerald-700 disabled:opacity-40" disabled>Download .zip</button>
+  </div>
+
+  <!-- Grid -->
+  <section id="grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></section>
+</div>
+
+<script type="module">
+import { removeBackground } from 'https://esm.sh/@imgly/background-removal@1.7.0';
+
+const OUT = 512;
+// process one photo at a time — the in-browser model saturates the main thread if run in parallel
+let _queue = Promise.resolve();
+function enqueue(fn){ _queue = _queue.then(fn).catch(e=>console.warn('queue task failed', e)); return _queue; }
+const $ = s => document.querySelector(s);
+const grid = $('#grid');
+const statusEl = $('#status');
+let candidates = [];        // {name, party, office, photo}
+let cards = [];             // card state objects
+let faceReady = false;
+let pasteTarget = null;     // card awaiting a ⌘V image paste
+
+// ---------- persistence: every manual fix is auto-saved and survives reload / tab close ----------
+let _db=null;
+function idb(){return new Promise((res,rej)=>{if(_db)return res(_db);const r=indexedDB.open('vyv-photos',1);
+  r.onupgradeneeded=()=>r.result.createObjectStore('cuts',{keyPath:'key'});
+  r.onsuccess=()=>{_db=r.result;res(_db);}; r.onerror=()=>rej(r.error);});}
+// upsert: merge a patch into the record (keeps both png and approval state)
+function updateRec(county,slug,name,patch){return new Promise(async res=>{try{const db=await idb();
+  const tx=db.transaction('cuts','readwrite'); const st=tx.objectStore('cuts'); const key=county+'/'+slug;
+  const g=st.get(key); g.onsuccess=()=>{ const rec=Object.assign({key,county,slug,name}, g.result||{}, patch); rec.ts=Date.now(); st.put(rec); };
+  tx.oncomplete=()=>res(); tx.onerror=()=>res();
+}catch(e){res();}});}
+function getRec(county,slug){return new Promise(async res=>{try{const db=await idb();
+  const rq=db.transaction('cuts').objectStore('cuts').get(county+'/'+slug);
+  rq.onsuccess=()=>res(rq.result||null); rq.onerror=()=>res(null);
+}catch(e){res(null);}});}
+const saveFix=(county,slug,name,png)=>updateRec(county,slug,name,{png});
+const saveState=(county,slug,name,state)=>updateRec(county,slug,name,{state});
+
+// global ⌘V handler — reliable path (no clipboard-read permission needed)
+document.addEventListener('paste', e=>{
+  if(!pasteTarget) return;
+  const items = e.clipboardData && e.clipboardData.items;
+  if(!items) return;
+  for(const it of items){
+    if(it.type && it.type.startsWith('image/')){
+      const file=it.getAsFile();
+      const card=pasteTarget; pasteTarget=null;
+      const el=document.getElementById(card.id); if(el) el.style.boxShadow='';
+      enqueue(()=>runCard(card, URL.createObjectURL(file), true));
+      e.preventDefault(); return;
+    }
+  }
+});
+
+// ---------- helpers ----------
+const slugify = n => n.normalize('NFKD').replace(/[̀-ͯ]/g,'')
+  .replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase();
+
+function setStatus(t){ statusEl.textContent = t; }
+
+function updateCounts(){
+  const ap = cards.filter(c=>c.state==='approved').length;
+  const rj = cards.filter(c=>c.state==='rejected').length;
+  $('#counts').textContent = `${cards.length} loaded · ${ap} approved · ${rj} rejected`;
+  $('#download').disabled = ap===0;
+  $('#saveFolder').disabled = ap===0;
+  $('#approveAll').disabled = !cards.some(c=>c.png && c.state!=='approved' && c.state!=='rejected');
+}
+
+// fuzzy-ish name match: compare slugs, allow subset/startswith
+function matchCandidate(fileSlug){
+  let best=null, bestScore=0;
+  for(const c of candidates){
+    const cs = slugify(c.name);
+    let score=0;
+    if(cs===fileSlug) score=100;
+    else if(cs.includes(fileSlug)||fileSlug.includes(cs)) score=70;
+    else { // token overlap
+      const a=new Set(cs.split('-')), b=new Set(fileSlug.split('-'));
+      const inter=[...a].filter(x=>b.has(x)).length;
+      score = inter / Math.max(a.size,b.size) * 60;
+    }
+    if(score>bestScore){bestScore=score; best=c;}
+  }
+  return bestScore>=50 ? best : null;
+}
+
+// ---------- face detection (best effort) ----------
+async function initFace(){
+  try{
+    const base='https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
+    await faceapi.nets.tinyFaceDetector.loadFromUri(base);
+    faceReady=true;
+  }catch(e){ console.warn('face-api unavailable; manual review only', e); }
+}
+async function countFaces(imgEl){
+  if(!faceReady) return null;
+  try{
+    const dets = await faceapi.detectAllFaces(imgEl, new faceapi.TinyFaceDetectorOptions({inputSize:416, scoreThreshold:0.5}));
+    return dets.length;
+  }catch(e){ return null; }
+}
+
+// ---------- image processing ----------
+function loadImg(src){
+  return new Promise((res,rej)=>{
+    const im=new Image(); im.crossOrigin='anonymous';
+    im.onload=()=>res(im); im.onerror=rej; im.src=src;
+  });
+}
+
+// crop transparent PNG to alpha bbox, center on square canvas w/ headroom, resize OUT
+async function squareCutout(cutBlob){
+  const url=URL.createObjectURL(cutBlob);
+  const im=await loadImg(url);
+  const c=document.createElement('canvas'); c.width=im.width; c.height=im.height;
+  const ctx=c.getContext('2d'); ctx.drawImage(im,0,0);
+  const data=ctx.getImageData(0,0,c.width,c.height).data;
+  let minX=c.width,minY=c.height,maxX=0,maxY=0,found=false;
+  for(let y=0;y<c.height;y++)for(let x=0;x<c.width;x++){
+    if(data[(y*c.width+x)*4+3]>10){found=true;
+      if(x<minX)minX=x; if(x>maxX)maxX=x; if(y<minY)minY=y; if(y>maxY)maxY=y;}
+  }
+  URL.revokeObjectURL(url);
+  if(!found) return null;
+  const bw=maxX-minX+1, bh=maxY-minY+1;
+  const pad=(+$('#pad').value)/100;
+  const side=Math.round(Math.max(bw,bh)*(1+pad));
+  const out=document.createElement('canvas'); out.width=OUT; out.height=OUT;
+  const octx=out.getContext('2d');
+  const scale=OUT/side;
+  const dw=bw*scale, dh=bh*scale;
+  octx.drawImage(c, minX,minY,bw,bh, (OUT-dw)/2,(OUT-dh)/2, dw,dh);
+  return out.toDataURL('image/png');
+}
+
+async function processSource(src){
+  // src: object URL or remote URL. Returns {pngDataUrl, faces, origUrl}
+  const origImg = await loadImg(src);
+  const faces = await countFaces(origImg);
+  const cutBlob = await removeBackground(src, {output:{format:'image/png'}});
+  const png = await squareCutout(cutBlob);
+  return {png, faces};
+}
+
+// ---------- card UI ----------
+function addCard({name, office, srcUrl, candidate}){
+  const id='c'+cards.length;
+  const card={id, name:name||'(unnamed)', office:office||'', srcUrl, png:null, faces:null, state:'processing', candidate};
+  cards.push(card);
+  const el=document.createElement('div');
+  el.className='bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden';
+  el.id=id;
+  el.innerHTML=`
+    <div class="grid grid-cols-2">
+      <div class="aspect-square bg-slate-100 flex items-center justify-center overflow-hidden">
+        <img class="orig object-cover w-full h-full" />
+      </div>
+      <div class="aspect-square checker flex items-center justify-center">
+        <img class="cut object-contain w-full h-full" />
+      </div>
+    </div>
+    <div class="p-2">
+      <div class="text-xs font-bold text-slate-800 truncate">${card.name}</div>
+      <div class="text-[10px] text-slate-400 truncate">${card.office}</div>
+      <div class="flag text-[11px] font-semibold mt-1">⏳ processing…</div>
+      <div class="mt-2 grid grid-cols-2 gap-1">
+        <button data-act="approve" class="text-[11px] font-semibold bg-emerald-100 text-emerald-700 rounded py-1 hover:bg-emerald-200">Approve</button>
+        <button data-act="reject"  class="text-[11px] font-semibold bg-rose-100 text-rose-700 rounded py-1 hover:bg-rose-200">Reject</button>
+        <label class="text-[11px] font-semibold bg-slate-100 text-slate-700 rounded py-1 text-center cursor-pointer hover:bg-slate-200">Replace
+          <input type="file" accept="image/*" class="hidden repl" />
+        </label>
+        <button data-act="paste" class="text-[11px] font-semibold bg-sky-100 text-sky-700 rounded py-1 hover:bg-sky-200">Paste image</button>
+      </div>
+    </div>`;
+  grid.appendChild(el);
+  if(card.srcUrl) el.querySelector('.orig').src=card.srcUrl;
+  el.querySelector('[data-act="approve"]').onclick=()=>setState(card,'approved');
+  el.querySelector('[data-act="reject"]').onclick=()=>setState(card,'rejected');
+  el.querySelector('.repl').onchange=e=>{ if(e.target.files[0]) enqueue(()=>runCard(card, URL.createObjectURL(e.target.files[0]), true)); };
+  el.querySelector('[data-act="paste"]').onclick=async()=>{
+    pasteTarget=card;
+    document.querySelectorAll('#grid > div').forEach(d=>d.style.boxShadow='');
+    el.style.boxShadow='0 0 0 3px #0ea5e9';   // highlight the paste target
+    // fast path: async clipboard read (works in some browsers/contexts)
+    try{
+      const items=await navigator.clipboard.read();
+      for(const it of items){
+        const type=it.types.find(t=>t.startsWith('image/'));
+        if(type){ const blob=await it.getType(type); pasteTarget=null; el.style.boxShadow=''; enqueue(()=>runCard(card, URL.createObjectURL(blob), true)); return; }
+      }
+      flag(card,'⌨ press ⌘V now to paste your copied image','text-sky-600');
+    }catch(e){ flag(card,'⌨ press ⌘V now to paste your copied image','text-sky-600'); }
+  };
+  enqueue(()=>runCard(card, card.srcUrl));
+  updateCounts();
+  return card;
+}
+
+function setState(card,state,persist=true){
+  card.state=state;
+  const el=document.getElementById(card.id);
+  el.style.outline = state==='approved' ? '3px solid #10b981' : state==='rejected' ? '3px solid #f43f5e' : '';
+  el.style.opacity = state==='rejected' ? '0.5' : '1';
+  updateCounts();
+  if(persist){ const county=$('#county').value; const slug=slugify(card.candidate?card.candidate.name:card.name); saveState(county,slug,card.name,state); }
+}
+
+function blobToDataURL(b){return new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(b);});}
+// look for an already-processed PNG sitting in the repo (same-origin → no CORS); the CLI may have made it.
+// photos live in per-party folders: images/candidates/<county>/<PARTY>/<slug>.png (flat folder = legacy fallback)
+async function existingProcessed(slug, party){
+  const county=$('#county').value;
+  const dirs=[]; const p=(party||'').toUpperCase();
+  if(p) dirs.push(`${county}/${p}`);
+  dirs.push(county);                                   // legacy/flat fallback
+  for(const d of dirs){
+    try{
+      const r=await fetch(`images/candidates/${d}/${slug}.png?t=${Date.now()}`);  // cache-bust so re-runs show
+      if(r.ok && (r.headers.get('content-type')||'').includes('png')) return await blobToDataURL(await r.blob());
+    }catch(e){}
+  }
+  return null;
+}
+function setFlagByFaces(card, faces, suffix){
+  if(faces===0) flag(card,'⚠ no face detected'+suffix,'text-amber-600');
+  else if(faces>1) flag(card,`⚠ ${faces} faces — group/family photo`+suffix,'text-amber-600');
+  else if(faces===1) flag(card,'✅ 1 face — looks good'+suffix,'text-emerald-600');
+  else flag(card,'✓ ready'+suffix,'text-emerald-600');
+}
+async function applyResult(card, dataUrl, el, fromRepo){
+  card.png=dataUrl; el.querySelector('.cut').src=dataUrl;
+  const faces = await countFaces(await loadImg(dataUrl));   // still face-check repo images (catches Bo French's family)
+  card.faces=faces; card.state='ready';
+  setFlagByFaces(card, faces, fromRepo?' (from repo)':'');
+  updateCounts();
+}
+async function runCard(card, src, isReplace){
+  const el=document.getElementById(card.id);
+  flag(card,'⏳ processing…','text-slate-400');
+  const county=$('#county').value;
+  const slug=slugify(card.candidate?card.candidate.name:card.name);
+  const rec = isReplace ? null : await getRec(county, slug);   // saved fix + approval state
+  const restore=()=>{ if(rec && rec.state) setState(card, rec.state, false); };
+  if(!isReplace){
+    // 0) a manual fix you made earlier — survives reload / tab close (highest priority)
+    if(rec && rec.png){ el.querySelector('.orig').src=rec.png; await applyResult(card, rec.png, el, false); flag(card,'✅ your saved fix','text-emerald-600'); restore(); return; }
+    // 1) an already-processed PNG in the repo — no CORS, no recompute
+    const ex=await existingProcessed(slug, card.candidate?card.candidate.party:'');
+    if(ex){ await applyResult(card, ex, el, true); restore(); return; }
+  }
+  // 2) otherwise process a source (remote URL may CORS-fail → user drags the file in)
+  if(!src){ flag(card,'❌ no photo yet — click Replace to add one','text-rose-600'); card.state='needs-source'; updateCounts(); return; }
+  if(isReplace) el.querySelector('.orig').src=src;
+  try{
+    const {png, faces} = await processSource(src);
+    card.png=png; card.faces=faces; card.state='ready';
+    el.querySelector('.cut').src=png;
+    setFlagByFaces(card, faces, '');
+    // auto-save any user-provided photo (paste / replace / dropped file) so a reload can't lose it
+    if(isReplace || (src && src.startsWith('blob:'))) await saveFix(county, slug, card.name, png);
+    restore();
+  }catch(e){
+    console.warn(e);
+    flag(card,'❌ couldn’t load (CORS?) — drag the file in','text-rose-600');
+    card.state='needs-source';
+  }
+  updateCounts();
+}
+function flag(card,msg,cls){
+  const f=document.getElementById(card.id).querySelector('.flag');
+  f.className='flag text-[11px] font-semibold mt-1 '+cls; f.textContent=msg;
+}
+
+// ---------- sheet loading ----------
+const SHEET_ID='1V1oaEy6ToV3LZt0et9bIWEJQbPrYZg73tDxGelhiFn8';
+const tabFor=c=>c[0].toUpperCase()+c.slice(1)+'County';
+function gdrive(u){const m=u.match(/\/d\/([\w-]+)/)||u.match(/[?&]id=([\w-]+)/);return m?`https://drive.google.com/uc?export=download&id=${m[1]}`:u;}
+
+async function loadSheet(){
+  const county=$('#county').value, party=$('#party').value;
+  setStatus('Loading '+tabFor(county)+'…');
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${tabFor(county)}`;
+  const txt=await (await fetch(url)).text();
+  const rows=parseCSV(txt);
+  const hdr=rows[0].map(h=>h.trim().toLowerCase());
+  const iN=hdr.indexOf('name'),iP=hdr.indexOf('party'),iO=hdr.indexOf('office'),iPh=hdr.indexOf('photo');
+  candidates=rows.slice(1).filter(r=>r[iN]&&r[iN].trim())
+    .map(r=>({name:r[iN].trim(),party:(r[iP]||'').trim(),office:(r[iO]||'').trim(),photo:(r[iPh]||'').trim()}))
+    .filter(c=>!party||c.party.toUpperCase()===party);
+  setStatus(`Loaded ${candidates.length} candidates from ${tabFor(county)}. Building cards…`);
+  grid.innerHTML=''; cards=[];
+  for(const c of candidates){
+    addCard({name:c.name, office:c.office, srcUrl: c.photo?gdrive(c.photo):null, candidate:c});
+  }
+  setStatus(`${candidates.length} candidates. Photos without a working source: drag the file onto its Replace button.`);
+}
+
+// minimal CSV parser (handles quoted fields w/ commas + newlines)
+function parseCSV(t){
+  const rows=[];let row=[],f='',q=false;
+  for(let i=0;i<t.length;i++){const ch=t[i];
+    if(q){ if(ch==='"'){ if(t[i+1]==='"'){f+='"';i++;} else q=false; } else f+=ch; }
+    else { if(ch==='"')q=true; else if(ch===','){row.push(f);f='';}
+      else if(ch==='\n'){row.push(f);rows.push(row);row=[];f='';}
+      else if(ch==='\r'){} else f+=ch; }
+  }
+  if(f.length||row.length){row.push(f);rows.push(row);}
+  return rows;
+}
+
+// ---------- drag & drop ----------
+function handleFiles(files){
+  for(const file of files){
+    if(!file.type.startsWith('image/')) continue;
+    const fileSlug=slugify(file.name.replace(/\.[^.]+$/,''));
+    const match=matchCandidate(fileSlug);
+    if(match){
+      const existing=cards.find(c=>c.candidate&&slugify(c.candidate.name)===slugify(match.name));
+      if(existing){ enqueue(()=>runCard(existing, URL.createObjectURL(file), true)); continue; }
+    }
+    addCard({name: match?match.name:file.name.replace(/\.[^.]+$/,''), office: match?match.office:'', srcUrl: URL.createObjectURL(file), candidate:match});
+  }
+}
+
+const dz=$('#dropzone');
+dz.onclick=()=>$('#fileInput').click();
+$('#fileInput').onchange=e=>handleFiles(e.target.files);
+['dragover','dragenter'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag');}));
+['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag');}));
+dz.addEventListener('drop',e=>handleFiles(e.dataTransfer.files));
+document.body.addEventListener('dragover',e=>e.preventDefault());
+document.body.addEventListener('drop',e=>e.preventDefault());
+
+// approve every card that has a photo and isn't already rejected (leaves rejected/empty alone)
+$('#approveAll').onclick=()=>{ for(const c of cards){ if(c.png && c.state!=='rejected') setState(c,'approved'); } };
+
+// ---------- export ----------
+const approvedList=()=>cards.filter(c=>c.state==='approved'&&c.png).map(c=>({
+  party:((c.candidate&&c.candidate.party)||'NA').toUpperCase(),
+  slug:slugify(c.candidate?c.candidate.name:c.name), png:c.png }));
+
+// Save straight into a folder you pick (Chrome/Edge). Auto-sorts into <party>/ subfolders — no zip, no unzip.
+$('#saveFolder').onclick=async()=>{
+  if(!window.showDirectoryPicker){ setStatus('This browser can’t save to a folder — use the .zip button (works in Chrome/Edge).'); return; }
+  let dir;
+  try{ dir=await window.showDirectoryPicker({mode:'readwrite'}); }catch(e){ return; } // cancelled
+  let n=0;
+  for(const it of approvedList()){
+    const sub=await dir.getDirectoryHandle(it.party,{create:true});   // hays/R, hays/D, …
+    const fh=await sub.getFileHandle(`${it.slug}.png`,{create:true});
+    const w=await fh.createWritable();
+    await w.write(await (await fetch(it.png)).blob());
+    await w.close(); n++;
+  }
+  setStatus(`✅ Saved ${n} photos into ${dir.name}/<party>/ — done, no unzip needed.`);
+};
+
+// Fallback: zip (also organized into <party>/ folders so it extracts the same way)
+$('#download').onclick=async()=>{
+  const zip=new JSZip();
+  for(const it of approvedList()) zip.file(`${it.party}/${it.slug}.png`, it.png.split(',')[1], {base64:true});
+  const blob=await zip.generateAsync({type:'blob'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`${$('#county').value}-photos.zip`; a.click();
+};
+
+// ---------- init ----------
+$('#pad').oninput=e=>$('#padVal').textContent=e.target.value;
+$('#loadSheet').onclick=()=>loadSheet().catch(e=>{console.error(e);setStatus('Sheet load failed: '+e.message);});
+setStatus('Loading background-removal + face models…');
+initFace().finally(()=>setStatus('Ready. Load a county or drag photos in.'));
+</script>
+</body>
+</html>

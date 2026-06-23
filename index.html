@@ -294,6 +294,21 @@
       'Beth Smith': 'https://lh3.googleusercontent.com/d/1--CHI_DGGt73n7nD-Zq5GkbMpZIOk0NH',
       'Sandra Bryant': 'https://lh3.googleusercontent.com/d/1ckAyPB35hCDpTT5NFpCZbUfCK4Mmz_y4',
     };
+
+    // Self-hosted candidate photos (square transparent PNGs). manifest.json lists what exists.
+    // Statewide-block photos live once in statewide/<party>/ (shared by every county);
+    // county-local photos in <county>/<party>/<slug>.png. See tools/build-manifest.py.
+    let PHOTO_MANIFEST = new Set();
+    const photoSlug = n => n.normalize('NFKD').replace(/[̀-ͯ]/g,'')
+      .replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase();
+    function resolveLocalPhoto(county, party, name) {
+      const p = (party || 'NA').toUpperCase(), slug = photoSlug(name);
+      for (const dir of [`${county}/${p}`, `statewide/${p}`]) {
+        const rel = `${dir}/${slug}.png`;
+        if (PHOTO_MANIFEST.has(rel)) return `./images/candidates/${rel}`;
+      }
+      return null;
+    }
     const HOOK1_FALLBACK = {
       'James Talarico': 'A former middle-school teacher who gave up a safe seat to bet his career on the hardest race in Texas.',
       'Ken Paxton': 'Impeached by his own party, acquitted by the Senate — and still standing. Few politicians have survived more.',
@@ -316,7 +331,7 @@
       },
     };
 
-    function buildRaces(rows) {
+    function buildRaces(rows, county) {
       const raceMap = {};
       rows.forEach(row => {
         if (!row.office || !row.name) return; // skip non-candidate rows
@@ -344,7 +359,7 @@
           confirmed: ['true','yes','TRUE','Yes'].includes(row.confirmed),
           uncontested: ['true','yes','TRUE','Yes'].includes(row.uncontested),
           website: row.website || null,
-          photo: row.photo || PHOTO_FALLBACK[row.name] || null,
+          photo: resolveLocalPhoto(county, row.party, row.name) || row.photo || PHOTO_FALLBACK[row.name] || null,
           summary: row.hook2 || HOOK2_FALLBACK[row.name] || row.summary || '',
           hook: row.hook1 || HOOK1_FALLBACK[row.name] || null,
           positions,
@@ -5212,6 +5227,12 @@
           }
           const rawIssues = buildIssues(issueRows);
           const builtIssues = [...GRID_ORDER.map(id => rawIssues.find(i => i.id === id)).filter(Boolean), ...rawIssues.filter(i => !GRID_ORDER.includes(i.id))];
+          // load the self-hosted photo manifest (which candidates have local PNGs) before building
+          try {
+            const mres = await fetch('./images/candidates/manifest.json', { cache: 'no-store' });
+            if (mres.ok) PHOTO_MANIFEST = new Set(await mres.json());
+          } catch (_) {}
+
           const builtCounties = {};
           for (const [key, meta] of Object.entries(COUNTY_META)) {
             builtCounties[key] = { ...meta, available: false, statewide: [], local: [] };
@@ -5219,7 +5240,7 @@
             if (countySheet) {
               try {
                 const countyRows = await fetchSheet(countySheet.sheetId, countySheet.tab);
-                const countyRaces = buildRaces(countyRows);
+                const countyRaces = buildRaces(countyRows, key);
                 Object.assign(builtCounties[key], buildCountyRaces([], countyRaces));
                 builtCounties[key].available = countyRaces.length > 0;
               } catch (_) {}
