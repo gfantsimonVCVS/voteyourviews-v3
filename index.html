@@ -1687,11 +1687,12 @@
           <header className="flex items-center justify-center py-0 lg:py-5 border-b border-white/5 pt-[10px] lg:pt-0 px-[10px] lg:px-0">
 
             {/* Logo — color full-width on mobile, white fixed-height on desktop */}
-            {/* ⚠️ height:72px + objectFit:cover is correct. DO NOT add objectPosition or margins — that clips .org. DO NOT use height:auto — makes header giant on wide phones. DO NOT add display:block — overrides md:hidden. */}
-            <img src="./icons/VoteYourViews_ThinHeader1.png" alt="VoteYourViews.org" className="w-full block md:hidden" style={{width:'100%', height:'72px', objectFit:'cover'}} />
+            {/* ⚠️ height:72px + objectFit:cover is correct. DO NOT add objectPosition or margins — that clips .org. DO NOT use height:auto — makes header giant on wide phones. DO NOT add display:block — overrides lg:hidden. */}
+            {/* Breakpoint MUST be lg (not md): phones in landscape are ~840–930px wide, which sits between md(768) and lg(1024). The mobile info bar below uses lg:hidden, so anything narrower than lg here gets a doubled/oversized header sideways. Keep header + info bar on the SAME lg breakpoint. */}
+            <img src="./icons/VoteYourViews_ThinHeader1.png" alt="VoteYourViews.org" className="w-full block lg:hidden" style={{width:'100%', height:'72px', objectFit:'cover'}} />
 
             {/* Desktop: logo + election info centered together as a unit */}
-            <div className="hidden md:flex items-center gap-20 xl:gap-28">
+            <div className="hidden lg:flex items-center gap-20 xl:gap-28">
               <img src="./icons/VoteYourViews_Logo_White.png" alt="VoteYourViews.org" className="h-[109px] w-auto shrink-0 -ml-[60px]" />
               <div className="flex flex-col" style={{fontFamily:"'Barlow Condensed', sans-serif", marginLeft:'30px'}}>
                 <p className="text-white font-black text-4xl xl:text-5xl tracking-tight leading-none">Texas Midterm Election</p>
