@@ -271,16 +271,11 @@
           symbol: builtin.symbol,
           topic: row.topic || builtin.topic,
           emphasis: builtin.emphasis,
-          question: row.question || builtin.question,
           A:      pick(row.optionA, builtin.A),
-          shortA: pick(row.shortA,  builtin.shortA),
           B:      pick(row.optionB, builtin.B),
-          shortB: pick(row.shortB,  builtin.shortB),
           C:      pick(row.optionC, builtin.C),
-          shortC: pick(row.shortC,  builtin.shortC),
           D:      row.optionD || builtin.D || "This issue is important, but it won't decide my vote.",
-          fact:   row.fact || builtin.fact,
-          hoverDesc: row.hoverDesc || builtin.hoverDesc,
+          issueFact: row.issueFact || builtin.issueFact,
         };
       }).filter(i => i.id);
     }
@@ -388,48 +383,33 @@
         symbol: 'Reproductive_Symbol',
         topic: 'Reproductive Rights',
         emphasis: 'reproductive healthcare',
-        question: 'When it comes to reproductive healthcare decisions, I believe:',
         A: 'Pregnancy and abortion decisions belong between a person and their doctor — not politicians. Texas\'s current total ban goes too far and puts lives at risk.',
-        shortA: 'Abortion decisions belong to patients and their doctors — not politicians.',
         B: 'Abortion is a deeply personal decision, and I understand the moral weight on both sides. I support access in early pregnancy with reasonable limits, and want clear exceptions that protect women\'s health and lives in all circumstances.',
-        shortB: 'Abortion should be legal in early pregnancy with clear exceptions for health and safety.',
         C: 'Life begins at conception, and government has a responsibility to protect the unborn. Texas\'s abortion laws reflect our communities\' deeply held values.',
-        shortC: 'Life begins at conception; government must protect the unborn.',
         D: "This issue is important, but it won't decide my vote.",
-        fact: 'Texas enacted a near-total abortion ban in 2022 after the Supreme Court overturned Roe v. Wade. Exceptions exist only for life-threatening medical emergencies.',
-        hoverDesc: 'Texas enacted a near-total abortion ban in 2022 following the Supreme Court\'s Dobbs decision, with no exceptions for rape or incest. Documented cases have emerged of women being denied emergency care. Multiple OB-GYNs have left the state, creating provider shortages in rural Texas. The issue remains one of the most contested — and consequential — in Texas politics.',
+        issueFact: 'Texas enacted a near-total abortion ban in 2022 following the Supreme Court\'s Dobbs decision, with no exceptions for rape or incest. Documented cases have emerged of women being denied emergency care. Multiple OB-GYNs have left the state, creating provider shortages in rural Texas. The issue remains one of the most contested — and consequential — in Texas politics.',
       },
       {
         id: 'immigration',
         symbol: 'Immigration_Symbol',
         topic: 'Immigration & Border',
         emphasis: 'immigration and the Texas border',
-        question: 'On immigration and the Texas border, I believe:',
         A: 'Immigrants strengthen Texas economically and culturally. We need clear, humane legal pathways to citizenship — not mass deportation or family separation.',
-        shortA: 'Immigrants strengthen Texas; we need humane, legal pathways to citizenship.',
         B: "The border needs to be secure — but mass deportation isn't the answer. I want enforcement that's firm but humane, and a realistic legal pathway for the millions of people who've built their lives and families here.",
-        shortB: 'We need secure borders AND a humane, realistic path for people already here.',
         C: 'Securing the border is the top priority. Illegal immigration strains public resources and must be stopped through strong enforcement.',
-        shortC: 'Securing the border is the top priority — stop illegal crossings.',
         D: "This issue is important, but it won't decide my vote.",
-        fact: 'Texas shares a 1,254-mile border with Mexico. Illegal border crossings hit a record high in 2024 before declining sharply in early 2025 after federal policy changes.',
-        hoverDesc: 'Texas shares a 1,254-mile border with Mexico and sits at the center of the national immigration debate. An estimated 1.6 million undocumented immigrants live in Texas — many for decades — contributing to agriculture, construction, and the broader economy. Crossings hit a record high in 2024 then dropped sharply after 2025 federal policy changes. State and federal leaders disagree sharply on enforcement vs. pathways to legal status.',
+        issueFact: 'Texas shares a 1,254-mile border with Mexico and sits at the center of the national immigration debate. An estimated 1.6 million undocumented immigrants live in Texas — many for decades — contributing to agriculture, construction, and the broader economy. Crossings hit a record high in 2024 then dropped sharply after 2025 federal policy changes. State and federal leaders disagree sharply on enforcement vs. pathways to legal status.',
       },
       {
         id: 'gunPolicy',
         symbol: 'Guns_Symbol',
         topic: 'Gun Policy',
         emphasis: 'gun laws',
-        question: 'On gun laws, I believe:',
         A: 'Common-sense measures — universal background checks, red flag laws, and assault weapon restrictions — save lives without infringing on law-abiding citizens\' rights.',
-        shortA: 'Background checks and red flag laws save lives without banning guns.',
         B: "The Second Amendment and the right to own firearms must be protected. Background checks and keeping guns out of dangerous hands are reasonable and don't threaten law-abiding gun owners. Rights come with responsibilities.",
-        shortB: 'I support gun rights and think basic safety measures like background checks are reasonable.',
         C: 'The Second Amendment is a fundamental right that must be fully protected. Government gun restrictions do more harm than good and leave people less safe.',
-        shortC: 'The Second Amendment must be fully protected from any restriction.',
         D: "This issue is important, but it won't decide my vote.",
-        fact: 'Texas passed permitless carry in 2021. Firearms were involved in over 4,100 Texas deaths in 2022. Texas has more gun dealers than any other state.',
-        hoverDesc: 'Texas passed permitless carry in 2021, allowing anyone legally allowed to own a firearm to carry it in public without a license or training. Firearms were involved in over 4,100 Texas deaths in 2022. The mass shootings in Uvalde (21 killed) and El Paso (23 killed) intensified the debate. Texas has more gun dealers per capita than any other state, and gun rights groups wield significant political influence in Austin.',
+        issueFact: 'Texas passed permitless carry in 2021, allowing anyone legally allowed to own a firearm to carry it in public without a license or training. Firearms were involved in over 4,100 Texas deaths in 2022. The mass shootings in Uvalde (21 killed) and El Paso (23 killed) intensified the debate. Texas has more gun dealers per capita than any other state, and gun rights groups wield significant political influence in Austin.',
       },
       {
         id: 'education',
@@ -437,16 +417,11 @@
         symbol: 'Education_Symbol',
         topic: 'Public Education',
         emphasis: 'public schools and education funding',
-        question: 'On public schools and education funding, I believe:',
         A: 'Tax dollars belong in public schools. Voucher programs that send public money to private or religious schools undermine the communities that depend on them.',
-        shortA: 'Tax dollars belong in public schools — not private school vouchers.',
         B: "Strong public schools are the backbone of our communities and deserve full funding. I also think parents should have some meaningful say in their child's education — as long as accountability follows the money, wherever it goes.",
-        shortB: 'Fund public schools fully, but give parents some meaningful choice with accountability.',
         C: 'Parents — not government — should decide where their child is educated. Funding should follow the student to whatever school best meets their needs.',
-        shortC: 'Parents, not government, should choose their child\'s school.',
         D: "This issue is important, but it won't decide my vote.",
-        fact: 'Texas funds 1,200+ school districts. In 2023 the legislature passed a $1B school voucher program; opponents say it diverts funds from underfunded public schools.',
-        hoverDesc: 'Texas funds 1,200+ school districts serving over 5 million students. In 2023, the legislature passed a $1 billion voucher program allowing public funds to follow students to private, charter, or home schools. Supporters say it expands parental choice; opponents argue it funnels money away from underfunded rural and low-income public schools that cannot opt out of the system.',
+        issueFact: 'Texas funds 1,200+ school districts serving over 5 million students. In 2023, the legislature passed a $1 billion voucher program allowing public funds to follow students to private, charter, or home schools. Supporters say it expands parental choice; opponents argue it funnels money away from underfunded rural and low-income public schools that cannot opt out of the system.',
       },
       {
         id: 'healthcare',
@@ -454,16 +429,11 @@
         symbol: 'Healthcare_Symbol',
         topic: 'Healthcare',
         emphasis: 'healthcare access for Texans',
-        question: 'On healthcare access for Texans, I believe:',
         A: 'Every Texan deserves access to affordable healthcare. Texas should expand Medicaid, protect the ACA, and ensure no one goes without coverage due to cost.',
-        shortA: 'Every Texan deserves affordable coverage — expand Medicaid now.',
         B: "Healthcare costs are crushing Texas families and something has to change. I'm open to both market-based reforms and expanded public programs — whatever actually lowers costs and gets people covered without breaking the budget.",
-        shortB: "Healthcare needs reform — I'm open to market and public solutions that actually lower costs.",
         C: 'Healthcare works best when driven by free-market competition, not government programs. Expanding Medicaid grows dependency and increases costs for taxpayers.',
-        shortC: 'Free-market competition, not government programs, lowers healthcare costs.',
         D: "This issue is important, but it won't decide my vote.",
-        fact: 'Texas has the highest uninsured rate in the nation at 18.3%. It\'s one of only 10 states that has not expanded Medicaid under the Affordable Care Act.',
-        hoverDesc: 'Texas has the highest uninsured rate in the nation at 18.3% — nearly 5 million people without coverage. It is one of only 10 states that has not expanded Medicaid under the ACA. An estimated 1 million additional Texans would gain coverage through expansion, at a 90% federal match rate. Texas hospitals have absorbed billions in uncompensated care costs as a direct result of this decision.',
+        issueFact: 'Texas has the highest uninsured rate in the nation at 18.3% — nearly 5 million people without coverage. It is one of only 10 states that has not expanded Medicaid under the ACA. An estimated 1 million additional Texans would gain coverage through expansion, at a 90% federal match rate. Texas hospitals have absorbed billions in uncompensated care costs as a direct result of this decision.',
       },
       {
         id: 'climate',
@@ -471,16 +441,11 @@
         symbol: 'Climate_Symbol',
         topic: 'Climate & Energy',
         emphasis: 'energy and the environment',
-        question: 'On energy and the environment, I believe:',
         A: 'Texas must invest in clean, renewable energy and hold polluters accountable. The ERCOT crisis showed what happens when we prioritize profit over reliability and sustainability.',
-        shortA: 'Invest in clean energy and hold polluters accountable.',
         B: "Texas's energy industry matters and so does our environment. We can invest in cleaner, more reliable energy while protecting jobs — the 2021 grid failure showed that the status quo isn't working for anyone.",
-        shortB: 'We need reliable energy AND a cleaner future — balance both without sacrificing either.',
         C: 'Texas\'s oil and gas industry drives our economy and national energy security. Over-regulation threatens jobs and energy independence without meaningful climate benefit.',
-        shortC: 'Oil and gas drive Texas prosperity — protect them from over-regulation.',
         D: "This issue is important, but it won't decide my vote.",
-        fact: 'Texas is the nation\'s top producer of both oil and wind energy. The 2021 winter storm knocked out power for 4.5 million homes and caused $130B+ in damages.',
-        hoverDesc: 'Texas is the nation\'s top producer of oil, gas, wind, and solar energy — energy is central to the Texas economy and identity. The 2021 winter storm killed 246 Texans and caused $130B+ in damages, exposing critical grid vulnerabilities. Climate-driven extremes — heat, drought, and floods — increasingly threaten Texas agriculture and infrastructure. How Texas balances energy production with climate risk is a defining question for its future.',
+        issueFact: 'Texas is the nation\'s top producer of oil, gas, wind, and solar energy — energy is central to the Texas economy and identity. The 2021 winter storm killed 246 Texans and caused $130B+ in damages, exposing critical grid vulnerabilities. Climate-driven extremes — heat, drought, and floods — increasingly threaten Texas agriculture and infrastructure. How Texas balances energy production with climate risk is a defining question for its future.',
       },
       {
         id: 'electionIntegrity',
@@ -488,48 +453,33 @@
         symbol: 'Election_Integrity_Symbol',
         topic: 'Election Integrity',
         emphasis: 'election integrity and voting rights',
-        question: 'On election integrity and voting rights, I believe:',
         A: 'Every eligible Texan should be able to vote without barriers. Voter suppression — through ID requirements, polling place closures, and voter roll purges — is a real threat to democracy.',
-        shortA: 'Voter suppression is real — every eligible Texan deserves easy access to the ballot.',
         B: "I believe in both secure elections and accessible voting — those goals aren't mutually exclusive. I want reasonable safeguards that don't make it harder for eligible voters to participate.",
-        shortB: 'Support both secure elections and accessible voting for all eligible Texans.',
         C: 'Election integrity means ensuring only legal votes are counted. Voter ID, secure rolls, and strong oversight are common-sense safeguards, not suppression.',
-        shortC: 'Voter ID and secure rolls are common-sense safeguards for election integrity.',
         D: "This issue is important, but it won't decide my vote.",
-        fact: 'Texas has closed hundreds of polling locations since 2012, disproportionately in minority counties. In 2021, Texas passed SB 1, restricting mail-in voting and drive-through voting.',
-        hoverDesc: 'Texas has eliminated more polling places than any other state since the Supreme Court gutted the Voting Rights Act in 2013 — over 750 closures. SB 1 (2021) restricted 24-hour voting, drive-through voting, and made it harder to assist voters. Supporters say these are safeguards against fraud; critics call them voter suppression. Texas regularly purges voter rolls, sometimes removing eligible voters weeks before elections.',
+        issueFact: 'Texas has eliminated more polling places than any other state since the Supreme Court gutted the Voting Rights Act in 2013 — over 750 closures. SB 1 (2021) restricted 24-hour voting, drive-through voting, and made it harder to assist voters. Supporters say these are safeguards against fraud; critics call them voter suppression. Texas regularly purges voter rolls, sometimes removing eligible voters weeks before elections.',
       },
       {
         id: 'socialSecurity',
         symbol: 'Medicare_Symbol',
         topic: 'Social Security & Medicare',
         emphasis: 'Social Security and Medicare',
-        question: 'On Social Security and Medicare, I believe:',
         A: 'These programs must be fully protected and strengthened. Seniors earned these benefits — any cuts or privatization are unacceptable.',
-        shortA: 'Protect and strengthen Social Security and Medicare — no cuts ever.',
         B: "These programs earned the trust of millions of Texans and shouldn't be gutted or privatized. If honest, gradual adjustments are needed to keep them strong for future generations, I'm open to that conversation — but only if benefits are protected.",
-        shortB: 'Protect these programs — open to gradual adjustments only if benefits stay intact.',
         C: 'These programs face long-term insolvency and need structural reform. Responsible changes now will ensure future generations can still benefit.',
-        shortC: 'Long-term solvency requires honest structural reform starting now.',
         D: "This issue is important, but it won't decide my vote.",
-        fact: '4.7 million Texans receive Social Security or Medicare benefits. Without legislative changes, the Social Security trust fund is projected to be depleted by 2033.',
-        hoverDesc: '4.7 million Texans receive Social Security or Medicare benefits. Without legislative action, the Social Security trust fund is projected to be depleted by 2033 — potentially triggering automatic benefit cuts of up to 23%. Medicare covers nearly 4 million Texans age 65+. Proposals to raise eligibility ages, reduce cost-of-living adjustments, or introduce privatization have energized seniors and retirees on both sides of the debate.',
+        issueFact: '4.7 million Texans receive Social Security or Medicare benefits. Without legislative action, the Social Security trust fund is projected to be depleted by 2033 — potentially triggering automatic benefit cuts of up to 23%. Medicare covers nearly 4 million Texans age 65+. Proposals to raise eligibility ages, reduce cost-of-living adjustments, or introduce privatization have energized seniors and retirees on both sides of the debate.',
       },
       {
         id: 'affordability',
         symbol: 'Affordability_Symbol',
         topic: 'Housing & Affordability',
         emphasis: 'the cost of housing and everyday life in Texas',
-        question: 'On the cost of housing and everyday life in Texas, I believe:',
         A: 'Texas must invest in affordable housing, protect renters, and reform zoning laws. Rising costs are pushing working families out of their communities.',
-        shortA: 'Protect renters and invest in affordable housing — the market isn\'t working.',
         B: "Rising costs are pushing working families out of the communities they built. We need more housing supply AND some basic protections for renters — the free market alone hasn't solved it, but heavy-handed government intervention has its own problems.",
-        shortB: 'We need more housing supply AND basic renter protections — both matter.',
         C: 'Government intervention inflates housing costs. Deregulation, reduced permitting barriers, and free-market competition are the fastest path to affordable homes.',
-        shortC: 'Deregulation and free-market competition are the real path to affordability.',
         D: "This issue is important, but it won't decide my vote.",
-        fact: 'Texas median home prices rose over 50% from 2020–2023. Austin and San Marcos now rank among the least affordable markets in the South for median-income households.',
-        hoverDesc: 'Texas median home prices rose over 50% from 2020–2023, driven by massive in-migration and constrained housing supply. Austin and San Marcos now rank among the least affordable markets in the South for median-income households. Statewide rent increased 30%+ and homelessness rose 24% in 2023. Property taxes — among the highest in the nation — compound the burden on homeowners and renters alike.',
+        issueFact: 'Texas median home prices rose over 50% from 2020–2023, driven by massive in-migration and constrained housing supply. Austin and San Marcos now rank among the least affordable markets in the South for median-income households. Statewide rent increased 30%+ and homelessness rose 24% in 2023. Property taxes — among the highest in the nation — compound the burden on homeowners and renters alike.',
       },
     ];
 
@@ -1005,7 +955,16 @@
       // Remaining parts split on the em/en-dash separator (office on its own line, Place/Precinct/seat on the last)
       rest.split(/\s*[—–]\s*/).forEach(p => {
         const t = p.trim().replace(/\bPl\b/gi, 'Place').replace(/\bPct\b/gi, 'Precinct');
-        if (t) lines.push(t);
+        if (!t) return;
+        // Pull a trailing "No. N" / "Place N" / "Precinct N" onto its own line so e.g.
+        // "Court at Law No. 1" reads as office line + number line (county already split above).
+        const tail = t.match(/^(.+?)[,\s]+((?:No\.?|Place|Precinct)\s*\d+)$/i);
+        if (tail && tail[1].trim()) {
+          lines.push(tail[1].trim());
+          lines.push(tail[2].replace(/^No\.?\s*/i, 'No. '));
+        } else {
+          lines.push(t);
+        }
       });
       return lines;
     }
@@ -1628,48 +1587,6 @@
       return null;
     }
 
-    function IssueCard({ issue, onClick }) {
-      const [hasImg, setHasImg] = React.useState(true);
-
-      return (
-        <div
-          onClick={onClick}
-          className="flex flex-row sm:flex-col bg-white rounded-2xl border border-slate-200 overflow-hidden cursor-pointer hover:shadow-lg hover:border-slate-300 active:scale-[0.99] transition-all duration-150"
-        >
-          {/* Icon — 5% inset buffer via padding wrapper */}
-          <div className="shrink-0 p-1.5 sm:p-2 sm:w-full">
-            {hasImg
-              ? <img src={`./icons/${issue.icon || issue.id}.png`} alt={issue.topic}
-                     className="w-24 h-24 sm:w-full sm:h-auto sm:aspect-square object-cover rounded-xl"
-                     onError={() => setHasImg(false)} />
-              : <div className="w-24 h-24 sm:w-full sm:aspect-square bg-gradient-to-br from-blue-900 via-slate-800 to-red-900 flex items-center justify-center rounded-xl">
-                  <span className="text-3xl">🗳️</span>
-                </div>
-            }
-          </div>
-
-          {/* Content */}
-          <div className="flex-1 min-w-0 p-3 sm:p-4 flex flex-col">
-            <h3 className="font-black text-slate-900 text-sm leading-tight mb-1">{issue.topic}</h3>
-            <p className="text-xs text-slate-400 leading-relaxed mb-2 flex-1 line-clamp-2 sm:line-clamp-none">{issue.fact}</p>
-            <div className="space-y-1.5">
-              <div className="flex gap-2 items-start">
-                <span className="mt-0.5 shrink-0 w-4 h-4 rounded-full bg-blue-600 flex items-center justify-center text-white font-black" style={{fontSize:'9px'}}>A</span>
-                <p className="text-xs text-blue-800 leading-snug">{issue.shortA}</p>
-              </div>
-              <div className="flex gap-2 items-start">
-                <span className="mt-0.5 shrink-0 w-4 h-4 rounded-full bg-purple-600 flex items-center justify-center text-white font-black" style={{fontSize:'9px'}}>B</span>
-                <p className="text-xs text-purple-800 leading-snug">{issue.shortB}</p>
-              </div>
-              <div className="flex gap-2 items-start">
-                <span className="mt-0.5 shrink-0 w-4 h-4 rounded-full bg-red-600 flex items-center justify-center text-white font-black" style={{fontSize:'9px'}}>C</span>
-                <p className="text-xs text-red-800 leading-snug">{issue.shortC}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
 
     function Landing({ onQuiz, onBrowse, onSummary, onStartOver, county, setCounty, counties, dataSource, issues, answers = {}, checkedStatements = {} }) {
       const available = true;
@@ -1878,26 +1795,6 @@
               </div>
             </div>
 
-          {/* Large hover info card — desktop only, gradient overlay dims text in gap */}
-          {hoveredIssue && (() => {
-            const hovered = issueList.find(i => i.id === hoveredIssue);
-            return (
-              <div
-                className="hidden absolute inset-0 pointer-events-none z-10"
-                style={{background: 'linear-gradient(to right, rgb(15,23,42) 0%, rgb(15,23,42) 46%, rgba(15,23,42,0.55) 58%, rgba(15,23,42,0) 70%)'}}
-              >
-                <div className="h-full flex items-center pl-16 xl:pl-28" style={{paddingRight:'42%'}}>
-                  <div className="bg-white rounded-3xl px-8 py-8 shadow-2xl w-full max-w-[440px] mx-auto">
-                    <p className="text-slate-900 font-black text-2xl mb-2">{hovered?.topic}</p>
-                    <div className="w-10 h-1 bg-blue-500 rounded-full mb-4" />
-                    <p className="text-slate-600 text-[15px] leading-relaxed">{hovered?.hoverDesc}</p>
-                    <p className="text-blue-600 text-[11px] font-bold mt-5 pt-4 border-t border-slate-100 uppercase tracking-wider">Click Icon to Rank Your View →</p>
-                  </div>
-                </div>
-              </div>
-            );
-          })()}
-
           </main>
 
           {/* Footer */}
@@ -2077,10 +1974,10 @@
                   </div>
                   <p className="text-white font-black text-base uppercase tracking-wide">{issue.topic}</p>
                 </div>
-                <p className="text-slate-200 text-[15px] leading-relaxed mb-6">{issue.hoverDesc || issue.fact}</p>
+                <p className="text-slate-200 text-[15px] leading-relaxed mb-6">{issue.issueFact}</p>
                 <button onClick={() => setShowContext(false)}
-                  className="w-full py-3 rounded-full font-black text-sm uppercase tracking-widest text-white transition-all hover:opacity-80"
-                  style={{background:'rgba(255,255,255,0.12)', border:'1px solid rgba(255,255,255,0.2)'}}>
+                  className="block w-fit mx-auto px-10 py-2.5 rounded-lg font-black text-sm uppercase tracking-wide text-white transition-all hover:opacity-80"
+                  style={{background:'rgba(255,255,255,0.12)', border:'1px solid rgba(255,255,255,0.2)', letterSpacing:'0.05em'}}>
                   Got it
                 </button>
               </div>
@@ -2107,10 +2004,10 @@
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-0.5" style={{color:'rgba(255,255,255,0.4)'}}>Views on</p>
                     <div className="flex items-center gap-3 flex-wrap">
                       <p className="text-white font-black uppercase leading-tight text-[20px] lg:text-[26px]" style={{fontFamily:"'Barlow Condensed',sans-serif", letterSpacing:'0.04em'}}>{issue.topic}</p>
-                      {(issue.hoverDesc || issue.fact) && (
+                      {issue.issueFact && (
                         <button onClick={() => setShowContext(true)}
-                          className="text-[10px] font-black uppercase tracking-widest transition-all hover:brightness-125 active:scale-95 px-3 py-1 rounded-full shrink-0"
-                          style={{background:'rgba(217,119,6,0.2)', color:'#f59e0b', border:'1px solid rgba(217,119,6,0.5)', letterSpacing:'0.12em'}}>
+                          className="text-[10px] font-black uppercase tracking-wide transition-all hover:brightness-125 active:scale-95 px-2.5 py-1 rounded-lg shrink-0"
+                          style={{background:'rgba(217,119,6,0.2)', color:'#f59e0b', border:'1px solid rgba(217,119,6,0.5)', letterSpacing:'0.04em'}}>
                           ★ Get the Facts
                         </button>
                       )}
@@ -3062,8 +2959,8 @@
                     return (
                       <div key={race.office} className="rounded-2xl overflow-hidden" style={{background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)'}}>
 
-                        {/* ── MOBILE layout ── */}
-                        <div className="lg:hidden p-3 flex items-center gap-3">
+                        {/* ── MOBILE layout (phones only, <768px) ── */}
+                        <div className="md:hidden p-3 flex items-center gap-3">
                           {/* Photo (circle) + match badge */}
                           <div className="relative shrink-0" style={{paddingBottom:'4px'}}>
                             <div className="relative w-[72px] h-[72px] rounded-full overflow-hidden" style={{border:`2.5px solid ${partyColor}`, background: partyColor + '33'}}>
@@ -3102,8 +2999,8 @@
                           </button>
                         </div>
 
-                        {/* ── DESKTOP layout: 3 columns, col 3 double-wide ── */}
-                        <div className="hidden lg:grid" style={{gridTemplateColumns:'1fr 1.6fr 2fr', minHeight:'160px'}}>
+                        {/* ── DESKTOP/TABLET layout: 3 columns, col 3 double-wide (≥768px) ── */}
+                        <div className="hidden md:grid" style={{gridTemplateColumns:'1fr 1.6fr 2fr', minHeight:'160px'}}>
 
                           {/* Col 1: Race name + selected indicator */}
                           <div className="flex flex-col items-center justify-center gap-2 px-6 py-6 border-r border-white/10 text-center">
@@ -3157,8 +3054,8 @@
                               )}
                               <div className="flex gap-2 flex-wrap mt-1">
                                 <button onClick={() => setProfileData({ candidate: displayCand, race, isBest: !isOverridden })}
-                                  className="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full transition-all hover:brightness-125"
-                                  style={{background:'rgba(217,119,6,0.2)', color:'#f59e0b', border:'1px solid rgba(217,119,6,0.5)', letterSpacing:'0.1em'}}>
+                                  className="text-[10px] font-black uppercase tracking-wide px-2.5 py-1.5 rounded-lg whitespace-nowrap transition-all hover:brightness-125"
+                                  style={{background:'rgba(217,119,6,0.2)', color:'#f59e0b', border:'1px solid rgba(217,119,6,0.5)', letterSpacing:'0.04em'}}>
                                   ★ Get the Facts
                                 </button>
                                 <button onClick={() => {
@@ -3166,10 +3063,10 @@
                                     const name = displayCand?.name;
                                     setSelected(prev => prev[office] === name ? Object.fromEntries(Object.entries(prev).filter(([k]) => k !== office)) : {...prev, [office]: name});
                                   }}
-                                  className="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full transition-all hover:brightness-125"
-                                  style={isOnBallot
+                                  className="text-[10px] font-black uppercase tracking-wide px-2.5 py-1.5 rounded-lg whitespace-nowrap transition-all hover:brightness-125"
+                                  style={{...(isOnBallot
                                     ? {background:'rgba(34,197,94,0.2)', color:'#22c55e', border:'1px solid rgba(34,197,94,0.5)'}
-                                    : {background:'rgba(255,255,255,0.08)', color:'rgba(255,255,255,0.5)', border:'1px solid rgba(255,255,255,0.2)'}}>
+                                    : {background:'rgba(255,255,255,0.08)', color:'rgba(255,255,255,0.5)', border:'1px solid rgba(255,255,255,0.2)'}), letterSpacing:'0.04em'}}>
                                   {isOnBallot ? '✓ On Ballot' : '+ Add to Ballot'}
                                 </button>
                               </div>
@@ -3626,8 +3523,8 @@
                       {hasStance && !voterLean && !isSplit && (
                         onRateIssue
                           ? <button onClick={e => { e.stopPropagation(); onRateIssue(issue.id); }}
-                              className="ml-auto text-[10px] lg:text-xs font-bold text-amber-700 bg-amber-100 hover:bg-amber-200 px-2 py-0.5 rounded-full transition-colors flex items-center gap-1 flex-shrink-0">
-                              Not answered →
+                              className="ml-auto text-[10px] lg:text-xs font-bold text-blue-700 bg-blue-100 hover:bg-blue-200 px-2 py-0.5 rounded-full transition-colors flex items-center gap-1 flex-shrink-0">
+                              Do you match? →
                             </button>
                           : <span className="ml-auto text-[10px] lg:text-xs font-bold text-slate-300 px-1.5 py-0.5 rounded-full italic">Not rated</span>
                       )}
@@ -4651,7 +4548,7 @@
     }
 
     // ─── BALLOT ───
-    function Ballot({ county, counties, selected, answers, ranks, checkedStatements, issues, userDistricts, onHome, onEdit }) {
+    function Ballot({ county, counties, selected, answers, ranks, checkedStatements, issues, userDistricts, onBack, onHome, onEdit }) {
       const countyData = counties[county];
       const hasAnswers = answers && Object.keys(answers).length > 0;
       const [downloading, setDownloading] = React.useState(false);
@@ -4772,7 +4669,7 @@
 
             // office — wrap within card, up to 2 lines, anchored at top
             pdf.setFont('helvetica', 'bold'); pdf.setFontSize(5.5); pdf.setTextColor(...GRAY);
-            const officeStr = formatOffice(race.office).filter(Boolean).join(' ').toUpperCase();
+            const officeStr = formatOfficeLines(race.office).join(' ').toUpperCase();
             const officeLines = pdf.splitTextToSize(officeStr, cardW - 7).slice(0, 2);
             officeLines.forEach((ln, i) => pdf.text(ln, center, cy + 9 + i * 6, { align: 'center' }));
 
@@ -4911,42 +4808,6 @@
         return { candidate: race.candidates.filter(Boolean)[0], isChosen: false };
       }
 
-      function formatOffice(raw) {
-        const o = raw.replace(/ of Texas$/i, '').trim();
-        if (o.includes(' — ')) {
-          const [a, b] = o.split(' — ');
-          return [a.replace(/^TX /, ''), b];
-        }
-        if (o.includes(' • ')) { const [a,b] = o.split(' • '); return [a, b]; }
-        const dist = o.match(/^(.+?)\s+(District\s+\d+)$/i);
-        if (dist) return [dist[1], dist[2]];
-        const pctPl = o.match(/^(.+?),?\s+(Pct\.?\s*\d+),?\s+(Pl\.?\s*\d+)$/i);
-        if (pctPl) return [pctPl[1], 'Pct ' + pctPl[2].replace(/pct\.?\s*/i,'') + ' · Pl ' + pctPl[3].replace(/pl\.?\s*/i,'')];
-        const pct = o.match(/^(.+?),?\s+(Pct\.?\s*\d+)$/i);
-        if (pct) return [pct[1], 'Pct. ' + pct[2].replace(/pct\.?\s*/i,'')];
-        const noMatch = o.match(/^(.+?)\s+(No\.\s*\d+)$/i);
-        if (noMatch) return [noMatch[1], noMatch[2]];
-        const map = {
-          'U.S. Senate': ['U.S.', 'Senate'],
-          'Governor': ['Governor', ''],
-          'Lieutenant Governor': ['Lieutenant', 'Governor'],
-          'Attorney General': ['Attorney', 'General'],
-          'Comptroller of Public Accounts': ['Comptroller', 'Public Accounts'],
-          'Commissioner of General Land Office': ['Commissioner', 'Land Office'],
-          'Commissioner of Agriculture': ['Commissioner', 'Agriculture'],
-          'Railroad Commissioner': ['Railroad', 'Commissioner'],
-          'Hays County Judge': ['County', 'Judge'],
-          'Criminal District Attorney': ['District', 'Attorney'],
-          'District Clerk': ['District', 'Clerk'],
-          'County Clerk': ['County', 'Clerk'],
-          'County Treasurer': ['County', 'Treasurer'],
-        };
-        if (map[o]) return map[o];
-        const words = o.split(' ');
-        if (words.length >= 3) { const m = Math.ceil(words.length / 2); return [words.slice(0,m).join(' '), words.slice(m).join(' ')]; }
-        return [o, ''];
-      }
-
       const allRaces = RACE_SECTIONS.flatMap(sec => filterRacesByDistrict(countyData[sec.key] || [], userDistricts));
       const ballotCandidates = allRaces.map(race => {
         const { candidate } = getBestCandidate(race);
@@ -4959,7 +4820,7 @@
           {/* Screen-only nav bar */}
           <header className="no-print sticky top-0 z-10 px-4 py-3 flex items-center justify-between gap-3"
             style={{background:'#0f172a', borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
-            <button onClick={onHome} className="shrink-0 text-slate-400 hover:text-white text-sm font-semibold flex items-center gap-1.5">
+            <button onClick={onBack} className="shrink-0 text-slate-400 hover:text-white text-sm font-semibold flex items-center gap-1.5">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/></svg>
               Back
             </button>
@@ -5010,15 +4871,16 @@
                     {sectionCandidates.map(({ race, candidate }) => {
               const partyColor = candidate.party === 'D' ? '#2563eb' : candidate.party === 'R' ? '#dc2626' : '#64748b';
                 const partyLabel = candidate.party === 'D' ? 'Democrat' : candidate.party === 'R' ? 'Republican' : candidate.party || 'Independent';
-                const [officeLine1, officeLine2] = formatOffice(race.office);
+                const officeLines = formatOfficeLines(race.office);
                 return (
                   <div key={race.office}
                     className="flex flex-col items-center text-center rounded-xl px-1.5 py-2.5"
                     style={{background:'#fff', border:'1.5px solid #e2e8f0', breakInside:'avoid', pageBreakInside:'avoid'}}>
-                    {/* Office — 2 lines */}
-                    <div className="w-full leading-tight" style={{minHeight:'2.4em'}}>
-                      <div style={{fontSize:'8.5px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.06em', color:'#64748b'}}>{officeLine1}</div>
-                      {officeLine2 && <div style={{fontSize:'8.5px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.06em', color:'#64748b'}}>{officeLine2}</div>}
+                    {/* Office — county on its own top line, then office, then any Place/Precinct/No. */}
+                    <div className="w-full leading-tight" style={{minHeight:'3.4em'}}>
+                      {officeLines.map((line, i) => (
+                        <div key={i} style={{fontSize:'8.5px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.06em', color:'#64748b'}}>{line}</div>
+                      ))}
                     </div>
                     {/* Name — fixed 2-line zone so photos align across the row */}
                     <div className="flex items-center justify-center" style={{fontSize:'11px', fontWeight:900, lineHeight:1.15, color:'#0f172a', marginTop:'3px', marginBottom:'6px', minHeight:'2.3em'}}>
@@ -5222,6 +5084,7 @@
       const [initialRace, setInitialRace] = useState(null);     // passed to Browse to auto-open a race
       const [browseReturn, setBrowseReturn] = useState('landing'); // screen to return to from Compare/Browse
       const [resultsReturn, setResultsReturn] = useState('landing'); // screen to return to from Pre-Ballot (results)
+      const [ballotReturn, setBallotReturn] = useState('landing'); // screen to return to from the printable Ballot's Back
       const [addrModal, setAddrModal] = useState(null); // destination screen after address modal: 'browse' | 'results' | null
 
       async function loadFromSheets() {
@@ -5440,7 +5303,7 @@
             county={county}
             onMatchAll={() => { setBrowseReturn('summary'); setScreen('browse'); }}
             onCompareMine={(districts) => { setUserDistricts(districts); setBrowseReturn('summary'); setScreen('browse'); }}
-            onBallot={(districts) => { if (districts) setUserDistricts(districts); setScreen('ballot'); }}
+            onBallot={(districts) => { if (districts) setUserDistricts(districts); setBallotReturn('summary'); setScreen('ballot'); }}
             onMatchMine={(districts) => { setUserDistricts(districts); setResultsReturn('summary'); setScreen('results'); }}
             onViewConstellation={() => setScreen('constellation')}
             onAnswerMore={(id) => { setStartIssueId(id); setPendingScreen('summary'); setScreen('quiz'); }}
@@ -5476,7 +5339,7 @@
             setSelected={setSelected}
             userDistricts={userDistricts}
             setUserDistricts={setUserDistricts}
-            onBallot={() => setScreen('ballot')}
+            onBallot={() => { setBallotReturn('results'); setScreen('ballot'); }}
             onBack={() => setScreen(resultsReturn)}
             onBrowse={() => { setBrowseReturn('results'); setScreen('browse'); }}
             onCompare={(race) => { setBrowseReturn('results'); setInitialRace(race.office); setScreen('browse'); }}
@@ -5503,7 +5366,7 @@
             setSelected={setSelected}
             userDistricts={userDistricts}
             setUserDistricts={setUserDistricts}
-            onBallot={() => setScreen('ballot')}
+            onBallot={() => { setBallotReturn('browse'); setScreen('ballot'); }}
             onHome={() => setScreen('landing')}
             onBack={() => setScreen(browseReturn)}
             backLabel={browseReturn === 'landing' ? '← Home' : '← Back'}
@@ -5533,6 +5396,7 @@
             checkedStatements={checkedStatements}
             issues={issues}
             userDistricts={userDistricts}
+            onBack={() => setScreen(ballotReturn)}
             onHome={() => setScreen('landing')}
             onEdit={() => setScreen(Object.keys(answers).length > 0 ? 'results' : 'browse')}
           />
