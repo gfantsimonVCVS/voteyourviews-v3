@@ -397,6 +397,23 @@
       return Object.values(raceMap);
     }
 
+    // Clean per-candidate URLs (voteyourviews.org/JamesTalarico): match a URL slug to a candidate across all counties.
+    const candidateSlug = (name) => (name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    function findCandidateBySlug(counties, slug) {
+      const target = candidateSlug(slug);
+      if (!target) return null;
+      for (const [countyKey, c] of Object.entries(counties || {})) {
+        for (const secKey of ['federal', 'state', 'county', 'judicial']) {
+          for (const race of (c[secKey] || [])) {
+            for (const cand of (race.candidates || []).filter(Boolean)) {
+              if (candidateSlug(cand.name) === target) return { countyKey, candidate: cand, race };
+            }
+          }
+        }
+      }
+      return null;
+    }
+
     function buildCountyRaces(statewideRaces, localRaces) {
       const all = [...statewideRaces, ...localRaces];
       return {
@@ -3392,11 +3409,11 @@
       }
       return (
         <React.Fragment>
-        <div className="fixed inset-0 z-50 flex flex-col bg-black/60 lg:items-center lg:justify-center lg:p-6">
-          <div className="flex flex-col lg:flex-row bg-white lg:rounded-2xl lg:shadow-2xl lg:max-w-6xl w-full lg:max-h-[92vh] overflow-hidden relative">
+        <div className="fixed inset-0 z-50 flex flex-col bg-black/60 md:items-center md:justify-center md:p-6">
+          <div className="flex flex-col md:flex-row bg-white md:rounded-2xl md:shadow-2xl md:max-w-6xl w-full md:max-h-[92vh] overflow-hidden relative">
             <button onClick={onClose} className="absolute top-3 right-3 z-10 w-8 h-8 bg-black/55 rounded-full flex items-center justify-center text-white font-bold text-sm hover:bg-black/70">✕</button>
           {/* LEFT PANEL — identity (mobile: top, desktop: fixed-width left column) */}
-          <div className={`${accentBg} lg:w-[380px] lg:flex-shrink-0 lg:overflow-y-auto relative flex-shrink-0 px-5 pt-8 pb-5 lg:pt-10`} style={{ background: accentGrad, boxShadow: '6px 0 24px rgba(0,0,0,0.35)' }}>
+          <div className={`${accentBg} md:w-[300px] lg:w-[380px] md:flex-shrink-0 md:overflow-y-auto relative flex-shrink-0 px-5 pt-8 pb-5 lg:pt-10`} style={{ background: accentGrad, boxShadow: '6px 0 24px rgba(0,0,0,0.35)' }}>
 
             {/* Top row: photo + identity */}
             <div className="flex items-center gap-4">
@@ -3489,7 +3506,7 @@
 
             {/* Add to Ballot — desktop only (mobile has it in bottom bar) */}
             {onSelect && (
-              <div className="hidden lg:block mt-5">
+              <div className="hidden md:block mt-5">
                 <button onClick={onSelect}
                   className={`w-full py-3 rounded-xl font-black text-sm uppercase tracking-wide transition-all active:scale-95 ${isSelected ? 'bg-white text-slate-900' : 'bg-white/20 text-white border-2 border-white/40 hover:bg-white/30'}`}>
                   {isSelected ? '✓ On Your Ballot' : '+ Add to Ballot'}
@@ -3506,7 +3523,7 @@
               return (
                 <>
                   {/* Desktop section header */}
-                  <div className="hidden lg:flex items-center justify-between px-6 pt-5 pb-3 border-b border-white/10">
+                  <div className="hidden md:flex items-center justify-between px-6 pt-5 pb-3 border-b border-white/10">
                     <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Issue Positions</h3>
                     {hasAnswers && <span className="text-xs text-slate-400 pr-10">✓ = matches your views</span>}
                   </div>
@@ -3642,7 +3659,7 @@
             </div>
 
             {/* Bottom CTA — mobile only (desktop has Add button in left panel) */}
-            <div className={`lg:hidden px-5 py-4 ${accentBg} flex items-center justify-between gap-4`}>
+            <div className={`md:hidden px-5 py-4 ${accentBg} flex items-center justify-between gap-4`}>
               {onClose && (
                 <button onClick={onClose}
                   className="flex items-center gap-2 text-white/80 hover:text-white font-black text-sm uppercase tracking-widest transition-colors">
@@ -4987,6 +5004,11 @@
     // ─────────────────────────────────────────────
     function App() {
       const _params = new URLSearchParams(window.location.search);
+      // Clean per-candidate URL slug (voteyourviews.org/JamesTalarico), or null for the app's own pages.
+      const urlSlug = (() => {
+        const p = decodeURIComponent((window.location.pathname || '').replace(/^\/+|\/+$/g, ''));
+        return ['', 'index.html', 'statements', 'ballot'].includes(p.toLowerCase()) ? null : p;
+      })();
       const [screen, setScreen] = useState(_params.get('testBallot') === '1' ? 'loading' : SHEETS.master ? 'loading' : 'landing');
       // ?persist=1 in URL uses localStorage (for testing); otherwise sessionStorage (clears on new visit)
       const store = new URLSearchParams(window.location.search).get('persist') === '1' ? localStorage : sessionStorage;
@@ -5105,7 +5127,8 @@
           setIssues(builtIssues);
           setCounties(builtCounties);
           setDataSource('sheets');
-          setScreen(new URLSearchParams(window.location.search).get('testBallot') === '1' ? 'ballot' : 'landing');
+          // If arriving via a candidate URL, stay on loading and let the slug effect route to the profile (avoids a landing flash / double-render).
+          setScreen(new URLSearchParams(window.location.search).get('testBallot') === '1' ? 'ballot' : (urlSlug ? 'loading' : 'landing'));
         } catch (err) {
           setLoadError(err.message);
           setDataSource('error');
@@ -5116,6 +5139,24 @@
       useEffect(() => {
         if (SHEETS.master) loadFromSheets();
       }, []);
+
+      // Clean per-candidate URL (voteyourviews.org/JamesTalarico): once data is loaded, open that candidate's profile.
+      const [slugHandled, setSlugHandled] = useState(false);
+      useEffect(() => {
+        if (slugHandled) return;
+        if (dataSource !== 'sheets') return;   // wait for final data
+        setSlugHandled(true);
+        if (!urlSlug) return;
+        const match = findCandidateBySlug(counties, urlSlug);
+        if (match) {
+          setCounty(match.countyKey);
+          setReopenProfile({ candidate: match.candidate, race: match.race });
+          setBrowseReturn('landing');
+          setScreen('browse');
+        } else {
+          setScreen('landing');   // unknown slug — fall back to home so we don't hang on loading
+        }
+      }, [counties, dataSource]);
 
       function goToAddress(destination) {
         setPendingScreen(destination);

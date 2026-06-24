@@ -1,0 +1,4 @@
+# SPA fallback — serve the app for clean per-candidate URLs (e.g. /JamesTalarico).
+# Existing files (index.html, /icons/*, /images/*) are served directly; unknown paths load the app,
+# which reads the slug from the URL and opens that candidate's profile.
+/*    /index.html    200

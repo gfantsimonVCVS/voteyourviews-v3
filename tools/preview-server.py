@@ -8,7 +8,7 @@ refresh is guaranteed fresh — no `?v=` cache-busting needed.
 
 Usage: preview-server.py [PORT] [DIRECTORY]
 """
-import sys, http.server, socketserver
+import sys, os, http.server, socketserver
 
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8761
 DIRECTORY = sys.argv[2] if len(sys.argv) > 2 else '.'
@@ -17,6 +17,13 @@ DIRECTORY = sys.argv[2] if len(sys.argv) > 2 else '.'
 class NoCacheHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=DIRECTORY, **kwargs)
+
+    def do_GET(self):
+        # SPA fallback: clean per-candidate URLs like /JamesTalarico have no real file, so serve the app.
+        rel = self.path.split('?', 1)[0].split('#', 1)[0]
+        if not os.path.exists(self.translate_path(self.path)) and '.' not in os.path.basename(rel):
+            self.path = '/index.html'
+        return super().do_GET()
 
     def end_headers(self):
         self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
