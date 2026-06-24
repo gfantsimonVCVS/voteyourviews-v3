@@ -4653,6 +4653,15 @@
       const hasAnswers = answers && Object.keys(answers).length > 0;
       const [downloading, setDownloading] = React.useState(false);
 
+      // Share the guide with others — native share sheet, with a copy-link fallback.
+      async function handleShareGuide() {
+        const data = { title: 'VoteYourViews — My 2026 Texas Ballot', text: 'Rank your beliefs, see which candidates match, and build your ballot:', url: 'https://voteyourviews.org' };
+        try {
+          if (navigator.share) { await navigator.share(data); }
+          else { await navigator.clipboard.writeText(data.url); alert('Link copied — share it anywhere:\n' + data.url); }
+        } catch (e) { /* user dismissed the share sheet */ }
+      }
+
       async function handleDownloadPDF() {
         setDownloading(true);
         const page = document.querySelector('.ballot-page');
@@ -4744,24 +4753,29 @@
       return (
         <div className="min-h-screen" style={{background:'#e2e8f0'}}>
           {/* Screen-only nav bar */}
-          <header className="no-print sticky top-0 z-10 px-4 py-3 flex items-center justify-between gap-3"
+          <header className="no-print sticky top-0 z-10 px-4 py-3 flex items-center justify-center gap-3 relative"
             style={{background:'#0f172a', borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
-            <button onClick={onBack} className="shrink-0 text-slate-400 hover:text-white text-sm font-semibold flex items-center gap-1.5">
+            <button onClick={onBack} className="absolute left-4 text-slate-400 hover:text-white text-sm font-semibold flex items-center gap-1.5">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/></svg>
-              Back
+              <span className="hidden sm:inline">Back</span>
             </button>
-            {/* No center title: the hero below ("2026 Midterm Guide") is the page header, so a toolbar title is redundant and crowds mobile. */}
-            <div className="flex items-center gap-2 shrink-0">
+            {/* Centered action buttons — rounded-rectangle, prominent */}
+            <div className="flex items-center gap-2.5">
               <button onClick={handleDownloadPDF} disabled={downloading}
-                className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wide px-3.5 py-2 rounded-full text-white whitespace-nowrap"
-                style={{background:'#16a34a', letterSpacing:'0.05em', opacity: downloading ? 0.6 : 1}}>
+                className="flex items-center gap-2 text-sm font-black uppercase tracking-wide px-4 py-2.5 rounded-xl text-white whitespace-nowrap active:scale-95 transition-transform"
+                style={{background:'#16a34a', letterSpacing:'0.04em', boxShadow:'0 2px 8px rgba(0,0,0,0.35)', opacity: downloading ? 0.6 : 1}}>
                 <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                 {downloading ? 'Saving…' : 'Save PDF'}
               </button>
-              <button onClick={() => window.print()} className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wide px-3.5 py-2 rounded-full text-white whitespace-nowrap"
-                style={{background:'#2563eb', letterSpacing:'0.05em'}}>
+              <button onClick={() => window.print()} className="flex items-center gap-2 text-sm font-black uppercase tracking-wide px-4 py-2.5 rounded-xl text-white whitespace-nowrap active:scale-95 transition-transform"
+                style={{background:'#2563eb', letterSpacing:'0.04em', boxShadow:'0 2px 8px rgba(0,0,0,0.35)'}}>
                 <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                 Print
+              </button>
+              <button onClick={handleShareGuide} className="flex items-center gap-2 text-sm font-black uppercase tracking-wide px-4 py-2.5 rounded-xl text-white whitespace-nowrap active:scale-95 transition-transform"
+                style={{background:'#7c3aed', letterSpacing:'0.04em', boxShadow:'0 2px 8px rgba(0,0,0,0.35)'}}>
+                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.7 10.7l6.6-3.4M8.7 13.3l6.6 3.4M18 8a3 3 0 10-3-3 3 3 0 003 3zM6 15a3 3 0 10-3-3 3 3 0 003 3zm12 7a3 3 0 10-3-3 3 3 0 003 3z"/></svg>
+                Share
               </button>
             </div>
           </header>
@@ -4877,19 +4891,12 @@
                     </div>
                   </div>
                 </div>
-                <div style={{display:'flex', alignItems:'center', gap:'10px', flexShrink:0}}>
-                  <div style={{textAlign:'right'}}>
-                    <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'11px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.08em', color:'#0f172a', lineHeight:1.1}}>Find all<br/>locations</div>
-                    <div style={{fontSize:'9px', color:'#94a3b8', marginTop:'2px'}}>Scan to look up</div>
-                  </div>
-                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://hayscountytx.com/departments/elections/voter-information/" alt="Find polling place QR" style={{width:'66px', height:'66px', display:'block', border:'3px solid #fff', borderRadius:'8px', boxShadow:'0 0 0 1px #e2e8f0'}} />
-                </div>
               </div>
               {/* Locations — 2-column grid */}
               <div style={{display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:'12px'}}>
                 {[
-                  {name:'Dripping Springs High School', addr:'940 W Hwy 290, Dripping Springs, TX 78620'},
-                  {name:'Dripping Springs Ranch Park', addr:'1042 Event Center Dr, Dripping Springs, TX 78620'},
+                  {name:'Closest Polling Location #1', addr:'Address TBA'},
+                  {name:'Closest Polling Location #2', addr:'Address TBA'},
                 ].map((loc, i) => (
                   <div key={i} className="ballot-loc-box" style={{display:'flex', alignItems:'center', gap:'12px', background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:'10px', padding:'12px 16px'}}>
                     <div style={{flexShrink:0, width:'30px', height:'30px', borderRadius:'50%', background:'#2563eb', display:'flex', alignItems:'center', justifyContent:'center'}}>
