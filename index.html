@@ -2209,7 +2209,7 @@
 
                 {rank && (
                   <button onClick={handleSave} className={BTN.std} style={BTN_STYLE.amber}>
-                    Next Issue →
+                    Submit
                   </button>
                 )}
 
@@ -2992,7 +2992,7 @@
                             </div>
                             {!isJudicialRace && displayScore !== null && (
                               <div className="absolute left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-[11px] font-black whitespace-nowrap"
-                                style={{bottom:'-2px', background:'#0f172a', border:`2px solid ${scoreColor}`, color: scoreColor}}>
+                                style={{bottom:'-2px', background:'#0f172a', border:`2px solid ${scoreColor}`, color: scoreColor, zIndex:2}}>
                                 {displayScore}%
                               </div>
                             )}
@@ -3013,8 +3013,8 @@
                           <button onClick={() => setProfileData({ candidate: displayCand, race, isBest: !isOverridden })}
                             className="shrink-0 flex flex-col items-center justify-center gap-1 px-2 py-3 rounded-xl transition-all active:scale-[0.96]"
                             style={{width:'76px', background:'rgba(217,119,6,0.16)', color:'#f59e0b', border:'1px solid rgba(217,119,6,0.5)'}}>
-                            <span style={{fontSize:'16px', lineHeight:1}}>★</span>
-                            <span className="text-[9px] font-black uppercase leading-tight text-center" style={{letterSpacing:'0.06em'}}>Get the<br/>Facts</span>
+                            <svg viewBox="0 0 24 24" fill="currentColor" style={{width:'18px',height:'18px'}}><path d="M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-4.4 0-8 2.7-8 6v1h16v-1c0-3.3-3.6-6-8-6z"/></svg>
+                            <span className="text-[9px] font-black uppercase leading-tight text-center" style={{letterSpacing:'0.06em'}}>About<br/>{displayCand?.name?.split(' ')[0]}</span>
                           </button>
                         </div>
 
@@ -3073,9 +3073,10 @@
                               )}
                               <div className="flex gap-2 flex-wrap mt-1">
                                 <button onClick={() => setProfileData({ candidate: displayCand, race, isBest: !isOverridden })}
-                                  className="text-[10px] font-black uppercase tracking-wide px-2.5 py-1.5 rounded-lg whitespace-nowrap transition-all hover:brightness-125"
+                                  className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wide px-2.5 py-1.5 rounded-lg whitespace-nowrap transition-all hover:brightness-125"
                                   style={{background:'rgba(217,119,6,0.2)', color:'#f59e0b', border:'1px solid rgba(217,119,6,0.5)', letterSpacing:'0.04em'}}>
-                                  ★ Get the Facts
+                                  <svg viewBox="0 0 24 24" fill="currentColor" style={{width:'13px',height:'13px'}}><path d="M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-4.4 0-8 2.7-8 6v1h16v-1c0-3.3-3.6-6-8-6z"/></svg>
+                                  About {displayCand?.name?.split(' ')[0]}
                                 </button>
                                 <button onClick={() => {
                                     const office = race.office;
@@ -3401,17 +3402,21 @@
                   </p>
                 )}
                 <h2 className="text-white font-black text-xl lg:text-2xl leading-tight mb-1">{candidate.name}</h2>
-                <p className="text-white/60 text-[11px] font-bold uppercase tracking-widest mb-1.5">{candidate.party === 'D' ? 'Democrat' : candidate.party === 'R' ? 'Republican' : 'Independent'}</p>
-                <div className="flex items-center gap-2 flex-wrap">
-                  {isJudicialCandidate ? (
-                    <span className="text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full bg-white/20 text-white/60">Party Aligned</span>
-                  ) : matchScore !== null && (
-                    <span className="text-[13px] font-black px-3 py-1 rounded-full bg-white/25 text-white">{matchScore}% match</span>
-                  )}
-                  <a href={candidate.website || undefined} target="_blank" rel="noopener noreferrer" className="inline-block text-white/50 hover:text-white transition-colors" title="Visit website">
-                    <svg className="w-[25px] h-[25px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <p className="text-white/60 text-[14px] font-bold uppercase tracking-widest">{candidate.party === 'D' ? 'Democrat' : candidate.party === 'R' ? 'Republican' : 'Independent'}</p>
+                  <a href={candidate.website || undefined} target="_blank" rel="noopener noreferrer" className="inline-block text-white/50 hover:text-white transition-colors shrink-0" title="Visit website">
+                    <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                   </a>
                 </div>
+                {(isJudicialCandidate || matchScore !== null) && (
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {isJudicialCandidate ? (
+                      <span className="text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full bg-white/20 text-white/60">Party Aligned</span>
+                    ) : (
+                      <span className="text-[13px] font-black px-3 py-1 rounded-full bg-white/25 text-white">{matchScore}% match</span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -3579,19 +3584,19 @@
                             <p className={`text-sm leading-snug ${bodyCls} ${aItalic ? 'italic' : ''}`}>{aBody}</p>
                           </div>
                         </div>
-                        {/* Match line at the bottom */}
-                        <div className="flex justify-center px-4 py-2.5" style={{ background: cardHeaderBg }}>
+                        {/* Match line at the bottom — interactive options are full-width tall tap targets so a finger can't miss into the next card */}
+                        <div className="relative z-10 flex justify-center px-2 py-1" style={{ background: cardHeaderBg }}>
                           {isMatch && (onRateIssue
-                            ? <button onClick={e => { e.stopPropagation(); onRateIssue(issue.id); }} className="text-[11px] font-black uppercase tracking-wide text-emerald-300 hover:text-emerald-200 transition-colors">✓ Matches your views →</button>
-                            : <span className="text-[11px] font-black uppercase tracking-wide text-emerald-300">✓ Matches your views</span>)}
+                            ? <button onClick={e => { e.stopPropagation(); onRateIssue(issue.id); }} className="block w-full py-3 text-[11px] font-black uppercase tracking-wide text-emerald-300 hover:text-emerald-200 active:opacity-70 transition-colors">✓ Matches your views →</button>
+                            : <span className="py-3 text-[11px] font-black uppercase tracking-wide text-emerald-300">✓ Matches your views</span>)}
                           {isMismatch && (onRateIssue
-                            ? <button onClick={e => { e.stopPropagation(); onRateIssue(issue.id); }} className="text-[11px] font-black uppercase tracking-wide text-rose-300 hover:text-rose-200 transition-colors">✗ Differs from you →</button>
-                            : <span className="text-[11px] font-black uppercase tracking-wide text-rose-300">✗ Differs from you</span>)}
-                          {isSplit && hasStance && <span className="text-[11px] font-black uppercase tracking-wide text-slate-400">∼ Mixed</span>}
-                          {!hasStance && <span className="text-[11px] font-black uppercase tracking-wide text-slate-400">No position on file</span>}
+                            ? <button onClick={e => { e.stopPropagation(); onRateIssue(issue.id); }} className="block w-full py-3 text-[11px] font-black uppercase tracking-wide text-rose-300 hover:text-rose-200 active:opacity-70 transition-colors">✗ Differs from you →</button>
+                            : <span className="py-3 text-[11px] font-black uppercase tracking-wide text-rose-300">✗ Differs from you</span>)}
+                          {isSplit && hasStance && <span className="py-3 text-[11px] font-black uppercase tracking-wide text-slate-400">∼ Mixed</span>}
+                          {!hasStance && <span className="py-3 text-[11px] font-black uppercase tracking-wide text-slate-400">No position on file</span>}
                           {hasStance && !voterLean && !isSplit && (onRateIssue
-                            ? <button onClick={e => { e.stopPropagation(); onRateIssue(issue.id); }} className="text-[11px] font-black uppercase tracking-wide text-sky-300 hover:text-sky-200 transition-colors">Do you match? →</button>
-                            : <span className="text-[11px] font-black uppercase tracking-wide text-sky-300">Do you match?</span>)}
+                            ? <button onClick={e => { e.stopPropagation(); onRateIssue(issue.id); }} className="block w-full py-3 text-[11px] font-black uppercase tracking-wide text-sky-300 hover:text-sky-200 active:opacity-70 transition-colors">Do you match? →</button>
+                            : <span className="py-3 text-[11px] font-black uppercase tracking-wide text-sky-300">Do you match?</span>)}
                         </div>
                       </>
                     )}
@@ -4433,7 +4438,7 @@
                               )}
                             </div>
                             <span className={`text-[10px] font-bold uppercase tracking-wide ${partyColor}`}>{partyLabel}</span>
-                            <span className="text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full" style={{background:'rgba(217,119,6,0.2)', color:'#f59e0b', border:'1px solid rgba(217,119,6,0.5)'}}>★ Get the Facts</span>
+                            <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full" style={{background:'rgba(217,119,6,0.2)', color:'#f59e0b', border:'1px solid rgba(217,119,6,0.5)'}}><svg viewBox="0 0 24 24" fill="currentColor" style={{width:'11px',height:'11px'}}><path d="M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-4.4 0-8 2.7-8 6v1h16v-1c0-3.3-3.6-6-8-6z"/></svg>About {c.name.split(' ')[0]}</span>
                             {(() => {
                               const isCandSelected = selected[race.office] === c.name;
                               return (
@@ -4536,7 +4541,20 @@
               ranks={ranks}
               onClose={() => setBrowseProfile(null)}
               onRateIssue={onRateIssue ? (id) => onRateIssue(id, browseProfile) : undefined}
-              isSelected={selected[browseProfile.race.office] === browseProfile.candidate.name}
+              isSelected={(() => {
+                // Mirror the printable ballot's getBestCandidate: chosen → else best match → else first candidate.
+                // So a 100% match that's implicitly on the ballot reads "✓ On Ballot" here too (not "+ Add to Ballot").
+                const office = browseProfile.race.office;
+                if (selected[office]) return selected[office] === browseProfile.candidate.name;
+                const cands = browseProfile.race.candidates.filter(Boolean);
+                let ballotCand = null;
+                if (answers && Object.keys(answers).length > 0) {
+                  const scored = cands.map(c => ({ c, s: calcMatch(c, answers, checkedStatements, ranks) })).filter(x => x.s !== null).sort((a, b) => b.s - a.s);
+                  if (scored.length) ballotCand = scored[0].c;
+                }
+                if (!ballotCand) ballotCand = cands[0];
+                return !!ballotCand && ballotCand.name === browseProfile.candidate.name;
+              })()}
               onSelect={() => setSelected(prev => {
                 const isChosen = prev[browseProfile.race.office] === browseProfile.candidate.name;
                 return isChosen
