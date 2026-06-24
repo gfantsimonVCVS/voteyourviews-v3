@@ -105,12 +105,17 @@
     }
     @page { margin: 0.4in 0.4in 0.4in 0.4in; }
 
+    /* Ballot picks — dense text columns (no photos), prints tight on white */
+    .ballot-picks { column-count: 2; column-gap: 28px; }
+    .ballot-pick-row { break-inside: avoid; -webkit-column-break-inside: avoid; page-break-inside: avoid; }
     /* Ballot mobile responsive */
     @media (max-width: 640px) {
       .ballot-title { font-size: 24px !important; }
       .ballot-subtitle { font-size: 12px !important; }
       .ballot-matching { font-size: 22px !important; }
       .ballot-grid { grid-template-columns: repeat(3, 1fr) !important; }
+      .ballot-picks { column-count: 1 !important; }
+      .ballot-dates { grid-template-columns: 1fr !important; }
     }
 
     @media print {
@@ -136,6 +141,7 @@
       html, body { width: 7.5in !important; min-width: 7.5in !important; font-size: 12px; }
       #root { width: 7.5in !important; }
       .ballot-grid { grid-template-columns: repeat(7, 1fr) !important; gap: 4px !important; }
+      .ballot-picks { column-count: 3 !important; column-gap: 18px !important; }
       main { max-width: 100% !important; padding: 8px 12px !important; width: 100% !important; }
 
       /* Candidate cards */
@@ -4927,19 +4933,36 @@
           </header>
 
           {/* Hero header — shows on screen AND prints */}
-          <div style={{background:'#fff', padding:'4px 40px 4px'}}>
-            <div style={{maxWidth:'900px', margin:'0 auto', textAlign:'center'}}>
-              <img src="./icons/VoteYourViews_Logo_Black.png" alt="VoteYourViews" style={{height:'58px', display:'block', margin:'0 auto'}} />
-              <div className="ballot-title font-black uppercase" style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'40px', color:'#0f172a', letterSpacing:'0.04em', lineHeight:1, marginTop:'2px'}}>
-                2026 Midterm Guide
+          <div style={{background:'#fff'}}>
+            {/* Civic tricolor accent */}
+            <div style={{display:'flex', height:'5px'}}>
+              <div style={{flex:1, background:'#b91c1c'}} />
+              <div style={{flex:1, background:'#fff'}} />
+              <div style={{flex:1, background:'#1d3a8a'}} />
+            </div>
+            <div style={{maxWidth:'900px', margin:'0 auto', textAlign:'center', padding:'12px 40px 10px'}}>
+              <img src="./icons/VoteYourViews_Logo_Black.png" alt="VoteYourViews" style={{height:'50px', display:'block', margin:'0 auto'}} />
+              <div className="ballot-title font-black uppercase" style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'42px', color:'#0f172a', letterSpacing:'0.03em', lineHeight:1, marginTop:'5px'}}>
+                Texas 2026 Midterm
               </div>
-              <div className="ballot-subtitle font-black uppercase" style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'16px', color:'#2563eb', letterSpacing:'0.1em', marginTop:'2px'}}>
-                Early Voting: Oct 19–30 · Election Day: Nov 4, 2026
+              <div style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'10px', marginTop:'6px'}}>
+                <div style={{height:'2px', width:'30px', background:'#dc2626'}} />
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'14px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.22em', color:'#1d3a8a'}}>My Personal Ballot</div>
+                <div style={{height:'2px', width:'30px', background:'#1d3a8a'}} />
               </div>
             </div>
+            <div style={{height:'3px', background:'#0f172a'}} />
           </div>
 
           <main id="ballot-content" className="px-4 py-2 fade-in" style={{maxWidth:'960px', margin:'0 auto'}}>
+
+            {/* Your Picks — section badge */}
+            <div style={{display:'flex', alignItems:'center', gap:'10px', marginTop:'6px', marginBottom:'8px'}}>
+              <img src="./icons/illustrations/Candidates.png" alt="" style={{height:'42px', width:'auto', flexShrink:0}} onError={e=>{e.currentTarget.style.display='none';}} />
+              <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'26px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.05em', color:'#0f172a', lineHeight:1}}>
+                Your <span style={{color:'#2563eb'}}>Picks</span>
+              </div>
+            </div>
 
             {RACE_SECTIONS.map(sec => {
               const sectionRaces = filterRacesByDistrict(countyData[sec.key] || [], userDistricts);
@@ -4953,57 +4976,73 @@
                   <div className="flex items-center gap-3 mb-1 pb-1" style={{borderBottom:'2px solid #0f172a'}}>
                     <div className="font-black uppercase tracking-widest" style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'15px', color:'#0f172a', letterSpacing:'0.1em'}}>{sec.label}</div>
                   </div>
-                  <div className="ballot-grid grid gap-1.5" style={{gridTemplateColumns:'repeat(7, 1fr)'}}>
+                  <div className="ballot-picks">
                     {sectionCandidates.map(({ race, candidate }) => {
-              const partyColor = candidate.party === 'D' ? '#2563eb' : candidate.party === 'R' ? '#dc2626' : '#64748b';
-                const partyLabel = candidate.party === 'D' ? 'Democrat' : candidate.party === 'R' ? 'Republican' : candidate.party || 'Independent';
-                const officeLines = formatOfficeLines(race.office);
-                return (
-                  <div key={race.office}
-                    className="flex flex-col items-center text-center rounded-xl px-1.5 py-2.5"
-                    style={{background:'#fff', border:'1.5px solid #e2e8f0', breakInside:'avoid', pageBreakInside:'avoid'}}>
-                    {/* Office — county on its own top line, then office, then any Place/Precinct/No. */}
-                    <div className="w-full leading-tight" style={{minHeight:'3.4em'}}>
-                      {officeLines.map((line, i) => (
-                        <div key={i} style={{fontSize:'8.5px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.06em', color:'#64748b'}}>{line}</div>
-                      ))}
-                    </div>
-                    {/* Name — fixed 2-line zone so photos align across the row */}
-                    <div className="flex items-center justify-center" style={{fontSize:'11px', fontWeight:900, lineHeight:1.15, color:'#0f172a', marginTop:'3px', marginBottom:'6px', minHeight:'2.3em'}}>
-                      {candidate.name}
-                    </div>
-                    {/* Photo */}
-                    <div className="rounded-full overflow-hidden flex-shrink-0"
-                      style={{width:'62px', height:'62px', border:`2.5px solid ${partyColor}`, background:'#f1f5f9'}}>
-                      <img src={candidate.photo || './icons/candidate-undefined.png'} alt={candidate.name}
-                        className="w-full h-full object-cover object-top"
-                        onError={e=>{e.target.src='./icons/candidate-undefined.png';e.target.style.opacity='0.35';}} />
-                    </div>
-                    {/* Party */}
-                    <div style={{fontSize:'9px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.07em', color: partyColor, marginTop:'7px'}}>
-                      {partyLabel}
-                    </div>
-                    {candidate.uncontested && (
-                      <div style={{fontSize:'7.5px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.06em', color:'#64748b', border:'1px solid #cbd5e1', borderRadius:'4px', padding:'1px 5px', marginTop:'4px'}}>
-                        Uncontested
-                      </div>
-                    )}
-                  </div>
-                    );
-                  })}
+                      const partyColor = candidate.party === 'D' ? '#2563eb' : candidate.party === 'R' ? '#dc2626' : '#64748b';
+                      const partyLabel = candidate.party === 'D' ? 'Democrat' : candidate.party === 'R' ? 'Republican' : candidate.party || 'Independent';
+                      return (
+                        <div key={race.office} className="ballot-pick-row" style={{padding:'5px 0', borderBottom:'1px solid #eef2f7'}}>
+                          <div style={{fontSize:'9px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.05em', color:'#64748b', lineHeight:1.2}}>{race.office}</div>
+                          <div style={{fontSize:'13px', fontWeight:900, color:'#0f172a', lineHeight:1.3, marginTop:'1px'}}>
+                            {candidate.name}
+                            <span style={{color:partyColor, fontWeight:900, fontSize:'10px', marginLeft:'6px'}}>· {partyLabel}</span>
+                            {candidate.uncontested && <span style={{color:'#94a3b8', fontWeight:700, fontSize:'9px', marginLeft:'5px', textTransform:'uppercase', letterSpacing:'0.04em'}}>· Uncontested</span>}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               );
             })}
 
-            {/* Polling locations — after candidates */}
+            {/* Key Dates & Times */}
             <div style={{marginTop:'28px', borderTop:'2px solid #0f172a', paddingTop:'18px'}}>
+              <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'12px'}}>
+                <img src="./icons/illustrations/Time_to_Vote.png" alt="" style={{height:'48px', width:'auto', flexShrink:0}} onError={e=>{e.currentTarget.style.display='none';}} />
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'26px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.06em', lineHeight:1, color:'#0f172a'}}>
+                  Key <span style={{color:'#2563eb'}}>Dates &amp; Times</span>
+                </div>
+              </div>
+              <div className="ballot-dates" style={{display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:'6px 24px'}}>
+                {[
+                  {label:'Register by', value:'Oct 5, 2026'},
+                  {label:'Early voting', value:'Oct 19–30, 2026'},
+                  {label:'Election Day', value:'Nov 4, 2026'},
+                  {label:'Poll hours', value:'7 AM – 7 PM'},
+                ].map((d, i) => (
+                  <div key={i} style={{display:'flex', alignItems:'baseline', justifyContent:'space-between', gap:'10px', borderBottom:'1px solid #eef2f7', padding:'5px 0'}}>
+                    <span style={{fontSize:'10px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.05em', color:'#64748b'}}>{d.label}</span>
+                    <span style={{fontSize:'13px', fontWeight:900, color:'#0f172a', whiteSpace:'nowrap'}}>{d.value}</span>
+                  </div>
+                ))}
+              </div>
+              {/* Not-registered helper — for people who aren't on the rolls yet */}
+              <div style={{marginTop:'10px', display:'flex', alignItems:'center', gap:'12px', background:'#eff6ff', border:'1px solid #bfdbfe', borderRadius:'10px', padding:'10px 14px'}}>
+                <img src="./icons/illustrations/MagnifyingGlass.png" alt="" style={{height:'34px', width:'auto', flexShrink:0}} onError={e=>{e.currentTarget.style.display='none';}} />
+                <div style={{minWidth:0}}>
+                  <div style={{fontSize:'12.5px', fontWeight:900, color:'#0f172a', lineHeight:1.2}}>Not sure you're registered?</div>
+                  <div style={{fontSize:'11.5px', color:'#475569', marginTop:'2px', lineHeight:1.3}}>
+                    <a href="https://www.vote.org/am-i-registered-to-vote/" target="_blank" rel="noopener noreferrer" style={{color:'#2563eb', fontWeight:900}}>Check your status</a>
+                    <span style={{color:'#94a3b8'}}> · </span>
+                    <a href="https://www.vote.org/register-to-vote/" target="_blank" rel="noopener noreferrer" style={{color:'#2563eb', fontWeight:900}}>Register to vote</a>
+                    <span style={{color:'#64748b'}}> at vote.org</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Polling locations — after candidates */}
+            <div style={{marginTop:'24px', borderTop:'2px solid #0f172a', paddingTop:'18px'}}>
               {/* Header row: title (left) + QR (right) */}
               <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'16px', marginBottom:'14px'}}>
-                <div>
-                  <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'11px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.28em', color:'#94a3b8', marginBottom:'1px'}}>Your Closest</div>
-                  <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'26px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.06em', lineHeight:1, color:'#0f172a'}}>
-                    <span style={{color:'#2563eb'}}>Polling</span> Locations
+                <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
+                  <img src="./icons/illustrations/Vote_Sign.png" alt="" style={{height:'46px', width:'auto', flexShrink:0}} onError={e=>{e.currentTarget.style.display='none';}} />
+                  <div>
+                    <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'11px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.28em', color:'#94a3b8', marginBottom:'1px'}}>Your Closest</div>
+                    <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'26px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.06em', lineHeight:1, color:'#0f172a'}}>
+                      <span style={{color:'#2563eb'}}>Polling</span> Locations
+                    </div>
                   </div>
                 </div>
                 <div style={{display:'flex', alignItems:'center', gap:'10px', flexShrink:0}}>
