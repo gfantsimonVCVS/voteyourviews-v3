@@ -39,6 +39,15 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     .slide-in { animation: slideIn 0.35s cubic-bezier(0.22,1,0.36,1); }
     @keyframes slideIn { from { opacity: 0; transform: translateY(18px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .chip-nudge { animation: chipNudge 2.4s ease-in-out infinite; }
+    @keyframes chipNudge { 0%,100% { box-shadow: 0 0 0 0 rgba(252,211,77,0.0); } 50% { box-shadow: 0 0 0 3px rgba(252,211,77,0.22); } }
+    .focus-pulse { animation: focusPulse 2.2s ease-out; }
+    @keyframes focusPulse {
+      0%   { box-shadow: 0 0 0 0 rgba(252,211,77,0.0), 0 2px 10px rgba(0,0,0,0.4); }
+      15%  { box-shadow: 0 0 0 4px rgba(252,211,77,0.85), 0 6px 22px rgba(0,0,0,0.5); }
+      60%  { box-shadow: 0 0 0 3px rgba(252,211,77,0.45), 0 4px 16px rgba(0,0,0,0.45); }
+      100% { box-shadow: 0 0 0 0 rgba(252,211,77,0.0), 0 2px 10px rgba(0,0,0,0.4); }
+    }
     .issue-enter { animation: issueEnter 0.45s cubic-bezier(0.22,1,0.36,1); }
     @keyframes issueEnter { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); } }
     /* Lightbulb "turns on" when the Facts tab opens: yellow bulb fades in + glows */
@@ -180,7 +189,7 @@
     }
   </style>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body class="bg-slate-50">
   <div id="root"></div>
 
   <script type="text/babel">
@@ -2910,7 +2919,7 @@
 
 
 
-    function Results({ county, counties, setCounty, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onBack, onBrowse, onCompare, onAddress, onQuiz, onRateIssue, initialProfile, clearInitialProfile }) {
+    function Results({ county, counties, setCounty, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onBack, onBrowse, onCompare, onAddress, onQuiz, onRateIssue, initialProfile, clearInitialProfile, focusIssueId, clearFocusIssue }) {
       const countyData = counties[county];
       const [profileData, setProfileData] = React.useState(null); // { candidate, race }
       // Reopen the candidate profile after returning from a single-issue "rate this" quiz.
@@ -3189,6 +3198,8 @@
             isOpponent={!profileData.isBest}
             onClose={() => setProfileData(null)}
             onRateIssue={onRateIssue ? (id) => onRateIssue(id, profileData) : undefined}
+            focusIssueId={focusIssueId}
+            clearFocusIssue={clearFocusIssue}
             onCompare={profileData.race.candidates.find(c => c && c.name !== profileData.candidate.name) ? () => {
               const opponent = profileData.race.candidates.find(c => c && c.name !== profileData.candidate.name);
               setProfileData({ candidate: opponent, race: profileData.race, isBest: !profileData.isBest });
@@ -3378,11 +3389,23 @@
       );
     }
 
-    function CandidateProfile({ candidate, opponent, issues, answers, checkedStatements, ranks, onClose, onSelect, isSelected, raceName, raceCategory, onCompare, isOpponent, onRateIssue }) {
+    function CandidateProfile({ candidate, opponent, issues, answers, checkedStatements, ranks, onClose, onSelect, isSelected, raceName, raceCategory, onCompare, isOpponent, onRateIssue, focusIssueId, clearFocusIssue }) {
       const _cs = checkedStatements || {};
       const hasAnswers = answers && Object.keys(answers).length > 0;
       // Per-issue active tab: undefined = collapsed, else 'their' | 'opp' | 'facts'
-      const [issueTab, setIssueTab] = useState({});
+      // When returning from a "Do you match?" quiz, open the rated issue straight to the candidate's view (where the ✓/✗ verdict lives).
+      const [issueTab, setIssueTab] = useState(() => focusIssueId ? { [focusIssueId]: 'their' } : {});
+      const focusRef = useRef(null);
+      const [pulseId, setPulseId] = useState(focusIssueId || null);
+      useEffect(() => {
+        if (!focusIssueId) return;
+        setIssueTab(o => ({ ...o, [focusIssueId]: 'their' }));
+        setPulseId(focusIssueId);
+        const tScroll = setTimeout(() => { focusRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 120);
+        const tPulse = setTimeout(() => setPulseId(null), 2200);
+        clearFocusIssue?.();
+        return () => { clearTimeout(tScroll); clearTimeout(tPulse); };
+      }, [focusIssueId]);
       const setTab = (id, tab) => setIssueTab(o => ({ ...o, [id]: o[id] === tab ? undefined : tab }));
       const [showSources, setShowSources] = useState(false);
       const [hookCollapsed, setHookCollapsed] = useState(false);
@@ -3409,9 +3432,9 @@
       }
       return (
         <React.Fragment>
-        <div className="fixed inset-0 z-50 flex flex-col bg-black/60 md:items-center md:justify-center md:p-6">
-          <div className="flex flex-col md:flex-row bg-white md:rounded-2xl md:shadow-2xl md:max-w-6xl w-full md:max-h-[92vh] overflow-hidden relative">
-            <button onClick={onClose} className="absolute top-3 right-3 z-10 w-8 h-8 bg-black/55 rounded-full flex items-center justify-center text-white font-bold text-sm hover:bg-black/70">✕</button>
+        <div className="fixed inset-0 z-50 flex flex-col bg-black/85 md:items-center md:justify-center md:p-6">
+          <div className="flex flex-col md:flex-row bg-white md:rounded-2xl md:shadow-2xl md:ring-1 md:ring-white/15 md:max-w-6xl w-full md:max-h-[92vh] overflow-hidden relative">
+            <button onClick={onClose} aria-label="Close" className="absolute top-3 right-3 z-20 w-9 h-9 bg-white text-slate-900 rounded-full flex items-center justify-center font-bold text-base shadow-lg ring-1 ring-black/10 hover:bg-slate-200">✕</button>
           {/* LEFT PANEL — identity (mobile: top, desktop: fixed-width left column) */}
           <div className={`${accentBg} md:w-[300px] lg:w-[380px] md:flex-shrink-0 md:overflow-y-auto relative flex-shrink-0 px-5 pt-8 pb-5 lg:pt-10`} style={{ background: accentGrad, boxShadow: '6px 0 24px rgba(0,0,0,0.35)' }}>
 
@@ -3522,10 +3545,10 @@
               const sharedEvidence = allEvidenceVals.length > 1 && allEvidenceVals.every(e => e === allEvidenceVals[0]) ? allEvidenceVals[0] : null;
               return (
                 <>
-                  {/* Desktop section header */}
-                  <div className="hidden md:flex items-center justify-between px-6 pt-5 pb-3 border-b border-white/10">
-                    <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Issue Positions</h3>
-                    {hasAnswers && <span className="text-xs text-slate-400 pr-10">✓ = matches your views</span>}
+                  {/* Desktop section header — sticky bar so it reads as a header and doesn't dissolve into the dark list */}
+                  <div className="hidden md:flex items-center justify-between px-6 py-4 border-b border-white/15 sticky top-0 z-10" style={{ background: 'linear-gradient(180deg,#16223d 0%,#0d1426 100%)', boxShadow: '0 2px 12px rgba(0,0,0,0.5)' }}>
+                    <h3 className="text-sm font-black uppercase tracking-widest text-white">Issue Positions</h3>
+                    {hasAnswers && <span className="text-xs text-slate-300 pr-10">✓ = matches your views</span>}
                   </div>
                   {sharedEvidence && (
                     <p className="text-sm text-slate-300 leading-relaxed px-5 lg:px-6 pt-4 pb-2 border-b border-white/10 italic">{sharedEvidence}</p>
@@ -3579,10 +3602,8 @@
                 if (tab === 'their') { aHead = candidate.name; if (evidence) aBody = evidence; else if (posText) { aBody = `"${posText}"`; aItalic = true; } else { aBody = 'No published view on this issue yet.'; aItalic = true; } }
                 else if (tab === 'opp') { if (oppHasInfo) { aHead = opponent.name; aBody = oppEvidence || (oppPosText ? `"${oppPosText}"` : ''); aItalic = !oppEvidence; } else { aHead = 'Unopposed'; aBody = `No ${missingParty} filed to run, so ${lastName} is the only choice in this race — vote for them or skip it.`; } }
                 else if (tab === 'facts') { aHead = 'The Facts'; aBody = issueFact || 'No facts available yet.'; }
-                const matchDot = isMatch ? '#34d399' : isMismatch ? '#fb7185' : isSplit ? '#94a3b8' : hasStance ? '#38bdf8' : '#64748b';
                 // Colors derive from the candidate's party so the card connects to the (party-colored) profile header above it.
                 const tintFor = (p) => p === 'D' ? '#1d2b63' : p === 'R' ? '#401621' : '#23304d';   // content panel
-                const cardHeaderBg = candidate.party === 'D' ? '#0f1b47' : candidate.party === 'R' ? '#2c0e16' : '#0f172a'; // footer bar
                 // Collapsed-card header gets a subtle vertical gradient so each row reads as a distinct embossed tile (like the landing tiles)
                 const cardHeaderGrad = candidate.party === 'D' ? 'linear-gradient(180deg,#1b2c6b 0%,#0d1740 100%)' : candidate.party === 'R' ? 'linear-gradient(180deg,#48202c 0%,#1f0a10 100%)' : 'linear-gradient(180deg,#1e293b 0%,#0b1220 100%)';
                 const isFactsTab = tab === 'facts';
@@ -3594,14 +3615,28 @@
                 const glowColor = glowParty === 'D' ? 'rgba(96,165,250,0.95)' : glowParty === 'R' ? 'rgba(248,113,113,0.98)' : 'rgba(148,163,184,0.85)';
                 return (
                   <div key={issue.id}
-                    className="slide-in rounded-xl overflow-hidden border border-white/10 transition-all duration-200 hover:-translate-y-0.5"
+                    ref={issue.id === focusIssueId ? focusRef : null}
+                    className={`slide-in rounded-xl overflow-hidden border transition-all duration-200 hover:-translate-y-0.5 ${pulseId === issue.id ? 'focus-pulse border-amber-300/70' : 'border-white/10'}`}
                     style={{ animationDelay: `${Math.min(idx, 8) * 55}ms`, animationFillMode: 'backwards', boxShadow: '0 2px 10px rgba(0,0,0,0.4)' }}>
-                    {/* Dark header — topic only (clickable); a dot hints match, full line is at the bottom */}
+                    {/* Dark header — topic + at-a-glance status chip (the payoff, visible collapsed OR expanded; tap the chip to take/redo the 1-question quiz) */}
                     <div className="flex items-center justify-between gap-2 px-4 py-3.5 cursor-pointer" style={{ background: cardHeaderGrad, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.09)' }} onClick={() => setTab(issue.id, isOpen ? tab : defaultTab)}>
-                      <span className="text-white font-black uppercase tracking-wide text-base lg:text-lg leading-tight">{issue.topic}</span>
-                      <span className="flex items-center gap-2 shrink-0">
-                        <span className="w-2.5 h-2.5 rounded-full" style={{ background: matchDot }} />
-                        <span className="text-white/50 text-xs leading-none transition-transform duration-200" style={{ transform: isOpen ? 'rotate(180deg)' : 'none' }}>▼</span>
+                      <span className="text-white font-black uppercase tracking-wide text-base lg:text-lg leading-tight min-w-0 truncate">{issue.topic}</span>
+                      <span className="flex items-center gap-3.5 shrink-0">
+                        {(() => {
+                          const userSkipped = answers?.[issue.id] === 'D'; // chose No Opinion on every statement = skipped the whole issue
+                          const chipBase = "text-[10px] lg:text-xs font-black uppercase tracking-wide px-2.5 py-1 rounded-full whitespace-nowrap border leading-none text-center min-w-[7.25rem] lg:min-w-[8.25rem]";
+                          let label, cls, pulse = '', tappable = !!onRateIssue;
+                          if (isMatch) { label = '✓ Match'; cls = 'text-emerald-50 bg-emerald-500/35 border-emerald-400/70'; }
+                          else if (isMismatch) { label = '✗ No Match'; cls = 'text-rose-50 bg-rose-500/35 border-rose-400/70'; }
+                          else if (isSplit) { label = '∼ Mixed'; cls = 'text-slate-100 bg-slate-500/30 border-slate-400/60'; }
+                          else if (userSkipped) { label = 'Skipped'; cls = 'text-slate-200 bg-slate-600/30 border-slate-400/50'; }
+                          else if (hasStance) { label = 'Do you match?'; cls = 'text-amber-50 bg-amber-400/35 border-amber-300/80'; pulse = 'chip-nudge'; }
+                          else { label = 'No position'; cls = 'text-slate-400 bg-slate-700/30 border-slate-600/50'; tappable = false; } // candidate took no position on file
+                          return tappable
+                            ? <button onClick={e => { e.stopPropagation(); onRateIssue(issue.id); }} className={`${chipBase} ${cls} ${pulse} hover:brightness-125 active:opacity-70 transition`}>{label}</button>
+                            : <span className={`${chipBase} ${cls}`}>{label}</span>;
+                        })()}
+                        <span className="text-white/80 text-base lg:text-lg leading-none transition-transform duration-200 shrink-0" style={{ transform: isOpen ? 'rotate(180deg)' : 'none' }}>▼</span>
                       </span>
                     </div>
                     {isOpen && (
@@ -3627,20 +3662,6 @@
                             <p className={`text-sm leading-snug ${bodyCls} ${aItalic ? 'italic' : ''}`}>{aBody}</p>
                           </div>
                         </div>
-                        {/* Match line at the bottom — interactive options are full-width tall tap targets so a finger can't miss into the next card */}
-                        <div className="relative z-10 flex justify-center px-2 py-1" style={{ background: cardHeaderBg }}>
-                          {isMatch && (onRateIssue
-                            ? <button onClick={e => { e.stopPropagation(); onRateIssue(issue.id); }} className="block w-full py-3 text-[11px] font-black uppercase tracking-wide text-emerald-300 hover:text-emerald-200 active:opacity-70 transition-colors">✓ Matches your views →</button>
-                            : <span className="py-3 text-[11px] font-black uppercase tracking-wide text-emerald-300">✓ Matches your views</span>)}
-                          {isMismatch && (onRateIssue
-                            ? <button onClick={e => { e.stopPropagation(); onRateIssue(issue.id); }} className="block w-full py-3 text-[11px] font-black uppercase tracking-wide text-rose-300 hover:text-rose-200 active:opacity-70 transition-colors">✗ Differs from you →</button>
-                            : <span className="py-3 text-[11px] font-black uppercase tracking-wide text-rose-300">✗ Differs from you</span>)}
-                          {isSplit && hasStance && <span className="py-3 text-[11px] font-black uppercase tracking-wide text-slate-400">∼ Mixed</span>}
-                          {!hasStance && <span className="py-3 text-[11px] font-black uppercase tracking-wide text-slate-400">No position on file</span>}
-                          {hasStance && !voterLean && !isSplit && (onRateIssue
-                            ? <button onClick={e => { e.stopPropagation(); onRateIssue(issue.id); }} className="block w-full py-3 text-[11px] font-black uppercase tracking-wide text-sky-300 hover:text-sky-200 active:opacity-70 transition-colors">Do you match? →</button>
-                            : <span className="py-3 text-[11px] font-black uppercase tracking-wide text-sky-300">Do you match?</span>)}
-                        </div>
                       </>
                     )}
                   </div>
@@ -3651,7 +3672,7 @@
               );
             })()}
             {/* Sources & methodology strip */}
-            <div className="px-5 py-2.5 flex justify-center border-t border-white/10">
+            <div className="px-5 py-3 flex justify-center border-t border-white/15 sticky bottom-0" style={{ background: 'linear-gradient(0deg,#0b1120 0%,#0d1426 100%)' }}>
               <button onClick={() => setShowSources(true)} className="text-xs text-slate-400 hover:text-white transition-colors flex items-center gap-1.5">
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
                 Sources &amp; methodology
@@ -4310,7 +4331,7 @@
       );
     }
 
-    function Browse({ county, counties, setCounty, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onHome, onBack = onHome, backLabel = '← Home', onQuiz, onRateIssue, initialRace, clearInitialRace, initialProfile, clearInitialProfile }) {
+    function Browse({ county, counties, setCounty, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onHome, onBack = onHome, backLabel = '← Home', onQuiz, onRateIssue, initialRace, clearInitialRace, initialProfile, clearInitialProfile, focusIssueId, clearFocusIssue }) {
       const countyData = counties[county];
       const [activeTab, setActiveTab] = useState('federal');
       const [expandedRaces, setExpandedRaces] = useState(new Set());
@@ -4584,6 +4605,8 @@
               ranks={ranks}
               onClose={() => setBrowseProfile(null)}
               onRateIssue={onRateIssue ? (id) => onRateIssue(id, browseProfile) : undefined}
+              focusIssueId={focusIssueId}
+              clearFocusIssue={clearFocusIssue}
               isSelected={(() => {
                 // Mirror the printable ballot's getBestCandidate: chosen → else best match → else first candidate.
                 // So a 100% match that's implicitly on the ballot reads "✓ On Ballot" here too (not "+ Add to Ballot").
@@ -5074,6 +5097,7 @@
       const [quizReturnScreen, setQuizReturnScreen] = useState(null); // single-issue "rate this" → return here after one answer
       const [quizEntryIssueId, setQuizEntryIssueId] = useState(null);  // the issue the quiz was ENTERED on → BACK past it returns to origin, not the positional-previous issue
       const [reopenProfile, setReopenProfile] = useState(null); // candidate profile to reopen when returning from "rate this"
+      const [focusIssueId, setFocusIssueId] = useState(null); // when returning from a single-issue "Do you match?" quiz, the issue card to auto-open + scroll to (the payoff)
       const rateIssueReturn = (id, ret, profile) => { setQuizReturnScreen(ret); setReopenProfile(profile || null); setStartIssueId(id || null); setQuizEntryIssueId(id || null); setScreen('quiz'); };
       const [returnToRace, setReturnToRace] = useState(null);   // { office } → go back to RaceDetail after quiz
       const [initialRace, setInitialRace] = useState(null);     // passed to Browse to auto-open a race
@@ -5237,6 +5261,7 @@
                 const ret = quizReturnScreen;
                 setQuizReturnScreen(null);
                 setStartIssueId(null);
+                if (reopenProfile) setFocusIssueId(issue.id); // reopened profile should land on this issue, expanded, showing the match verdict
                 setScreen(ret);
               } else if (returnToRace) {
                 setInitialRace(returnToRace);
@@ -5362,6 +5387,8 @@
             onRateIssue={(id, profile) => rateIssueReturn(id, 'results', profile)}
             initialProfile={reopenProfile}
             clearInitialProfile={() => setReopenProfile(null)}
+            focusIssueId={focusIssueId}
+            clearFocusIssue={() => setFocusIssueId(null)}
           />
         );
       }
@@ -5395,6 +5422,8 @@
             clearInitialRace={() => setInitialRace(null)}
             initialProfile={reopenProfile}
             clearInitialProfile={() => setReopenProfile(null)}
+            focusIssueId={focusIssueId}
+            clearFocusIssue={() => setFocusIssueId(null)}
           />
         );
       }
