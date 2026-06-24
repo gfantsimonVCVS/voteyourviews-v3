@@ -34,13 +34,22 @@ icons/              ← candidate photos, section images, issue icons, logo file
 **Sheet ID:** `1V1oaEy6ToV3LZt0et9bIWEJQbPrYZg73tDxGelhiFn8`
 
 Tabs:
-- `issues` — 9 belief questions (id, topic, question, optionA/B/C, shortA/B/C, fact, hoverDesc)
-- `statewide` — statewide + federal candidates (office, name, party, confirmed, photo, website, summary, + 9 position columns)
-- `candidates` — Hays County local races (same schema as statewide)
+- `Issues` — belief questions (id, topic, optionA/B/C/D, issueFact, …)
+- `HaysCounty` — full Hays ballot; **master copy of the 18 statewide races (rows 2–37)**
+- `TravisCounty` — full Travis ballot; statewide block is the array formula referencing Hays (see below)
+- `Statements` — per-issue statements (issue, order, text, Party Perspective)
 
-Position columns: `reproductiveRights`, `immigration`, `gunPolicy`, `education`, `healthcare`, `climate`, `moneyInPolitics`, `socialSecurity`, `affordability`
+Candidate tab columns (HaysCounty / TravisCounty), A→AF:
+`office, category, districtType, districtNumber, name, party, confirmed, description, summary, website, photo,` then the 9 position columns `reproductiveRights, immigration, gunPolicy, education, healthcare, climate, electionIntegrity, socialSecurity, affordability,` then `hook1, hook2, uncontested,` then the 9 matching `…Evidence` columns. (The old `source` provenance column was removed June 2026.)
 
-Values: `A` (liberal), `B` (moderate), `C` (conservative), `D` (no position/n/a)
+### Multi-county data structure (READ BEFORE ADDING A COUNTY)
+- One tab per county: `HaysCounty`, `TravisCounty`, … Each is a full ballot.
+- **`HaysCounty` is the MASTER for the 18 statewide races (rows 2–37).** Edit a statewide candidate ONLY in HaysCounty; every other county inherits it.
+- **Every other county's statewide block (rows 2–37) MUST be the array formula `={HaysCounty!A2:AF37}` in cell A2** — a single spilling formula, NOT pasted/static values. If a county's A2 holds a literal office name instead of a formula, it's been flattened to values and statewide edits will NOT propagate — reconvert it to the formula.
+- County-specific district + local races go in **row 38 and below only**. Never write rows 2–37 of any county tab except the single master cells in HaysCounty.
+- Service account for sheet writes: `voteyourviews-db39fac73eed.json` (see API Keys below).
+
+Position values (candidate cells): full words — `Agree`, `Disagree`, `Unknown` (no moderate/middle option). Older A/B/C/D coding is retired.
 
 ## App Screens (state machine in `App` component)
 1. **landing** — hero with 3x3 issue icon grid, CTAs
