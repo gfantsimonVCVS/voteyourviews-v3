@@ -4653,13 +4653,17 @@
       const hasAnswers = answers && Object.keys(answers).length > 0;
       const [downloading, setDownloading] = React.useState(false);
 
-      // Share the guide with others — native share sheet, with a copy-link fallback.
+      // Share the guide — native share sheet when available, else copy-link, else a manual-copy prompt (never silently fails).
       async function handleShareGuide() {
-        const data = { title: 'VoteYourViews — My 2026 Texas Ballot', text: 'Rank your beliefs, see which candidates match, and build your ballot:', url: 'https://voteyourviews.org' };
-        try {
-          if (navigator.share) { await navigator.share(data); }
-          else { await navigator.clipboard.writeText(data.url); alert('Link copied — share it anywhere:\n' + data.url); }
-        } catch (e) { /* user dismissed the share sheet */ }
+        const url = 'https://voteyourviews.org';
+        const data = { title: 'VoteYourViews — My 2026 Texas Ballot', text: 'Rank your beliefs, see which candidates match, and build your ballot:', url };
+        if (navigator.share) {
+          try { await navigator.share(data); return; }
+          catch (e) { if (e && e.name === 'AbortError') return; }   // user dismissed; on a real error, fall through
+        }
+        try { await navigator.clipboard.writeText(url); alert('Link copied! Share it anywhere:\n' + url); return; }
+        catch (e) { /* clipboard blocked — fall through to manual copy */ }
+        window.prompt('Copy this link to share the guide:', url);
       }
 
       async function handleDownloadPDF() {
@@ -4686,7 +4690,12 @@
           const bannerA = page.querySelector('a[href*="voteyourviews.org"]'); if (bannerA) links.push({ r: rel(bannerA), url: 'https://voteyourviews.org' });
           page.querySelectorAll('a[href*="vote.org"], a[href*="google.com/maps"], a[href*="maps.apple"]').forEach(a => links.push({ r: rel(a), url: a.href }));
 
-          const canvas = await html2canvas(page, { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 900 });
+          const canvas = await html2canvas(page, { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 900,
+            onclone: (doc) => {
+              // html2canvas re-runs CSS animations on its clone — disable them so we don't capture a mid-fade (grayed-out) frame.
+              doc.querySelectorAll('.fade-in, .slide-in, .issue-enter, [class*="fade"], [class*="slide"]').forEach(n => { n.style.animation = 'none'; n.style.opacity = '1'; n.style.transform = 'none'; });
+            }
+          });
 
           const { jsPDF } = window.jspdf;
           const pdf = new jsPDF('p', 'pt', 'letter');
