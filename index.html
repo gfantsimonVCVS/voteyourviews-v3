@@ -1049,6 +1049,11 @@
     }
 
     // ─── ADDRESS LOOKUP ───
+    // Bounds an OPTIONAL lookup so a hanging/slow endpoint can't freeze the address flow.
+    // (.catch handles a rejected request, but NOT one that never responds — Travis County GIS is occasionally slow/503.)
+    function withTimeout(promise, ms, fallback) {
+      return Promise.race([promise, new Promise(res => setTimeout(() => res(fallback), ms))]);
+    }
     function AddressScreen({ county, onCountyDetected, onContinue, onSkip, onBack }) {
       const [isSearching, setIsSearching] = useState(false);
       const [error, setError] = useState(null);
@@ -1127,18 +1132,18 @@
           let commPrecinct = null, jpPrecinct = null;
           try {
             if (matchedCounty === 'hays') {
-              const [commData, jpData] = await Promise.all([
+              const [commData, jpData] = await withTimeout(Promise.all([
                 fetch(`https://services5.arcgis.com/bVphnK8rPe5MHUSr/arcgis/rest/services/HaysCountyCommissionerPrecincts/FeatureServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=CommPrcnt&f=json`).then(r => r.json()).catch(() => null),
                 fetch(`https://services5.arcgis.com/bVphnK8rPe5MHUSr/arcgis/rest/services/HaysCoJusticeOfPeace/FeatureServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=PRECINCT&f=json`).then(r => r.json()).catch(() => null)
-              ]);
+              ]), 6000, [null, null]);
               if (commData?.features?.[0]?.attributes?.CommPrcnt != null) commPrecinct = String(commData.features[0].attributes.CommPrcnt);
               if (jpData?.features?.[0]?.attributes?.PRECINCT != null) jpPrecinct = String(jpData.features[0].attributes.PRECINCT);
             } else if (matchedCounty === 'travis' && loc?.lng != null && loc?.lat != null) {
               // Travis County GIS — commissioner precincts + shared JP/Constable precincts
-              const [commData, jpData] = await Promise.all([
+              const [commData, jpData] = await withTimeout(Promise.all([
                 fetch(`https://gis.traviscountytx.gov/server1/rest/services/Boundaries_and_Jurisdictions/Travis_County_Commissioner_Precincts/FeatureServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=PRECINCT&returnGeometry=false&f=json`).then(r => r.json()).catch(() => null),
                 fetch(`https://gis.traviscountytx.gov/server1/rest/services/Boundaries_and_Jurisdictions/Travis_County_Judge_and_Constable_Precincts/MapServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=PRECINCT&returnGeometry=false&f=json`).then(r => r.json()).catch(() => null)
-              ]);
+              ]), 6000, [null, null]);
               if (commData?.features?.[0]?.attributes?.PRECINCT != null) commPrecinct = String(commData.features[0].attributes.PRECINCT);
               if (jpData?.features?.[0]?.attributes?.PRECINCT != null) jpPrecinct = String(jpData.features[0].attributes.PRECINCT);
             }
@@ -1262,6 +1267,7 @@
       const [signupEmail, setSignupEmail] = useState('');
       const [signupStatus, setSignupStatus] = useState(null); // null|invalid|sending|done
       const inputRef = useRef(null);
+      const exploreAddrRef = useRef(null);   // real courthouse address used silently while the field shows a friendly "test address" label
 
       // Explore branch: pick a live county to dive in without typing an address.
       // Instead of dumping the whole county (every US House rep, every JP precinct),
@@ -1273,8 +1279,11 @@
         travis: '1000 Guadalupe St, Austin, TX 78701'         // CD10 / SD14 / HD49
       };
       function exploreCounty(key) {
-        if (inputRef.current) inputRef.current.value = SAMPLE_ADDRESSES[key] || '';
-        handleSearch();
+        const realAddr = SAMPLE_ADDRESSES[key] || '';
+        const label = `Using ${key.charAt(0).toUpperCase()}${key.slice(1)} County Test Address`;
+        exploreAddrRef.current = realAddr;
+        if (inputRef.current) { inputRef.current.value = label; inputRef.current.style.fontStyle = 'italic'; }
+        handleSearch(realAddr);
       }
       const exploreChoices = onShowAll ? (
         <div className="mt-1 pt-4 border-t border-white/10 text-center">
@@ -1350,8 +1359,10 @@
         } else { initAutocomplete(); }
       }, []);
 
-      async function handleSearch() {
-        const addr = inputRef.current?.value?.trim() || '';
+      async function handleSearch(overrideAddr) {
+        // Explore mode passes the real courthouse address explicitly while the field shows a "test address" label.
+        // (onClick passes a click event here, so only honor a real string.)
+        const addr = (typeof overrideAddr === 'string' ? overrideAddr : (exploreAddrRef.current || inputRef.current?.value?.trim())) || '';
         if (!addr) { setError('Please enter your street address.'); return; }
         setIsSearching(true); setError(null);
 
@@ -1397,17 +1408,17 @@
         let commPrecinct = null, jpPrecinct = null;
         try {
           if (matchedCounty2 === 'hays' && loc.lng != null && loc.lat != null) {
-            const [commData, jpData] = await Promise.all([
+            const [commData, jpData] = await withTimeout(Promise.all([
               fetch(`https://services5.arcgis.com/bVphnK8rPe5MHUSr/arcgis/rest/services/HaysCountyCommissionerPrecincts/FeatureServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=CommPrcnt&f=json`).then(r=>r.json()).catch(()=>null),
               fetch(`https://services5.arcgis.com/bVphnK8rPe5MHUSr/arcgis/rest/services/HaysCoJusticeOfPeace/FeatureServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=PRECINCT&f=json`).then(r=>r.json()).catch(()=>null)
-            ]);
+            ]), 6000, [null, null]);
             if (commData?.features?.[0]?.attributes?.CommPrcnt != null) commPrecinct = String(commData.features[0].attributes.CommPrcnt);
             if (jpData?.features?.[0]?.attributes?.PRECINCT != null) jpPrecinct = String(jpData.features[0].attributes.PRECINCT);
           } else if (matchedCounty2 === 'travis' && loc.lng != null && loc.lat != null) {
-            const [commData, jpData] = await Promise.all([
+            const [commData, jpData] = await withTimeout(Promise.all([
               fetch(`https://gis.traviscountytx.gov/server1/rest/services/Boundaries_and_Jurisdictions/Travis_County_Commissioner_Precincts/FeatureServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=PRECINCT&returnGeometry=false&f=json`).then(r=>r.json()).catch(()=>null),
               fetch(`https://gis.traviscountytx.gov/server1/rest/services/Boundaries_and_Jurisdictions/Travis_County_Judge_and_Constable_Precincts/MapServer/0/query?geometry=${loc.lng},${loc.lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=PRECINCT&returnGeometry=false&f=json`).then(r=>r.json()).catch(()=>null)
-            ]);
+            ]), 6000, [null, null]);
             if (commData?.features?.[0]?.attributes?.PRECINCT != null) commPrecinct = String(commData.features[0].attributes.PRECINCT);
             if (jpData?.features?.[0]?.attributes?.PRECINCT != null) jpPrecinct = String(jpData.features[0].attributes.PRECINCT);
           }
@@ -1538,6 +1549,7 @@
                     placeholder="enter your address"
                     className="w-full px-4 py-3.5 rounded-xl text-base text-white placeholder-slate-400 focus:outline-none border mb-2 transition-colors"
                     style={{background:'rgba(255,255,255,0.10)', borderColor:`${btnColor}88`}}
+                    onInput={e => { exploreAddrRef.current = null; e.currentTarget.style.fontStyle = 'normal'; }}
                     onKeyDown={e => e.key === 'Enter' && handleSearch()}
                   />
                   {error && <p className="text-sm text-red-400 mb-2">{error}</p>}
