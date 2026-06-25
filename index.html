@@ -3415,7 +3415,7 @@
       }, [focusIssueId]);
       const setTab = (id, tab) => setIssueTab(o => ({ ...o, [id]: o[id] === tab ? undefined : tab }));
       const [showSources, setShowSources] = useState(false);
-      const [hookCollapsed, setHookCollapsed] = useState(() => !!focusIssueId); // returning from a quiz to a focused issue → keep bio collapsed for room
+      const [hookCollapsed, setHookCollapsed] = useState(() => !!focusIssueId && window.matchMedia('(max-width: 767px)').matches); // mobile only: returning from a quiz keeps bio collapsed for room (desktop has a separate column)
       const border = candidate.party === 'D' ? 'border-blue-500' : candidate.party === 'R' ? 'border-red-500' : 'border-slate-300';
       const accentBg = candidate.party === 'D' ? 'bg-blue-800' : candidate.party === 'R' ? 'bg-red-800' : 'bg-slate-800';
       // Subtle party-color gradient so the identity panel has the same depth as the dimensional issue cards (instead of a flat slab)
@@ -3648,7 +3648,7 @@
                     className={`slide-in rounded-xl overflow-hidden border transition-all duration-200 hover:-translate-y-0.5 ${pulseId === issue.id ? 'focus-pulse border-amber-300/70' : 'border-white/10'}`}
                     style={{ animationDelay: `${Math.min(idx, 8) * 55}ms`, animationFillMode: 'backwards', boxShadow: '0 2px 10px rgba(0,0,0,0.4)' }}>
                     {/* Dark header — topic + at-a-glance status chip (the payoff, visible collapsed OR expanded; tap the chip to take/redo the 1-question quiz) */}
-                    <div className="flex items-center justify-between gap-2 px-4 py-3.5 cursor-pointer" style={{ background: cardHeaderGrad, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.09)' }} onClick={() => { if (!isOpen) setHookCollapsed(true); setTab(issue.id, isOpen ? tab : defaultTab); }}>
+                    <div className="flex items-center justify-between gap-2 px-4 py-3.5 cursor-pointer" style={{ background: cardHeaderGrad, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.09)' }} onClick={() => { if (!isOpen && window.matchMedia('(max-width: 767px)').matches) setHookCollapsed(true); setTab(issue.id, isOpen ? tab : defaultTab); }}>
                       <span className="text-white font-black uppercase tracking-wide text-base lg:text-lg leading-tight min-w-0 truncate">{issue.topic}</span>
                       <span className="flex items-center gap-3.5 shrink-0">
                         {!isJudicialCandidate && (() => {
