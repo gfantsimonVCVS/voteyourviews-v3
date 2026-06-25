@@ -4751,9 +4751,6 @@
 
           const pageRect = page.getBoundingClientRect();
           const rel = (el) => { const r = el.getBoundingClientRect(); return { x: r.left - pageRect.left, y: r.top - pageRect.top, w: r.width, h: r.height }; };
-          // Page break: cut page 1 right before the Judicial section.
-          const judEl = page.querySelector('[data-sec="judicial"]');
-          const judY = judEl ? (judEl.getBoundingClientRect().top - pageRect.top) : null;
           // Links to keep clickable in the PDF (logo → site; registration → vote.org; polling → maps).
           const links = [];
           const bannerA = page.querySelector('a[href*="voteyourviews.org"]'); if (bannerA) links.push({ r: rel(bannerA), url: 'https://voteyourviews.org' });
@@ -4771,8 +4768,26 @@
           const pageWpt = pdf.internal.pageSize.getWidth();   // 612
           const S = pageWpt / LAYOUT_W;                       // layout px → pt (0.75)
           const cScale = canvas.width / LAYOUT_W;             // canvas px per layout px (~2)
-          const cut = (judY != null && judY * cScale < canvas.height - 4) ? Math.round(judY * cScale) : canvas.height;
-          const slices = cut < canvas.height ? [[0, cut], [cut, canvas.height]] : [[0, canvas.height]];
+          // Paginate into as many letter pages as the ballot needs (long county ballots overflow 2 pages).
+          // Snap each page break to the nearest safe row/section boundary so a candidate row is never cut in half.
+          const pageHpt = pdf.internal.pageSize.getHeight();                 // 792
+          const pageHpx = Math.floor((pageHpt / pageWpt) * canvas.width);    // canvas px that fill one printed page
+          const breakYs = [];
+          page.querySelectorAll('.ballot-pick-row, [data-sec]').forEach(el => {
+            const y = Math.round((el.getBoundingClientRect().top - pageRect.top) * cScale);
+            if (y > 4) breakYs.push(y);
+          });
+          breakYs.sort((a, b) => a - b);
+          const slices = [];
+          let sy = 0;
+          while (sy < canvas.height) {
+            let target = sy + pageHpx;
+            if (target >= canvas.height) { slices.push([sy, canvas.height]); break; }
+            let snap = -1;
+            for (const b of breakYs) { if (b > sy + 60 && b <= target) snap = b; else if (b > target) break; }
+            const end = snap > 0 ? snap : target;
+            slices.push([sy, end]); sy = end;
+          }
 
           slices.forEach(([y0, y1], i) => {
             if (i > 0) pdf.addPage();
@@ -4787,7 +4802,7 @@
               }
             });
           });
-          console.log('[VYV] PDF pages:', pdf.internal.getNumberOfPages(), '| links:', links.length, '| judBreak:', cut < canvas.height);
+          console.log('[VYV] PDF pages:', pdf.internal.getNumberOfPages(), '| links:', links.length, '| slices:', slices.length);
           const today = new Date();
           pdf.save(`VoteYourViews Ballot ${today.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}.pdf`);
         } catch(e) {
