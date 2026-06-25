@@ -3415,7 +3415,7 @@
       }, [focusIssueId]);
       const setTab = (id, tab) => setIssueTab(o => ({ ...o, [id]: o[id] === tab ? undefined : tab }));
       const [showSources, setShowSources] = useState(false);
-      const [hookCollapsed, setHookCollapsed] = useState(false);
+      const [hookCollapsed, setHookCollapsed] = useState(() => !!focusIssueId); // returning from a quiz to a focused issue → keep bio collapsed for room
       const border = candidate.party === 'D' ? 'border-blue-500' : candidate.party === 'R' ? 'border-red-500' : 'border-slate-300';
       const accentBg = candidate.party === 'D' ? 'bg-blue-800' : candidate.party === 'R' ? 'bg-red-800' : 'bg-slate-800';
       // Subtle party-color gradient so the identity panel has the same depth as the dimensional issue cards (instead of a flat slab)
