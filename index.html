@@ -3416,6 +3416,9 @@
       const matchScore = hasAnswers ? calcMatch(candidate, answers, _cs, ranks || {}) : null;
       const _ISSUE_KEYS = ['reproductiveRights','immigration','gunPolicy','education','healthcare','climate','electionIntegrity','socialSecurity','affordability'];
       const isJudicialCandidate = raceCategory === 'judicial' || !_ISSUE_KEYS.some(k => { const p = candidate.positions?.[k]; return p && p !== 'D' && p !== 'Unknown'; });
+      // Standardized "thin profile" state: empty bio OR an internal review placeholder leaking through ([Info limited…], "no public biography", "please review").
+      const editHref = `/${candidateSlug(candidate.name)}/edit`;
+      const lowInfoSummary = !candidate.summary || /\[\s*info limited|no public (bio|information)|please review/i.test(candidate.summary);
       function getVoterLean(issueId) {
         const stmtData = _cs[issueId];
         if (stmtData && stmtData.reactions && Object.keys(stmtData.reactions).length > 0) {
@@ -3469,10 +3472,22 @@
                 )}
                 <h2 className="text-white font-black text-xl lg:text-2xl leading-tight mb-1">{candidate.name}</h2>
                 <div className="flex items-center gap-2 mb-1.5">
-                  <p className="text-white/60 text-[14px] font-bold uppercase tracking-widest">{candidate.party === 'D' ? 'Democrat' : candidate.party === 'R' ? 'Republican' : 'Independent'}</p>
-                  <a href={candidate.website || undefined} target="_blank" rel="noopener noreferrer" className="inline-block text-white/50 hover:text-white transition-colors shrink-0" title="Visit website">
-                    <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                  </a>
+                  <p className="text-white/60 text-[14px] font-bold uppercase tracking-normal">{candidate.party === 'D' ? 'Democrat' : candidate.party === 'R' ? 'Republican' : 'Independent'}</p>
+                  {candidate.website ? (
+                    <a href={candidate.website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-white/85 hover:text-white transition-colors shrink-0" title="Visit website">
+                      <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                      <span className="text-[10px] font-bold uppercase tracking-wide">Website</span>
+                    </a>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 shrink-0 text-white/55" title="No website on file">
+                      <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                        <line x1="3.5" y1="20.5" x2="20.5" y2="3.5" stroke="#fca5a5" strokeWidth={2.5}/>
+                      </svg>
+                      <span className="text-[10px] font-bold uppercase tracking-wide">No website</span>
+                    </span>
+                  )}
                 </div>
                 {(isJudicialCandidate || matchScore !== null) && (
                   <div className="flex items-center gap-2 flex-wrap">
@@ -3515,9 +3530,14 @@
                         {candidate.hook}
                       </p>
                     )}
-                    {candidate.summary && (
+                    {lowInfoSummary ? (
+                      <p className="text-white/70 mt-2 leading-snug text-[14px] italic">
+                        Are you {candidate.name.split(' ')[0]}?{' '}
+                        <a href={editHref} className="not-italic font-bold text-sky-300 hover:text-sky-200 underline">Claim your profile →</a>
+                      </p>
+                    ) : candidate.summary ? (
                       <p className="text-white/80 mt-2 leading-snug text-[14px]">{candidate.summary}</p>
-                    )}
+                    ) : null}
                     <button onClick={() => setHookCollapsed(true)}
                       className="mt-2 text-white/50 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest">
                       Hide bio ▲
@@ -3550,9 +3570,11 @@
                     <h3 className="text-sm font-black uppercase tracking-widest text-white">Issue Positions</h3>
                     {hasAnswers && <span className="text-xs text-slate-300 pr-10">✓ = matches your views</span>}
                   </div>
-                  {sharedEvidence && (
+                  {isJudicialCandidate ? (
+                    <p className="text-sm text-slate-300 leading-relaxed px-5 lg:px-6 pt-4 pb-2 border-b border-white/10 italic">Judges aren't allowed to take sides on the issues — it's against judicial ethics rules. The best clue to how a judge thinks is the party they run with.</p>
+                  ) : sharedEvidence ? (
                     <p className="text-sm text-slate-300 leading-relaxed px-5 lg:px-6 pt-4 pb-2 border-b border-white/10 italic">{sharedEvidence}</p>
-                  )}
+                  ) : null}
             <div className="flex flex-col gap-2.5 px-0 lg:px-5 py-3">
               {issues && issues.map((issue, idx) => {
                 const rawPos = candidate.positions?.[issue.id];
@@ -3599,8 +3621,8 @@
                 const segCls = "flex-1 text-[10px] lg:text-xs font-black uppercase tracking-wide px-2 py-2.5 leading-tight transition-all hover:brightness-125";
                 // Active tab's heading + body
                 let aHead = '', aBody = '', aItalic = false;
-                if (tab === 'their') { aHead = candidate.name; if (evidence) aBody = evidence; else if (posText) { aBody = `"${posText}"`; aItalic = true; } else { aBody = 'No published view on this issue yet.'; aItalic = true; } }
-                else if (tab === 'opp') { if (oppHasInfo) { aHead = opponent.name; aBody = oppEvidence || (oppPosText ? `"${oppPosText}"` : ''); aItalic = !oppEvidence; } else { aHead = 'Unopposed'; aBody = `No ${missingParty} filed to run, so ${lastName} is the only choice in this race — vote for them or skip it.`; } }
+                if (tab === 'their') { aHead = candidate.name; if (isJudicialCandidate) { aBody = 'No published record per judicial ethics rules.'; aItalic = true; } else if (evidence) aBody = evidence; else if (posText) { aBody = `"${posText}"`; aItalic = true; } else { aBody = 'No published view on this issue yet.'; aItalic = true; } }
+                else if (tab === 'opp') { if (isJudicialCandidate && opponent) { aHead = opponent.name; aBody = 'No published record per judicial ethics rules.'; aItalic = true; } else if (oppHasInfo) { aHead = opponent.name; aBody = oppEvidence || (oppPosText ? `"${oppPosText}"` : ''); aItalic = !oppEvidence; } else { aHead = 'Unopposed'; aBody = `No ${missingParty} filed to run, so ${lastName} is the only choice in this race — vote for them or skip it.`; } }
                 else if (tab === 'facts') { aHead = 'The Facts'; aBody = issueFact || 'No facts available yet.'; }
                 // Colors derive from the candidate's party so the card connects to the (party-colored) profile header above it.
                 const tintFor = (p) => p === 'D' ? '#1d2b63' : p === 'R' ? '#401621' : '#23304d';   // content panel
@@ -3622,7 +3644,7 @@
                     <div className="flex items-center justify-between gap-2 px-4 py-3.5 cursor-pointer" style={{ background: cardHeaderGrad, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.09)' }} onClick={() => setTab(issue.id, isOpen ? tab : defaultTab)}>
                       <span className="text-white font-black uppercase tracking-wide text-base lg:text-lg leading-tight min-w-0 truncate">{issue.topic}</span>
                       <span className="flex items-center gap-3.5 shrink-0">
-                        {(() => {
+                        {!isJudicialCandidate && (() => {
                           const userSkipped = answers?.[issue.id] === 'D'; // chose No Opinion on every statement = skipped the whole issue
                           const chipBase = "text-[10px] lg:text-xs font-black uppercase tracking-wide px-2.5 py-1 rounded-full whitespace-nowrap border leading-none text-center min-w-[7.25rem] lg:min-w-[8.25rem]";
                           let label, cls, pulse = '', tappable = !!onRateIssue;
@@ -5023,13 +5045,265 @@
     }
 
     // ─────────────────────────────────────────────
+    // CANDIDATE EDIT PAGE — /<slug>/edit submission form
+    // Candidate edits their OWN words + hooks + photo; the researched record + the
+    // Agree/Disagree lean stay ours (record is read-only, flag-for-correction only).
+    // Backend (Netlify Function → pending tab + magic-link auth) comes later; Save
+    // assembles the submission payload so the flow is verifiable now.
+    // ─────────────────────────────────────────────
+    const HOOK1_MAX = 140, HOOK2_MAX = 320, OWNWORDS_MAX = 400;
+    function CandidateEditPage({ candidate, race, issues, onBack }) {
+      const _ISSUE_KEYS = ['reproductiveRights','immigration','gunPolicy','education','healthcare','climate','electionIntegrity','socialSecurity','affordability'];
+      const editIssues = (issues || []).filter(i => _ISSUE_KEYS.includes(i.id));
+      // Read the researched stance as Agree / Disagree / No opinion (handles both full-word data and legacy A/C/D).
+      const stanceFromPos = (raw, issueId) => {
+        if (raw === 'Agree' || raw === 'Disagree') return raw;
+        if (raw === 'Unknown' || raw == null || raw === 'D') return 'No opinion';
+        const voice = ISSUE_VOICE[issueId];
+        if (raw === 'A') return voice === 'RIGHT' ? 'Disagree' : 'Agree';
+        if (raw === 'C') return voice === 'RIGHT' ? 'Agree' : 'Disagree';
+        return 'No opinion';
+      };
+      const [hook1, setHook1] = useState(candidate.hook || '');
+      const [hook2, setHook2] = useState(candidate.summary || '');
+      const [website, setWebsite] = useState(candidate.website || '');
+      const [editWebsite, setEditWebsite] = useState(false);
+      const [stances, setStances] = useState(() => Object.fromEntries(editIssues.map(i => [i.id, stanceFromPos(candidate.positions?.[i.id], i.id)])));
+      const [ownWords, setOwnWords] = useState(() => Object.fromEntries(editIssues.map(i => [i.id, ''])));
+      const [flagOpen, setFlagOpen] = useState({});
+      const [flags, setFlags] = useState({});
+      const [photoPreview, setPhotoPreview] = useState(candidate.photo || null);
+      const [photoName, setPhotoName] = useState('');
+      const [consent, setConsent] = useState(false);
+      const [submitted, setSubmitted] = useState(null);
+
+      const counterStyle = (len, max) => len >= max ? 'text-rose-600' : len >= max * 0.85 ? 'text-amber-600' : 'text-slate-400';
+      const STANCE_OPTS = ['Agree', 'Disagree', 'No opinion'];
+
+      function onPhoto(e) {
+        const f = e.target.files && e.target.files[0];
+        if (!f) return;
+        setPhotoName(f.name);
+        const reader = new FileReader();
+        reader.onload = ev => setPhotoPreview(ev.target.result);
+        reader.readAsDataURL(f);
+      }
+
+      function submit() {
+        // Assemble the pending-submission payload. (Backend wiring is the next phase.)
+        const payload = {
+          candidate: candidate.name,
+          office: race?.office || null,
+          party: candidate.party,
+          submittedAt: new Date().toISOString(),
+          website,
+          hook1, hook2,
+          photoChanged: !!photoName,
+          photoFileName: photoName || null,
+          positions: stances,            // candidate's self-reported Agree/Disagree/No opinion
+          ownWords,                      // their first-person paragraph per issue
+          corrections: Object.fromEntries(Object.entries(flags).filter(([,v]) => v && v.trim())),
+          consent,
+        };
+        console.log('[VYV candidate submission]', payload);
+        setSubmitted(payload);
+        window.scrollTo(0, 0);
+      }
+
+      const partyLabel = candidate.party === 'D' ? 'Democrat' : candidate.party === 'R' ? 'Republican' : 'Candidate';
+      const partyBar = candidate.party === 'D' ? '#2563eb' : candidate.party === 'R' ? '#dc2626' : '#475569';
+      const profileUrl = (window.location.pathname.replace(/\/edit\/?$/i, '') || '/');
+
+      if (submitted) {
+        return (
+          <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-6 py-16 text-center fade-in">
+            <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-3xl mb-5">✓</div>
+            <h1 className="text-2xl font-black text-slate-900 mb-2">Thanks, {candidate.name.split(' ')[0]} — submitted for review.</h1>
+            <p className="text-slate-600 max-w-md mb-6">Nothing goes live until the VoteYourViews team reviews it. We'll verify your identity and check the details, then your updates appear on your public profile.</p>
+            <button onClick={onBack} className="px-6 py-3 rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800">← Back to profile</button>
+          </div>
+        );
+      }
+
+      return (
+        <div className="min-h-screen bg-slate-50">
+          {/* Identity header */}
+          <div className="text-white px-5 py-6 lg:px-10" style={{ background: 'linear-gradient(160deg,#0f172a 0%,#020617 100%)', borderBottom: `4px solid ${partyBar}` }}>
+            <div className="max-w-3xl mx-auto">
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <button onClick={onBack} className="text-sm text-slate-300 hover:text-white">← Back to profile</button>
+                <a href={profileUrl} target="_blank" rel="noopener" className="text-sm font-bold text-sky-300 hover:text-sky-200">See your live profile ↗</a>
+              </div>
+              <p className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-3">Candidate Profile Editor</p>
+              <div className="flex items-center gap-4">
+                {photoPreview
+                  ? <img src={photoPreview} alt="" className="w-16 h-16 rounded-full object-cover border-2 border-white/30" style={{ objectPosition: 'center top' }} />
+                  : <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center text-2xl">👤</div>}
+                <div>
+                  <h1 className="text-2xl font-black leading-tight">{candidate.name}</h1>
+                  <p className="text-slate-300 text-sm font-bold uppercase tracking-wide">{partyLabel}{race?.office ? ` · ${race.office}` : ''}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="max-w-3xl mx-auto px-5 py-8 lg:px-10 space-y-8">
+
+            {/* Photo + website — show what we have, keep or replace */}
+            <section className="bg-white rounded-2xl border border-slate-200 p-5 lg:p-6 space-y-6">
+              {/* Photo */}
+              <div>
+                <h2 className="text-lg font-black text-slate-900 mb-3">Your photo</h2>
+                <div className="flex items-center gap-4">
+                  {photoPreview
+                    ? <img src={photoPreview} alt="" className="w-20 h-20 rounded-full object-cover border border-slate-200" style={{ objectPosition: 'center top' }} />
+                    : <div className="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center text-3xl">👤</div>}
+                  <div className="min-w-0">
+                    <p className="text-sm text-slate-500 mb-2">{photoName ? 'New photo selected — submit to use it.' : photoPreview ? "Here's the photo we have. Keep it, or replace it." : 'No photo yet — add one.'}</p>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <label className="cursor-pointer px-3.5 py-2 rounded-lg bg-slate-900 text-white text-sm font-bold hover:bg-slate-800">
+                        {photoPreview ? 'Replace photo' : 'Upload photo'}
+                        <input type="file" accept="image/*" onChange={onPhoto} className="hidden" />
+                      </label>
+                      {photoName && <button onClick={() => { setPhotoName(''); setPhotoPreview(candidate.photo || null); }} className="text-sm font-bold text-slate-500 hover:text-slate-700">Undo</button>}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* Website */}
+              <div className="border-t border-slate-100 pt-5">
+                <h2 className="text-lg font-black text-slate-900 mb-3">Campaign website</h2>
+                {!editWebsite ? (
+                  <div className="flex items-center gap-4">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm text-slate-700 break-all">{website || <span className="text-slate-400 italic">None on file</span>}</p>
+                      <p className="text-xs text-slate-400 mt-1">{website ? "Here's the link we have. Keep it, or replace it." : 'Add your campaign website.'}</p>
+                    </div>
+                    <button onClick={() => setEditWebsite(true)} className="shrink-0 text-sm font-bold text-sky-600 hover:text-sky-700">{website ? 'Replace' : 'Add'}</button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <input type="url" value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://…" className="flex-1 px-3 py-2.5 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400" />
+                    <button onClick={() => setEditWebsite(false)} className="shrink-0 text-sm font-bold text-slate-500 hover:text-slate-700">Done</button>
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {/* Hooks */}
+            <section className="bg-white rounded-2xl border border-slate-200 p-5 lg:p-6">
+              <h2 className="text-lg font-black text-slate-900 mb-1">Your headline &amp; bio</h2>
+              <p className="text-sm text-slate-500 mb-4">How you introduce yourself. These replace our draft once approved.</p>
+
+              {/* Live preview — shows the candidate exactly where Hook 1 and Hook 2 appear on their profile */}
+              <div className="rounded-xl p-4 mb-5" style={{ background: 'linear-gradient(165deg,#2a52c9 0%,#16317c 100%)' }}>
+                <div className="text-[11px] uppercase tracking-widest text-white/55 font-black mb-3">Live preview — your profile card</div>
+                <div className="flex items-start gap-2.5">
+                  <span className="shrink-0 mt-0.5 text-[9px] font-black bg-amber-400 text-amber-950 px-1.5 py-0.5 rounded">HOOK 1</span>
+                  <p className="font-black leading-tight text-[15px] text-white">{hook1 || <span className="text-white/40 italic">Your one-line headline…</span>}</p>
+                </div>
+                <div className="flex items-start gap-2.5 mt-2.5">
+                  <span className="shrink-0 mt-0.5 text-[9px] font-black bg-sky-300 text-sky-950 px-1.5 py-0.5 rounded">HOOK 2</span>
+                  <p className="leading-snug text-[13px] text-white/80">{hook2 || <span className="text-white/40 italic">Your short bio…</span>}</p>
+                </div>
+              </div>
+
+              <label className="block text-sm font-bold text-slate-700 mb-1">Hook 1 — one-line headline</label>
+              <textarea value={hook1} maxLength={HOOK1_MAX} onChange={e => setHook1(e.target.value)} rows={2}
+                className="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm leading-snug focus:outline-none focus:ring-2 focus:ring-slate-400 resize-none" />
+              <div className={`text-right text-xs font-bold mt-1 ${counterStyle(hook1.length, HOOK1_MAX)}`}>{hook1.length} / {HOOK1_MAX}</div>
+
+              <label className="block text-sm font-bold text-slate-700 mb-1 mt-4">Hook 2 — short bio</label>
+              <textarea value={hook2} maxLength={HOOK2_MAX} onChange={e => setHook2(e.target.value)} rows={4}
+                className="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm leading-snug focus:outline-none focus:ring-2 focus:ring-slate-400 resize-none" />
+              <div className={`text-right text-xs font-bold mt-1 ${counterStyle(hook2.length, HOOK2_MAX)}`}>{hook2.length} / {HOOK2_MAX}</div>
+            </section>
+
+            {/* Issues */}
+            <section>
+              <h2 className="text-lg font-black text-slate-900 mb-1">Where you stand</h2>
+              <p className="text-sm text-slate-500 mb-4">Confirm your stance, then say it in your own words. The left column is our independent research — read-only. If it's wrong, flag it and we'll review.</p>
+              <div className="space-y-4">
+                {editIssues.map(issue => {
+                  const record = candidate.evidence?.[issue.id] || '';
+                  const ow = ownWords[issue.id] || '';
+                  return (
+                    <div key={issue.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                      <div className="px-5 py-3 bg-slate-900 text-white flex items-center justify-between gap-2">
+                        <span className="font-black uppercase tracking-wide text-sm">{issue.topic}</span>
+                      </div>
+                      <div className="p-5">
+                        {/* Stance selector (the quiz lean) */}
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {STANCE_OPTS.map(opt => {
+                            const on = stances[issue.id] === opt;
+                            const onCls = opt === 'Agree' ? 'bg-emerald-600 text-white border-emerald-600' : opt === 'Disagree' ? 'bg-rose-600 text-white border-rose-600' : 'bg-slate-600 text-white border-slate-600';
+                            return (
+                              <button key={opt} onClick={() => setStances(s => ({ ...s, [issue.id]: opt }))}
+                                className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wide border transition ${on ? onCls : 'bg-white text-slate-500 border-slate-300 hover:border-slate-400'}`}>
+                                {opt}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {/* Two columns */}
+                        <div className="grid md:grid-cols-2 gap-4">
+                          {/* From the record — locked */}
+                          <div className="rounded-xl bg-slate-50 border border-slate-200 p-4">
+                            <div className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wide text-slate-500 mb-2">🔒 From the record <span className="font-normal normal-case text-slate-400">· read-only</span></div>
+                            <p className="text-sm text-slate-700 leading-snug">{record || <span className="italic text-slate-400">No research on file yet.</span>}</p>
+                            {flagOpen[issue.id] ? (
+                              <div className="mt-3">
+                                <textarea value={flags[issue.id] || ''} onChange={e => setFlags(f => ({ ...f, [issue.id]: e.target.value }))} rows={2} placeholder="What's inaccurate? We'll review."
+                                  className="w-full px-2.5 py-2 rounded-lg border border-amber-300 bg-amber-50 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 resize-none" />
+                              </div>
+                            ) : (
+                              <button onClick={() => setFlagOpen(o => ({ ...o, [issue.id]: true }))} className="mt-2 text-[11px] font-bold text-amber-700 hover:text-amber-800">⚐ Flag this as inaccurate →</button>
+                            )}
+                          </div>
+                          {/* In your own words — editable */}
+                          <div className="rounded-xl bg-white border border-slate-300 p-4">
+                            <div className="text-[11px] font-black uppercase tracking-wide text-slate-700 mb-2">In your own words</div>
+                            <textarea value={ow} maxLength={OWNWORDS_MAX} onChange={e => setOwnWords(o => ({ ...o, [issue.id]: e.target.value }))} rows={5} placeholder="In your own words…"
+                              className="w-full px-2.5 py-2 rounded-lg border border-slate-300 text-sm leading-snug focus:outline-none focus:ring-2 focus:ring-slate-400 resize-none" />
+                            <div className={`text-right text-xs font-bold mt-1 ${counterStyle(ow.length, OWNWORDS_MAX)}`}>{ow.length} / {OWNWORDS_MAX}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* Consent + submit */}
+            <section className="bg-white rounded-2xl border border-slate-200 p-5 lg:p-6">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} className="mt-1 w-4 h-4" />
+                <span className="text-sm text-slate-700 leading-snug">I confirm I am this candidate or authorized by their campaign, and I grant VoteYourViews permission to publish the photo and text I've submitted.</span>
+              </label>
+              <button onClick={submit} disabled={!consent}
+                className={`mt-5 w-full py-3.5 rounded-xl font-black text-white transition ${consent ? 'bg-slate-900 hover:bg-slate-800' : 'bg-slate-300 cursor-not-allowed'}`}>
+                Submit for review
+              </button>
+              <p className="text-xs text-slate-400 text-center mt-3">Nothing publishes automatically. Every submission is reviewed first.</p>
+            </section>
+          </div>
+        </div>
+      );
+    }
+
+    // ─────────────────────────────────────────────
     // APP — main state machine
     // ─────────────────────────────────────────────
     function App() {
       const _params = new URLSearchParams(window.location.search);
       // Clean per-candidate URL slug (voteyourviews.org/JamesTalarico), or null for the app's own pages.
+      // Parse the path: a bare slug opens the candidate's profile; a trailing /edit opens the editable submission page for that candidate.
+      const _rawPath = decodeURIComponent((window.location.pathname || '').replace(/^\/+|\/+$/g, ''));
+      const editMode = /\/edit$/i.test(_rawPath);
       const urlSlug = (() => {
-        const p = decodeURIComponent((window.location.pathname || '').replace(/^\/+|\/+$/g, ''));
+        const p = _rawPath.replace(/\/edit$/i, '');
         return ['', 'index.html', 'statements', 'ballot'].includes(p.toLowerCase()) ? null : p;
       })();
       const [screen, setScreen] = useState(_params.get('testBallot') === '1' ? 'loading' : SHEETS.master ? 'loading' : 'landing');
@@ -5098,6 +5372,7 @@
       const [quizEntryIssueId, setQuizEntryIssueId] = useState(null);  // the issue the quiz was ENTERED on → BACK past it returns to origin, not the positional-previous issue
       const [reopenProfile, setReopenProfile] = useState(null); // candidate profile to reopen when returning from "rate this"
       const [focusIssueId, setFocusIssueId] = useState(null); // when returning from a single-issue "Do you match?" quiz, the issue card to auto-open + scroll to (the payoff)
+      const [editTarget, setEditTarget] = useState(null); // {candidate, race} when on the /<slug>/edit candidate submission page
       const rateIssueReturn = (id, ret, profile) => { setQuizReturnScreen(ret); setReopenProfile(profile || null); setStartIssueId(id || null); setQuizEntryIssueId(id || null); setScreen('quiz'); };
       const [returnToRace, setReturnToRace] = useState(null);   // { office } → go back to RaceDetail after quiz
       const [initialRace, setInitialRace] = useState(null);     // passed to Browse to auto-open a race
@@ -5174,9 +5449,14 @@
         const match = findCandidateBySlug(counties, urlSlug);
         if (match) {
           setCounty(match.countyKey);
-          setReopenProfile({ candidate: match.candidate, race: match.race });
-          setBrowseReturn('landing');
-          setScreen('browse');
+          if (editMode) {
+            setEditTarget({ candidate: match.candidate, race: match.race });
+            setScreen('edit');
+          } else {
+            setReopenProfile({ candidate: match.candidate, race: match.race });
+            setBrowseReturn('landing');
+            setScreen('browse');
+          }
         } else {
           setScreen('landing');   // unknown slug — fall back to home so we don't hang on loading
         }
@@ -5389,6 +5669,22 @@
             clearInitialProfile={() => setReopenProfile(null)}
             focusIssueId={focusIssueId}
             clearFocusIssue={() => setFocusIssueId(null)}
+          />
+        );
+      }
+
+      if (screen === 'edit' && editTarget) {
+        return (
+          <CandidateEditPage
+            candidate={editTarget.candidate}
+            race={editTarget.race}
+            issues={issues}
+            onBack={() => {
+              try { window.history.pushState({}, '', '/' + urlSlug); } catch(e) {}
+              setReopenProfile({ candidate: editTarget.candidate, race: editTarget.race });
+              setBrowseReturn('landing');
+              setScreen('browse');
+            }}
           />
         );
       }
