@@ -15,7 +15,7 @@
   <meta name="twitter:title" content="Stop voting Parties. Start voting your views.">
   <meta name="twitter:description" content="Everything you need to vote in the 2026 Texas Midterm in minutes…">
   <meta name="twitter:image" content="https://voteyourviews.org/icons/og-image.png">
-  <link rel="icon" href="./icons/Favicon.jpg" type="image/jpeg">
+  <link rel="icon" href="/icons/Favicon.jpg" type="image/jpeg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
@@ -349,7 +349,7 @@
       const p = (party || 'NA').toUpperCase(), slug = photoSlug(name);
       for (const dir of [`${county}/${p}`, `statewide/${p}`]) {
         const rel = `${dir}/${slug}.png`;
-        if (PHOTO_MANIFEST.has(rel)) return `./images/candidates/${rel}`;
+        if (PHOTO_MANIFEST.has(rel)) return `/images/candidates/${rel}`;
       }
       return null;
     }
@@ -1057,7 +1057,7 @@
       return (
         <div className={`${sizes[size]} rounded-full ${border} bg-slate-200 flex items-center justify-center overflow-hidden`}
           style={{flexShrink:0, display: hidden ? 'none' : 'flex'}}>
-          <img src="./icons/candidate-undefined.png" alt="No photo"
+          <img src="/icons/candidate-undefined.png" alt="No photo"
             className="w-full h-full object-contain object-bottom" style={{opacity:0.5}} />
         </div>
       );
@@ -1684,13 +1684,13 @@
             {/* Mobile: full logo, scaled to width, never cropped. height:auto shows the
                 WHOLE wordmark (incl .org); maxWidth caps it so it can't get giant. Breakpoint
                 is lg so landscape phones (<1024px) keep this and don't pick up the desktop header. */}
-            <img src="./icons/VoteYourViews_ThinHeader1.png" alt="VoteYourViews.org"
+            <img src="/icons/VoteYourViews_ThinHeader1.png" alt="VoteYourViews.org"
               className="block lg:hidden mx-auto"
               style={{width:'100%', maxWidth:'440px', height:'auto'}} />
 
             {/* Desktop: logo + election info centered together as a unit */}
             <div className="hidden lg:flex items-center gap-20 xl:gap-28">
-              <img src="./icons/VoteYourViews_Logo_White.png" alt="VoteYourViews.org" className="h-[109px] w-auto shrink-0 -ml-[60px]" />
+              <img src="/icons/VoteYourViews_Logo_White.png" alt="VoteYourViews.org" className="h-[109px] w-auto shrink-0 -ml-[60px]" />
               <div className="flex flex-col" style={{fontFamily:"'Barlow Condensed', sans-serif", marginLeft:'30px'}}>
                 <p className="text-white font-black text-4xl xl:text-5xl tracking-tight leading-none">Texas Midterm Election</p>
                 <p className="flex items-center gap-3 mt-2">
@@ -1795,7 +1795,7 @@
                         <span className="px-1 text-[10px] font-bold uppercase tracking-wide text-white/80 text-center leading-tight">{issue.topic}</span>
                       </div>
                       <img
-                        src={`./icons/${issue.icon || issue.id}.png`}
+                        src={`/icons/${issue.icon || issue.id}.png`}
                         alt={issue.topic}
                         className="relative w-full h-full object-cover"
                         onError={e => { e.target.style.display='none'; }}
@@ -2048,7 +2048,7 @@
               <div className="w-full max-w-lg rounded-2xl p-6" style={{background:'linear-gradient(160deg,#1e1b4b,#0f172a)', border:'1px solid rgba(255,255,255,0.2)'}}>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden shrink-0" style={{background:'rgba(255,255,255,0.1)'}}>
-                    <img src={`./icons/Symbols/${issue.symbol}.png`} alt={issue.topic} style={{width:'80%',height:'80%',objectFit:'contain'}} onError={e=>{e.target.style.display='none'}}/>
+                    <img src={`/icons/Symbols/${issue.symbol}.png`} alt={issue.topic} style={{width:'80%',height:'80%',objectFit:'contain'}} onError={e=>{e.target.style.display='none'}}/>
                   </div>
                   <p className="text-white font-black text-base uppercase tracking-wide">{issue.topic}</p>
                 </div>
@@ -2075,7 +2075,7 @@
               <>
                 {/* Issue header — icon + title */}
                 <div className="w-full flex items-center gap-4 px-1 py-3">
-                  <img src={`./icons/Symbols/${issue.symbol}.png`} alt={issue.topic}
+                  <img src={`/icons/Symbols/${issue.symbol}.png`} alt={issue.topic}
                     style={{width:'70px', height:'70px', objectFit:'contain', flexShrink:0}}
                     onError={e => { e.target.style.display='none'; }} />
                   <div className="flex-1">
@@ -2209,7 +2209,7 @@
               <div className="w-full max-w-xl mx-auto flex flex-col gap-3 py-2 fade-in">
                 {/* Issue header */}
                 <div className="w-full flex items-center gap-4 px-1 pb-1">
-                  <img src={`./icons/Symbols/${issue.symbol}.png`} alt={issue.topic}
+                  <img src={`/icons/Symbols/${issue.symbol}.png`} alt={issue.topic}
                     style={{width:'56px', height:'56px', objectFit:'contain', flexShrink:0}}
                     onError={e => { e.target.style.display='none'; }} />
                   <div className="flex-1">
@@ -2228,7 +2228,7 @@
                         style={{background: skipped ? 'rgba(255,255,255,0.04)' : r === 'up' ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)'}}>
                         {skipped
                           ? <span style={{width:'20px', height:'20px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'14px', flexShrink:0}}>⏭</span>
-                          : <img src={r === 'up' ? './icons/thumbs_up.png' : './icons/thumbs_down.png'} alt={r === 'up' ? 'Agree' : 'Disagree'} style={{width:'20px', height:'20px', objectFit:'contain', flexShrink:0}} />
+                          : <img src={r === 'up' ? '/icons/thumbs_up.png' : '/icons/thumbs_down.png'} alt={r === 'up' ? 'Agree' : 'Disagree'} style={{width:'20px', height:'20px', objectFit:'contain', flexShrink:0}} />
                         }
                         <span className="text-[13px] font-semibold" style={{color:'rgba(255,255,255,0.5)'}}>Statement {i+1}</span>
                         <span className="text-[11px] font-black uppercase tracking-widest ml-auto">
@@ -2400,7 +2400,7 @@
                         <div className="w-full px-3 pt-3 flex-shrink-0">
                           <div className="w-full" style={{height:'85px', display:'flex', alignItems:'center', justifyContent:'center'}}>
                             <img
-                              src={`./icons/Symbols/${issue.symbol}.png`}
+                              src={`/icons/Symbols/${issue.symbol}.png`}
                               alt={issue.topic}
                               style={{maxWidth:'90%', maxHeight:'85px', objectFit:'contain'}}
                               onError={e => { e.target.style.display='none'; }}
@@ -2556,7 +2556,7 @@
                     >
                       <div className="relative w-full aspect-square rounded-xl overflow-hidden ring-1 ring-white/10 group-hover:ring-white/30 group-active:scale-95 transition-all duration-150 shadow-lg">
                         <img
-                          src={`./icons/${issue.icon || issue.id}.png`}
+                          src={`/icons/${issue.icon || issue.id}.png`}
                           alt={issue.topic}
                           className="w-full h-full object-cover"
                           onError={e => { e.target.style.display='none'; e.target.parentNode.style.background='#1e293b'; }}
@@ -3046,7 +3046,7 @@
                                 <img src={displayCand.photo} alt={displayCand.name} className="absolute inset-0 w-full h-full object-cover" style={{objectPosition:'center 5%', zIndex:1}} onError={e => { e.target.style.display='none'; const s=e.target.nextElementSibling; if(s) s.style.display='flex'; }} />
                               }
                               <div className="absolute inset-0 flex items-center justify-center" style={{background:'#e2e8f0', display: displayCand?.photo ? 'none' : 'flex'}}>
-                                <img src="./icons/candidate-undefined.png" alt="No photo" className="w-full h-full object-contain object-bottom" style={{opacity:0.5}} />
+                                <img src="/icons/candidate-undefined.png" alt="No photo" className="w-full h-full object-contain object-bottom" style={{opacity:0.5}} />
                               </div>
                             </div>
                             {!isJudicialRace && displayScore !== null && (
@@ -3107,7 +3107,7 @@
                                     <img src={displayCand.photo} alt={displayCand.name} className="w-full h-full object-cover" style={{objectPosition:'center 5%'}} onError={e => { e.target.style.display='none'; const s=e.target.nextElementSibling; if(s) s.style.display='flex'; }} />
                                   }
                                   <div className="w-full h-full items-center justify-center" style={{background:'#e2e8f0', display: displayCand?.photo ? 'none' : 'flex'}}>
-                                    <img src="./icons/candidate-undefined.png" alt="No photo" className="w-full h-full object-contain object-bottom" style={{opacity:0.5}} />
+                                    <img src="/icons/candidate-undefined.png" alt="No photo" className="w-full h-full object-contain object-bottom" style={{opacity:0.5}} />
                                   </div>
                                 </div>
                                 {!isJudicialRace && displayScore !== null && (
@@ -3313,10 +3313,10 @@
 
     // ─── BROWSE ───
     const SECTION_META = {
-      federal:  { img: './icons/Federal.png', accent: 'from-[#0f172a] to-[#1e3a5f]' },
-      state:    { img: './icons/State.png',   accent: 'from-[#1a1a2e] to-[#16213e]' },
-      county:   { img: './icons/County.png',   accent: 'from-[#1a1a2e] to-[#0f3460]' },
-      judicial: { img: './icons/Judicial.png', accent: 'from-[#1a1a2e] to-[#2d1b69]' },
+      federal:  { img: '/icons/Federal.png', accent: 'from-[#0f172a] to-[#1e3a5f]' },
+      state:    { img: '/icons/State.png',   accent: 'from-[#1a1a2e] to-[#16213e]' },
+      county:   { img: '/icons/County.png',   accent: 'from-[#1a1a2e] to-[#0f3460]' },
+      judicial: { img: '/icons/Judicial.png', accent: 'from-[#1a1a2e] to-[#2d1b69]' },
     };
 
     // Office definitions — educational context shown in the race header
@@ -3455,7 +3455,7 @@
                 {onSelect ? (
                   <button onClick={onSelect} className="relative active:scale-95 hover:scale-105 transition-transform" title={isSelected ? 'Remove from ballot' : 'Add to ballot'}>
                     <div className={`w-16 h-16 lg:w-24 lg:h-24 rounded-full border-4 overflow-hidden bg-white/20 transition-colors ${isSelected ? (candidate.party === 'D' ? 'border-blue-200' : candidate.party === 'R' ? 'border-red-200' : 'border-slate-200') : 'border-white/50'}`}>
-                      <img src={candidate.photo || './icons/candidate-undefined.png'} alt={candidate.name} className="w-full h-full object-cover object-top" onError={e => { e.target.src='./icons/candidate-undefined.png'; e.target.className='w-full h-full object-contain object-bottom'; e.target.style.opacity='0.6'; }} />
+                      <img src={candidate.photo || '/icons/candidate-undefined.png'} alt={candidate.name} className="w-full h-full object-cover object-top" onError={e => { e.target.src='/icons/candidate-undefined.png'; e.target.className='w-full h-full object-contain object-bottom'; e.target.style.opacity='0.6'; }} />
                     </div>
                     <span className={`absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full flex items-center justify-center text-sm font-black border-2 border-white shadow-md transition-colors ${isSelected ? (candidate.party === 'D' ? 'bg-blue-200 text-blue-900' : candidate.party === 'R' ? 'bg-red-200 text-red-900' : 'bg-slate-200 text-slate-900') : 'bg-white text-slate-900'}`}>
                       {isSelected ? '✓' : '+'}
@@ -3463,7 +3463,7 @@
                   </button>
                 ) : (
                   <div className="w-16 h-16 lg:w-24 lg:h-24 rounded-full border-4 border-white/50 overflow-hidden bg-white/20">
-                    <img src={candidate.photo || './icons/candidate-undefined.png'} alt={candidate.name} className="w-full h-full object-cover object-top" onError={e => { e.target.src='./icons/candidate-undefined.png'; e.target.className='w-full h-full object-contain object-bottom'; e.target.style.opacity='0.6'; }} />
+                    <img src={candidate.photo || '/icons/candidate-undefined.png'} alt={candidate.name} className="w-full h-full object-cover object-top" onError={e => { e.target.src='/icons/candidate-undefined.png'; e.target.className='w-full h-full object-contain object-bottom'; e.target.style.opacity='0.6'; }} />
                   </div>
                 )}
               </div>
@@ -3639,7 +3639,7 @@
                 const contentBg = isFactsTab ? '#eef2f7' : (tab === 'opp' ? tintFor(opponent?.party) : tintFor(candidate.party));
                 const headCls = isFactsTab ? 'text-slate-900' : 'text-white';
                 const bodyCls = isFactsTab ? 'text-slate-700' : 'text-slate-200';
-                const artSrc = isFactsTab ? './icons/illustrations/facts.png' : `./icons/Symbols/${issue.symbol}.png`;
+                const artSrc = isFactsTab ? '/icons/illustrations/facts.png' : `/icons/Symbols/${issue.symbol}.png`;
                 const glowParty = tab === 'opp' ? opponent?.party : candidate.party;
                 const glowColor = glowParty === 'D' ? 'rgba(96,165,250,0.95)' : glowParty === 'R' ? 'rgba(248,113,113,0.98)' : 'rgba(148,163,184,0.85)';
                 return (
@@ -3680,8 +3680,8 @@
                         <div key={tab} className="issue-enter flex items-center gap-4 px-6 lg:px-9 py-5" style={{ background: contentBg }}>
                           {isFactsTab ? (
                             <div className="relative shrink-0 w-20 lg:w-28 h-20 lg:h-28">
-                              <img src="./icons/illustrations/light-bulb-off.png" alt="" className="absolute inset-0 w-full h-full object-contain opacity-25" onError={e => { e.currentTarget.style.display = 'none'; }} />
-                              <img src="./icons/illustrations/light-bulb-on.png" alt="" className="bulb-on absolute inset-0 w-full h-full object-contain" onError={e => { e.currentTarget.style.display = 'none'; }} />
+                              <img src="/icons/illustrations/light-bulb-off.png" alt="" className="absolute inset-0 w-full h-full object-contain opacity-25" onError={e => { e.currentTarget.style.display = 'none'; }} />
+                              <img src="/icons/illustrations/light-bulb-on.png" alt="" className="bulb-on absolute inset-0 w-full h-full object-contain" onError={e => { e.currentTarget.style.display = 'none'; }} />
                             </div>
                           ) : (
                             <img src={artSrc} alt="" className="symbol-glow shrink-0 object-contain w-16 lg:w-20 h-16 lg:h-20" style={{ '--glow': glowColor }} onError={e => { e.currentTarget.style.display = 'none'; }} />
@@ -3856,9 +3856,9 @@
                   <div className="flex items-center gap-3 mb-3 px-5 pt-2">
                     <div className="w-10 h-10 rounded-full overflow-hidden border-2 flex-shrink-0 bg-slate-100"
                       style={{borderColor: candidate.party==='D'?'#3b82f6':candidate.party==='R'?'#ef4444':'#94a3b8'}}>
-                      <img src={candidate.photo||'./icons/candidate-undefined.png'} alt={candidate.name}
+                      <img src={candidate.photo||'/icons/candidate-undefined.png'} alt={candidate.name}
                         className="w-full h-full object-cover object-top"
-                        onError={e=>{e.target.src='./icons/candidate-undefined.png';e.target.className='w-full h-full object-contain object-bottom';e.target.style.opacity='0.5';}} />
+                        onError={e=>{e.target.src='/icons/candidate-undefined.png';e.target.className='w-full h-full object-contain object-bottom';e.target.style.opacity='0.5';}} />
                     </div>
                     <div>
                       <p className={`text-sm font-black uppercase tracking-wide ${partyColor}`}>{candidate.name}</p>
@@ -4063,7 +4063,7 @@
                           {/* Issue col — large icon */}
                           <div className="w-1/4 border-r-2 border-slate-400 flex flex-col items-center justify-center gap-2 px-4 py-4 text-center">
                             <div className="w-16 h-16 rounded-2xl bg-slate-800 flex items-center justify-center shadow-sm">
-                              <img src={`./icons/Symbols/${issue.symbol}.png`} alt="" className="w-10 h-10 object-contain"
+                              <img src={`/icons/Symbols/${issue.symbol}.png`} alt="" className="w-10 h-10 object-contain"
                                 onError={e=>{e.target.parentNode.style.background='#334155';e.target.style.display='none';}} />
                             </div>
                             <span className="text-xs font-black text-slate-700 uppercase tracking-wide leading-tight">{issue.topic}</span>
@@ -4176,9 +4176,9 @@
                             <button onClick={() => setProfileCandidate(c)} className="flex flex-col items-center gap-1 w-full px-1">
                               <div className="w-14 h-14 rounded-full overflow-hidden border-[3px] bg-slate-200"
                                 style={{borderColor:candAccent(c)}}>
-                                <img src={c.photo||'./icons/candidate-undefined.png'} alt={c.name}
+                                <img src={c.photo||'/icons/candidate-undefined.png'} alt={c.name}
                                   className="w-full h-full object-cover object-top"
-                                  onError={e=>{e.target.src='./icons/candidate-undefined.png';e.target.className='w-full h-full object-contain object-bottom';e.target.style.opacity='0.5';}} />
+                                  onError={e=>{e.target.src='/icons/candidate-undefined.png';e.target.className='w-full h-full object-contain object-bottom';e.target.style.opacity='0.5';}} />
                               </div>
                               <div className="text-center mt-0.5">
                                 <div className="text-[14px] font-black text-slate-900 leading-tight">{c.name.split(' ').slice(-1)[0]}</div>
@@ -4205,7 +4205,7 @@
                         {/* Frozen: Issue icon + name only */}
                         <div className="flex-shrink-0 border-r-2 border-slate-400 flex flex-col items-center justify-center gap-2 text-center px-2 py-3" style={{width:'33.333%'}}>
                           <div className="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center flex-shrink-0 shadow-sm">
-                            <img src={`./icons/Symbols/${issue.symbol}.png`} alt="" className="w-8 h-8 object-contain"
+                            <img src={`/icons/Symbols/${issue.symbol}.png`} alt="" className="w-8 h-8 object-contain"
                               onError={e=>{e.target.parentNode.style.background='#334155';e.target.style.display='none';}} />
                           </div>
                           <span className="text-[10px] font-black text-slate-700 uppercase tracking-wide leading-tight">{issue.topic}</span>
@@ -4520,8 +4520,8 @@
                             <div className="relative" style={{width: Math.round(ringSize*1.04), height: Math.round(ringSize*1.04)}}>
                               <div className="absolute inset-0 rounded-full" style={{background: accent}} />
                               <div className="absolute rounded-full overflow-hidden bg-slate-700" style={{inset: border}}>
-                                <img src={c.photo||'./icons/candidate-undefined.png'} alt={c.name} className="w-full h-full object-cover object-top"
-                                  onError={e=>{e.target.src='./icons/candidate-undefined.png';}} />
+                                <img src={c.photo||'/icons/candidate-undefined.png'} alt={c.name} className="w-full h-full object-cover object-top"
+                                  onError={e=>{e.target.src='/icons/candidate-undefined.png';}} />
                               </div>
                               {candMatch !== null && (
                                 <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[10px] font-black rounded-full px-1.5 py-0.5 leading-none"
@@ -4564,7 +4564,7 @@
                             <p className="text-[12px] font-black uppercase tracking-widest text-center leading-tight" style={{color:'rgba(255,255,255,0.45)'}}>No {missing}<br/>Candidate</p>
                             <div className="relative" style={{width:75, height:75}}>
                               <div className="absolute rounded-full overflow-hidden" style={{inset:0, background:'#1e293b', border:'4px solid #334155'}}>
-                                <img src="./icons/candidate-undefined.png" alt="" className="w-full h-full object-cover object-top" style={{opacity:0.3}} />
+                                <img src="/icons/candidate-undefined.png" alt="" className="w-full h-full object-cover object-top" style={{opacity:0.3}} />
                               </div>
                               <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" aria-hidden="true">
                                 <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(148,163,184,0.6)" strokeWidth="5"/>
@@ -4700,10 +4700,10 @@
                   style={{flexShrink:0}}
                 >
                   <img
-                    src={c.photo || './icons/candidate-undefined.png'}
+                    src={c.photo || '/icons/candidate-undefined.png'}
                     alt={c.name}
                     className="w-full h-full object-cover object-top"
-                    onError={e => { e.target.src='./icons/candidate-undefined.png'; e.target.className='w-full h-full object-contain object-bottom'; e.target.style.opacity='0.5'; }}
+                    onError={e => { e.target.src='/icons/candidate-undefined.png'; e.target.className='w-full h-full object-contain object-bottom'; e.target.style.opacity='0.5'; }}
                   />
                 </div>
               ))}
@@ -4877,7 +4877,7 @@
           <div className="ballot-page">
             {/* Colored brand banner header — links to the site (same logo as mobile) */}
             <a href="https://voteyourviews.org" target="_blank" rel="noopener noreferrer" style={{display:'block', textDecoration:'none'}}>
-              <img src="./icons/VoteYourViews_ThinHeader1.png" alt="VoteYourViews.org" className="ballot-banner" onError={e=>{e.currentTarget.style.display='none';}} />
+              <img src="/icons/VoteYourViews_ThinHeader1.png" alt="VoteYourViews.org" className="ballot-banner" onError={e=>{e.currentTarget.style.display='none';}} />
             </a>
             <div style={{textAlign:'center', marginTop:'10px'}}>
               <div className="ballot-title font-black uppercase" style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'26px', color:'#0f172a', letterSpacing:'0.02em', lineHeight:1.04}}>
@@ -4895,7 +4895,7 @@
 
             {/* Your Picks — section badge */}
             <div style={{display:'flex', alignItems:'center', gap:'10px', marginTop:'6px', marginBottom:'8px'}}>
-              <img src="./icons/illustrations/Candidates.png" alt="" style={{height:'50px', width:'auto', flexShrink:0}} onError={e=>{e.currentTarget.style.display='none';}} />
+              <img src="/icons/illustrations/Candidates.png" alt="" style={{height:'50px', width:'auto', flexShrink:0}} onError={e=>{e.currentTarget.style.display='none';}} />
               <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'26px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.05em', color:'#0f172a', lineHeight:1}}>
                 Your <span style={{color:'#2563eb'}}>Picks</span>
               </div>
@@ -4936,7 +4936,7 @@
             {/* Key Dates & Times */}
             <div style={{marginTop:'28px', borderTop:'2px solid #0f172a', paddingTop:'18px'}}>
               <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'12px'}}>
-                <img src="./icons/illustrations/Time_to_Vote.png" alt="" style={{height:'48px', width:'auto', flexShrink:0}} onError={e=>{e.currentTarget.style.display='none';}} />
+                <img src="/icons/illustrations/Time_to_Vote.png" alt="" style={{height:'48px', width:'auto', flexShrink:0}} onError={e=>{e.currentTarget.style.display='none';}} />
                 <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'26px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.06em', lineHeight:1, color:'#0f172a'}}>
                   Key <span style={{color:'#2563eb'}}>Dates &amp; Times</span>
                 </div>
@@ -4957,7 +4957,7 @@
               {/* Not-registered helper — for people who aren't on the rolls yet */}
               <div style={{marginTop:'10px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:'12px', background:'#eff6ff', border:'1px solid #bfdbfe', borderRadius:'10px', padding:'10px 16px'}}>
                 <div style={{display:'flex', alignItems:'center', gap:'12px', minWidth:0}}>
-                  <img src="./icons/illustrations/MagnifyingGlass.png" alt="" style={{height:'34px', width:'auto', flexShrink:0}} onError={e=>{e.currentTarget.style.display='none';}} />
+                  <img src="/icons/illustrations/MagnifyingGlass.png" alt="" style={{height:'34px', width:'auto', flexShrink:0}} onError={e=>{e.currentTarget.style.display='none';}} />
                   <div style={{minWidth:0}}>
                     <div style={{fontSize:'12.5px', fontWeight:900, color:'#0f172a', lineHeight:1.2}}>Not sure you're registered?</div>
                     <div style={{fontSize:'11.5px', color:'#475569', marginTop:'2px', lineHeight:1.3}}>
@@ -4976,7 +4976,7 @@
               {/* Header row: title (left) + QR (right) */}
               <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'16px', marginBottom:'14px'}}>
                 <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
-                  <img src="./icons/illustrations/Vote_Sign.png" alt="" style={{height:'46px', width:'auto', flexShrink:0}} onError={e=>{e.currentTarget.style.display='none';}} />
+                  <img src="/icons/illustrations/Vote_Sign.png" alt="" style={{height:'46px', width:'auto', flexShrink:0}} onError={e=>{e.currentTarget.style.display='none';}} />
                   <div>
                     <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'11px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.28em', color:'#94a3b8', marginBottom:'1px'}}>Your Closest</div>
                     <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'26px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.06em', lineHeight:1, color:'#0f172a'}}>
@@ -5427,7 +5427,7 @@
           const builtIssues = [...GRID_ORDER.map(id => rawIssues.find(i => i.id === id)).filter(Boolean), ...rawIssues.filter(i => !GRID_ORDER.includes(i.id))];
           // load the self-hosted photo manifest (which candidates have local PNGs) before building
           try {
-            const mres = await fetch('./images/candidates/manifest.json', { cache: 'no-store' });
+            const mres = await fetch('/images/candidates/manifest.json', { cache: 'no-store' });
             if (mres.ok) PHOTO_MANIFEST = new Set(await mres.json());
           } catch (_) {}
 
