@@ -1147,6 +1147,7 @@
       async function handleSearch() {
         const addr = inputRef.current?.value?.trim() || '';
         if (!addr) { setError('Please enter your street address.'); return; }
+        if (addr.includes('@')) { setError('That looks like an email. Please enter your street address.'); return; }
         setIsSearching(true);
         setError(null);
         try {
@@ -1161,6 +1162,13 @@
             return;
           }
           const components = result.address_components || {};
+          // Geocodio "matches" almost any garbage (e.g. an email) to a random place with no street number.
+          // Require a real street number before we ever claim an out-of-area county.
+          if (!components.number) {
+            setError("That doesn't look like a complete street address. Please include your street number, city, and ZIP.");
+            setIsSearching(false);
+            return;
+          }
           const detectedCounty = (components.county || '').toLowerCase().replace(' county', '').trim();
           const SUPPORTED_COUNTIES = { hays: 'hays', travis: 'travis' };
           const matchedCounty = Object.keys(SUPPORTED_COUNTIES).find(k => detectedCounty.includes(k));
@@ -1411,6 +1419,7 @@
         // (onClick passes a click event here, so only honor a real string.)
         const addr = (typeof overrideAddr === 'string' ? overrideAddr : (exploreAddrRef.current || inputRef.current?.value?.trim())) || '';
         if (!addr) { setError('Please enter your street address.'); return; }
+        if (addr.includes('@')) { setError('That looks like an email. Please enter your street address.'); return; }
         setIsSearching(true); setError(null);
 
         // STEP 1 — Geocode the address (its own try/catch so failures here say so honestly)
@@ -1438,6 +1447,11 @@
 
         // STEP 2 — County match + district extraction (cannot fail the lookup; defaults are safe)
         const components = result.address_components || {};
+        // Geocodio fuzzy-matches garbage (e.g. an email) to a random place with no street number — don't claim "not available in <county>" for that.
+        if (!components.number) {
+          setError("That doesn't look like a complete street address. Please include your street number, city, and ZIP.");
+          setIsSearching(false); return;
+        }
         const detectedCounty2 = (components.county || '').toLowerCase().replace(' county', '').trim();
         const matchedCounty2 = ['hays', 'travis'].find(k => detectedCounty2.includes(k));
         if (!matchedCounty2) {
