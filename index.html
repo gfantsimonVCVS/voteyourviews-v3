@@ -305,7 +305,11 @@
       const res = await fetch(url);
       if (!res.ok) throw new Error(`Could not load "${tabName}" tab — check the sheet is published to web (File → Share → Publish to web).`);
       const text = await res.text();
-      const { data } = Papa.parse(text, { header: true, skipEmptyLines: true });
+      // gviz exports extra empty trailing columns; a malformed empty-quote in the header makes PapaParse
+      // merge the header with the first data row (silently dropping row 1 — e.g. the first Reproductive
+      // Rights statement). Strip trailing empty quoted columns per line so the header parses cleanly.
+      const clean = text.replace(/\r/g, '').split('\n').map(l => l.replace(/(,"")+\s*$/, '')).join('\n');
+      const { data } = Papa.parse(clean, { header: true, skipEmptyLines: true });
       return data;
     }
 

@@ -51,7 +51,10 @@
       try {
         const res = await fetch(url);
         const text = await res.text();
-        const { data } = Papa.parse(text, { header: true, skipEmptyLines: true });
+        // Strip gviz's junk trailing empty columns — a malformed empty-quote in the header otherwise
+        // makes PapaParse merge the header with row 1, dropping the first statement (Reproductive Rights #1).
+        const clean = text.replace(/\r/g, '').split('\n').map(l => l.replace(/(,"")+\s*$/, '')).join('\n');
+        const { data } = Papa.parse(clean, { header: true, skipEmptyLines: true });
         const built = {};
         data.forEach(r => {
           const issue = (r.issue || '').trim();
