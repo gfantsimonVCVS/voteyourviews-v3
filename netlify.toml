@@ -1,0 +1,6 @@
+# Edge function: per-candidate OG tags on clean candidate URLs.
+# The function itself early-returns on anything that isn't a bare /<slug> path
+# (see netlify/edge-functions/candidate-og.js).
+[[edge_functions]]
+  path = "/*"
+  function = "candidate-og"

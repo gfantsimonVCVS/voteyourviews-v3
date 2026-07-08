@@ -54,7 +54,4 @@ export default async (request, context) => {
   return new Response(rewritten, { status: response.status, headers });
 };
 
-export const config = {
-  path: '/*',
-  excludedPath: ['/icons/*', '/images/*', '/tools/*', '/Docs/*', '/*.html', '/*.js', '/*.css', '/*.png', '/*.jpg', '/*.json', '/*.gs'],
-};
+export const config = { path: '/*' };
