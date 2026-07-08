@@ -240,6 +240,28 @@
       .vyv-issue-tile span{font-size:10px;}
       .vyv-launcher{padding:10px 14px;font-size:11px;}
     }
+    /* ── Tablet + desktop: wide modal, text left / visual right ── */
+    @media (min-width:768px){
+      .vyv-tour-modal{max-width:920px;}
+      .vyv-tour-body{padding:34px 40px 16px;display:flex;align-items:center;}
+      .vyv-slide{width:100%;}
+      .vyv-slide.active{display:flex;align-items:center;gap:44px;}
+      .vyv-slide-text{flex:0 0 42%;min-width:0;}
+      .vyv-slide-visual{flex:1;min-width:0;}
+      .vyv-eyebrow{font-size:12px;margin-bottom:12px;}
+      .vyv-title{font-size:40px;margin-bottom:14px;}
+      .vyv-body-text{font-size:16px;line-height:1.6;margin-bottom:0;}
+      .vyv-phone{max-width:380px;}
+      .vyv-issue-grid{gap:14px;padding:0;}
+      .vyv-issue-tile span{font-size:12px;}
+      .vyv-paper{max-width:440px;}
+      .vyv-finale img{max-width:400px;}
+      .vyv-tour-foot{flex-direction:row;align-items:center;justify-content:space-between;padding:14px 40px 18px;}
+      .vyv-dots{order:2;}
+      .vyv-nav{order:1;gap:12px;}
+      .vyv-btn{flex:none;padding:12px 26px;}
+      .vyv-nav .vyv-btn-next{order:3;}
+    }
   `;
 
   let currentIdx = 0;
@@ -287,10 +309,12 @@
         <div class="vyv-tour-body">
           ${SLIDES.map((s, i) => `
             <div class="vyv-slide${i === 0 ? ' active' : ''}" data-idx="${i}">
-              <div class="vyv-eyebrow">${s.eyebrow}</div>
-              <h2 class="vyv-title">${s.title}</h2>
-              <p class="vyv-body-text">${s.body}</p>
-              ${s.render()}
+              <div class="vyv-slide-text">
+                <div class="vyv-eyebrow">${s.eyebrow}</div>
+                <h2 class="vyv-title">${s.title}</h2>
+                <p class="vyv-body-text">${s.body}</p>
+              </div>
+              <div class="vyv-slide-visual">${s.render()}</div>
             </div>`).join('')}
         </div>
         <div class="vyv-tour-foot">

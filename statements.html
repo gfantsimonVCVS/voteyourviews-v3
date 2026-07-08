@@ -9,16 +9,20 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     body { font-family: 'Inter', sans-serif; color: #e2e8f0;
-      background: radial-gradient(1200px 600px at 50% -100px, #35406e 0%, #222d4d 55%, #1b2440 100%) fixed #1b2440; }
+      background: radial-gradient(1200px 600px at 50% -100px, #46538c 0%, #2e3a63 55%, #273254 100%) fixed #273254; }
     h1, h2, h3 { font-family: 'Barlow Condensed', sans-serif; }
     textarea { resize: vertical; }
     details > summary { list-style: none; }
     details > summary::-webkit-details-marker { display: none; }
     .chev { transition: transform 0.25s; }
     details[open] > summary .chev { transform: rotate(90deg); }
-    .glass { background: linear-gradient(135deg,#0f172a 0%,#1e293b 100%); border: 1px solid rgba(255,255,255,0.14); }
-    details.glass { box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
-    details[open].glass { border-color: rgba(245,158,11,0.5); box-shadow: 0 16px 44px rgba(0,0,0,0.45); }
+    .glass { background: linear-gradient(135deg,#16213c 0%,#253352 100%);
+      border: 1px solid rgba(255,255,255,0.22);
+      box-shadow: 0 14px 34px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.12); }
+    details.glass { transition: transform .15s, border-color .15s, box-shadow .15s; }
+    details.glass:not([open]):hover { transform: translateY(-2px); border-color: rgba(245,158,11,0.55);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.12); }
+    details[open].glass { border-color: rgba(245,158,11,0.55); box-shadow: 0 18px 48px rgba(0,0,0,0.55); }
     .issue-body { background: #f1f5f9; }
     .stmt-card { background: #ffffff; border: 1.5px solid #e2e8f0; box-shadow: 0 2px 8px rgba(15,23,42,0.06); transition: border-color .2s, background .2s; }
     .stmt-card p { color: #0f172a !important; }
@@ -61,11 +65,17 @@
 
   <!-- Header -->
   <div class="sticky top-0 z-40 border-b border-white/10 px-4 sm:px-6 py-3" style="background:rgba(10,20,36,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)">
-    <div class="max-w-3xl mx-auto flex items-center gap-4 py-1">
-      <div class="flex-1 min-w-0">
+    <div class="max-w-3xl mx-auto flex items-center gap-4 py-1 relative">
+      <div class="min-w-0">
         <h1 class="text-[26px] sm:text-4xl font-black uppercase text-white leading-none whitespace-nowrap" style="letter-spacing:0.03em">Statement <span style="color:#f59e0b">Review</span></h1>
         <p class="text-slate-400 text-[10px] sm:text-[11px] mt-1 font-black uppercase" style="letter-spacing:0.28em">VoteYourViews.org · Internal Tool</p>
       </div>
+      <a href="/" title="Back to VoteYourViews.org" class="flex ml-auto sm:mx-auto w-11 h-11 items-center justify-center rounded-full transition-all hover:opacity-80 active:scale-95" style="background:rgba(255,255,255,0.1)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/>
+          <path d="M9 21V12h6v9"/>
+        </svg>
+      </a>
       <div class="shrink-0 hidden sm:block text-center px-4 py-2 rounded-2xl" style="background:rgba(245,158,11,0.10);border:1.5px solid rgba(245,158,11,0.45);box-shadow:0 4px 16px rgba(245,158,11,0.15)">
         <div id="overall-badge" class="text-lg font-black leading-none" style="color:#f59e0b;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.06em">0 / 9</div>
         <div class="text-[9px] font-black uppercase tracking-[0.22em] text-slate-400 mt-0.5">Issues Done</div>
@@ -80,7 +90,7 @@
 
     <!-- Welcome card — reviewer identity entered once, used for every submission -->
     <div class="rounded-2xl p-[1.5px] mb-6" style="background:linear-gradient(135deg,rgba(245,158,11,0.6),rgba(37,99,235,0.5) 50%,rgba(220,38,38,0.5))">
-      <div class="rounded-2xl p-5 sm:p-6 sm:flex sm:items-center sm:gap-7" style="background:linear-gradient(160deg,#111c33 0%,#0c1526 100%)">
+      <div class="rounded-2xl p-5 sm:p-6 sm:flex sm:items-center sm:gap-7" style="background:linear-gradient(160deg,#141f3a 0%,#0e182c 100%);box-shadow:0 18px 44px rgba(0,0,0,0.5)">
         <div class="flex-1 min-w-0">
           <div class="text-[10px] font-black uppercase tracking-[0.3em] mb-1.5" style="color:#f59e0b">★ Special Guest Review</div>
           <h2 class="text-2xl sm:text-[26px] font-black uppercase text-white leading-none mb-2.5" style="letter-spacing:0.03em">Help us refine the statements</h2>
@@ -91,16 +101,16 @@
           </p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.18em] mb-1.5">Your name</label>
+              <label class="block text-[10px] font-black text-slate-300 uppercase tracking-[0.18em] mb-1.5">Your name</label>
               <input id="reviewer-name" type="text" placeholder="Jane Doe"
                 class="w-full rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500"
-                style="background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.14)" />
+                style="background:rgba(0,0,0,0.4);border:1.5px solid rgba(255,255,255,0.28)" />
             </div>
             <div>
-              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.18em] mb-1.5">Your email</label>
+              <label class="block text-[10px] font-black text-slate-300 uppercase tracking-[0.18em] mb-1.5">Your email</label>
               <input id="reviewer-email" type="email" placeholder="you@example.com"
                 class="w-full rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500"
-                style="background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.14)" />
+                style="background:rgba(0,0,0,0.4);border:1.5px solid rgba(255,255,255,0.28)" />
             </div>
           </div>
         </div>
