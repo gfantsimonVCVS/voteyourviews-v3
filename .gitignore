@@ -9,3 +9,6 @@ tools/photo-proxy.config.json
 
 # Photo export artifacts
 images/travis-photos.zip
+
+# Local Netlify folder
+.netlify
