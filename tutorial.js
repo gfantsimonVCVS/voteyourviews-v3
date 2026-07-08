@@ -205,7 +205,7 @@
     .vyv-pan-img{transform-origin:top left;animation:vyvBallotPan 12s ease-in-out infinite;will-change:transform;}
     @keyframes vyvBallotPan{
       0%,8%{transform:scale(1) translateY(0);}
-      38%,72%{transform:scale(1.35) translateY(-57%);}
+      38%,72%{transform:scale(1.35) translateY(-61.8%);}
       100%{transform:scale(1) translateY(0);}
     }
     /* Finale: logo reveal */
