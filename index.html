@@ -49,6 +49,37 @@
     @keyframes slideIn { from { opacity: 0; transform: translateY(18px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
     .chip-nudge { animation: chipNudge 2.4s ease-in-out infinite; }
     @keyframes chipNudge { 0%,100% { box-shadow: 0 0 0 0 rgba(252,211,77,0.0); } 50% { box-shadow: 0 0 0 3px rgba(252,211,77,0.22); } }
+    /* "Do you match?" game chips: gold shimmer tease, coin-flip reveal, confetti payoff */
+    .chip-quiz { background: linear-gradient(100deg,#b45309 0%,#f59e0b 30%,#fde68a 50%,#f59e0b 70%,#b45309 100%);
+      background-size: 220% 100%;
+      animation: chipShimmer 3.2s ease-in-out infinite, chipNudge 2.4s ease-in-out infinite; }
+    @keyframes chipShimmer { 0% { background-position: 110% 0; } 55%, 100% { background-position: -120% 0; } }
+    .chip-flip { animation: chipFlip .7s cubic-bezier(.2,.8,.3,1); }
+    @keyframes chipFlip { 0% { transform: rotateY(0) scale(1); } 50% { transform: rotateY(180deg) scale(1.3); } 100% { transform: rotateY(360deg) scale(1); } }
+    .row-celebrate { animation: rowFlash 1.4s ease-out; }
+    @keyframes rowFlash { 0% { box-shadow: inset 0 0 0 999px rgba(16,185,129,0.3); } 100% { box-shadow: inset 0 0 0 999px rgba(16,185,129,0); } }
+    .match-final { animation: goldGlowPulse 2.2s ease-in-out infinite; }
+    @keyframes goldGlowPulse { 0%, 100% { box-shadow: 0 0 0 rgba(251,191,36,0); } 50% { box-shadow: 0 0 18px rgba(251,191,36,0.85); } }
+    /* Full-panel match celebration: confetti rain + IT'S A MATCH stamp over the whole profile modal */
+    .match-rain { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 60; }
+    .match-rain i { position: absolute; top: -18px; width: 9px; height: 14px; border-radius: 2px; opacity: 0;
+      animation: rainFall var(--dur) ease-in var(--delay) forwards; }
+    @keyframes rainFall {
+      0% { opacity: 1; transform: translateY(0) rotate(0); }
+      80% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(660px) rotate(var(--rot)); }
+    }
+    .match-stamp { position: absolute; left: 50%; top: 38%; z-index: 61; pointer-events: none; white-space: nowrap;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 64px; letter-spacing: 0.06em;
+      color: #34d399; text-transform: uppercase; text-shadow: 0 8px 30px rgba(0,0,0,0.85), 0 0 40px rgba(52,211,153,0.5);
+      animation: stampIn 2.4s cubic-bezier(.16,1,.3,1) both; }
+    @keyframes stampIn {
+      0% { opacity: 0; transform: translate(-50%,-50%) scale(2.6) rotate(-8deg); }
+      12% { opacity: 1; transform: translate(-50%,-50%) scale(1) rotate(-5deg); }
+      72% { opacity: 1; transform: translate(-50%,-50%) scale(1) rotate(-5deg); }
+      100% { opacity: 0; transform: translate(-50%,-50%) scale(0.94) rotate(-5deg); }
+    }
+    @media (max-width: 767px) { .match-stamp { font-size: 44px; } }
     .focus-pulse { animation: focusPulse 2.2s ease-out; }
     @keyframes focusPulse {
       0%   { box-shadow: 0 0 0 0 rgba(252,211,77,0.0), 0 2px 10px rgba(0,0,0,0.4); }
@@ -3541,15 +3572,25 @@
       const [issueTab, setIssueTab] = useState(() => focusIssueId ? { [focusIssueId]: 'their' } : {});
       const focusRef = useRef(null);
       const [pulseId, setPulseId] = useState(focusIssueId || null);
+      // The payoff moment: the row just tested flashes, its chip coin-flips, and a match pops confetti
+      const [celebrateId, setCelebrateId] = useState(focusIssueId || null);
       useEffect(() => {
         if (!focusIssueId) return;
         setIssueTab(o => ({ ...o, [focusIssueId]: 'their' }));
         setPulseId(focusIssueId);
+        setCelebrateId(focusIssueId);
         const tScroll = setTimeout(() => { focusRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 120);
         const tPulse = setTimeout(() => setPulseId(null), 2200);
         clearFocusIssue?.();
         return () => { clearTimeout(tScroll); clearTimeout(tPulse); };
       }, [focusIssueId]);
+      useEffect(() => {
+        if (!celebrateId) return;
+        const t = setTimeout(() => setCelebrateId(null), 2600);
+        return () => clearTimeout(t);
+      }, [celebrateId]);
+      const [shareCopied, setShareCopied] = useState(false);
+      const [showBadgeTip, setShowBadgeTip] = useState(false); // photo add/remove tooltip — React-controlled so it can't stick after a click
       const setTab = (id, tab) => setIssueTab(o => ({ ...o, [id]: o[id] === tab ? undefined : tab }));
       const [showSources, setShowSources] = useState(false);
       const [hookCollapsed, setHookCollapsed] = useState(() => !!focusIssueId && window.matchMedia('(max-width: 767px)').matches); // mobile only: returning from a quiz keeps bio collapsed for room (desktop has a separate column)
@@ -3560,7 +3601,7 @@
       // profile reads as one cohesive surface with the issue list below it.
       const accentGrad = 'linear-gradient(165deg,#1e1b4b 0%,#0f172a 100%)';
       const partyTint = candidate.party === 'D' ? '#60a5fa' : candidate.party === 'R' ? '#f87171' : '#94a3b8';
-      const partyPillBg = candidate.party === 'D' ? 'rgba(37,99,235,0.35)' : candidate.party === 'R' ? 'rgba(220,38,38,0.35)' : 'rgba(100,116,139,0.35)';
+      const partyPillBg = candidate.party === 'D' ? '#2563eb' : candidate.party === 'R' ? '#dc2626' : '#475569';
       const matchScore = hasAnswers ? calcMatch(candidate, answers, _cs, ranks || {}) : null;
       const _ISSUE_KEYS = ['reproductiveRights','immigration','gunPolicy','education','healthcare','climate','electionIntegrity','socialSecurity','affordability'];
       const isJudicialCandidate = raceCategory === 'judicial' || !_ISSUE_KEYS.some(k => { const p = candidate.positions?.[k]; return p && p !== 'D' && p !== 'Unknown'; });
@@ -3581,11 +3622,56 @@
         const v = answers?.[issueId];
         return (v === 'A' || v === 'B' || v === 'C') ? v : null;
       }
+      // Match-meter: one dot per issue the candidate has a stance on; fills as the voter tests each one
+      const meter = (issues || []).map(issue => {
+        const rawPos = candidate.positions?.[issue.id];
+        const voice = ISSUE_VOICE[issue.id];
+        let pos = rawPos;
+        if (rawPos === 'Agree') pos = voice === 'RIGHT' ? 'C' : 'A';
+        else if (rawPos === 'Disagree') pos = voice === 'RIGHT' ? 'A' : 'C';
+        else if (rawPos === 'Unknown') pos = null;
+        const hasStance = pos === 'A' || pos === 'B' || pos === 'C';
+        const voterLean = hasAnswers ? getVoterLean(issue.id) : null;
+        const state = !hasStance ? 'none'
+          : !voterLean ? 'untested'
+          : voterLean === 'split' ? 'split'
+          : voterLean === pos ? 'match' : 'differ';
+        return { id: issue.id, topic: issue.topic, state };
+      });
+      const meterDots = meter.filter(m => m.state !== 'none');
+      const celebrateMatch = !!celebrateId && meter.find(m => m.id === celebrateId)?.state === 'match';
+      const testedCount = meterDots.filter(m => m.state !== 'untested').length;
+      const matchCount = meterDots.filter(m => m.state === 'match').length;
+      const allTested = meterDots.length > 0 && testedCount === meterDots.length;
+      const shareResult = () => {
+        const text = `${candidate.name} and I agree on ${matchCount} of ${meterDots.length} issues on VoteYourViews.org. See if YOUR views match:`;
+        const shareUrl = `https://voteyourviews.org/${candidateSlug(candidate.name)}`;
+        if (navigator.share) { navigator.share({ text, url: shareUrl }).catch(() => {}); return; }
+        try {
+          navigator.clipboard.writeText(`${text} ${shareUrl}`);
+          setShareCopied(true);
+          setTimeout(() => setShareCopied(false), 2000);
+        } catch (_) {}
+      };
       return (
         <React.Fragment>
         <div className="fixed inset-0 z-50 flex flex-col bg-black/85 md:items-center md:justify-center md:p-6">
           <div className="flex flex-col md:flex-row bg-white md:rounded-2xl md:shadow-2xl md:ring-1 md:ring-white/15 md:max-w-6xl w-full md:max-h-[92vh] overflow-hidden relative">
             <button onClick={onClose} aria-label="Close" className="absolute top-3 right-3 z-20 w-9 h-9 bg-white text-slate-900 rounded-full flex items-center justify-center font-bold text-base shadow-lg ring-1 ring-black/10 hover:bg-slate-200">✕</button>
+            {/* Full-panel match celebration */}
+            {celebrateMatch && (() => {
+              const colors = ['#fbbf24','#34d399','#60a5fa','#f87171','#ffffff'];
+              return (
+                <React.Fragment>
+                  <div className="match-rain" aria-hidden="true">
+                    {Array.from({length: 36}, (_, i) => (
+                      <i key={i} style={{left: `${(i * 97) % 100}%`, '--delay': `${(i % 9) * 0.09}s`, '--dur': `${1.5 + (i % 5) * 0.22}s`, '--rot': `${120 + i * 49}deg`, background: colors[i % colors.length]}} />
+                    ))}
+                  </div>
+                  <div className="match-stamp" aria-hidden="true">✓ It's a Match!</div>
+                </React.Fragment>
+              );
+            })()}
           {/* LEFT PANEL — identity (mobile: top, desktop: fixed-width left column) */}
           <div className={`${accentBg} md:w-[300px] lg:w-[380px] md:flex-shrink-0 md:overflow-y-auto relative flex-shrink-0 px-5 pt-8 pb-5 lg:pt-10`} style={{ background: accentGrad, boxShadow: '6px 0 24px rgba(0,0,0,0.35)' }}>
 
@@ -3594,16 +3680,23 @@
               {/* Photo — larger on desktop */}
               <div className="flex-shrink-0">
                 {onSelect ? (
-                  <button onClick={onSelect} className="relative active:scale-95 hover:scale-105 transition-transform" title={isSelected ? 'Remove from ballot' : 'Add to ballot'}>
-                    <div className={`w-16 h-16 lg:w-24 lg:h-24 rounded-full border-4 overflow-hidden bg-white/20 transition-colors ${isSelected ? (candidate.party === 'D' ? 'border-blue-200' : candidate.party === 'R' ? 'border-red-200' : 'border-slate-200') : 'border-white/50'}`}>
+                  <button onClick={() => { setShowBadgeTip(false); onSelect(); }}
+                    onMouseEnter={() => setShowBadgeTip(true)} onMouseLeave={() => setShowBadgeTip(false)}
+                    className="relative active:scale-95 hover:scale-105 transition-transform" title={isSelected ? 'Remove from ballot' : 'Add to ballot'}>
+                    <div className={`w-[84px] h-[84px] lg:w-[125px] lg:h-[125px] rounded-full border-4 overflow-hidden bg-white/20 transition-colors ${candidate.party === 'D' ? 'border-blue-400' : candidate.party === 'R' ? 'border-red-500' : 'border-slate-400'}`}>
                       <img src={candidate.photo || '/icons/candidate-undefined.png'} alt={candidate.name} className="w-full h-full object-cover object-top" onError={e => { e.target.src='/icons/candidate-undefined.png'; e.target.className='w-full h-full object-contain object-bottom'; e.target.style.opacity='0.6'; }} />
                     </div>
-                    <span className={`absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full flex items-center justify-center text-sm font-black border-2 border-white shadow-md transition-colors ${isSelected ? (candidate.party === 'D' ? 'bg-blue-200 text-blue-900' : candidate.party === 'R' ? 'bg-red-200 text-red-900' : 'bg-slate-200 text-slate-900') : 'bg-white text-slate-900'}`}>
+                    <span className={`absolute bottom-1 right-1 w-7 h-7 rounded-full flex items-center justify-center text-base font-black border-2 border-white shadow-md transition-colors ${isSelected ? (candidate.party === 'D' ? 'bg-blue-500 text-white' : candidate.party === 'R' ? 'bg-red-500 text-white' : 'bg-slate-500 text-white') : 'bg-white text-slate-900'}`}>
                       {isSelected ? '✓' : '+'}
                     </span>
+                    {showBadgeTip && (
+                      <span className="hidden md:block absolute -bottom-8 left-0 pointer-events-none whitespace-nowrap text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-white text-slate-900 shadow-lg z-30">
+                        {isSelected ? '✓ On your ballot — click to remove' : '+ Add to ballot'}
+                      </span>
+                    )}
                   </button>
                 ) : (
-                  <div className="w-16 h-16 lg:w-24 lg:h-24 rounded-full border-4 border-white/50 overflow-hidden bg-white/20">
+                  <div className={`w-[84px] h-[84px] lg:w-[125px] lg:h-[125px] rounded-full border-4 overflow-hidden bg-white/20 ${candidate.party === 'D' ? 'border-blue-400' : candidate.party === 'R' ? 'border-red-500' : 'border-slate-400'}`}>
                     <img src={candidate.photo || '/icons/candidate-undefined.png'} alt={candidate.name} className="w-full h-full object-cover object-top" onError={e => { e.target.src='/icons/candidate-undefined.png'; e.target.className='w-full h-full object-contain object-bottom'; e.target.style.opacity='0.6'; }} />
                   </div>
                 )}
@@ -3642,13 +3735,13 @@
                     {isJudicialCandidate ? (
                       <span className="text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full bg-white/20 text-white/60">Party Aligned</span>
                     ) : matchScore !== null ? (
-                      <span className="text-[13px] font-black px-3 py-1 rounded-full text-white" style={{background: partyPillBg, border: `1px solid ${partyTint}66`}}>{matchScore}% match</span>
+                      <span className={`md:hidden text-[13px] font-black px-3 py-1 rounded-full text-white${allTested ? ' match-final' : ''}`} style={{background: partyPillBg, border: `1px solid ${partyTint}66`}}>{matchScore}% match</span>
                     ) : null}
                     {onCompare && (() => {
                       // Tint by the candidate the pill jumps TO (the opponent prop), so the
                       // pill previews whose profile you'll land on.
                       const targetTint = opponent?.party === 'D' ? '#60a5fa' : opponent?.party === 'R' ? '#f87171' : '#94a3b8';
-                      const targetBg = opponent?.party === 'D' ? 'rgba(37,99,235,0.3)' : opponent?.party === 'R' ? 'rgba(220,38,38,0.3)' : 'rgba(100,116,139,0.3)';
+                      const targetBg = opponent?.party === 'D' ? '#2563eb' : opponent?.party === 'R' ? '#dc2626' : '#475569';
                       return (
                         <button onClick={onCompare}
                           className="text-[11px] font-black uppercase tracking-wide px-3 py-1 rounded-full text-white hover:brightness-125 transition-all whitespace-nowrap"
@@ -3661,6 +3754,37 @@
                 )}
               </div>
             </div>
+
+            {/* Match meter (mobile — desktop shows it in the Issue Positions header bar) */}
+            {!isJudicialCandidate && onRateIssue && hasAnswers && meterDots.length > 0 && (
+              <div className="mt-3.5 px-2 md:hidden">
+                <div className="flex items-center gap-1.5">
+                  {meterDots.map(m => (
+                    <span key={m.id} title={m.topic}
+                      className={`w-2.5 h-2.5 rounded-full transition-colors duration-500 ${
+                        m.state === 'match' ? 'bg-emerald-400' :
+                        m.state === 'differ' ? 'bg-rose-400' :
+                        m.state === 'split' ? 'bg-slate-400' :
+                        'border border-amber-400/80'}`} />
+                  ))}
+                </div>
+                <div className="flex items-center gap-2.5 mt-1.5 flex-wrap">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/60">
+                    {allTested
+                      ? <>You agree on <span className="text-emerald-300">{matchCount} of {meterDots.length}</span>!</>
+                      : testedCount === 0 ? 'Do you match? Tap an issue'
+                      : `${testedCount} down · ${meterDots.length - testedCount} to go`}
+                  </p>
+                  {allTested && (
+                    <button onClick={shareResult}
+                      className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full transition-all hover:brightness-110 active:scale-95"
+                      style={{background:'linear-gradient(135deg,#d97706,#fbbf24)', color:'#0f172a'}}>
+                      {shareCopied ? '✓ Copied!' : 'Share your result'}
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Uncontested note (compare now lives as a pill next to the match score) */}
             {!onCompare && (
@@ -3695,7 +3819,7 @@
                       <p className="text-white/80 mt-2 leading-snug text-[14px]">{candidate.summary}</p>
                     ) : null}
                     <button onClick={() => setHookCollapsed(true)}
-                      className="mt-2 transition-all hover:brightness-125 text-[10px] font-bold uppercase tracking-widest"
+                      className="md:hidden mt-2 transition-all hover:brightness-125 text-[10px] font-bold uppercase tracking-widest"
                       style={{color:'#f59e0b'}}>
                       Hide bio ▲
                     </button>
@@ -3707,15 +3831,12 @@
             {/* Add to Ballot — desktop only (mobile has it in bottom bar) */}
             {onSelect && (
               <div className="hidden md:block mt-5">
-                {isSelected ? (
-                  <div className="w-full py-3 text-center font-black text-sm uppercase tracking-wide" style={{color:'#34d399'}}>
-                    ✓ On your ballot
+                {/* The hero stat — the color-coded ✓ badge on the photo already says "on your ballot" */}
+                {!isJudicialCandidate && matchScore !== null && (
+                  <div className={`w-full py-3 text-center rounded-xl font-black text-white text-2xl${allTested ? ' match-final' : ''}`}
+                    style={{background: partyPillBg, border: `1px solid ${partyTint}66`}}>
+                    {matchScore}% match
                   </div>
-                ) : (
-                  <button onClick={onSelect}
-                    className="w-full py-3 rounded-xl font-black text-sm uppercase tracking-wide transition-all active:scale-95 bg-white text-slate-900 hover:bg-slate-100">
-                    + Add to Ballot
-                  </button>
                 )}
               </div>
             )}
@@ -3731,7 +3852,32 @@
                   {/* Desktop section header — sticky bar so it reads as a header and doesn't dissolve into the dark list */}
                   <div className="hidden md:flex items-center justify-between px-6 py-4 border-b border-white/15 sticky top-0 z-10" style={{ background: 'linear-gradient(180deg,#16223d 0%,#0d1426 100%)', boxShadow: '0 2px 12px rgba(0,0,0,0.5)' }}>
                     <h3 className="text-sm font-black uppercase tracking-widest text-white">Issue Positions</h3>
-                    {hasAnswers && <span className="text-xs text-slate-300 pr-10">✓ = matches your views</span>}
+                    {!isJudicialCandidate && onRateIssue && hasAnswers && meterDots.length > 0 && (
+                      <div className="flex items-center gap-3 pr-10">
+                        <span className="text-[13px] font-black uppercase tracking-widest" style={{color: allTested ? '#34d399' : '#e2e8f0'}}>
+                          {allTested ? `You agree on ${matchCount} of ${meterDots.length}!`
+                            : testedCount === 0 ? 'Do you match? Tap an issue'
+                            : `${testedCount} down · ${meterDots.length - testedCount} to go`}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          {meterDots.map(m => (
+                            <span key={m.id} title={m.topic}
+                              className={`w-3.5 h-3.5 rounded-full transition-colors duration-500 ${
+                                m.state === 'match' ? 'bg-emerald-400' :
+                                m.state === 'differ' ? 'bg-red-500' :
+                                m.state === 'split' ? 'bg-slate-400' :
+                                'border-2 border-amber-400/80'}`} />
+                          ))}
+                        </span>
+                        {allTested && (
+                          <button onClick={shareResult}
+                            className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full transition-all hover:brightness-110 active:scale-95"
+                            style={{background:'linear-gradient(135deg,#d97706,#fbbf24)', color:'#0f172a'}}>
+                            {shareCopied ? '✓ Copied!' : 'Share'}
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                   {isJudicialCandidate ? (
                     <p className="text-sm text-slate-300 leading-relaxed px-5 lg:px-6 pt-4 pb-2 border-b border-white/10 italic">Judges aren't allowed to take sides on the issues — it's against judicial ethics rules. The best clue to how a judge thinks is the party they run with.</p>
@@ -3788,7 +3934,7 @@
                 else if (tab === 'opp') { if (isJudicialCandidate && opponent) { aHead = opponent.name; aBody = 'No published record per judicial ethics rules.'; aItalic = true; } else if (oppHasInfo) { aHead = opponent.name; aBody = oppEvidence || (oppPosText ? `"${oppPosText}"` : ''); aItalic = !oppEvidence; } else { aHead = 'Unopposed'; aBody = `No ${missingParty} filed to run, so ${lastName} is the only choice in this race — vote for them or skip it.`; } }
                 else if (tab === 'facts') { aHead = 'The Facts'; aBody = issueFact || 'No facts available yet.'; }
                 // Colors derive from the candidate's party so the card connects to the (party-colored) profile header above it.
-                const tintFor = (p) => p === 'D' ? '#1d2b63' : p === 'R' ? '#401621' : '#23304d';   // content panel
+                const tintFor = (p) => p === 'D' ? '#1d2b63' : p === 'R' ? '#59101c' : '#23304d';   // content panel
                 // Collapsed-card header gets a subtle vertical gradient so each row reads as a distinct embossed tile (like the landing tiles)
                 const cardHeaderGrad = candidate.party === 'D' ? 'linear-gradient(180deg,#1b2c6b 0%,#0d1740 100%)' : candidate.party === 'R' ? 'linear-gradient(180deg,#48202c 0%,#1f0a10 100%)' : 'linear-gradient(180deg,#1e293b 0%,#0b1220 100%)';
                 const isFactsTab = tab === 'facts';
@@ -3801,7 +3947,7 @@
                 return (
                   <div key={issue.id}
                     ref={issue.id === focusIssueId ? focusRef : null}
-                    className={`slide-in rounded-lg overflow-hidden border transition-all duration-200 ${pulseId === issue.id ? 'focus-pulse border-amber-300/70' : 'border-white/8'}`}
+                    className={`slide-in rounded-lg overflow-hidden border transition-all duration-200 ${pulseId === issue.id ? 'focus-pulse border-amber-300/70' : 'border-white/8'}${celebrateId === issue.id && isMatch ? ' row-celebrate' : ''}`}
                     style={{ animationDelay: `${Math.min(idx, 8) * 55}ms`, animationFillMode: 'backwards' }}>
                     {/* Row header — topic + at-a-glance status chip (the payoff, visible collapsed OR expanded; tap the chip to take/redo the 1-question quiz) */}
                     <div className="flex items-center justify-between gap-2 px-4 py-2.5 cursor-pointer transition-colors hover:bg-white/10" style={{ background: isOpen ? cardHeaderGrad : 'rgba(255,255,255,0.05)' }} onClick={() => { if (!isOpen && window.matchMedia('(max-width: 767px)').matches) setHookCollapsed(true); setTab(issue.id, isOpen ? tab : defaultTab); }}>
@@ -3810,16 +3956,20 @@
                         {!isJudicialCandidate && (() => {
                           const userSkipped = answers?.[issue.id] === 'D'; // chose No Opinion on every statement = skipped the whole issue
                           const chipBase = "text-[9px] lg:text-[11px] font-black uppercase tracking-wide px-2.5 py-1 rounded-full whitespace-nowrap border leading-none text-center min-w-[5.5rem] lg:min-w-[7rem]";
-                          let label, cls, pulse = '', tappable = !!onRateIssue;
-                          if (isMatch) { label = '✓ Match'; cls = 'text-emerald-50 bg-emerald-500/35 border-emerald-400/70'; }
-                          else if (isMismatch) { label = '✗ No Match'; cls = 'text-rose-50 bg-rose-500/35 border-rose-400/70'; }
-                          else if (isSplit) { label = '∼ Mixed'; cls = 'text-slate-100 bg-slate-500/30 border-slate-400/60'; }
+                          const celebrated = celebrateId === issue.id;
+                          // Verdict chips replay the celebration + open the row; retaking the quiz lives
+                          // inside the open row ("Retake this issue"). Gold chips launch the 1-question quiz.
+                          let label, cls, pulse = '', delay = null, onChipTap = onRateIssue ? () => onRateIssue(issue.id) : null;
+                          const openAndCelebrate = () => { if (!isOpen) setTab(issue.id, defaultTab); setCelebrateId(issue.id); };
+                          if (isMatch) { label = '✓ Match'; cls = 'text-white bg-emerald-500 border-emerald-300'; if (celebrated) pulse = 'chip-flip'; onChipTap = openAndCelebrate; }
+                          else if (isMismatch) { label = '✗ No Match'; cls = 'text-white bg-red-600 border-red-400'; if (celebrated) pulse = 'chip-flip'; onChipTap = openAndCelebrate; }
+                          else if (isSplit) { label = '∼ Mixed'; cls = 'text-slate-100 bg-slate-500/30 border-slate-400/60'; if (celebrated) pulse = 'chip-flip'; onChipTap = openAndCelebrate; }
                           else if (userSkipped) { label = 'Skipped'; cls = 'text-slate-200 bg-slate-600/30 border-slate-400/50'; }
-                          else if (hasStance) { label = 'Do you match?'; cls = 'text-amber-50 bg-amber-400/35 border-amber-300/80'; pulse = 'chip-nudge'; }
-                          else { label = 'No position'; cls = 'text-slate-400 bg-slate-700/30 border-slate-600/50'; tappable = false; } // candidate took no position on file
-                          return tappable
-                            ? <button onClick={e => { e.stopPropagation(); onRateIssue(issue.id); }} className={`${chipBase} ${cls} ${pulse} hover:brightness-125 active:opacity-70 transition`}>{label}</button>
-                            : <span className={`${chipBase} ${cls}`}>{label}</span>;
+                          else if (hasStance) { label = idx % 4 === 2 ? 'Try me →' : 'Do you match?'; cls = 'chip-quiz text-amber-950 border-amber-200'; delay = `${(idx % 5) * 0.45}s`; }
+                          else { label = 'No position'; cls = 'text-slate-400 bg-slate-700/30 border-slate-600/50'; onChipTap = null; } // candidate took no position on file
+                          return onChipTap
+                            ? <button onClick={e => { e.stopPropagation(); onChipTap(); }} className={`${chipBase} ${cls} ${pulse} hover:brightness-125 active:opacity-70 transition shrink-0`} style={delay ? {animationDelay: delay} : undefined}>{label}</button>
+                            : <span className={`${chipBase} ${cls} ${pulse} shrink-0`}>{label}</span>;
                         })()}
                         <span className="text-white/80 text-base lg:text-lg leading-none transition-transform duration-200 shrink-0" style={{ transform: isOpen ? 'rotate(180deg)' : 'none' }}>▼</span>
                       </span>
@@ -3841,6 +3991,12 @@
                           <div className="relative min-w-0">
                             <h4 className={`font-black uppercase text-base lg:text-lg mb-1 leading-tight ${headCls}`}>{aHead}</h4>
                             <p className={`text-sm lg:text-base leading-snug ${bodyCls} ${aItalic ? 'italic' : ''}`}>{aBody}</p>
+                            {onRateIssue && (isMatch || isMismatch || isSplit) && !isFactsTab && (
+                              <button onClick={() => onRateIssue(issue.id)}
+                                className="mt-3 text-[11px] font-black uppercase tracking-widest text-white/50 hover:text-white transition-colors">
+                                ↻ Retake this issue
+                              </button>
+                            )}
                           </div>
                         </div>
                       </>
