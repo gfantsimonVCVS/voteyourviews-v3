@@ -4139,39 +4139,40 @@
             onclone: (doc) => {
               // html2canvas re-runs CSS animations on its clone — disable them so we don't capture a mid-fade (grayed-out) frame.
               doc.querySelectorAll('.fade-in, .slide-in, .issue-enter, [class*="fade"], [class*="slide"]').forEach(n => { n.style.animation = 'none'; n.style.opacity = '1'; n.style.transform = 'none'; });
-              // html2canvas misplaces text inside tight colored boxes (draws it ~5px low), so for
-              // pill badges and section bands we pre-draw the box + centered text on a canvas
-              // ourselves and swap the element for that image — an image can't be misrendered.
-              const replaceWithDrawn = (selector) => {
-                const live = [...document.querySelectorAll(selector)];
-                const clones = [...doc.querySelectorAll(selector)];
-                live.forEach((el, i) => {
-                  const cl = clones[i]; if (!cl) return;
-                  const r = el.getBoundingClientRect(); if (!r.width || !r.height) return;
-                  const st = getComputedStyle(el);
-                  const S = 3;
-                  const c = document.createElement('canvas'); c.width = Math.round(r.width * S); c.height = Math.round(r.height * S);
-                  const x = c.getContext('2d');
-                  const rad = Math.min(parseFloat(st.borderRadius) || 0, r.height / 2) * S;
-                  x.fillStyle = st.backgroundColor;
-                  x.beginPath();
-                  if (x.roundRect) x.roundRect(0, 0, c.width, c.height, rad); else x.rect(0, 0, c.width, c.height);
-                  x.fill();
-                  x.fillStyle = st.color;
-                  x.font = `${st.fontWeight} ${parseFloat(st.fontSize) * S}px ${st.fontFamily}`;
-                  if ('letterSpacing' in x) x.letterSpacing = ((parseFloat(st.letterSpacing) || 0) * S) + 'px';
-                  x.textAlign = 'center'; x.textBaseline = 'middle';
-                  x.fillText(el.textContent.trim().toUpperCase(), c.width / 2, c.height / 2 + S);
-                  const img = doc.createElement('img');
-                  img.src = c.toDataURL();
-                  img.style.cssText = `width:${r.width}px;height:${r.height}px;display:${st.display === 'inline-block' ? 'inline-block' : 'block'};vertical-align:top`;
-                  cl.replaceWith(img);
-                });
-              };
-              replaceWithDrawn('.ballot-badge');
-              replaceWithDrawn('.ballot-band');
             }
           });
+
+          // html2canvas misplaces text inside tight colored boxes (draws it ~5px low), so redraw
+          // pill badges and section bands directly onto the captured canvas. (Previously these were
+          // swapped for data-URL images inside the clone, but mobile Safari captured them before the
+          // images decoded — blank bands/badges in the PDF. Painting the canvas is deterministic.)
+          {
+            const cScaleFix = canvas.width / LAYOUT_W;
+            const ctx = canvas.getContext('2d');
+            const overdraw = (selector) => {
+              page.querySelectorAll(selector).forEach(el => {
+                const r = el.getBoundingClientRect(); if (!r.width || !r.height) return;
+                const st = getComputedStyle(el);
+                const x0 = (r.left - pageRect.left) * cScaleFix, y0 = (r.top - pageRect.top) * cScaleFix;
+                const w = r.width * cScaleFix, h = r.height * cScaleFix;
+                const rad = Math.min(parseFloat(st.borderRadius) || 0, r.height / 2) * cScaleFix;
+                ctx.save();
+                ctx.beginPath();
+                if (ctx.roundRect) ctx.roundRect(x0, y0, w, h, rad); else ctx.rect(x0, y0, w, h);
+                ctx.clip();
+                ctx.fillStyle = st.backgroundColor;
+                ctx.fillRect(x0, y0, w, h);
+                ctx.fillStyle = st.color;
+                ctx.font = `${st.fontWeight} ${parseFloat(st.fontSize) * cScaleFix}px ${st.fontFamily}`;
+                if ('letterSpacing' in ctx) ctx.letterSpacing = ((parseFloat(st.letterSpacing) || 0) * cScaleFix) + 'px';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(el.textContent.trim().toUpperCase(), x0 + w / 2, y0 + h / 2 + cScaleFix);
+                ctx.restore();
+              });
+            };
+            overdraw('.ballot-badge');
+            overdraw('.ballot-band');
+          }
 
           const { jsPDF } = window.jspdf;
           const pdf = new jsPDF('p', 'pt', 'letter');
