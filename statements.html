@@ -8,48 +8,124 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
-    body { font-family: 'Inter', sans-serif; background: #0f172a; color: #e2e8f0; }
+    body { font-family: 'Inter', sans-serif; color: #e2e8f0;
+      background: radial-gradient(1200px 600px at 50% -100px, #35406e 0%, #222d4d 55%, #1b2440 100%) fixed #1b2440; }
     h1, h2, h3 { font-family: 'Barlow Condensed', sans-serif; }
     textarea { resize: vertical; }
     details > summary { list-style: none; }
     details > summary::-webkit-details-marker { display: none; }
-    .chev { transition: transform 0.2s; }
+    .chev { transition: transform 0.25s; }
     details[open] > summary .chev { transform: rotate(90deg); }
+    .glass { background: linear-gradient(135deg,#0f172a 0%,#1e293b 100%); border: 1px solid rgba(255,255,255,0.14); }
+    details.glass { box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+    details[open].glass { border-color: rgba(245,158,11,0.5); box-shadow: 0 16px 44px rgba(0,0,0,0.45); }
+    .issue-body { background: #f1f5f9; }
+    .stmt-card { background: #ffffff; border: 1.5px solid #e2e8f0; box-shadow: 0 2px 8px rgba(15,23,42,0.06); transition: border-color .2s, background .2s; }
+    .stmt-card p { color: #0f172a !important; }
+    .stmt-card .stmt-num { background: #e2e8f0 !important; color: #475569 !important; }
+    .stmt-card[data-state="okay"] { border-color: #10b981; background: #ecfdf5; }
+    .stmt-card[data-state="edit"] { border-color: #f59e0b; background: #fffbeb; }
+    .seg-btn { transition: all .15s; }
+    .okay-btn { background:#fff !important; border:1.5px solid #10b981 !important; color:#047857 !important; }
+    .edit-btn { background:#fff !important; border:1.5px solid #d97706 !important; color:#b45309 !important; }
+    .seg-btn.active-okay { background:#059669 !important; border-color:#059669 !important; color:#fff !important; box-shadow:0 4px 14px rgba(5,150,105,0.4); }
+    .seg-btn.active-edit { background:#d97706 !important; border-color:#d97706 !important; color:#fff !important; box-shadow:0 4px 14px rgba(217,119,6,0.4); }
+    .edit-panel textarea { background:#fff !important; border:1.5px solid #cbd5e1 !important; color:#0f172a !important; }
+    .edit-panel textarea::placeholder { color:#94a3b8 !important; }
+    .edit-panel { overflow: hidden; max-height: 0; opacity: 0; transition: max-height .3s ease, opacity .3s ease, margin .3s ease; margin-top: 0; }
+    .edit-panel.open { max-height: 340px; opacity: 1; margin-top: 12px; }
+    .issue-tile { width: 64px; height: 64px; border-radius: 16px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #1e3a8a 0%, #7c2d12 100%);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.18);
+      transition: transform .2s; }
+    summary:hover .issue-tile { transform: scale(1.06); }
+    .issue-tile img { width: 72%; height: 72%; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5)); }
+    input:focus, textarea:focus { outline: none; border-color: #f59e0b !important; box-shadow: 0 0 0 3px rgba(245,158,11,0.18); }
+    #progress-fill { transition: width .4s ease; }
+    /* Starburst tour badge */
+    .tour-badge { position: relative; display: block; width: 156px; height: 156px; flex-shrink: 0;
+      background: none; border: none; padding: 0; cursor: pointer;
+      filter: drop-shadow(0 10px 24px rgba(0,0,0,0.5));
+      animation: badgeBeat 3.2s ease-in-out infinite; transition: transform .2s; }
+    .tour-badge:hover { transform: scale(1.1) rotate(-6deg); animation-play-state: paused; }
+    .tour-badge img { width: 100%; height: 100%; display: block; }
+    .tour-badge span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      text-align: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; text-transform: uppercase;
+      color: #fff; font-size: 24px; line-height: 1.02; letter-spacing: 0.02em; transform: rotate(-8deg);
+      text-shadow: 0 2px 5px rgba(0,0,0,0.55); padding: 28px; }
+    @keyframes badgeBeat { 0%,100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.05) rotate(-2.5deg); } }
   </style>
 </head>
 <body class="min-h-screen">
 
   <!-- Header -->
-  <div class="bg-slate-900 border-b border-slate-700 px-6 py-4 flex items-center gap-4">
-    <a href="/" class="text-slate-400 hover:text-white text-sm font-medium">← Back to App</a>
-    <div class="flex-1">
-      <h1 class="text-2xl font-black uppercase tracking-wide text-white leading-none">Statement Review</h1>
-      <p class="text-slate-400 text-xs mt-0.5">VoteYourViews.org · Internal Tool</p>
+  <div class="sticky top-0 z-40 border-b border-white/10 px-4 sm:px-6 py-3" style="background:rgba(10,20,36,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)">
+    <div class="max-w-3xl mx-auto flex items-center gap-4 py-1">
+      <div class="flex-1 min-w-0">
+        <h1 class="text-[26px] sm:text-4xl font-black uppercase text-white leading-none whitespace-nowrap" style="letter-spacing:0.03em">Statement <span style="color:#f59e0b">Review</span></h1>
+        <p class="text-slate-400 text-[10px] sm:text-[11px] mt-1 font-black uppercase" style="letter-spacing:0.28em">VoteYourViews.org · Internal Tool</p>
+      </div>
+      <div class="shrink-0 hidden sm:block text-center px-4 py-2 rounded-2xl" style="background:rgba(245,158,11,0.10);border:1.5px solid rgba(245,158,11,0.45);box-shadow:0 4px 16px rgba(245,158,11,0.15)">
+        <div id="overall-badge" class="text-lg font-black leading-none" style="color:#f59e0b;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.06em">0 / 9</div>
+        <div class="text-[9px] font-black uppercase tracking-[0.22em] text-slate-400 mt-0.5">Issues Done</div>
+      </div>
+    </div>
+    <div class="max-w-3xl mx-auto mt-3 h-1.5 rounded-full overflow-hidden" style="background:rgba(255,255,255,0.08)">
+      <div id="progress-fill" class="h-full rounded-full" style="width:0%;background:linear-gradient(90deg,#f59e0b,#34d399);box-shadow:0 0 12px rgba(245,158,11,0.6)"></div>
     </div>
   </div>
 
-  <!-- Intro -->
-  <div class="max-w-3xl mx-auto px-6 py-8">
-    <div class="bg-slate-800 border border-slate-600 rounded-xl p-5 mb-4">
-      <p class="text-slate-300 text-sm leading-relaxed">
-        These are the belief statements shown to voters in the quiz. For each statement, mark <strong class="text-white">Okay</strong> if it reads well, or <strong class="text-white">Suggest edit</strong> to propose a rewrite. When you've reviewed all 3 statements in an issue, add your name + email at the bottom to submit.
-      </p>
-    </div>
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 py-7">
 
-    <!-- Guided tour entry -->
-    <button onclick="VYVTutorial.open()"
-      class="w-full mb-8 py-3.5 rounded-xl font-black text-sm uppercase tracking-widest text-slate-900 transition-all hover:brightness-110 active:scale-[0.99]"
-      style="background:linear-gradient(135deg,#f59e0b,#d97706);letter-spacing:0.14em;box-shadow:0 8px 24px rgba(217,119,6,0.35)">
-      ★ New here? Take the 60-second tour
-    </button>
+    <!-- Welcome card — reviewer identity entered once, used for every submission -->
+    <div class="rounded-2xl p-[1.5px] mb-6" style="background:linear-gradient(135deg,rgba(245,158,11,0.6),rgba(37,99,235,0.5) 50%,rgba(220,38,38,0.5))">
+      <div class="rounded-2xl p-5 sm:p-6 sm:flex sm:items-center sm:gap-7" style="background:linear-gradient(160deg,#111c33 0%,#0c1526 100%)">
+        <div class="flex-1 min-w-0">
+          <div class="text-[10px] font-black uppercase tracking-[0.3em] mb-1.5" style="color:#f59e0b">★ Special Guest Review</div>
+          <h2 class="text-2xl sm:text-[26px] font-black uppercase text-white leading-none mb-2.5" style="letter-spacing:0.03em">Help us refine the statements</h2>
+          <p class="text-slate-300 text-sm leading-relaxed mb-5">
+            We're inviting special guests to help edit and refine the 3 statements within each of the 9 Views.
+            Read each statement and click <strong class="text-emerald-300">Okay</strong> or
+            <strong class="text-amber-300">Suggest an Edit</strong> — then Submit with your name and email.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.18em] mb-1.5">Your name</label>
+              <input id="reviewer-name" type="text" placeholder="Jane Doe"
+                class="w-full rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500"
+                style="background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.14)" />
+            </div>
+            <div>
+              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.18em] mb-1.5">Your email</label>
+              <input id="reviewer-email" type="email" placeholder="you@example.com"
+                class="w-full rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500"
+                style="background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.14)" />
+            </div>
+          </div>
+        </div>
+        <button onclick="VYVTutorial.open()" class="tour-badge mx-auto mt-6 sm:mt-0 sm:mx-0" title="Take the 1 minute tour">
+          <img src="/icons/One%20Minute%20Tour.png" alt=""/>
+          <span>Take the<br/>1 Minute<br/>Tour!</span>
+        </button>
+      </div>
+    </div>
 
     <div id="statements-container">
       <p class="text-slate-500 text-sm">Loading statements…</p>
     </div>
+
+    <!-- Guided tour entry — quiet footer link -->
+    <div class="text-center mt-8 mb-4">
+      <button onclick="VYVTutorial.open()" class="text-[12px] font-bold uppercase tracking-widest text-slate-500 hover:text-amber-400 transition-colors">
+        ★ New here? Take the 60-second tour
+      </button>
+    </div>
   </div>
 
   <!-- Submission confirmation toast -->
-  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-sm font-semibold px-5 py-3 rounded-full shadow-xl opacity-0 transition-opacity duration-300 pointer-events-none z-50">
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 text-white text-sm font-bold px-6 py-3.5 rounded-full opacity-0 transition-opacity duration-300 pointer-events-none z-50"
+    style="background:linear-gradient(135deg,#059669,#10b981);box-shadow:0 12px 32px rgba(5,150,105,0.5)">
     ✓ Submitted — thank you!
   </div>
 
@@ -58,6 +134,18 @@
   <script>
     const SHEET_ID = '1V1oaEy6ToV3LZt0et9bIWEJQbPrYZg73tDxGelhiFn8';
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyq0l2PJfmQW6LbR_j-R4ooOyHP5Zvrr-RfexaTr9ugVo-F8oAFHSbI9xyQPrlhCmA/exec';
+
+    // Issue symbol lookup — keyed on keywords in the topic name (white glyphs from the quiz screen)
+    const SYMBOL_KEYS = [
+      ['reproductive', 'Reproductive_Symbol'], ['immigration', 'Immigration_Symbol'], ['gun', 'Guns_Symbol'],
+      ['education', 'Education_Symbol'], ['health', 'Healthcare_Symbol'], ['climate', 'Climate_Symbol'],
+      ['election', 'Election_Integrity_Symbol'], ['social security', 'Medicare_Symbol'], ['housing', 'Affordability_Symbol'], ['afford', 'Affordability_Symbol'],
+    ];
+    function iconFor(topic) {
+      const t = topic.toLowerCase();
+      const hit = SYMBOL_KEYS.find(([k]) => t.includes(k));
+      return hit ? `/icons/Symbols/${hit[1]}.png` : null;
+    }
 
     async function loadStatements() {
       const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Statements`;
@@ -92,8 +180,19 @@
       return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
+    // Reviewer identity — remembered across visits
+    const nameEl = document.getElementById('reviewer-name');
+    const emailEl = document.getElementById('reviewer-email');
+    try {
+      nameEl.value = localStorage.getItem('vyv_reviewer_name') || '';
+      emailEl.value = localStorage.getItem('vyv_reviewer_email') || '';
+    } catch (_) {}
+    nameEl.addEventListener('input', () => { try { localStorage.setItem('vyv_reviewer_name', nameEl.value); } catch (_) {} });
+    emailEl.addEventListener('input', () => { try { localStorage.setItem('vyv_reviewer_email', emailEl.value); } catch (_) {} });
+
     // State: reactions[topic][idx] = { status: 'okay' | 'edit', suggestion, reason }
     const reactions = {};
+    const submittedTopics = new Set();
 
     function render() {
       const container = document.getElementById('statements-container');
@@ -104,75 +203,79 @@
         return;
       }
 
-      Object.entries(window.ISSUE_STATEMENTS).forEach(([topic, stmts]) => {
+      // Same order as the landing-page issue grid
+      const GRID_ORDER = ['reproductive','immigration','housing','education','election','health','social security','gun','climate'];
+      const orderOf = t => { const i = GRID_ORDER.findIndex(k => t.toLowerCase().includes(k)); return i === -1 ? 99 : i; };
+      Object.entries(window.ISSUE_STATEMENTS).sort((a, b) => orderOf(a[0]) - orderOf(b[0])).forEach(([topic, stmts], topicIdx) => {
         const persp = (window.ISSUE_PERSPECTIVES && window.ISSUE_PERSPECTIVES[topic]) || '';
         const isLeft = persp.toLowerCase() === 'left';
         const isRight = persp.toLowerCase() === 'right';
-        const perspColor = isLeft ? '#3b82f6' : isRight ? '#ef4444' : '#94a3b8';
-        const perspBg    = isLeft ? 'rgba(59,130,246,0.12)' : isRight ? 'rgba(239,68,68,0.12)' : 'rgba(148,163,184,0.12)';
+        const perspColor = isLeft ? '#60a5fa' : isRight ? '#f87171' : '#94a3b8';
+        const perspBg    = isLeft ? 'rgba(59,130,246,0.14)' : isRight ? 'rgba(239,68,68,0.14)' : 'rgba(148,163,184,0.14)';
         const perspLabel = isLeft ? 'Liberal' : isRight ? 'Conservative' : '—';
         const perspName  = persp ? persp.charAt(0).toUpperCase() + persp.slice(1).toLowerCase() : '—';
+        const icon = iconFor(topic);
 
         if (!reactions[topic]) reactions[topic] = {};
 
         const details = document.createElement('details');
-        details.className = 'mb-4 rounded-2xl overflow-hidden border border-slate-700 bg-slate-900/50';
+        details.className = 'glass mb-3.5 rounded-2xl overflow-hidden';
         details.dataset.topic = topic;
+        if (topicIdx === 0) details.open = true;
 
         // Summary (collapsed header)
         const summary = document.createElement('summary');
-        summary.className = 'cursor-pointer px-5 py-4 flex items-center gap-3 hover:bg-slate-800/60 transition-colors';
+        summary.className = 'cursor-pointer px-4 sm:px-5 py-4 flex items-center gap-3.5 hover:bg-white/5 transition-colors select-none';
         summary.innerHTML = `
-          <span class="chev text-slate-500 text-sm">▶</span>
+          ${icon ? `<span class="issue-tile"><img src="${icon}" alt="" onerror="this.parentElement.style.display='none'"/></span>` : ''}
           <div class="flex-1 min-w-0">
-            <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-              <span class="text-lg font-black uppercase tracking-wider text-white" style="font-family:'Barlow Condensed',sans-serif">${escapeHtml(topic)}</span>
-              <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full" style="color:${perspColor};background:${perspBg};border:1px solid ${perspColor}66">${perspName} perspective</span>
+            <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+              <span class="text-xl font-black uppercase tracking-wider text-white leading-none" style="font-family:'Barlow Condensed',sans-serif">${escapeHtml(topic)}</span>
+              <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full" style="color:${perspColor};background:${perspBg};border:1px solid ${perspColor}55">${perspName} perspective</span>
             </div>
-            <div class="flex items-center gap-1.5 mt-1 text-[11px] text-slate-400">
-              <img src="./icons/thumbs_up.png" alt="Agree" style="width:14px;height:14px;object-fit:contain;display:inline-block;vertical-align:middle" />
-              <span>Agree</span>
-              <span class="text-slate-600">=</span>
-              <span style="color:${perspColor};font-weight:700">${perspLabel} position</span>
+            <div class="mt-1 text-[11px] text-slate-400">
+              Agree = <span style="color:${perspColor};font-weight:700">${perspLabel}</span>
             </div>
           </div>
-          <span class="progress-badge text-[11px] font-bold text-slate-500 shrink-0" data-topic="${escapeHtml(topic)}">0 / ${stmts.length}</span>
+          <span class="progress-badge text-[11px] font-black uppercase tracking-widest shrink-0 px-2.5 py-1 rounded-full text-slate-400" style="background:rgba(255,255,255,0.06)" data-topic="${escapeHtml(topic)}">0 / ${stmts.length}</span>
+          <span class="chev text-slate-500 text-xs shrink-0">▶</span>
         `;
         details.appendChild(summary);
 
         // Body
         const body = document.createElement('div');
-        body.className = 'px-5 pb-5 pt-2 space-y-3';
+        body.className = 'issue-body px-4 sm:px-5 pb-5 pt-4 space-y-3';
 
         stmts.forEach((text, idx) => {
           const card = document.createElement('div');
-          card.className = 'bg-slate-800/70 border border-slate-700 rounded-xl p-4';
+          card.className = 'stmt-card rounded-xl p-4';
           card.dataset.stmtIdx = idx;
           card.innerHTML = `
-            <div class="flex gap-3 items-start mb-3">
-              <span class="shrink-0 w-6 h-6 rounded-full bg-slate-600 text-slate-200 text-xs font-black flex items-center justify-center">${idx + 1}</span>
-              <p class="text-white text-sm leading-relaxed flex-1">${escapeHtml(text)}</p>
+            <div class="flex gap-3 items-start">
+              <span class="stmt-num shrink-0 w-6 h-6 rounded-full text-[11px] font-black flex items-center justify-center text-slate-300" style="background:rgba(255,255,255,0.1)">${idx + 1}</span>
+              <p class="text-white text-[14px] leading-relaxed flex-1">${escapeHtml(text)}</p>
             </div>
-            <div class="flex flex-wrap gap-2 stmt-actions">
+            <div class="flex gap-2 mt-3.5 ml-9 stmt-actions">
               <button type="button" data-action="okay"
-                class="okay-btn px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest bg-emerald-600/20 border border-emerald-600/50 text-emerald-300 hover:bg-emerald-600/30 transition-colors">
+                class="okay-btn seg-btn px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-widest text-emerald-300"
+                style="background:rgba(5,150,105,0.14);border:1px solid rgba(52,211,153,0.4)">
                 ✓ Okay
               </button>
               <button type="button" data-action="edit"
-                class="edit-btn px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest bg-amber-600/20 border border-amber-600/50 text-amber-300 hover:bg-amber-600/30 transition-colors">
+                class="edit-btn seg-btn px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-widest text-amber-300"
+                style="background:rgba(217,119,6,0.14);border:1px solid rgba(251,191,36,0.4)">
                 ✎ Suggest edit
               </button>
-              <span class="status-pill hidden ml-auto text-[11px] font-bold uppercase tracking-widest self-center"></span>
             </div>
-            <div class="edit-panel hidden mt-3 space-y-2">
-              <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wide">Your suggested rewrite</label>
+            <div class="edit-panel ml-9 space-y-2.5">
               <textarea name="suggestion" rows="3"
-                class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
-                placeholder="Paste the full revised statement here…"></textarea>
-              <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wide">Reason / notes (optional)</label>
+                class="w-full rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500"
+                style="background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.14)"
+                placeholder="Your suggested rewrite — paste the full revised statement…"></textarea>
               <textarea name="reason" rows="2"
-                class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
-                placeholder="Why this change?"></textarea>
+                class="w-full rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500"
+                style="background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.14)"
+                placeholder="Why this change? (optional)"></textarea>
             </div>
           `;
 
@@ -180,28 +283,14 @@
           const okayBtn = card.querySelector('.okay-btn');
           const editBtn = card.querySelector('.edit-btn');
           const editPanel = card.querySelector('.edit-panel');
-          const statusPill = card.querySelector('.status-pill');
           const suggestion = card.querySelector('textarea[name="suggestion"]');
           const reason = card.querySelector('textarea[name="reason"]');
 
           function paint(state) {
-            // Reset visuals
-            okayBtn.classList.remove('ring-2','ring-emerald-400','bg-emerald-600/40');
-            editBtn.classList.remove('ring-2','ring-amber-400','bg-amber-600/40');
-            statusPill.classList.add('hidden');
-            editPanel.classList.add('hidden');
-            if (state === 'okay') {
-              okayBtn.classList.add('ring-2','ring-emerald-400','bg-emerald-600/40');
-              statusPill.textContent = '✓ Marked okay';
-              statusPill.style.color = '#6ee7b7';
-              statusPill.classList.remove('hidden');
-            } else if (state === 'edit') {
-              editBtn.classList.add('ring-2','ring-amber-400','bg-amber-600/40');
-              editPanel.classList.remove('hidden');
-              statusPill.textContent = '✎ Edit suggested';
-              statusPill.style.color = '#fcd34d';
-              statusPill.classList.remove('hidden');
-            }
+            okayBtn.classList.toggle('active-okay', state === 'okay');
+            editBtn.classList.toggle('active-edit', state === 'edit');
+            editPanel.classList.toggle('open', state === 'edit');
+            card.dataset.state = state || '';
           }
 
           okayBtn.addEventListener('click', () => {
@@ -215,7 +304,8 @@
             paint('edit');
             suggestion.value = reactions[topic][idx].suggestion;
             reason.value = reactions[topic][idx].reason;
-            setTimeout(() => suggestion.focus(), 50);
+            setTimeout(() => suggestion.focus(), 300);
+            updateProgress(topic);
           });
           suggestion.addEventListener('input', () => {
             if (reactions[topic][idx]) reactions[topic][idx].suggestion = suggestion.value;
@@ -235,38 +325,28 @@
           body.appendChild(card);
         });
 
-        // Submit block at bottom of issue
+        // Submit row at bottom of issue — reviewer info comes from the top of the page
         const submitBlock = document.createElement('div');
-        submitBlock.className = 'mt-4 pt-4 border-t border-slate-700 space-y-3';
+        submitBlock.className = 'mt-4 pt-4 flex items-center gap-3 border-t border-slate-300';
         submitBlock.innerHTML = `
-          <p class="text-[11px] uppercase tracking-widest text-slate-400 font-bold">Submit your review for this issue</p>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <input type="text" name="submitter_name" placeholder="Your name"
-              class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" />
-            <input type="email" name="submitter_email" placeholder="you@example.com"
-              class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" />
-          </div>
-          <div class="flex items-center gap-3">
-            <button type="button" class="submit-issue-btn bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-500 text-white text-xs font-black uppercase tracking-widest px-5 py-2.5 rounded-lg transition-colors" disabled>
-              Submit review
-            </button>
-            <span class="submit-hint text-[11px] text-slate-500">Review all ${stmts.length} statements to enable.</span>
-          </div>
+          <button type="button" class="submit-issue-btn text-white text-xs font-black uppercase tracking-widest px-6 py-3 rounded-full transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+            style="background:linear-gradient(135deg,#2563eb,#1d4ed8);box-shadow:0 6px 18px rgba(37,99,235,0.4)" disabled>
+            Submit review →
+          </button>
+          <span class="submit-hint text-[11px] font-semibold text-slate-500">Review all ${stmts.length} statements to enable.</span>
         `;
         body.appendChild(submitBlock);
 
         const submitBtn = submitBlock.querySelector('.submit-issue-btn');
         const submitHint = submitBlock.querySelector('.submit-hint');
-        const nameInput = submitBlock.querySelector('input[name="submitter_name"]');
-        const emailInput = submitBlock.querySelector('input[name="submitter_email"]');
-
-        submitBtn.addEventListener('click', () => submitIssue(topic, stmts, submitBtn, submitHint, nameInput, emailInput));
+        submitBtn.addEventListener('click', () => submitIssue(topic, stmts, submitBtn, submitHint));
 
         details.appendChild(body);
         container.appendChild(details);
 
         updateProgress(topic);
       });
+      updateOverall();
     }
 
     function updateProgress(topic) {
@@ -276,29 +356,41 @@
       const details = document.querySelector(`details[data-topic="${CSS.escape(topic)}"]`);
       if (!details) return;
       const badge = details.querySelector('.progress-badge');
-      if (badge) {
+      if (badge && !submittedTopics.has(topic)) {
         badge.textContent = `${done} / ${total}`;
         badge.classList.toggle('text-emerald-400', done === total);
-        badge.classList.toggle('text-slate-500', done !== total);
+        badge.classList.toggle('text-slate-400', done !== total);
       }
       const btn = details.querySelector('.submit-issue-btn');
       const hint = details.querySelector('.submit-hint');
       if (btn) {
         const ready = done === total;
         btn.disabled = !ready;
-        if (hint) hint.textContent = ready ? 'Ready — add your name + email and submit.' : `Review all ${total} statements to enable. (${done}/${total} done)`;
+        if (hint) hint.textContent = ready ? 'Ready to submit.' : `${done} of ${total} reviewed`;
       }
     }
 
-    function submitIssue(topic, stmts, btn, hint, nameInput, emailInput) {
-      const name  = nameInput.value.trim();
-      const email = emailInput.value.trim();
+    function updateOverall() {
+      const topics = Object.keys(window.ISSUE_STATEMENTS || {});
+      const badge = document.getElementById('overall-badge');
+      const fill = document.getElementById('progress-fill');
+      if (!topics.length) return;
+      const done = submittedTopics.size;
+      badge.textContent = `${done} / ${topics.length}`;
+      fill.style.width = `${Math.round((done / topics.length) * 100)}%`;
+      if (done === topics.length) badge.style.color = '#34d399';
+    }
+
+    function submitIssue(topic, stmts, btn, hint) {
+      const name  = nameEl.value.trim();
+      const email = emailEl.value.trim();
       if (!name || !email) {
-        alert('Please enter your name and email before submitting.');
+        nameEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => (name ? emailEl : nameEl).focus(), 400);
+        if (hint) hint.textContent = '⚠ Add your name + email at the top first.';
         return;
       }
       const entries = reactions[topic] || {};
-      // Only submit statements that got a real "edit" — okays are still logged as approvals.
       btn.disabled = true;
       btn.textContent = 'Submitting…';
 
@@ -310,24 +402,28 @@
           stmtNum: `Statement ${idx + 1}`,
           currentText: text,
           status: r.status || 'unreviewed',
-          suggestion: r.suggestion || '',
-          reason: r.reason || '',
+          suggestion: r.suggestion || 'No Edits',
+          reason: r.reason || 'No Notes',
           name,
           email,
           submitted,
         });
-        return fetch(`${APPS_SCRIPT_URL}?${params.toString()}`, { mode: 'no-cors' }).catch(() => {});
+        // no-cors hides the response anyway — don't let a slow endpoint strand the UI
+        return Promise.race([
+          fetch(`${APPS_SCRIPT_URL}?${params.toString()}`, { mode: 'no-cors' }).catch(() => {}),
+          new Promise(resolve => setTimeout(resolve, 5000)),
+        ]);
       });
 
       Promise.all(tasks).finally(() => {
+        submittedTopics.add(topic);
         const details = document.querySelector(`details[data-topic="${CSS.escape(topic)}"]`);
-        // Mark submitted state on the details element + badge
         if (details) {
           details.dataset.submitted = 'true';
           const badge = details.querySelector('.progress-badge');
           if (badge) {
             badge.textContent = '✓ Submitted';
-            badge.classList.remove('text-slate-500','text-emerald-400');
+            badge.classList.remove('text-slate-400');
             badge.classList.add('text-emerald-400');
           }
           details.open = false;
@@ -341,9 +437,10 @@
         }
         btn.disabled = false;
         btn.textContent = 'Re-submit review';
-        btn.classList.remove('bg-blue-600','hover:bg-blue-500');
-        btn.classList.add('bg-emerald-600','hover:bg-emerald-500');
-        if (hint) hint.textContent = 'Submitted — edit any response above and click Re-submit to send an update.';
+        btn.style.background = 'linear-gradient(135deg,#059669,#10b981)';
+        btn.style.boxShadow = '0 6px 18px rgba(5,150,105,0.4)';
+        if (hint) hint.textContent = 'Submitted — edit any response and re-submit to update.';
+        updateOverall();
         showToast();
       });
     }

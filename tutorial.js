@@ -64,8 +64,15 @@
       render: () => shot('/images/Tutorial%20Shots/Rank%20Your%20View.png', 'Rank Your View Example'),
     },
     {
-      key: 'address',
+      key: 'nine',
       eyebrow: 'Step 5',
+      title: 'Answer 1 — or All 9.',
+      body: 'Choose the issue(s) important to you and then choose <strong>Build My Ballot</strong>.',
+      render: () => shot('/images/Tutorial%20Shots/9%20Views.png', 'Your views, filled in'),
+    },
+    {
+      key: 'address',
+      eyebrow: 'Step 6',
       title: 'Match Your Candidates.',
       body: 'Enter your address and we\'ll show only the candidates on <strong>your</strong> ballot — your districts, your races.',
       render: () => `
@@ -96,17 +103,55 @@
     },
     {
       key: 'match',
-      eyebrow: 'Step 6',
-      title: 'Match. Compare. Learn.',
-      body: 'We match candidates who share your perspective. <strong>Compare</strong> them side-by-side, <strong>learn more</strong> about each one, and build a ballot you actually stand behind.',
-      render: () => `<div class="vyv-placeholder">Build Ballot · Compare · Learn More<br/><span>(preview coming soon)</span></div>`,
+      eyebrow: 'Step 7',
+      title: 'Meet and Compare.',
+      body: 'Meet the candidates who share your views and compare them to opponents quickly and easily.',
+      render: () => `
+        <div class="vyv-shot-stage">
+          <div class="vyv-xfade">
+            <div class="vyv-xfade-slide vyv-xfade-a">
+              <div class="vyv-phone">
+                <div class="vyv-phone-bar"><span class="vyv-phone-notch"></span></div>
+                <img class="vyv-phone-img" src="/images/Tutorial%20Shots/Pre-Ballot.png" alt="Your matches, race by race"/>
+              </div>
+            </div>
+            <div class="vyv-xfade-slide vyv-xfade-b">
+              <div class="vyv-phone">
+                <div class="vyv-phone-bar"><span class="vyv-phone-notch"></span></div>
+                <img class="vyv-phone-img" src="/images/Tutorial%20Shots/Compare.png" alt="Compare candidates side-by-side"/>
+              </div>
+            </div>
+          </div>
+          <div class="vyv-xfade-captions">
+            <div class="vyv-shot-label vyv-xfade-cap-a">Your matches — race by race</div>
+            <div class="vyv-xfade-cap-b">
+              <div class="vyv-shot-label" style="margin-top:10px">Compare side-by-side</div>
+            </div>
+          </div>
+        </div>`,
     },
     {
       key: 'ballot',
       eyebrow: 'The Payoff',
       title: 'A Printable Ballot — With Everything You Need.',
-      body: 'Your picks. Key election dates. Your closest polling location. All on one printable page you can take with you.',
-      render: () => `<div class="vyv-placeholder vyv-payoff">🗳️ Printable Ballot<br/><span>Candidates · Dates · Polling Location</span></div>`,
+      body: 'Not just your candidates — key election dates, your closest polling locations, and what to bring. All on one printable page you can take with you.',
+      render: () => `
+        <div class="vyv-shot-stage vyv-payoff-stage">
+          <div class="vyv-paper vyv-pan-view">
+            <img class="vyv-pan-img" src="/images/Tutorial%20Shots/Printable%20Ballot%20Full.jpg" alt="Printable ballot — picks, dates, polling locations"/>
+          </div>
+          <div class="vyv-shot-label">Your Picks · Key Dates · Polling Locations · What to Bring</div>
+        </div>`,
+    },
+    {
+      key: 'finale',
+      eyebrow: "That's It",
+      title: 'Ready? Let\'s Go.',
+      body: 'This November, don\'t just vote, <strong>Vote Your Views!</strong>',
+      render: () => `
+        <div class="vyv-finale">
+          <img src="/icons/VoteYourViews_SQ%20Logo.png" alt="VoteYourViews.org"/>
+        </div>`,
     },
   ];
 
@@ -140,18 +185,40 @@
     .vyv-phone-img{width:100%;display:block;border-radius:14px;}
     .vyv-shot-label{text-align:center;margin-top:10px;font-size:10px;font-weight:800;letter-spacing:0.2em;text-transform:uppercase;color:#94a3b8;}
     .vyv-xfade{position:relative;}
-    .vyv-xfade-slide{opacity:0;transition:opacity .8s ease;}
+    .vyv-xfade-slide{opacity:0;transition:opacity .3s ease;}
     .vyv-xfade-slide.vyv-show{opacity:1;}
     .vyv-xfade-b{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;}
     .vyv-xfade-b .vyv-phone{width:100%;}
     .vyv-xfade-captions{position:relative;height:3.4em;}
-    .vyv-xfade-cap-a,.vyv-xfade-cap-b{position:absolute;left:0;right:0;top:0;opacity:0;transition:opacity .8s ease;}
+    .vyv-xfade-cap-a,.vyv-xfade-cap-b{position:absolute;left:0;right:0;top:0;opacity:0;transition:opacity .3s ease;}
     .vyv-xfade-cap-a.vyv-show,.vyv-xfade-cap-b.vyv-show{opacity:1;}
     .vyv-xfade-cap-a{color:#94a3b8;}
     .vyv-xfade-or{text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;letter-spacing:0.25em;color:#fff;margin-bottom:10px;text-shadow:0 2px 12px rgba(0,0,0,0.6);}
     .vyv-placeholder{width:100%;padding:36px 20px;background:rgba(255,255,255,0.04);border:1px dashed rgba(255,255,255,0.2);border-radius:18px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;letter-spacing:0.06em;color:#fff;text-transform:uppercase;margin-bottom:10px;}
     .vyv-placeholder span{display:block;font-size:11px;font-weight:600;color:#94a3b8;letter-spacing:0.15em;margin-top:6px;}
     .vyv-payoff{background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(59,130,246,0.12));border:1px solid rgba(245,158,11,0.4);}
+    .vyv-payoff-stage{background:radial-gradient(ellipse at 50% 30%,rgba(245,158,11,0.18),rgba(59,130,246,0.08) 60%,transparent);}
+    .vyv-paper{width:100%;max-width:340px;margin:0 auto;background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 16px 40px rgba(0,0,0,0.65),0 2px 8px rgba(0,0,0,0.4);}
+    .vyv-paper img{width:100%;display:block;}
+    /* Payoff pan: slow tour down the printed ballot — picks, then Key Dates, then Polling + What to Bring */
+    .vyv-pan-view{aspect-ratio:734/930;position:relative;}
+    .vyv-pan-img{transform-origin:top left;animation:vyvBallotPan 12s ease-in-out infinite;will-change:transform;}
+    @keyframes vyvBallotPan{
+      0%,8%{transform:scale(1) translateY(0);}
+      38%,72%{transform:scale(1.35) translateY(-57%);}
+      100%{transform:scale(1) translateY(0);}
+    }
+    /* Finale: logo reveal */
+    .vyv-finale{display:flex;align-items:center;justify-content:center;padding:10px 0 8px;perspective:900px;}
+    .vyv-finale img{width:94%;max-width:400px;border-radius:24px;animation:vyvLogoIn 1.7s cubic-bezier(.16,1,.3,1) both, vyvLogoGlow 3s ease-in-out 1.7s infinite;}
+    @keyframes vyvLogoIn{
+      0%{opacity:0;transform:scale(.12) rotate(-14deg) translateY(60px);filter:blur(10px);}
+      45%{opacity:1;filter:blur(0);}
+      68%{transform:scale(1.07) rotate(2deg) translateY(-4px);}
+      84%{transform:scale(.985) rotate(-.5deg) translateY(0);}
+      100%{opacity:1;transform:scale(1) rotate(0) translateY(0);filter:blur(0);}
+    }
+    @keyframes vyvLogoGlow{0%,100%{box-shadow:0 18px 50px rgba(0,0,0,.6),0 0 0 rgba(245,158,11,0);}50%{box-shadow:0 18px 50px rgba(0,0,0,.6),0 0 56px rgba(245,158,11,.55);}}
     .vyv-tour-foot{padding:12px 18px 18px;border-top:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;gap:12px;background:rgba(0,0,0,0.2);}
     .vyv-dots{display:flex;justify-content:center;gap:6px;}
     .vyv-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;padding:0;cursor:pointer;transition:all .2s;}
@@ -178,8 +245,10 @@
   let currentIdx = 0;
   let overlay, dotsEl, prevBtn, nextBtn, slidesEls;
   let xfadeTimer = null;
+  let xfadeSwapTimer = null;
 
-  // Mini slideshow inside a slide: restart the A↔B crossfade whenever the slide is shown
+  // Mini slideshow inside a slide: fade the current shot fully OUT, then fade the
+  // next one in — never both visible at once. Restarts whenever the slide is shown.
   function startXfade(slideEl) {
     stopXfade();
     const xf = slideEl.querySelector('.vyv-xfade');
@@ -190,13 +259,16 @@
     a.forEach(el => el.classList.add('vyv-show'));
     b.forEach(el => el.classList.remove('vyv-show'));
     xfadeTimer = setInterval(() => {
+      const out = showA ? a : b;
+      const inn = showA ? b : a;
       showA = !showA;
-      a.forEach(el => el.classList.toggle('vyv-show', showA));
-      b.forEach(el => el.classList.toggle('vyv-show', !showA));
-    }, 3500);
+      out.forEach(el => el.classList.remove('vyv-show'));
+      xfadeSwapTimer = setTimeout(() => inn.forEach(el => el.classList.add('vyv-show')), 320);
+    }, 2500);
   }
   function stopXfade() {
     if (xfadeTimer) { clearInterval(xfadeTimer); xfadeTimer = null; }
+    if (xfadeSwapTimer) { clearTimeout(xfadeSwapTimer); xfadeSwapTimer = null; }
   }
 
   function build() {
@@ -262,6 +334,10 @@
     nextBtn.textContent = idx === SLIDES.length - 1 ? 'Get Started →' : 'Next →';
     overlay.querySelector('.vyv-tour-body').scrollTop = 0;
     startXfade(slidesEls[idx]);
+    // Restart per-slide animations (ballot pan, finale logo) whenever their slide is shown
+    slidesEls[idx].querySelectorAll('.vyv-pan-img, .vyv-finale img').forEach(el => {
+      el.style.animation = 'none'; void el.offsetHeight; el.style.animation = '';
+    });
   }
 
   function open() {
