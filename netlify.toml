@@ -4,3 +4,8 @@
 [[edge_functions]]
   path = "/*"
   function = "candidate-og"
+
+[build.environment]
+  # The Google Maps browser key is public by design (domain-restricted in Google's
+  # console); tell Netlify's secrets scanner it isn't a leak so builds can publish.
+  SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES = "AIzaSyCwBv8O4lWqSoZZxH4npofqAeU2C86ejkI"
