@@ -2422,7 +2422,7 @@
       function handleEmail() {
         const url = buildChallengeUrl(answers, ranks);
         const subject = encodeURIComponent("I challenged you on VoteYourViews.org");
-        const body = encodeURIComponent(`I just ranked my beliefs on VoteYourViews.org — a nonpartisan Texas voter guide.\n\nTake the quiz and see how your views compare to mine:\n${url}\n\nIt only takes a few minutes!`);
+        const body = encodeURIComponent(`I just ranked my beliefs on VoteYourViews.org.\n\nTake the quiz and see how your views compare to mine:\n${url}\n\nIt only takes a few minutes!`);
         window.open(`mailto:?subject=${subject}&body=${body}`);
       }
 
