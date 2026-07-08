@@ -125,6 +125,7 @@
 
     /* Ballot picks — dense text columns (no photos), prints tight on white */
     .ballot-picks { column-count: 2; column-gap: 28px; }
+    .ballot-picks-3 { column-count: 3; column-gap: 18px; }
     .ballot-pick-row { break-inside: avoid; -webkit-column-break-inside: avoid; page-break-inside: avoid; }
     /* Printable letter page — the desktop sheet the PDF is modeled on (WYSIWYG) */
     /* container-type: the ballot's responsive rules key off the SHEET's width (not the
@@ -589,7 +590,7 @@
           {
             office: 'U.S. Senate',
             category: 'federal',
-            description: 'The U.S. Senator represents all Texans in Washington for a 6-year term, voting on federal legislation, Supreme Court nominees, and treaties.',
+            description: 'Texas elects 2 **U.S. Senators** to 6-year terms. Senators vote on federal legislation, Supreme Court nominees, and treaties. Only one Texas Senate seat is up in 2026.',
             candidates: [
               { name: 'James Talarico', party: 'D', photo: 'https://lh3.googleusercontent.com/d/1xT_tzvyzpedvvRDZJ3V09TqjcoTiPiDO', website: 'https://www.jamestalarico.com', confirmed: true, hook: 'A former middle-school teacher who gave up a safe seat in the Texas House to bet his career on the hardest race in Texas.', summary: 'One of the youngest people ever elected to the Texas legislature, Talarico taught in San Antonio public schools before turning to politics. He supports abortion rights, Medicaid expansion, and public school funding.', positions: POS_D },
               { name: 'Ken Paxton', party: 'R', photo: null, website: null, confirmed: true, hook: 'Impeached by his own party, acquitted by the Senate — and still standing. Few politicians have survived more.', summary: 'Texas Attorney General since 2015, Paxton weathered one of the most dramatic political trials in state history. He supports strict border enforcement and opposes abortion rights and gun restrictions.', positions: POS_R }
@@ -600,7 +601,7 @@
             category: 'federal',
             districtType: 'congressional',
             districtNumber: 21,
-            description: 'Covers western Hays County including Wimberley and parts of San Marcos. Chip Roy (R) is the incumbent.',
+            description: 'The **U.S. House** has 435 members — 38 represent Texas. Each member represents ~750,000 people in their congressional district. House members serve 2-year terms and all 435 seats are up for election in 2026.',
             candidates: [
               TBD_D('Democratic nominee to be confirmed after primary.'),
               { name: 'Chip Roy', party: 'R', photo: null, website: null, confirmed: true, summary: 'Three-term incumbent. Staunch conservative — opposes spending increases, abortion rights, and federal gun restrictions.', positions: POS_R }
@@ -611,7 +612,7 @@
             category: 'federal',
             districtType: 'congressional',
             districtNumber: 27,
-            description: 'Covers eastern Hays County including Kyle and Buda.',
+            description: 'The **U.S. House** has 435 members — 38 represent Texas. Each member represents ~750,000 people in their congressional district. House members serve 2-year terms and all 435 seats are up for election in 2026.',
             candidates: [
               TBD_D(),
               TBD_R()
@@ -622,7 +623,7 @@
           {
             office: 'Governor of Texas',
             category: 'state',
-            description: 'The Governor leads state government, signs or vetoes legislation, and sets the policy agenda for Texas.',
+            description: '**The Governor** is Texas\'s chief executive, serving a 4-year term. The Governor signs or vetoes legislation, commands the National Guard, and appoints thousands of state officials.',
             candidates: [
               TBD_D('Democratic nominee to be confirmed. Will support reproductive rights, Medicaid expansion, and public education funding.'),
               { name: 'Greg Abbott', party: 'R', photo: null, website: 'https://gov.texas.gov', confirmed: true, summary: 'Three-term incumbent Governor. Signed Texas\'s abortion ban, constitutional carry, school voucher legislation, and Operation Lone Star.', positions: POS_R }
@@ -631,7 +632,7 @@
           {
             office: 'Lieutenant Governor',
             category: 'state',
-            description: 'The Lt. Governor runs the Texas Senate, controls which bills come to a vote, and shapes the state budget. Arguably the most powerful office in Texas government.',
+            description: '**The Lieutenant Governor** presides over the Texas Senate and is widely considered the most powerful office in Texas state government, controlling the legislative agenda. 4-year term.',
             candidates: [
               TBD_D('Runoff between Marcos Isaias Velez and Vikki Goodwin — winner to be confirmed. Both support labor rights, public education, and healthcare expansion.'),
               { name: 'Dan Patrick', party: 'R', photo: null, website: null, confirmed: true, summary: 'Three-term incumbent Lt. Governor. Architect of Texas\'s abortion ban, school voucher push, anti-trans legislation, and SB 1 voter restrictions.', positions: POS_R }
@@ -640,7 +641,7 @@
           {
             office: 'Attorney General',
             category: 'state',
-            description: 'Texas\'s chief legal officer, enforcing state laws on consumer protection, environmental rules, voting rights, and more.',
+            description: '**The Attorney General** is Texas\'s chief law enforcement officer — representing the state in legal matters, enforcing consumer protections, and defending state laws. 4-year term.',
             candidates: [
               TBD_D('Runoff between Joe Jaworski and Nathan Johnson — winner to be confirmed. Both committed to environmental enforcement, voting rights, and reproductive freedom.'),
               TBD_R('Republican nominee to be confirmed. Ken Paxton vacated the seat to run for U.S. Senate.')
@@ -649,7 +650,7 @@
           {
             office: 'Comptroller of Public Accounts',
             category: 'state',
-            description: 'Texas\'s chief financial officer — collects state taxes, estimates revenue for the state budget, and manages state funds.',
+            description: '**The Comptroller of Public Accounts** is Texas\'s chief financial officer — collecting taxes, paying the state\'s bills, and certifying the state budget. 4-year term.',
             candidates: [
               TBD_D(),
               { name: 'Glenn Hegar', party: 'R', photo: null, website: null, confirmed: true, summary: 'Three-term incumbent Comptroller. Conservative fiscal steward, aligned with Republican legislative agenda on taxes and spending.', positions: POS_R }
@@ -658,7 +659,7 @@
           {
             office: 'Commissioner of General Land Office',
             category: 'state',
-            description: 'Manages 13 million acres of state land, the Alamo, and disaster recovery funds. Oversees the Permanent School Fund.',
+            description: '**The Commissioner of the General Land Office** manages 13 million acres of state land, oversees the Veterans Land Board, and administers federal disaster recovery funds. 4-year term.',
             candidates: [
               TBD_D(),
               { name: 'Dawn Buckingham', party: 'R', photo: null, website: null, confirmed: true, summary: 'Incumbent Land Commissioner elected in 2022. Conservative former State Senator focused on school funding and veterans programs.', positions: POS_R }
@@ -667,7 +668,7 @@
           {
             office: 'Commissioner of Agriculture',
             category: 'state',
-            description: 'Regulates food safety, agriculture, and rural development across Texas — one of the top agricultural states in the country.',
+            description: '**The Commissioner of Agriculture** oversees food safety, pesticide regulation, and agricultural programs for one of the nation\'s largest agricultural states. 4-year term.',
             candidates: [
               TBD_D(),
               TBD_R()
@@ -676,7 +677,7 @@
           {
             office: 'Railroad Commissioner',
             category: 'state',
-            description: 'Despite the name, the Railroad Commission regulates the oil, gas, and pipeline industries — one of the most powerful economic offices in Texas.',
+            description: 'Despite the name, the **Railroad Commission** regulates the Texas oil and gas industry — one of the most powerful regulatory bodies in the state. 6-year staggered terms.',
             candidates: [
               TBD_D(),
               TBD_R()
@@ -685,7 +686,7 @@
           {
             office: 'State Board of Education, District 5',
             category: 'state',
-            description: 'Sets curriculum standards, approves textbooks, and oversees funding for Texas public schools.',
+            description: '**The State Board of Education** sets curriculum standards for 5.5 million Texas students, selects textbooks, and oversees a $50 billion Permanent School Fund. 4-year term.',
             candidates: [
               TBD_D('Runoff between Allison Bush and Stephanie Limon Bazan — winner to be confirmed. Both oppose vouchers and book bans, support inclusive curriculum.'),
               TBD_R('Republican nominee to be confirmed after primary. Likely to support school choice policies and parental rights curriculum standards.')
@@ -696,7 +697,7 @@
             category: 'state',
             districtType: 'stateSenate',
             districtNumber: 21,
-            description: 'The State Senator for District 21 serves part of Hays County in the Texas Senate, voting on state budget, legislation, and judicial confirmations.',
+            description: '**The Texas Senate** has 31 members serving 4-year staggered terms. Senators write legislation, confirm gubernatorial appointments, and set the state budget.',
             candidates: [
               TBD_D(),
               TBD_R()
@@ -707,7 +708,7 @@
             category: 'state',
             districtType: 'stateHouse',
             districtNumber: 45,
-            description: 'Covers parts of Hays County including Kyle and portions of San Marcos. The State Representative votes on Texas law and the state budget.',
+            description: '**The Texas House of Representatives** has 150 members serving 2-year terms. All 150 seats are up in 2026. The House originates all revenue bills and sets the state budget.',
             candidates: [
               TBD_D(),
               TBD_R()
@@ -718,7 +719,7 @@
             category: 'state',
             districtType: 'stateHouse',
             districtNumber: 73,
-            description: 'Covers parts of Hays County including Wimberley and Dripping Springs. The State Representative votes on Texas law and the state budget.',
+            description: '**The Texas House of Representatives** has 150 members serving 2-year terms. All 150 seats are up in 2026. The House originates all revenue bills and sets the state budget.',
             candidates: [
               TBD_D(),
               TBD_R()
@@ -729,7 +730,7 @@
           {
             office: 'Hays County Judge',
             category: 'county',
-            description: 'The County Judge leads the Commissioners Court, overseeing the county budget, emergency management, and local policy for one of Texas\'s fastest-growing counties.',
+            description: '**The County Judge** serves as both the presiding judge of the County Court and the head of the Commissioner\'s Court — the governing body of the county. 4-year term.',
             candidates: [
               TBD_D('Runoff between Michelle Gutierrez Cohen and Ruben Becerra — winner to be confirmed. Both focused on responsible growth and infrastructure.'),
               TBD_R()
@@ -738,25 +739,25 @@
           {
             office: 'Hays County Criminal District Attorney',
             category: 'county',
-            description: 'Prosecutes criminal cases in Hays County, including misdemeanors and felonies. Sets prosecution priorities and manages the DA\'s office.',
+            description: '**The Criminal District Attorney** is the county\'s top prosecutor. They decide which crimes get charged and how hard to push them — shaping safety and justice in Hays County.',
             candidates: [UNCONTESTED('Alfonso Salazar', 'D', 'Military veteran and Democratic nominee. No Republican filed — running unopposed in November.')]
           },
           {
             office: 'Hays County District Clerk',
             category: 'county',
-            description: 'Maintains court records, processes legal filings, and manages jury pools for the district courts of Hays County.',
+            description: '**The District Clerk** maintains official court records for district courts, including civil, criminal, and family cases. 4-year term, elected countywide.',
             candidates: [UNCONTESTED('Amanda Calvert', 'D', 'Incumbent District Clerk. No Republican filed — running unopposed in November.')]
           },
           {
             office: 'Hays County Clerk',
             category: 'county',
-            description: 'Manages elections, vital records (births, deaths, marriages), real estate documents, and county court records for Hays County.',
+            description: '**The County Clerk** maintains official county records, processes elections, and records deeds, birth certificates, and marriage licenses. 4-year term.',
             candidates: [UNCONTESTED('Elaine H. Cárdenas', 'D', 'Democratic nominee. No Republican filed — running unopposed in November.')]
           },
           {
             office: 'Hays County Treasurer',
             category: 'county',
-            description: 'Receives, deposits, and disburses county funds. Manages Hays County\'s financial accounts and investment portfolio.',
+            description: '**The County Treasurer** is the county\'s bank manager. They safeguard and pay out county money and keep an eye on its finances.',
             candidates: [UNCONTESTED('Daphne Tenorio', 'D', 'Incumbent County Treasurer. No Republican filed — running unopposed in November.')]
           },
           {
@@ -764,7 +765,7 @@
             category: 'county',
             districtType: 'commissioner',
             districtNumber: 2,
-            description: 'Hays County Commissioner for Precinct 2. Sits on the Commissioners Court, voting on the county budget, roads, and local services.',
+            description: '**County Commissioners** serve on the Commissioner\'s Court — the governing body that sets the county budget, maintains roads and infrastructure, and oversees county services. 4-year term.',
             candidates: [TBD_D(), TBD_R()]
           },
           {
@@ -772,7 +773,7 @@
             category: 'county',
             districtType: 'commissioner',
             districtNumber: 4,
-            description: 'Hays County Commissioner for Precinct 4. Sits on the Commissioners Court, voting on the county budget, roads, and local services.',
+            description: '**County Commissioners** serve on the Commissioner\'s Court — the governing body that sets the county budget, maintains roads and infrastructure, and oversees county services. 4-year term.',
             candidates: [TBD_D(), TBD_R()]
           },
           {
@@ -780,7 +781,7 @@
             category: 'county',
             districtType: 'jpPrecinct',
             districtNumber: 1,
-            description: 'Handles small claims, Class C misdemeanors, and civil cases under $20,000 for JP Precinct 1.',
+            description: '**Justice of the Peace** courts handle small claims (under $20,000), Class C misdemeanors, and perform marriages. JP judges do not need to be licensed attorneys in Texas. 4-year term.',
             candidates: [UNCONTESTED('Maggie Hernandez-Moreno', 'D', 'Incumbent JP. No Republican filed — running unopposed in November.')]
           },
           {
@@ -788,7 +789,7 @@
             category: 'county',
             districtType: 'jpPrecinct',
             districtNumber: 2,
-            description: 'Handles small claims, Class C misdemeanors, and civil cases under $20,000 for JP Precinct 2.',
+            description: '**Justice of the Peace** courts handle small claims (under $20,000), Class C misdemeanors, and perform marriages. JP judges do not need to be licensed attorneys in Texas. 4-year term.',
             candidates: [UNCONTESTED('Beth Smith', 'D', 'Incumbent JP. No Republican filed — running unopposed in November.')]
           },
           {
@@ -796,7 +797,7 @@
             category: 'county',
             districtType: 'jpPrecinct',
             districtNumber: 5,
-            description: 'Handles small claims, Class C misdemeanors, and civil cases under $20,000 for JP Precinct 5.',
+            description: '**Justice of the Peace** courts handle small claims (under $20,000), Class C misdemeanors, and perform marriages. JP judges do not need to be licensed attorneys in Texas. 4-year term.',
             candidates: [UNCONTESTED('Sandra Bryant', 'D', 'Incumbent JP. No Republican filed — running unopposed in November.')]
           },
         ],
@@ -804,85 +805,85 @@
           {
             office: 'TX Supreme Court — Chief Justice',
             category: 'judicial',
-            description: 'Leads the Texas Supreme Court — the highest civil court in Texas, deciding appeals on civil and family law matters statewide.',
+            description: '**The Texas Supreme Court** is the court of last resort for civil matters. Nine justices are elected statewide to overlapping 6-year terms. Texas is one of few states that elects its supreme court justices.',
             candidates: [TBD_D(), TBD_R()]
           },
           {
             office: 'TX Supreme Court — Place 2',
             category: 'judicial',
-            description: 'Texas Supreme Court Justice — decides civil and family law appeals at the state\'s highest court.',
+            description: '**The Texas Supreme Court** is the court of last resort for civil matters. Nine justices are elected statewide to overlapping 6-year terms. Texas is one of few states that elects its supreme court justices.',
             candidates: [TBD_D(), TBD_R()]
           },
           {
             office: 'TX Supreme Court — Place 7',
             category: 'judicial',
-            description: 'Texas Supreme Court Justice — decides civil and family law appeals at the state\'s highest court.',
+            description: '**The Texas Supreme Court** is the court of last resort for civil matters. Nine justices are elected statewide to overlapping 6-year terms. Texas is one of few states that elects its supreme court justices.',
             candidates: [TBD_D(), TBD_R()]
           },
           {
             office: 'TX Supreme Court — Place 8',
             category: 'judicial',
-            description: 'Texas Supreme Court Justice — decides civil and family law appeals at the state\'s highest court.',
+            description: '**The Texas Supreme Court** is the court of last resort for civil matters. Nine justices are elected statewide to overlapping 6-year terms. Texas is one of few states that elects its supreme court justices.',
             candidates: [TBD_D(), TBD_R()]
           },
           {
             office: 'Court of Criminal Appeals — Place 3',
             category: 'judicial',
-            description: 'Texas\'s highest criminal court — reviews criminal appeals and death penalty cases from across the state.',
+            description: '**The Texas Court of Criminal Appeals** is the court of last resort for criminal matters — a separate court from the civil Supreme Court. Nine judges serve staggered 6-year terms.',
             candidates: [TBD_D(), TBD_R()]
           },
           {
             office: 'Court of Criminal Appeals — Place 4',
             category: 'judicial',
-            description: 'Texas\'s highest criminal court — reviews criminal appeals and death penalty cases from across the state.',
+            description: '**The Texas Court of Criminal Appeals** is the court of last resort for criminal matters — a separate court from the civil Supreme Court. Nine judges serve staggered 6-year terms.',
             candidates: [TBD_D(), TBD_R()]
           },
           {
             office: 'Court of Criminal Appeals — Place 9',
             category: 'judicial',
-            description: 'Texas\'s highest criminal court — reviews criminal appeals and death penalty cases from across the state.',
+            description: '**The Texas Court of Criminal Appeals** is the court of last resort for criminal matters — a separate court from the civil Supreme Court. Nine judges serve staggered 6-year terms.',
             candidates: [TBD_D(), TBD_R()]
           },
           {
             office: '15th Court of Appeals — Chief Justice',
             category: 'judicial',
-            description: 'A new statewide appellate court created by the Texas Legislature. Hears civil cases involving the state government.',
+            description: '**Courts of Appeals** are intermediate appellate courts that review decisions from trial courts. Texas has 14 Courts of Appeals. Justices serve 6-year terms.',
             candidates: [TBD_D(), TBD_R()]
           },
           {
             office: '15th Court of Appeals — Place 2',
             category: 'judicial',
-            description: 'A new statewide appellate court created by the Texas Legislature. Hears civil cases involving the state government.',
+            description: '**Courts of Appeals** are intermediate appellate courts that review decisions from trial courts. Texas has 14 Courts of Appeals. Justices serve 6-year terms.',
             candidates: [TBD_D(), TBD_R()]
           },
           {
             office: '15th Court of Appeals — Place 3',
             category: 'judicial',
-            description: 'A new statewide appellate court created by the Texas Legislature. Hears civil cases involving the state government.',
+            description: '**Courts of Appeals** are intermediate appellate courts that review decisions from trial courts. Texas has 14 Courts of Appeals. Justices serve 6-year terms.',
             candidates: [TBD_D(), TBD_R()]
           },
           {
             office: '3rd Court of Appeals — Chief Justice',
             category: 'judicial',
-            description: 'The 3rd Court of Appeals serves Central Texas including Hays County — hears civil and criminal appeals from district and county courts.',
+            description: '**Courts of Appeals** are intermediate appellate courts that review decisions from trial courts. Texas has 14 Courts of Appeals. Justices serve 6-year terms.',
             candidates: [TBD_D(), TBD_R()]
           },
           {
             office: 'Hays County District Court — 428th',
             category: 'judicial',
-            description: 'Presides over the 428th Judicial District Court in Hays County — handles felony criminal cases and civil matters.',
+            description: '**District Courts** are the primary trial courts in Texas, handling civil cases, felony criminal cases, family law, and juvenile matters. Judges serve 4-year terms.',
             candidates: [UNCONTESTED('Cassie Benoist-Templeton', 'D', 'Democratic nominee. No Republican filed — running unopposed in November.')]
           },
           {
             office: 'Hays County Court at Law No. 1',
             category: 'county',
-            description: 'Handles misdemeanor criminal cases, civil disputes, and probate matters in Hays County.',
+            description: '**County Court at Law No. 1** is a county courtroom for everyday cases — lower-level crimes, smaller lawsuits, and wills and estates (probate).',
             candidates: [UNCONTESTED('Jimmy Alan Hall', 'D', 'Incumbent judge. No Republican filed — running unopposed in November.')]
           },
           {
             office: 'Hays County Court at Law No. 2',
             category: 'county',
-            description: 'Handles misdemeanor criminal cases, civil disputes, Juvenile Court, and Veterans Treatment Court — Hays County\'s specialty court with a 98% success rate.',
+            description: '**County Court at Law No. 2** is a county courtroom for everyday cases — lower-level crimes, smaller lawsuits, juvenile cases, and a special court for veterans.',
             candidates: [
               { name: 'Chris Johnson', party: 'D', photo: null, website: null, confirmed: true, uncontested: false, summary: 'Incumbent judge who won May 26 Democratic runoff. Running for another term.', positions: POS_D },
               { name: 'Charmaine Wilde', party: 'R', photo: null, website: null, confirmed: true, uncontested: false, summary: 'Republican nominee challenging Democratic incumbent in county judicial race.', positions: POS_R }
@@ -1022,6 +1023,13 @@
           candidateChoice: candidate.positions[issue.id]
         };
       }).filter(i => i.answered);
+    }
+
+    // Office descriptions use **text** to render that phrase in bold caps
+    function formatDescription(text) {
+      return text.split(/\*\*(.+?)\*\*/g).map((part, i) =>
+        i % 2 === 1 ? <span key={i} className="font-black uppercase">{part}</span> : part
+      );
     }
 
     function formatOfficeLines(office) {
@@ -2892,9 +2900,9 @@
         return (
           <div ref={ref} className="relative inline-block">
             <button onClick={() => setOpen(o => !o)} title={userDistricts ? 'Showing your ballot — tap to change' : 'Tap to change county'}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all hover:bg-white/10 whitespace-nowrap"
+              className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all hover:bg-white/10 whitespace-nowrap"
               style={{color:'#94a3b8', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.12)'}}>
-              <svg className="w-3.5 h-3.5 shrink-0" style={{color: userDistricts ? '#4ade80' : '#60a5fa'}} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
+              <svg className="w-4 h-4 shrink-0" style={{color: userDistricts ? '#4ade80' : '#60a5fa'}} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
               <span className="text-white">{name}</span>
               {chevron}
             </button>
@@ -2912,7 +2920,7 @@
                   </button>
                 )}
                 {userDistricts && (
-                  <button onClick={() => { setUserDistricts(null); setOpen(false); }}
+                  <button onClick={() => { setUserDistricts(null); setOpen(false); onMyCandidates && onMyCandidates(); }}
                     className="w-full px-4 py-2.5 text-left text-xs font-black uppercase tracking-widest transition-colors hover:bg-white/5"
                     style={{ color: '#f87171' }}>
                     ✕ Clear my address filter
@@ -2951,7 +2959,7 @@
                 <div className="text-sm font-black uppercase tracking-wide truncate">{name}</div>
               </div>
               {chevron}
-              <button onClick={(e) => { e.stopPropagation(); setUserDistricts(null); }} className="ml-auto text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shrink-0" style={{background:'rgba(255,255,255,0.18)', color:'#fff'}}>✕ Clear</button>
+              <button onClick={(e) => { e.stopPropagation(); setUserDistricts(null); onMyCandidates && onMyCandidates(); }} className="ml-auto text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shrink-0" style={{background:'rgba(255,255,255,0.18)', color:'#fff'}}>✕ Clear</button>
             </div>
           ) : (
             <button onClick={() => setOpen(o => !o)}
@@ -3033,17 +3041,17 @@
 
 
 
-    function Results({ county, counties, setCounty, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onBack, onBrowse, onCompare, onAddress, onQuiz, onRateIssue, initialProfile, clearInitialProfile, focusIssueId, clearFocusIssue }) {
+    function Results({ county, counties, setCounty, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onBack, onBrowse, onAddress, onRateIssue, initialProfile, clearInitialProfile, focusIssueId, clearFocusIssue }) {
       const countyData = counties[county];
       const [profileData, setProfileData] = React.useState(null); // { candidate, race }
       // Reopen the candidate profile after returning from a single-issue "rate this" quiz.
       React.useEffect(() => {
         if (initialProfile) { setProfileData(initialProfile); clearInitialProfile?.(); }
       }, [initialProfile]);
-      const [compareRace, setCompareRace] = React.useState(null); // race object for RaceDetail overlay
       const [showFilterModal, setShowFilterModal] = React.useState(false);
       const [activeTab, setActiveTab] = React.useState('federal');
       const [showAddr, setShowAddr] = React.useState(false);
+      const [pendingBallot, setPendingBallot] = React.useState(false);
 
       const answeredCount = Object.keys(answers).filter(id => answers[id] !== 'D').length;
 
@@ -3101,9 +3109,9 @@
           {showAddr && (
             <AddressModal county={county} accentColor="#3b82f6" accentColorDark="#1d4ed8"
               onCountyDetected={setCounty}
-              onClose={() => setShowAddr(false)}
-              onContinue={(districts) => { setUserDistricts(districts); setShowAddr(false); }}
-              onShowAll={() => setShowAddr(false)} />
+              onClose={() => { setShowAddr(false); setPendingBallot(false); }}
+              onContinue={(districts) => { setUserDistricts(districts); setShowAddr(false); if (pendingBallot) { setPendingBallot(false); onBallot(); } }}
+              onShowAll={pendingBallot ? undefined : () => setShowAddr(false)} />
           )}
 
 
@@ -3207,7 +3215,7 @@
 
                           {/* Col 2: Race description + matched candidate name */}
                           <div className="flex flex-col justify-center px-6 py-6 border-r border-white/10">
-                            {race.description && <p className="text-[13px] leading-relaxed mb-3" style={{color:'rgba(255,255,255,0.7)'}}>{race.description}</p>}
+                            {race.description && <p className="text-[13px] leading-relaxed mb-3" style={{color:'rgba(255,255,255,0.7)'}}>{formatDescription(race.description)}</p>}
                             {displayCand && (
                               <p className="text-[12px] font-black uppercase tracking-widest" style={{color:'#22c55e'}}>✓ {displayCand.name}</p>
                             )}
@@ -3284,35 +3292,14 @@
           <div style={{height:'84px'}} />
           {/* Fixed finish line — always on screen; the whole page funnels here */}
           <div className="fixed bottom-0 left-0 right-0 z-40 px-4 pt-3 pb-4" style={{background:'linear-gradient(to top, #0c1a2e 65%, rgba(12,26,46,0))'}}>
-            <button onClick={onBallot}
-              className="w-full max-w-5xl mx-auto flex items-center justify-center gap-2 py-3.5 rounded-full font-black text-sm uppercase tracking-widest text-white transition-all hover:brightness-110 active:scale-[0.99]"
+            <button onClick={() => { if (userDistricts) { onBallot(); } else { setPendingBallot(true); setShowAddr(true); } }}
+              className="w-full sm:w-auto sm:min-w-[340px] sm:px-10 max-w-md mx-auto flex items-center justify-center gap-2 py-3.5 rounded-full font-black text-sm uppercase tracking-widest text-white transition-all hover:brightness-110 active:scale-[0.99]"
               style={{background: ctaColors.grad, border: `1px solid ${ctaColors.border}`, letterSpacing:'0.12em', boxShadow: `0 8px 24px ${ctaColors.glow}`}}>
               <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
               Build My Ballot →
             </button>
           </div>
         </div>
-
-        {/* Race compare overlay */}
-        {compareRace && (
-          <div className="fixed inset-0 z-50 overflow-y-auto bg-white">
-            <RaceDetail
-              race={compareRace}
-              issues={issues}
-              answers={answers}
-              ranks={ranks}
-              checkedStatements={checkedStatements}
-              selected={selected}
-              onSelect={(office, name) => setSelected(prev => name ? {...prev, [office]: name} : Object.fromEntries(Object.entries(prev).filter(([k]) => k !== office)))}
-              onBack={() => setCompareRace(null)}
-              onNextRace={null}
-              onPrevRace={null}
-              onQuiz={null}
-              onHome={() => setCompareRace(null)}
-              inline={false}
-            />
-          </div>
-        )}
 
         {/* Candidate profile modal */}
         {profileData && (
@@ -3382,7 +3369,7 @@
           {/* Candidates side by side */}
           {expanded && (
             <div className="border-t border-slate-100 p-4 fade-in">
-              <p className="text-xs text-slate-500 mb-4">{race.description}</p>
+              <p className="text-xs text-slate-500 mb-4">{formatDescription(race.description)}</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {candidates.map(candidate => {
                   const score = calcMatch(candidate, answers, checkedStatements, ranks);
@@ -3449,55 +3436,6 @@
     };
 
     // Office definitions — educational context shown in the race header
-    function getOfficeInfo(office) {
-      const o = office.toLowerCase();
-      if (o.includes('u.s. senate') || o.includes('us senate'))
-        return 'Texas elects 2 U.S. Senators to 6-year terms. Senators vote on federal legislation, Supreme Court nominees, and treaties. Only one Texas Senate seat is up in 2026.';
-      if (o.includes('u.s. house') || o.includes('us house') || o.includes('congress'))
-        return 'The U.S. House has 435 members — 38 represent Texas. Each member represents ~750,000 people in their congressional district. House members serve 2-year terms and all 435 seats are up for election in 2026.';
-      if (o.includes('lieutenant governor'))
-        return 'The Lieutenant Governor presides over the Texas Senate and is widely considered the most powerful office in Texas state government, controlling the legislative agenda. 4-year term.';
-      if (o.includes('governor'))
-        return 'The Governor is Texas\'s chief executive, serving a 4-year term. The Governor signs or vetoes legislation, commands the National Guard, and appoints thousands of state officials.';
-      if (o.includes('attorney general'))
-        return 'The Attorney General is Texas\'s chief law enforcement officer — representing the state in legal matters, enforcing consumer protections, and defending state laws. 4-year term.';
-      if (o.includes('comptroller'))
-        return 'The Comptroller of Public Accounts is Texas\'s chief financial officer — collecting taxes, paying the state\'s bills, and certifying the state budget. 4-year term.';
-      if (o.includes('land commissioner') || o.includes('general land'))
-        return 'The Commissioner of the General Land Office manages 13 million acres of state land, oversees the Veterans Land Board, and administers federal disaster recovery funds. 4-year term.';
-      if (o.includes('agriculture'))
-        return 'The Commissioner of Agriculture oversees food safety, pesticide regulation, and agricultural programs for one of the nation\'s largest agricultural states. 4-year term.';
-      if (o.includes('railroad'))
-        return 'Despite the name, the Railroad Commission regulates the Texas oil and gas industry — one of the most powerful regulatory bodies in the state. 6-year staggered terms.';
-      if (o.includes('state board of education') || o.includes('sboe'))
-        return 'The State Board of Education sets curriculum standards for 5.5 million Texas students, selects textbooks, and oversees a $50 billion Permanent School Fund. 4-year term.';
-      if (o.includes('tx state senate') || o.includes('state senate'))
-        return 'The Texas Senate has 31 members serving 4-year staggered terms. Senators write legislation, confirm gubernatorial appointments, and set the state budget.';
-      if (o.includes('tx state house') || o.includes('state house') || o.includes('tx house'))
-        return 'The Texas House of Representatives has 150 members serving 2-year terms. All 150 seats are up in 2026. The House originates all revenue bills and sets the state budget.';
-      if (o.includes('district clerk'))
-        return 'The District Clerk maintains official court records for district courts, including civil, criminal, and family cases. 4-year term, elected countywide.';
-      if (o.includes('county clerk'))
-        return 'The County Clerk maintains official county records, processes elections, and records deeds, birth certificates, and marriage licenses. 4-year term.';
-      if (o.includes('county judge'))
-        return 'The County Judge serves as both the presiding judge of the County Court and the head of the Commissioner\'s Court — the governing body of the county. 4-year term.';
-      if (o.includes('commissioner'))
-        return 'County Commissioners serve on the Commissioner\'s Court — the governing body that sets the county budget, maintains roads and infrastructure, and oversees county services. 4-year term.';
-      if (o.includes('sheriff'))
-        return 'The Sheriff is the county\'s chief law enforcement officer, overseeing the county jail and providing law enforcement in unincorporated areas. 4-year term.';
-      if (o.includes('justice of the peace') || o.includes('j.p.') || o.includes('jp precinct'))
-        return 'Justice of the Peace courts handle small claims (under $20,000), Class C misdemeanors, and perform marriages. JP judges do not need to be licensed attorneys in Texas. 4-year term.';
-      if (o.includes('supreme court'))
-        return 'The Texas Supreme Court is the court of last resort for civil matters. Nine justices are elected statewide to overlapping 6-year terms. Texas is one of few states that elects its supreme court justices.';
-      if (o.includes('court of criminal appeals'))
-        return 'The Texas Court of Criminal Appeals is the court of last resort for criminal matters — a separate court from the civil Supreme Court. Nine judges serve staggered 6-year terms.';
-      if (o.includes('district court') || o.includes('district judge'))
-        return 'District Courts are the primary trial courts in Texas, handling civil cases, felony criminal cases, family law, and juvenile matters. Judges serve 4-year terms.';
-      if (o.includes('court of appeals'))
-        return 'Courts of Appeals are intermediate appellate courts that review decisions from trial courts. Texas has 14 Courts of Appeals. Justices serve 6-year terms.';
-      return null; // fall back to race.description
-    }
-
     const POS_COLOR  = { A:'text-blue-700',    B:'text-purple-700',    C:'text-red-700',    D:'text-slate-400' };
     const POS_BG     = { A:'bg-blue-50 border-blue-200',  B:'bg-purple-50 border-purple-200', C:'bg-red-50 border-red-200', D:'bg-slate-50 border-slate-200' };
     const POS_DOT    = { A:'bg-blue-500',  B:'bg-purple-500',  C:'bg-red-500',  D:'bg-slate-300' };
@@ -3825,14 +3763,14 @@
                           <button onClick={() => setTab(issue.id, 'opp')} style={segStyle(tab === 'opp', 'opp', opponent?.party)} className={segCls}>{oppHasInfo ? `${oppLastName}'s View` : `No ${missingParty} Opponent`}</button>
                         </div>
                         {/* Dark content — full-width text with the issue symbol as a soft watermark behind it */}
-                        <div key={tab} className="issue-enter relative overflow-hidden px-5 lg:px-7 py-5" style={{ background: contentBg }}>
+                        <div key={tab} className="issue-enter relative overflow-hidden px-5 lg:px-14 py-5" style={{ background: contentBg }}>
                           <img src={isFactsTab ? '/icons/illustrations/light-bulb-on.png' : artSrc} alt="" aria-hidden="true"
                             className="absolute inset-0 m-auto pointer-events-none object-contain"
                             style={{ maxWidth: '68%', maxHeight: '82%', opacity: 0.12 }}
                             onError={e => { e.currentTarget.style.display = 'none'; }} />
                           <div className="relative min-w-0">
                             <h4 className={`font-black uppercase text-base lg:text-lg mb-1 leading-tight ${headCls}`}>{aHead}</h4>
-                            <p className={`text-sm leading-snug ${bodyCls} ${aItalic ? 'italic' : ''}`}>{aBody}</p>
+                            <p className={`text-sm lg:text-base leading-snug ${bodyCls} ${aItalic ? 'italic' : ''}`}>{aBody}</p>
                           </div>
                         </div>
                       </>
@@ -3883,640 +3821,13 @@
       );
     }
 
-    // ── Race detail comparison table ────────────────────────────────────────
-    function RaceDetail({ race, issues, answers, ranks, checkedStatements: _checkedStmts={}, selected, onSelect, onBack, onNextRace, onPrevRace, onQuiz, onHome, inline=false }) {
-      const checkedStatements = _checkedStmts;
-      const candidates = race.candidates.filter(Boolean).slice(0, 2);
-      const hasAnswers = answers && Object.keys(answers).length > 0;
-      const currentSelected = selected[race.office];
-      const [profileCandidate, setProfileCandidate] = useState(null);
-      const [sourceModal, setSourceModal] = useState(null); // { candidate, issue }
-      const [panelOpen, setPanelOpen] = useState(false);
-      const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
-      useEffect(() => {
-        const onResize = () => setIsDesktop(window.innerWidth >= 1024);
-        window.addEventListener('resize', onResize);
-        return () => window.removeEventListener('resize', onResize);
-      }, []);
-      const drag = useRef({active:false, startX:0, startY:0, baseOffset:0, w:165, isHoriz:null});
-
-      // Scroll to top whenever the race changes
-      useEffect(() => { window.scrollTo(0, 0); }, [race.office]);
-
-      function getSlides() { return document.querySelectorAll('[data-slide]'); }
-
-      // 3-panel strip: [ME | CandA | CandB]
-      // All 3 columns = exactly 1/3 of screen width on any device
-      // panelOpen=false: shows ME+CandA | panelOpen=true: shows CandA+CandB
-
-      function getPanelW() { return window.innerWidth / 3; }
-
-      function swipeStart(clientX, clientY) {
-        const w = getPanelW();
-        drag.current = { active:true, startX:clientX, startY:clientY, baseOffset: panelOpen ? -w : 0, w, isHoriz:null };
-        getSlides().forEach(el => el.style.transition = 'none');
-      }
-
-      function swipeMove(clientX, clientY) {
-        if (!drag.current.active) return;
-        const dx = clientX - drag.current.startX;
-        const dy = clientY - drag.current.startY;
-        if (drag.current.isHoriz === null) {
-          if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return;
-          drag.current.isHoriz = Math.abs(dx) > Math.abs(dy);
-        }
-        if (!drag.current.isHoriz) return;
-        const offset = Math.max(-drag.current.w, Math.min(0, drag.current.baseOffset + dx));
-        getSlides().forEach(el => el.style.transform = `translateX(${offset}px)`);
-      }
-
-      function swipeEnd(clientX) {
-        if (!drag.current.active || !drag.current.isHoriz) { drag.current.active = false; return; }
-        drag.current.active = false;
-        const dx = clientX - drag.current.startX;
-        getSlides().forEach(el => el.style.transition = 'transform 0.3s cubic-bezier(0.4,0,0.2,1)');
-        let newOpen = panelOpen;
-        if (!panelOpen && dx < -40) newOpen = true;   // swipe left → show both candidates
-        else if (panelOpen && dx > 40) newOpen = false; // swipe right → back to ME
-        if (newOpen !== panelOpen) {
-          setPanelOpen(newOpen);
-        } else {
-          // Snap back using current panel width
-          const snapOffset = panelOpen ? -getPanelW() : 0;
-          getSlides().forEach(el => el.style.transform = `translateX(${snapOffset}px)`);
-        }
-      }
-
-      const touchHandlers = {
-        onTouchStart: e => swipeStart(e.touches[0].clientX, e.touches[0].clientY),
-        onTouchMove:  e => { if (drag.current.isHoriz) e.preventDefault(); swipeMove(e.touches[0].clientX, e.touches[0].clientY); },
-        onTouchEnd:   e => swipeEnd(e.changedTouches[0].clientX),
-        onMouseDown:  e => {
-          e.preventDefault(); // prevent text selection during drag
-          swipeStart(e.clientX, e.clientY);
-          document.body.style.cursor = 'grabbing';
-          const moveH = ev => swipeMove(ev.clientX, ev.clientY);
-          const upH   = ev => {
-            swipeEnd(ev.clientX);
-            document.body.style.cursor = '';
-            window.removeEventListener('mousemove', moveH);
-            window.removeEventListener('mouseup', upH);
-          };
-          window.addEventListener('mousemove', moveH);
-          window.addEventListener('mouseup', upH);
-        },
-      };
-
-      return (
-        <div className={inline ? '' : 'min-h-screen lg:bg-slate-100'}>
-        <div className={`bg-white flex flex-col ${inline ? '' : 'min-h-screen lg:max-w-5xl lg:mx-auto lg:shadow-xl'}`}>
-          {profileCandidate && (
-            <CandidateProfile
-              candidate={profileCandidate}
-              opponent={candidates.find(c => c && c.name !== profileCandidate.name) || null}
-              issues={issues}
-              answers={answers}
-              checkedStatements={checkedStatements}
-              ranks={ranks}
-              onClose={() => setProfileCandidate(null)}
-              onRateIssue={onQuiz ? (issueId) => onQuiz(issueId) : undefined}
-            />
-          )}
-
-          {/* Source modal */}
-          {sourceModal && (() => {
-            const { candidate, issue } = sourceModal;
-            const quote = candidate.quotes?.[issue.id];
-            const partyColor = candidate.party === 'D' ? 'text-blue-600' : candidate.party === 'R' ? 'text-red-600' : 'text-slate-600';
-            return (
-              <div className="fixed inset-0 z-50 flex items-center justify-center px-5" onClick={() => setSourceModal(null)}>
-                <div className="absolute inset-0 bg-black/40" />
-                <div className="relative bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
-                  {/* Header + close */}
-                  <div className="flex items-center justify-between px-5 pt-4 pb-0">
-                    <div />
-                    <button onClick={() => setSourceModal(null)}
-                      className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors">
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                  {/* Header */}
-                  <div className="flex items-center gap-3 mb-3 px-5 pt-2">
-                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 flex-shrink-0 bg-slate-100"
-                      style={{borderColor: candidate.party==='D'?'#3b82f6':candidate.party==='R'?'#ef4444':'#94a3b8'}}>
-                      <img src={candidate.photo||'/icons/candidate-undefined.png'} alt={candidate.name}
-                        className="w-full h-full object-cover object-top"
-                        onError={e=>{e.target.src='/icons/candidate-undefined.png';e.target.className='w-full h-full object-contain object-bottom';e.target.style.opacity='0.5';}} />
-                    </div>
-                    <div>
-                      <p className={`text-sm font-black uppercase tracking-wide ${partyColor}`}>{candidate.name}</p>
-                      <p className="text-[13px] font-black text-slate-400 uppercase tracking-widest">{issue.topic}</p>
-                    </div>
-                  </div>
-                  {/* Position text + source */}
-                  <div className="px-5 pb-5 space-y-3">
-                  {(() => {
-                    const cPos = candidate.positions?.[issue.id];
-                    const posText = issue[cPos]; // full optionA/B/C text
-                    const lastName = candidate.name.split(' ').slice(-1)[0];
-                    return posText ? (
-                      <p className={`text-base leading-relaxed ${POS_COLOR[cPos]}`}>
-                        <span className="font-semibold text-slate-500 not-italic">It is {lastName}'s position that </span>
-                        {posText.charAt(0).toLowerCase() + posText.slice(1)}
-                      </p>
-                    ) : null;
-                  })()}
-                  {quote ? (
-                    <div className="bg-slate-50 rounded-xl p-3">
-                      {quote.text && (
-                        <p className="text-slate-800 text-base leading-relaxed mb-2 italic">"{quote.text}"</p>
-                      )}
-                      {quote.source && (
-                        <p className="text-[11px] text-slate-500 font-semibold">— {quote.source}</p>
-                      )}
-                      {quote.url && (
-                        <a href={quote.url} target="_blank" rel="noopener noreferrer"
-                          className="inline-block mt-1 text-xs text-blue-600 font-bold underline">
-                          View source ↗
-                        </a>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="bg-slate-50 rounded-xl px-4 py-3 flex items-center gap-3">
-                      <svg className="w-5 h-5 text-slate-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                      </svg>
-                      <div>
-                        <p className="text-sm font-bold text-slate-500">Source coming soon</p>
-                        <p className="text-xs text-slate-400 mt-0.5">Quote or citation will appear here.</p>
-                      </div>
-                    </div>
-                  )}
-                  </div>
-                </div>
-              </div>
-            );
-          })()}
-
-          {/* Top nav — big impact header — hidden entirely when inline (Browse shows its own dark header) */}
-          <div className={`bg-slate-900 ${inline ? 'hidden' : 'sticky top-0 z-20'}`}>
-            {/* Nav row */}
-            <div className="flex items-center justify-between px-4 pt-3 pb-1" style={{position:'relative'}}>
-              {onPrevRace ? (
-                <button onClick={onPrevRace} className="text-white hover:text-slate-200 text-sm font-bold flex items-center gap-1 outline-none focus:outline-none">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/></svg>
-                  Prev
-                </button>
-              ) : (
-                <button onClick={onBack} className="text-white hover:text-slate-200 text-sm font-bold flex items-center gap-1 outline-none focus:outline-none">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/></svg>
-                  All Races
-                </button>
-              )}
-              {/* Home icon — center */}
-              <button onClick={onHome} className="absolute left-1/2 -translate-x-1/2 text-white/70 hover:text-white transition-colors outline-none focus:outline-none">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-              </button>
-              {onNextRace ? (
-                <button onClick={onNextRace} className="text-white hover:text-slate-200 text-sm font-bold flex items-center gap-1 outline-none focus:outline-none">
-                  Next
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
-                </button>
-              ) : (
-                <div className="w-14" />
-              )}
-            </div>
-            {isDesktop ? (
-              /* Desktop: title left, candidate action buttons right */
-              <div className="flex border-t border-white/10">
-                {/* Left 50%: race title + description */}
-                <div className="w-1/2 px-8 py-5 flex flex-col justify-center border-r border-white/10">
-                  <h1 className="text-white font-black uppercase leading-tight"
-                    style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'32px', letterSpacing:'0.04em'}}>
-                    {race.office.replace(/ of Texas$/i,'')}
-                  </h1>
-                  {(() => {
-                    const info = getOfficeInfo(race.office);
-                    const txt = info || race.description;
-                    return txt ? <p className="text-slate-400 text-xs mt-2 leading-relaxed max-w-md">{txt}</p> : null;
-                  })()}
-                </div>
-                {/* Right 50%: action buttons above each candidate column */}
-                <div className="w-1/2 flex">
-                  {candidates.filter(Boolean).slice(0,2).map(c => {
-                    const isChosen = currentSelected === c.name;
-                    const btnColor = isChosen?'bg-emerald-500 hover:bg-emerald-600':c.party==='D'?'bg-blue-600 hover:bg-blue-700':'bg-red-600 hover:bg-red-700';
-                    return (
-                      <div key={c.name} className="w-1/2 px-4 py-4 flex flex-col gap-2 border-r border-white/10">
-                        <div className="text-xs font-black text-slate-400 uppercase tracking-wide text-center mb-1">{c.name}</div>
-                        <button onClick={() => setProfileCandidate(c)}
-                          className={`py-2 rounded-lg border font-bold transition-colors ${c.party==='D'?'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100':'bg-red-50 border-red-200 text-red-700 hover:bg-red-100'}`}
-                          style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:'14px'}}>All Issues</button>
-                        <button onClick={() => onSelect(race.office, isChosen?null:c.name)}
-                          className={`py-2 rounded-lg text-white font-black transition-colors ${btnColor}`}
-                          style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:'14px'}}>
-                          {isChosen?'✓ On Ballot':`Add ${c.name.split(' ').slice(-1)[0]}`}
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ) : (
-              /* Mobile: centered title */
-              <div className="text-center px-4 pt-2 pb-4">
-                <h1 className="text-white font-black uppercase leading-none"
-                  style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'28px', letterSpacing:'0.04em'}}>
-                  {race.office.replace(/ of Texas$/i,'')}
-                </h1>
-                {(() => {
-                  const info = getOfficeInfo(race.office);
-                  return info ? (
-                    <p className="text-slate-400 text-[11px] mt-1.5 leading-relaxed max-w-sm mx-auto px-2">{info}</p>
-                  ) : race.description ? (
-                    <p className="text-slate-400 text-[11px] mt-1.5 leading-relaxed max-w-sm mx-auto px-2">{race.description}</p>
-                  ) : null;
-                })()}
-              </div>
-            )}
-          </div>
-
-          {(() => {
-            // Chosen candidate first
-            const colCands = currentSelected
-              ? [...candidates].sort((a,b) => a.name===currentSelected ? -1 : 1)
-              : candidates;
-            const DOC_PATH = "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z";
-            const candAccent = c => c.party==='D' ? '#3b82f6' : c.party==='R' ? '#ef4444' : '#94a3b8';
-            const candColor  = c => c.party==='D' ? 'text-blue-600' : c.party==='R' ? 'text-red-600' : 'text-slate-500';
-
-            // ── DESKTOP LAYOUT (>= 1024px): 4 equal columns, all visible, no sliding ──
-            if (isDesktop) {
-              const sortedIssues = [...(issues||[])].sort((a,b) => (ranks?.[b.id]||0)-(ranks?.[a.id]||0));
-              return (
-                <>
-                  {/* Desktop sticky header — when inline sticks below dark race header + browse nav */}
-                  <div className={`sticky z-10 bg-white border-b border-slate-300 shadow-sm flex ${inline ? 'top-[170px]' : 'top-[160px]'}`}>
-                    {/* Issue col */}
-                    <div className="w-1/4 border-r-2 border-slate-400 flex flex-col items-center justify-center py-3 gap-1.5">
-                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Issue</span>
-                      <div className="flex flex-col gap-0.5 mt-1">
-                        <div className="flex items-center gap-1.5 text-xs"><span className="text-emerald-500 font-black">✓</span><span className="text-slate-400">Match</span></div>
-                        <div className="flex items-center gap-1.5 text-xs"><span className="text-amber-400 font-black">~</span><span className="text-slate-400">Partial</span></div>
-                        <div className="flex items-center gap-1.5 text-xs"><span className="text-rose-400 font-black">✗</span><span className="text-slate-400">Differs</span></div>
-                      </div>
-                    </div>
-                    {/* ME col */}
-                    <div className="w-1/4 border-r-2 border-slate-400 flex flex-col items-center justify-center py-3 gap-1">
-                      <div className="w-14 h-14 rounded-full bg-slate-800 flex items-center justify-center">
-                        <span className="text-white font-black text-base">ME</span>
-                      </div>
-                      <span className="text-xs text-slate-400 font-bold uppercase tracking-wide">My View</span>
-                    </div>
-                    {/* Candidate columns — All Issues + Add buttons */}
-                    {colCands.map(c => {
-                      const isChosen = currentSelected === c.name;
-                      const btnAdd = isChosen
-                        ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
-                        : c.party==='D' ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                        : 'bg-red-600 hover:bg-red-700 text-white';
-                      const btnIssues = c.party==='D'
-                        ? 'bg-blue-50 border border-blue-200 text-blue-700 hover:bg-blue-100'
-                        : 'bg-red-50 border border-red-200 text-red-700 hover:bg-red-100';
-                      return (
-                        <div key={c.name} className={`w-1/4 border-r-2 border-slate-400 flex flex-col items-center gap-2 px-4 py-4 ${isChosen?'bg-emerald-50':''}`}>
-                          <button onClick={() => setProfileCandidate(c)}
-                            className={`px-5 py-1.5 rounded-full font-bold text-xs transition-colors ${btnIssues}`}
-                            style={{fontFamily:"'Barlow Condensed',sans-serif", letterSpacing:'0.05em'}}>All Issues</button>
-                          <button onClick={() => onSelect(race.office, isChosen ? null : c.name)}
-                            className={`px-5 py-1.5 rounded-full font-black text-xs transition-colors ${btnAdd}`}
-                            style={{fontFamily:"'Barlow Condensed',sans-serif", letterSpacing:'0.05em'}}>
-                            {isChosen ? '✓ On Ballot' : `Add ${c.name.split(' ').slice(-1)[0]}`}
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Desktop issue rows */}
-                  <div className={`divide-y divide-slate-100 ${inline ? 'overflow-y-auto no-scrollbar' : 'flex-1'}`} style={inline ? {maxHeight:'calc(100vh - 400px)'} : {}}>
-                    {sortedIssues.map((issue, idx) => {
-                      const voterPos = deriveVoterPos(issue.id, answers, checkedStatements);
-                      const voterAnswered = voterPos && voterPos !== 'D';
-                      const issueRank = ranks?.[issue.id] || 0;
-                      return (
-                        <div key={issue.id} className={`flex items-stretch min-h-[90px] ${idx%2===0?'bg-white':'bg-slate-100'}`}>
-                          {/* Issue col — large icon */}
-                          <div className="w-1/4 border-r-2 border-slate-400 flex flex-col items-center justify-center gap-2 px-4 py-4 text-center">
-                            <div className="w-16 h-16 rounded-2xl bg-slate-800 flex items-center justify-center shadow-sm">
-                              <img src={`/icons/Symbols/${issue.symbol}.png`} alt="" className="w-10 h-10 object-contain"
-                                onError={e=>{e.target.parentNode.style.background='#334155';e.target.style.display='none';}} />
-                            </div>
-                            <span className="text-xs font-black text-slate-700 uppercase tracking-wide leading-tight">{issue.topic}</span>
-                          </div>
-                          {/* ME col */}
-                          <div className="w-1/4 border-r-2 border-slate-400 flex flex-col items-center justify-center gap-1 py-3">
-                            {voterPos === 'D' ? (
-                              <button onClick={() => onQuiz?.(issue.id)} className="flex flex-col items-center gap-1 group">
-                                <div className="w-12 h-12 rounded-full border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center group-hover:border-blue-400 transition-colors">
-                                  <svg className="w-5 h-5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M18 12H6"/></svg>
-                                </div>
-                                <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wide">Skipped</span>
-                              </button>
-                            ) : voterAnswered ? (
-                              <button onClick={() => onQuiz?.(issue.id)} className="flex flex-col items-center gap-1 group">
-                                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-black border-2 group-hover:opacity-80 transition-opacity ${POS_BG[voterPos]} ${POS_COLOR[voterPos]}`}
-                                  style={{borderColor:voterPos==='A'?'#3b82f6':voterPos==='B'?'#7c3aed':voterPos==='C'?'#ef4444':'#94a3b8'}}>
-                                  {POS_LABEL[voterPos]?.slice(0,3)}
-                                </div>
-                                {issueRank > 0 && <div className="flex gap-0.5">{[1,2,3,4,5].map(d=><div key={d} className={`w-1.5 h-1.5 rounded-full ${d<=Math.round(issueRank/2)?'bg-slate-600':'bg-slate-200'}`}/>)}</div>}
-                              </button>
-                            ) : (
-                              <button onClick={() => onQuiz?.(issue.id)} className="flex flex-col items-center gap-1 group">
-                                <div className="w-12 h-12 rounded-full border-2 border-dashed border-slate-400 flex items-center justify-center group-hover:border-blue-400 transition-colors">
-                                  <svg className="w-6 h-6 text-slate-400 group-hover:text-blue-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/></svg>
-                                </div>
-                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Add View</span>
-                              </button>
-                            )}
-                          </div>
-                          {/* Candidate doc icon cols */}
-                          {colCands.map(c => {
-                            const cPos = c.positions?.[issue.id];
-                            const isMatch = voterAnswered && cPos === voterPos;
-                            const isPartial = voterAnswered && voterPos === 'B' && cPos && cPos !== 'D';
-                            const isMismatch = voterAnswered && voterPos && voterPos !== 'B' && cPos && cPos !== voterPos;
-                            return (
-                              <div key={c.name} className="w-1/4 border-r-2 border-slate-400 flex items-center justify-center py-3">
-                                {cPos && cPos !== 'D' ? (
-                                  <button onClick={() => setSourceModal({candidate:c, issue})} className="relative group active:scale-95 hover:scale-105 transition-transform">
-                                    <div className="relative px-3 py-2 rounded-2xl flex items-center justify-center transition-all duration-150"
-                                      style={{border:`2px solid ${candAccent(c)}`, boxShadow:`0 2px 8px ${candAccent(c)}33`, background:'white'}}
-                                      onMouseEnter={e=>{e.currentTarget.style.background=candAccent(c); e.currentTarget.querySelector('span').style.color='white';}}
-                                      onMouseLeave={e=>{e.currentTarget.style.background='white'; e.currentTarget.querySelector('span').style.color=candAccent(c);}}>
-                                      <span className="text-xs font-black uppercase tracking-widest transition-colors" style={{color: candAccent(c)}}>My View</span>
-                                      {/* Speech bubble tail */}
-                                      <span className="absolute -bottom-[9px] left-1/2 -translate-x-1/2 w-0 h-0"
-                                        style={{borderLeft:'7px solid transparent', borderRight:'7px solid transparent', borderTop:`7px solid ${candAccent(c)}`}}/>
-                                      <span className="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-0 h-0"
-                                        style={{borderLeft:'6px solid transparent', borderRight:'6px solid transparent', borderTop:'6px solid white'}}/>
-                                    </div>
-                                    {isMatch && <span className="absolute -top-1 -right-1 text-[9px] bg-emerald-500 text-white rounded-full w-4 h-4 flex items-center justify-center font-black">✓</span>}
-                                    {isPartial && <span className="absolute -top-1 -right-1 text-[9px] bg-amber-400 text-white rounded-full w-4 h-4 flex items-center justify-center font-black">~</span>}
-                                    {isMismatch && <span className="absolute -top-1 -right-1 text-[9px] bg-rose-400 text-white rounded-full w-4 h-4 flex items-center justify-center font-black">✗</span>}
-                                  </button>
-                                ) : <span className="text-slate-300 text-2xl">—</span>}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Desktop bottom bar — navigation only — hidden when inline */}
-                  <div className={`sticky bottom-0 bg-white border-t border-slate-200 shadow-lg flex px-6 py-2.5 gap-4 items-center ${inline ? 'hidden' : ''}`}>
-                    {onPrevRace
-                      ? <button onClick={onPrevRace} className="flex items-center gap-1.5 text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors" style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:'15px'}}><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/></svg>Prev Race</button>
-                      : <button onClick={onBack} className="flex items-center gap-1.5 text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors" style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:'15px'}}><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/></svg>All Races</button>}
-                    <div className="flex-1 flex justify-center">
-                      <button onClick={onBack} className="text-xs font-bold text-slate-400 hover:text-slate-700 transition-colors flex items-center gap-1">
-                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/></svg>
-                        Back to All Races
-                      </button>
-                    </div>
-                    {onNextRace && <button onClick={onNextRace} className="flex items-center gap-1.5 text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors" style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:'15px'}}>Next Race<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg></button>}
-                  </div>
-                </>
-              );
-            }
-            // 3-panel strip: [ME | CandA | CandB], container=250px, strip=375px (150%)
-            // panelOpen=false (default): translateX(0%)       → shows ME+CandA
-            // panelOpen=true:            translateX(-33.33%) → shows CandA+CandB
-            const SLIDE = { width:'150%', transform: panelOpen?'translateX(-33.33%)':'translateX(0%)', transition:'transform 0.3s cubic-bezier(0.4,0,0.2,1)' };
-            const P = '33.33%'; // panel width within 150% strip
-            return (
-              <>
-                {/* ── Sticky header ── */}
-                <div className={`sticky z-10 bg-white border-b border-slate-300 shadow-sm flex items-center overflow-hidden ${inline ? 'top-[115px]' : 'top-[88px]'}`}>
-                  {/* Frozen: Issue only */}
-                  <div className="self-stretch flex-shrink-0 border-r-2 border-slate-400 flex items-center justify-center" style={{width:'33.333%'}}>
-                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-wide">Issue</span>
-                  </div>
-                  {/* 3-panel swipeable header: ME | CandA | CandB */}
-                  <div style={{width:'66.666%',overflow:'hidden'}} {...touchHandlers}>
-                    <div className="flex" data-slide style={SLIDE}>
-                      {/* ME panel */}
-                      <div style={{width:P}} className="flex flex-col items-center justify-center gap-1.5 py-3 border-r-2 border-slate-400">
-                        <div className="w-14 h-14 rounded-full bg-slate-800 flex items-center justify-center">
-                          <span className="text-white font-black text-lg">ME</span>
-                        </div>
-                        <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wide">My View</span>
-                      </div>
-                      {/* Candidate panels */}
-                      {colCands.map((c, ci) => {
-                        const score = hasAnswers ? calcMatch(c, answers, checkedStatements, ranks) : null;
-                        const isChosen = currentSelected === c.name;
-                        return (
-                          <div key={c.name} style={{width:P}} className={`flex flex-col items-center justify-center gap-1.5 py-3 border-r border-slate-200 ${isChosen?'bg-emerald-50':''}`}>
-                            <button onClick={() => setProfileCandidate(c)} className="flex flex-col items-center gap-1 w-full px-1">
-                              <div className="w-14 h-14 rounded-full overflow-hidden border-[3px] bg-slate-200"
-                                style={{borderColor:candAccent(c)}}>
-                                <img src={c.photo||'/icons/candidate-undefined.png'} alt={c.name}
-                                  className="w-full h-full object-cover object-top"
-                                  onError={e=>{e.target.src='/icons/candidate-undefined.png';e.target.className='w-full h-full object-contain object-bottom';e.target.style.opacity='0.5';}} />
-                              </div>
-                              <div className="text-center mt-0.5">
-                                <div className="text-[14px] font-black text-slate-900 leading-tight">{c.name.split(' ').slice(-1)[0]}</div>
-                                <div className="text-[11px] text-slate-500">{c.name.split(' ').slice(0,-1).join(' ')}</div>
-                                {score !== null && <div className={`text-[10px] font-black ${score>=60?'text-emerald-600':score>=40?'text-amber-600':'text-rose-500'}`}>{score}%</div>}
-                                {isChosen && <div className="text-[10px] font-black text-emerald-600">✓ Chosen</div>}
-                              </div>
-                            </button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-
-                {/* ── Issue rows ── */}
-                <div className="flex-1 divide-y divide-slate-100">
-                  {issues && [...issues].sort((a, b) => (ranks?.[b.id]||0) - (ranks?.[a.id]||0)).map((issue, idx) => {
-                    const voterPos = answers?.[issue.id];
-                    const voterAnswered = voterPos && voterPos !== 'D';
-                    const issueRank = ranks?.[issue.id] || 0;
-                    return (
-                      <div key={issue.id} className={`flex items-stretch min-h-[70px] overflow-hidden ${idx%2===0?'bg-white':'bg-slate-100'}`}>
-                        {/* Frozen: Issue icon + name only */}
-                        <div className="flex-shrink-0 border-r-2 border-slate-400 flex flex-col items-center justify-center gap-2 text-center px-2 py-3" style={{width:'33.333%'}}>
-                          <div className="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center flex-shrink-0 shadow-sm">
-                            <img src={`/icons/Symbols/${issue.symbol}.png`} alt="" className="w-8 h-8 object-contain"
-                              onError={e=>{e.target.parentNode.style.background='#334155';e.target.style.display='none';}} />
-                          </div>
-                          <span className="text-[10px] font-black text-slate-700 uppercase tracking-wide leading-tight">{issue.topic}</span>
-                        </div>
-                        {/* 3-panel swipeable: ME | CandA | CandB */}
-                        <div style={{width:'66.666%',overflow:'hidden'}} {...touchHandlers}>
-                          <div className="flex h-full" data-slide style={SLIDE}>
-                            {/* ME panel */}
-                            <div style={{width:P}} className="flex flex-col items-center justify-center gap-1 py-2 border-r-2 border-slate-400">
-                              {voterPos === 'D' ? (
-                                /* Answered but not important */
-                                <button onClick={() => onQuiz?.(issue.id)} className="flex flex-col items-center gap-1 group">
-                                  <div className="w-12 h-12 rounded-full border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center group-hover:border-slate-400 transition-colors">
-                                    <svg className="w-5 h-5 text-slate-300 group-hover:text-slate-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                                      <path strokeLinecap="round" strokeLinejoin="round" d="M18 12H6" />
-                                    </svg>
-                                  </div>
-                                  <span className="text-[8px] font-bold text-slate-300 uppercase tracking-wide group-hover:text-slate-400">Skipped</span>
-                                </button>
-                              ) : voterAnswered ? (
-                                <button onClick={() => onQuiz?.(issue.id)} className="flex flex-col items-center gap-1 group">
-                                  <div className={`w-12 h-12 rounded-full flex items-center justify-center text-[10px] font-black border-2 group-hover:opacity-80 transition-opacity ${POS_BG[voterPos]} ${POS_COLOR[voterPos]}`}
-                                    style={{borderColor:voterPos==='A'?'#3b82f6':voterPos==='B'?'#7c3aed':voterPos==='C'?'#ef4444':'#94a3b8'}}>
-                                    {POS_LABEL[voterPos]?.slice(0,3)}
-                                  </div>
-                                  {issueRank > 0 && (
-                                    <div className="flex gap-0.5">
-                                      {[1,2,3,4,5].map(d => (
-                                        <div key={d} className={`w-1.5 h-1.5 rounded-full ${d<=Math.round(issueRank/2)?'bg-slate-600':'bg-slate-200'}`} />
-                                      ))}
-                                    </div>
-                                  )}
-                                </button>
-                              ) : (
-                                <button onClick={() => onQuiz?.(issue.id)} className="flex flex-col items-center gap-1 group">
-                                  <div className="w-12 h-12 rounded-full border-2 border-dashed border-slate-400 flex items-center justify-center group-hover:border-blue-400 transition-colors">
-                                    <svg className="w-6 h-6 text-slate-400 group-hover:text-blue-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                                    </svg>
-                                  </div>
-                                  <span className="text-[8px] font-bold text-slate-400 group-hover:text-blue-500 transition-colors uppercase tracking-wide">Add View</span>
-                                </button>
-                              )}
-                            </div> {/* end ME panel */}
-                            {/* Candidate panels */}
-                            {colCands.map(c => {
-                              const cPos = c.positions?.[issue.id];
-                              const isMatch = voterAnswered && cPos === voterPos;
-                              const isMismatch = voterAnswered && voterPos && cPos && cPos !== voterPos;
-                              return (
-                                <div key={c.name} style={{width:P}} className="flex items-center justify-center py-2 border-r border-slate-200">
-                                  {cPos && cPos !== 'D' ? (
-                                    <button onClick={() => setSourceModal({candidate:c, issue})} className="relative group active:scale-95 hover:scale-105 transition-transform">
-                                      <div className="relative px-2 py-1.5 rounded-xl flex items-center justify-center transition-all duration-150"
-                                        style={{border:`2px solid ${candAccent(c)}`, boxShadow:`0 2px 8px ${candAccent(c)}33`, background:'white'}}
-                                        onMouseEnter={e=>{e.currentTarget.style.background=candAccent(c); e.currentTarget.querySelector('span').style.color='white';}}
-                                        onMouseLeave={e=>{e.currentTarget.style.background='white'; e.currentTarget.querySelector('span').style.color=candAccent(c);}}>
-                                        <span className="text-[9px] font-black uppercase tracking-widest transition-colors" style={{color: candAccent(c)}}>My View</span>
-                                        <span className="absolute -bottom-[7px] left-1/2 -translate-x-1/2 w-0 h-0"
-                                          style={{borderLeft:'6px solid transparent', borderRight:'6px solid transparent', borderTop:`6px solid ${candAccent(c)}`}}/>
-                                        <span className="absolute -bottom-[4px] left-1/2 -translate-x-1/2 w-0 h-0"
-                                          style={{borderLeft:'5px solid transparent', borderRight:'5px solid transparent', borderTop:'5px solid white'}}/>
-                                      </div>
-                                      {isMatch && <span className="absolute -top-1 -right-1 text-[8px] bg-emerald-500 text-white rounded-full w-3.5 h-3.5 flex items-center justify-center font-black">✓</span>}
-                                      {isMismatch && <span className="absolute -top-1 -right-1 text-[8px] bg-rose-400 text-white rounded-full w-3.5 h-3.5 flex items-center justify-center font-black">✗</span>}
-                                    </button>
-                                  ) : (
-                                    <span className="text-slate-300 text-lg">—</span>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* ── Sticky bottom ── */}
-                <div className="sticky bottom-0 bg-white border-t border-slate-200 shadow-lg">
-                {/* Nav row: Prev + Next */}
-                <div className="flex px-3 py-2 gap-2">
-                  {onPrevRace ? (
-                    <button onClick={onPrevRace}
-                      className="flex-1 py-2 rounded-lg bg-slate-800 text-white flex items-center justify-center gap-1.5 hover:bg-slate-700 transition-colors"
-                      style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'15px', fontWeight:700}}>
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/></svg>
-                      Prev Race
-                    </button>
-                  ) : (
-                    <button onClick={onBack}
-                      className="flex-1 py-2 rounded-lg bg-slate-800 text-white flex items-center justify-center gap-1.5 hover:bg-slate-700 transition-colors"
-                      style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'15px', fontWeight:700}}>
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/></svg>
-                      All Races
-                    </button>
-                  )}
-                  {onNextRace && (
-                    <button onClick={onNextRace}
-                      className="flex-1 py-2 rounded-lg bg-slate-800 text-white flex items-center justify-center gap-1.5 hover:bg-slate-700 transition-colors"
-                      style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'15px', fontWeight:700}}>
-                      Next Race
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
-                    </button>
-                  )}
-                </div>
-                <div className="flex items-center justify-center py-1.5 border-t border-slate-100">
-                  <button onClick={onBack} className="text-[11px] font-bold text-slate-400 hover:text-slate-700 transition-colors flex items-center gap-1">
-                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/></svg>
-                    Back to All Races
-                  </button>
-                </div>
-                <div className="flex">
-                  <div style={{width:'33.333%'}} />
-                  <div style={{width:'66.666%',overflow:'hidden'}} {...touchHandlers}>
-                    <div className="flex" data-slide style={SLIDE}>
-                      {/* ME spacer */}
-                      <div style={{width:P}} />
-                      {/* Candidate buttons */}
-                      {colCands.map(c => {
-                        const isChosen = currentSelected === c.name;
-                        const btnColor = isChosen?'bg-emerald-500 hover:bg-emerald-600':c.party==='D'?'bg-blue-600 hover:bg-blue-700':'bg-red-600 hover:bg-red-700';
-                        return (
-                          <div key={c.name} style={{width:P}} className="px-2 pt-1 pb-2 space-y-1">
-                            {/* Candidate name label so buttons are clearly attributed */}
-                            <div className="text-center text-[10px] font-black text-slate-500 uppercase tracking-wide truncate">
-                              {c.name.split(' ').slice(-1)[0]}
-                            </div>
-                            <button onClick={() => setProfileCandidate(c)}
-                              className={`w-full py-1.5 rounded-lg border transition-colors ${c.party==='D'?'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100':'bg-red-50 border-red-200 text-red-700 hover:bg-red-100'}`}
-                              style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'13px', fontWeight:700, letterSpacing:'0.03em'}}>
-                              All Issues
-                            </button>
-                            <button onClick={() => onSelect(race.office, isChosen ? null : c.name)}
-                              className={`w-full py-1.5 rounded-lg text-white transition-colors ${btnColor}`}
-                              style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'13px', fontWeight:900, letterSpacing:'0.03em'}}>
-                              {isChosen ? '✓ On Ballot' : 'Add to Ballot'}
-                            </button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-                </div>
-              </>
-            );
-          })()}
-        </div>
-        </div>
-      );
-    }
-
-    function Browse({ county, counties, setCounty, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onHome, onBack = onHome, backLabel = '← Home', onQuiz, onRateIssue, initialRace, clearInitialRace, initialProfile, clearInitialProfile, focusIssueId, clearFocusIssue }) {
+    function Browse({ county, counties, setCounty, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onHome, onBack = onHome, backLabel = '← Home', onRateIssue, initialProfile, clearInitialProfile, focusIssueId, clearFocusIssue }) {
       const countyData = counties[county];
       const [activeTab, setActiveTab] = useState('federal');
-      const [expandedRaces, setExpandedRaces] = useState(new Set());
       const [showFilterModal, setShowFilterModal] = useState(false);
       const [browseProfile, setBrowseProfile] = useState(null); // {candidate, race}
       const [showAddr, setShowAddr] = useState(false);
+      const [pendingBallot, setPendingBallot] = useState(false);
 
       const TABS = [
         { key: 'federal',  label: 'Federal' },
@@ -4525,30 +3836,10 @@
         { key: 'judicial', label: 'Judicial' },
       ];
 
-      // Auto-open a race when returning from quiz
-      useEffect(() => {
-        if (initialRace && countyData) {
-          const sec = RACE_SECTIONS.find(s => (countyData[s.key]||[]).some(r => r.office === initialRace.office));
-          if (sec) {
-            setActiveTab(sec.key);
-            setExpandedRaces(prev => new Set([...prev, initialRace.office]));
-          }
-          clearInitialRace?.();
-        }
-      }, [initialRace]);
-
       // Reopen the candidate profile after returning from a single-issue "rate this" quiz.
       useEffect(() => {
         if (initialProfile) { setBrowseProfile(initialProfile); clearInitialProfile?.(); }
       }, [initialProfile]);
-
-      function toggleRace(office) {
-        setExpandedRaces(prev => {
-          const next = new Set(prev);
-          next.has(office) ? next.delete(office) : next.add(office);
-          return next;
-        });
-      }
 
       const races = filterRacesByDistrict(countyData[activeTab] || [], userDistricts);
       const selectedCount = Object.keys(selected).length;
@@ -4602,9 +3893,9 @@
           {showAddr && (
             <AddressModal county={county} accentColor="#3b82f6" accentColorDark="#1d4ed8"
               onCountyDetected={setCounty}
-              onClose={() => setShowAddr(false)}
-              onContinue={(districts) => { setUserDistricts(districts); setShowAddr(false); }}
-              onShowAll={() => setShowAddr(false)} />
+              onClose={() => { setShowAddr(false); setPendingBallot(false); }}
+              onContinue={(districts) => { setUserDistricts(districts); setShowAddr(false); if (pendingBallot) { setPendingBallot(false); onBallot(); } }}
+              onShowAll={pendingBallot ? undefined : () => setShowAddr(false)} />
           )}
 
           {/* Section header — solid banner naming the active section */}
@@ -4623,20 +3914,18 @@
               <div className="text-center py-16 text-slate-400 text-sm">No races in this category for your district.</div>
             )}
             {races.map(race => {
-              const isExpanded = expandedRaces.has(race.office);
               const isSelected = !!selected[race.office];
               const score = answers && Object.keys(answers).length > 0
                 ? Math.max(...race.candidates.filter(Boolean).map(c => calcMatch(c, answers, checkedStatements, ranks) || 0))
                 : null;
               return (
-                <div key={race.office} id={'race-'+race.office.replace(/\s+/g,'-')} className="rounded-2xl shadow-sm border border-slate-800" style={{overflow: isExpanded ? 'visible' : 'hidden'}}>
+                <div key={race.office} id={'race-'+race.office.replace(/\s+/g,'-')} className="rounded-2xl shadow-sm border border-slate-800 overflow-hidden">
                   {/* Dark header */}
                   <div className="sticky top-0 z-20 w-full flex flex-col lg:flex-row"
                     style={{background:'linear-gradient(135deg,#0f172a 0%,#1e293b 100%)'}}>
 
                     {/* Mobile: full-width title row / Desktop: left 50% (title + description) */}
-                    <button onClick={() => toggleRace(race.office)}
-                      className="w-full lg:w-1/2 flex text-left hover:brightness-110 transition-all cursor-pointer border-b border-white/10 lg:border-b-0 lg:border-r lg:border-white/20">
+                    <div className="w-full lg:w-1/2 flex text-left border-b border-white/10 lg:border-b-0 lg:border-r lg:border-white/20">
                       {/* Title col */}
                       <div className="flex-1 lg:w-1/2 px-4 py-2.5 lg:py-4 flex items-center justify-center lg:flex-col lg:items-center lg:justify-center border-r border-white/20">
                         {isSelected && <span className="text-sm text-emerald-400 font-bold mr-2 lg:mr-0 lg:mb-2">✓</span>}
@@ -4652,14 +3941,10 @@
                       </div>
                       {/* Description col — desktop only */}
                       <div className="hidden lg:flex w-1/2 px-5 py-5 flex-col justify-center">
-                        {(() => {
-                          const info = getOfficeInfo(race.office);
-                          const txt = info || race.description;
-                          return txt ? <p className="text-slate-400 text-xs leading-relaxed">{txt}</p> : null;
-                        })()}
+                        {race.description && <p className="text-slate-400 text-xs leading-relaxed">{formatDescription(race.description)}</p>}
                         {isSelected && <div className="text-xs text-emerald-400 font-bold mt-2">✓ {selected[race.office]}</div>}
                       </div>
-                    </button>
+                    </div>
 
                     {/* Candidate columns — 50/50 on mobile, 25/25 on desktop */}
                     <div className="w-full lg:w-1/2 flex relative">
@@ -4738,26 +4023,6 @@
                     </div>
                   </div>
 
-                  {/* Expanded inline grid */}
-                  {isExpanded && (
-                    <div>
-                      <RaceDetail
-                        race={race}
-                        issues={issues}
-                        answers={answers}
-                        ranks={ranks}
-                        checkedStatements={checkedStatements}
-                        selected={selected}
-                        onSelect={(office, name) => setSelected(prev => name ? {...prev, [office]: name} : Object.fromEntries(Object.entries(prev).filter(([k]) => k !== office)))}
-                        onBack={() => toggleRace(race.office)}
-                        onNextRace={null}
-                        onPrevRace={null}
-                        onQuiz={(id) => onQuiz(id, race)}
-                        onHome={onHome}
-                        inline={true}
-                      />
-                    </div>
-                  )}
                 </div>
               );
             })}
@@ -4768,8 +4033,8 @@
 
           {/* Fixed finish line — Build My Ballot always on screen */}
           <div className="fixed bottom-0 left-0 right-0 z-40 px-4 pt-3 pb-4" style={{background:'linear-gradient(to top, #0c1a2e 65%, rgba(12,26,46,0))'}}>
-            <button onClick={onBallot}
-              className="w-full max-w-5xl mx-auto flex items-center justify-center gap-2 py-3.5 rounded-full font-black text-sm uppercase tracking-widest text-white transition-all hover:brightness-110 active:scale-[0.99]"
+            <button onClick={() => { if (userDistricts) { onBallot(); } else { setPendingBallot(true); setShowAddr(true); } }}
+              className="w-full sm:w-auto sm:min-w-[340px] sm:px-10 max-w-md mx-auto flex items-center justify-center gap-2 py-3.5 rounded-full font-black text-sm uppercase tracking-widest text-white transition-all hover:brightness-110 active:scale-[0.99]"
               style={{background: ctaColors.grad, border: `1px solid ${ctaColors.border}`, letterSpacing:'0.12em', boxShadow: `0 8px 24px ${ctaColors.glow}`}}>
               <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
               {selectedCount > 0 ? `Build My Ballot · ${selectedCount} race${selectedCount !== 1 ? 's' : ''} →` : 'Build My Ballot →'}
@@ -4826,57 +4091,6 @@
             );
           })()}
         </div>
-      );
-    }
-
-    function BrowseRaceCard({ race, answers, ranks, checkedStatements, selected, onToggle }) {
-      const candidates = race.candidates.filter(Boolean);
-      const hasAnswers = answers && Object.keys(answers).length > 0;
-      const currentSelected = selected[race.office];
-
-      // Best-match hint when quiz taken
-      let matchHint = null;
-      if (hasAnswers && candidates.length >= 2) {
-        const scores = candidates.map(c => ({ name: c.name, score: calcMatch(c, answers, checkedStatements, ranks) })).filter(s => s.score !== null);
-        if (scores.length > 0) {
-          scores.sort((a, b) => b.score - a.score);
-          matchHint = `${scores[0].score}% match`;
-        }
-      }
-
-      return (
-        <button
-          onClick={onToggle}
-          className={`w-full px-4 py-4 flex items-center justify-between hover:bg-slate-50 active:bg-slate-100 transition-colors text-left bg-white ${currentSelected ? 'bg-emerald-50/50' : ''}`}
-        >
-          <div className="flex-1 min-w-0 mr-4">
-            <div className="font-black text-slate-900 text-[17px] leading-tight" style={{fontFamily:"'Barlow Condensed', sans-serif", letterSpacing:'0.01em'}}>{race.office.replace(/ of Texas$/i,'').replace(/ of the State of Texas$/i,'')}</div>
-            {currentSelected
-              ? <div className="text-xs text-emerald-600 font-semibold mt-1">✓ {currentSelected}</div>
-              : matchHint && <div className="text-xs text-slate-400 mt-1">{matchHint}</div>
-            }
-          </div>
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="flex -space-x-3">
-              {candidates.slice(0, 2).map(c => (
-                <div key={c.name}
-                  className={`w-11 h-11 rounded-full border-[3px] overflow-hidden bg-slate-200 ${c.party === 'D' ? 'border-blue-400' : c.party === 'R' ? 'border-red-400' : 'border-slate-300'}`}
-                  style={{flexShrink:0}}
-                >
-                  <img
-                    src={c.photo || '/icons/candidate-undefined.png'}
-                    alt={c.name}
-                    className="w-full h-full object-cover object-top"
-                    onError={e => { e.target.src='/icons/candidate-undefined.png'; e.target.className='w-full h-full object-contain object-bottom'; e.target.style.opacity='0.5'; }}
-                  />
-                </div>
-              ))}
-            </div>
-            <svg className="w-4 h-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-            </svg>
-          </div>
-        </button>
       );
     }
 
@@ -4964,25 +4178,37 @@
           const pageWpt = pdf.internal.pageSize.getWidth();   // 612
           const S = pageWpt / LAYOUT_W;                       // layout px → pt (0.75)
           const cScale = canvas.width / LAYOUT_W;             // canvas px per layout px (~2)
-          // Paginate into as many letter pages as the ballot needs (long county ballots overflow 2 pages).
-          // Snap each page break to the nearest safe row/section boundary so a candidate row is never cut in half.
+          // Exactly TWO letter pages: page 1 ends with the county races, page 2 starts at the
+          // Judicial band. Each page is scaled down (slightly, centered) if its content runs long.
           const pageHpt = pdf.internal.pageSize.getHeight();                 // 792
-          const pageHpx = Math.floor((pageHpt / pageWpt) * canvas.width);    // canvas px that fill one printed page
-          const breakYs = [];
-          page.querySelectorAll('.ballot-pick-row, [data-sec]').forEach(el => {
-            const y = Math.round((el.getBoundingClientRect().top - pageRect.top) * cScale);
-            if (y > 4) breakYs.push(y);
-          });
-          breakYs.sort((a, b) => a - b);
+          const judicial = page.querySelector('[data-sec="judicial"]');
           const slices = [];
-          let sy = 0;
-          while (sy < canvas.height) {
-            let target = sy + pageHpx;
-            if (target >= canvas.height) { slices.push([sy, canvas.height]); break; }
-            let snap = -1;
-            for (const b of breakYs) { if (b > sy + 60 && b <= target) snap = b; else if (b > target) break; }
-            const end = snap > 0 ? snap : target;
-            slices.push([sy, end]); sy = end;
+          if (judicial) {
+            // The clone html2canvas renders can reflow a few px vs the live page, so don't trust
+            // live coordinates — find the Judicial band (solid dark bar) in the canvas pixels,
+            // searching around the live-page estimate.
+            const approxY = Math.round((judicial.getBoundingClientRect().top - pageRect.top) * cScale);
+            let breakY = approxY;
+            try {
+              const cx = canvas.getContext('2d');
+              const x0 = Math.round(canvas.width * 0.15), x1 = Math.round(canvas.width * 0.85);
+              const win = Math.round(120 * cScale);
+              const yStart = Math.max(0, approxY - win), yEnd = Math.min(canvas.height, approxY + win);
+              const img = cx.getImageData(0, yStart, canvas.width, yEnd - yStart).data;
+              for (let y = yStart; y < yEnd; y++) {
+                let dark = 0, tot = 0;
+                for (let x = x0; x < x1; x += 8) {
+                  const i = ((y - yStart) * canvas.width + x) * 4;
+                  tot++;
+                  if (img[i] < 60 && img[i + 1] < 70 && img[i + 2] < 90) dark++;
+                }
+                if (dark / tot > 0.9) { breakY = y; break; }   // first row of the dark band
+              }
+            } catch (e) { /* tainted canvas etc. — fall back to the live estimate */ }
+            breakY = Math.max(0, breakY - Math.round(6 * cScale));  // small white margin above the band on page 2
+            slices.push([0, breakY], [breakY, canvas.height]);
+          } else {
+            slices.push([0, canvas.height]); // no judicial races (rare) — single page
           }
 
           slices.forEach(([y0, y1], i) => {
@@ -4990,11 +4216,14 @@
             const sh = y1 - y0;
             const sc = document.createElement('canvas'); sc.width = canvas.width; sc.height = sh;
             sc.getContext('2d').drawImage(canvas, 0, y0, canvas.width, sh, 0, 0, canvas.width, sh);
-            pdf.addImage(sc.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, pageWpt, sh * (pageWpt / canvas.width));
+            const imgHpt = sh * (pageWpt / canvas.width);
+            const fit = Math.min(1, pageHpt / imgHpt);       // shrink-to-fit if the slice runs past one page
+            const drawW = pageWpt * fit, drawX = (pageWpt - drawW) / 2;
+            pdf.addImage(sc.toDataURL('image/jpeg', 0.92), 'JPEG', drawX, 0, drawW, imgHpt * fit);
             const sliceTop = y0 / cScale, sliceBot = y1 / cScale;
             links.forEach(L => {
               if (L.r.y + L.r.h > sliceTop && L.r.y < sliceBot) {
-                pdf.link(L.r.x * S, (L.r.y - sliceTop) * S, L.r.w * S, L.r.h * S, { url: L.url });
+                pdf.link(drawX + L.r.x * S * fit, (L.r.y - sliceTop) * S * fit, L.r.w * S * fit, L.r.h * S * fit, { url: L.url });
               }
             });
           });
@@ -5043,8 +4272,9 @@
         <div className="min-h-screen" style={{background:'#e2e8f0'}}>
           {/* Screen-only nav bar — fixed so Save/Print/Back stay on screen while scrolling */}
           <div className="no-print" style={{height:'64px'}} />
-          <header className="no-print fixed top-0 left-0 right-0 z-40 px-3 py-3 flex items-center gap-2"
+          <header className="no-print fixed top-0 left-0 right-0 z-40 px-3 py-3"
             style={{background:'#0f172a', borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
+            <div className="flex items-center gap-2 mx-auto w-full" style={{maxWidth:'816px'}}>
             <button onClick={onBack}
               className="shrink-0 flex items-center gap-1 text-white text-sm font-black uppercase tracking-wide px-2.5 py-2.5 rounded-xl active:scale-95 transition-transform"
               style={{background:'rgba(255,255,255,0.12)', border:'1px solid rgba(255,255,255,0.25)'}}>
@@ -5069,6 +4299,7 @@
                 <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.7 10.7l6.6-3.4M8.7 13.3l6.6 3.4M18 8a3 3 0 10-3-3 3 3 0 003 3zM6 15a3 3 0 10-3-3 3 3 0 003 3zm12 7a3 3 0 10-3-3 3 3 0 003 3z"/></svg>
                 Share
               </button>
+            </div>
             </div>
           </header>
 
@@ -5112,12 +4343,12 @@
                   <div className="ballot-band" style={{background:'#0f172a', borderRadius:'8px', textAlign:'center', padding:'7px 12px 8px', marginBottom:'8px', fontFamily:"'Barlow Condensed',sans-serif", fontSize:'16px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.12em', color:'#fff', lineHeight:1.1}}>
                     {sec.label}
                   </div>
-                  <div className="ballot-picks">
+                  <div className={sec.key === 'judicial' ? 'ballot-picks ballot-picks-3' : 'ballot-picks'}>
                     {sectionCandidates.map(({ race, candidate }) => {
                       const partyColor = candidate.party === 'D' ? '#2563eb' : candidate.party === 'R' ? '#dc2626' : '#64748b';
                       const partyLabel = candidate.party === 'D' ? 'Democrat' : candidate.party === 'R' ? 'Republican' : candidate.party || 'Independent';
                       return (
-                        <div key={race.office} className="ballot-pick-row" style={{padding:'3px 0 7px'}}>
+                        <div key={race.office} className="ballot-pick-row" style={{padding:'2px 0 5px'}}>
                           <div style={{fontSize:'9px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.05em', color:'#64748b', lineHeight:1.2}}>{race.office}</div>
                           <div style={{fontSize:'13px', fontWeight:900, color:'#0f172a', lineHeight:1.3, marginTop:'1px'}}>
                             {candidate.name}
@@ -5133,10 +4364,10 @@
             })}
 
             {/* Key Dates & Times */}
-            <div style={{marginTop:'28px', borderTop:'2px solid #0f172a', paddingTop:'18px'}}>
-              <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'12px'}}>
-                <img src="/icons/illustrations/Time_to_Vote.png" alt="" style={{height:'48px', width:'auto', flexShrink:0}} onError={e=>{e.currentTarget.style.display='none';}} />
-                <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'26px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.06em', lineHeight:1, color:'#0f172a'}}>
+            <div style={{marginTop:'14px', borderTop:'2px solid #0f172a', paddingTop:'12px'}}>
+              <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'8px'}}>
+                <img src="/icons/illustrations/Time_to_Vote.png" alt="" style={{height:'38px', width:'auto', flexShrink:0}} onError={e=>{e.currentTarget.style.display='none';}} />
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'22px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.06em', lineHeight:1, color:'#0f172a'}}>
                   Key <span style={{color:'#2563eb'}}>Dates &amp; Times</span>
                 </div>
               </div>
@@ -5148,9 +4379,9 @@
                   {label:'Election Day', value:'Nov 4', sub:'2026', color:'#dc2626'},
                   {label:'Poll hours', value:'7 AM – 7 PM', sub:'every voting day', color:'#2563eb'},
                 ].map((d, i) => (
-                  <div key={i} style={{border:'1.5px solid #e2e8f0', borderTop:`4px solid ${d.color}`, borderRadius:'10px', padding:'10px 8px 9px', textAlign:'center', background:'#f8fafc'}}>
+                  <div key={i} style={{border:'1.5px solid #e2e8f0', borderTop:`4px solid ${d.color}`, borderRadius:'10px', padding:'7px 8px 6px', textAlign:'center', background:'#f8fafc'}}>
                     <div style={{fontSize:'9.5px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.08em', color:'#64748b'}}>{d.label}</div>
-                    <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'21px', fontWeight:900, color:'#0f172a', lineHeight:1.05, marginTop:'3px', whiteSpace:'nowrap'}}>{d.value}</div>
+                    <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'19px', fontWeight:900, color:'#0f172a', lineHeight:1.05, marginTop:'2px', whiteSpace:'nowrap'}}>{d.value}</div>
                     <div style={{fontSize:'9.5px', fontWeight:700, color:'#94a3b8', marginTop:'2px'}}>{d.sub}</div>
                   </div>
                 ))}
@@ -5158,7 +4389,7 @@
               {/* Registration helpers — two separate clickable boxes (distinct vote.org URLs, kept clickable in the PDF) */}
               <div className="ballot-locs" style={{marginTop:'10px', display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:'10px'}}>
                 <a href="https://www.vote.org/am-i-registered-to-vote/" target="_blank" rel="noopener noreferrer"
-                   style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'10px', background:'#eff6ff', border:'1px solid #bfdbfe', borderRadius:'10px', padding:'10px 14px', textDecoration:'none'}}>
+                   style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'10px', background:'#eff6ff', border:'1px solid #bfdbfe', borderRadius:'10px', padding:'8px 12px', textDecoration:'none'}}>
                   <div style={{minWidth:0}}>
                     <div style={{fontSize:'12.5px', fontWeight:900, color:'#0f172a', lineHeight:1.2}}>Not sure you're registered?</div>
                     <div style={{fontSize:'11.5px', color:'#2563eb', fontWeight:900, marginTop:'2px', lineHeight:1.3}}>Check your status →</div>
@@ -5166,7 +4397,7 @@
                   <span className="voteorg-svg" role="img" aria-label="vote.org" style={{flexShrink:0}} dangerouslySetInnerHTML={{__html: VOTEORG_SVG}} />
                 </a>
                 <a href="https://www.vote.org/register-to-vote/" target="_blank" rel="noopener noreferrer"
-                   style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'10px', background:'#f0fdf4', border:'1px solid #bbf7d0', borderRadius:'10px', padding:'10px 14px', textDecoration:'none'}}>
+                   style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'10px', background:'#f0fdf4', border:'1px solid #bbf7d0', borderRadius:'10px', padding:'8px 12px', textDecoration:'none'}}>
                   <div style={{minWidth:0}}>
                     <div style={{fontSize:'12.5px', fontWeight:900, color:'#0f172a', lineHeight:1.2}}>Not registered yet?</div>
                     <div style={{fontSize:'11.5px', color:'#16a34a', fontWeight:900, marginTop:'2px', lineHeight:1.3}}>Register to vote →</div>
@@ -5177,14 +4408,14 @@
             </div>
 
             {/* Polling locations — after candidates */}
-            <div style={{marginTop:'24px', borderTop:'2px solid #0f172a', paddingTop:'18px'}}>
+            <div style={{marginTop:'14px', borderTop:'2px solid #0f172a', paddingTop:'12px'}}>
               {/* Header row: title (left) + QR (right) */}
-              <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'16px', marginBottom:'14px'}}>
+              <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'16px', marginBottom:'12px'}}>
                 <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
-                  <img src="/icons/illustrations/Vote_Sign.png" alt="" style={{height:'46px', width:'auto', flexShrink:0}} onError={e=>{e.currentTarget.style.display='none';}} />
+                  <img src="/icons/illustrations/Vote_Sign.png" alt="" style={{height:'38px', width:'auto', flexShrink:0}} onError={e=>{e.currentTarget.style.display='none';}} />
                   <div>
-                    <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'11px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.28em', color:'#94a3b8', marginBottom:'1px'}}>Your Closest</div>
-                    <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'26px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.06em', lineHeight:1, color:'#0f172a'}}>
+                    <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'11px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.28em', color:'#94a3b8', marginBottom:'3px'}}>Your Closest</div>
+                    <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'22px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.06em', lineHeight:1, color:'#0f172a'}}>
                       <span style={{color:'#2563eb'}}>Polling</span> Locations
                     </div>
                   </div>
@@ -5198,7 +4429,7 @@
                   {name:'Closest Polling Location #3', addr:'Address TBA', when:'early'},
                   {name:'Closest Polling Location #4', addr:'Address TBA', when:'early'},
                 ].map((loc, i) => (
-                  <div key={i} className="ballot-loc-box" style={{display:'flex', alignItems:'center', gap:'12px', background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:'10px', padding:'12px 16px'}}>
+                  <div key={i} className="ballot-loc-box" style={{display:'flex', alignItems:'center', gap:'12px', background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:'10px', padding:'9px 14px'}}>
                     <div style={{flexShrink:0, width:'30px', height:'30px', borderRadius:'50%', background:'#2563eb', display:'flex', alignItems:'center', justifyContent:'center'}}>
                       <svg style={{width:'16px', height:'16px', color:'#fff'}} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
                     </div>
@@ -5217,25 +4448,25 @@
             </div>
 
             {/* What to bring — Texas voter ID checklist (turns the printout into a complete voting kit) */}
-            <div data-sec="bring" style={{marginTop:'24px', borderTop:'2px solid #0f172a', paddingTop:'18px'}}>
-              <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'12px'}}>
-                <img src="/icons/illustrations/What%20To%20Bring.png" alt="" style={{height:'48px', width:'auto', flexShrink:0}} onError={e=>{e.currentTarget.style.display='none';}} />
-                <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'26px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.06em', lineHeight:1, color:'#0f172a'}}>
+            <div data-sec="bring" style={{marginTop:'14px', borderTop:'2px solid #0f172a', paddingTop:'12px'}}>
+              <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'8px'}}>
+                <img src="/icons/illustrations/What%20To%20Bring.png" alt="" style={{height:'38px', width:'auto', flexShrink:0}} onError={e=>{e.currentTarget.style.display='none';}} />
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'22px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.06em', lineHeight:1, color:'#0f172a'}}>
                   What to <span style={{color:'#2563eb'}}>Bring</span>
                 </div>
               </div>
               <div className="ballot-checklist">
-                <div style={{background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:'10px', padding:'12px 16px'}}>
+                <div style={{background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:'10px', padding:'10px 14px'}}>
                   <div style={{fontSize:'11px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.06em', color:'#0f172a', marginBottom:'7px'}}>Any ONE of these photo IDs:</div>
                   {['Texas driver license', 'Texas personal ID card', 'Texas handgun license (LTC)', 'Texas Election ID certificate', 'U.S. passport (book or card)', 'U.S. military ID with photo', 'U.S. citizenship certificate with photo'].map((id, i) => (
-                    <div key={i} style={{display:'flex', alignItems:'center', gap:'8px', padding:'2.5px 0'}}>
+                    <div key={i} style={{display:'flex', alignItems:'center', gap:'8px', padding:'1.5px 0'}}>
                       <span style={{flexShrink:0, width:'13px', height:'13px', border:'1.5px solid #94a3b8', borderRadius:'3px'}} />
                       <span style={{fontSize:'11.5px', color:'#334155', lineHeight:1.25}}>{id}</span>
                     </div>
                   ))}
                   <div style={{fontSize:'10px', color:'#64748b', marginTop:'7px', lineHeight:1.35, fontStyle:'italic'}}>Expired up to 4 years is still OK. Age 70+? Any expiration works.</div>
                 </div>
-                <div style={{background:'#fffbeb', border:'1px solid #fde68a', borderRadius:'10px', padding:'12px 16px'}}>
+                <div style={{background:'#fffbeb', border:'1px solid #fde68a', borderRadius:'10px', padding:'10px 14px'}}>
                   <div style={{fontSize:'11px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.06em', color:'#0f172a', marginBottom:'7px'}}>Good to know:</div>
                   {[
                     'Bring this printed ballot — it\'s legal to use it in the booth',
@@ -5243,7 +4474,7 @@
                     'No photo ID? Ask for a "Reasonable Impediment Declaration"',
                     'Phones must stay in your pocket inside the polling place',
                   ].map((tip, i) => (
-                    <div key={i} style={{display:'flex', alignItems:'flex-start', gap:'8px', padding:'3px 0'}}>
+                    <div key={i} style={{display:'flex', alignItems:'flex-start', gap:'8px', padding:'2px 0'}}>
                       <span style={{flexShrink:0, color:'#d97706', fontWeight:900, fontSize:'12px', lineHeight:'1.2'}}>★</span>
                       <span style={{fontSize:'11.5px', color:'#334155', lineHeight:1.3}}>{tip}</span>
                     </div>
@@ -5689,8 +4920,6 @@
       const [focusIssueId, setFocusIssueId] = useState(null); // when returning from a single-issue "Do you match?" quiz, the issue card to auto-open + scroll to (the payoff)
       const [editTarget, setEditTarget] = useState(null); // {candidate, race} when on the /<slug>/edit candidate submission page
       const rateIssueReturn = (id, ret, profile) => { setQuizReturnScreen(ret); setReopenProfile(profile || null); setStartIssueId(id || null); setQuizEntryIssueId(id || null); setScreen('quiz'); };
-      const [returnToRace, setReturnToRace] = useState(null);   // { office } → go back to RaceDetail after quiz
-      const [initialRace, setInitialRace] = useState(null);     // passed to Browse to auto-open a race
       const [browseReturn, setBrowseReturn] = useState('landing'); // screen to return to from Compare/Browse
       const [resultsReturn, setResultsReturn] = useState('landing'); // screen to return to from Pre-Ballot (results)
       const [ballotReturn, setBallotReturn] = useState('landing'); // screen to return to from the printable Ballot's Back
@@ -5860,11 +5089,6 @@
                 setStartIssueId(null);
                 if (reopenProfile) setFocusIssueId(issue.id); // reopened profile should land on this issue, expanded, showing the match verdict
                 setScreen(ret);
-              } else if (returnToRace) {
-                setInitialRace(returnToRace);
-                setReturnToRace(null);
-                setStartIssueId(null);
-                setScreen('browse');
               } else {
                 // Return to the landing grid in picker mode so the user chooses
                 // the next issue visually instead of being auto-advanced.
@@ -5885,8 +5109,7 @@
               } else {
                 setStartIssueId(null);
                 setQuizEntryIssueId(null);
-                if (returnToRace) { setInitialRace(returnToRace); setReturnToRace(null); setScreen('browse'); }
-                else if (pendingScreen === 'summary') setScreen('summary');
+                if (pendingScreen === 'summary') setScreen('summary');
                 else setScreen('landing');
               }
             }}
@@ -5975,9 +5198,7 @@
             onBallot={() => { setBallotReturn('results'); setScreen('ballot'); }}
             onBack={() => setScreen(resultsReturn)}
             onBrowse={() => { setBrowseReturn('results'); setScreen('browse'); }}
-            onCompare={(race) => { setBrowseReturn('results'); setInitialRace(race.office); setScreen('browse'); }}
             onAddress={() => setScreen('address')}
-            onQuiz={(id, race) => { setStartIssueId(id || null); setQuizEntryIssueId(id || null); if (race) setReturnToRace({ office: race.office }); setScreen('quiz'); }}
             onRateIssue={(id, profile) => rateIssueReturn(id, 'results', profile)}
             initialProfile={reopenProfile}
             clearInitialProfile={() => setReopenProfile(null)}
@@ -6021,15 +5242,7 @@
             onHome={() => setScreen('landing')}
             onBack={() => setScreen(browseReturn)}
             backLabel={browseReturn === 'landing' ? '← Home' : '← Back'}
-            onQuiz={(id, race) => {
-              setStartIssueId(id || null);
-              setQuizEntryIssueId(id || null);
-              if (race) setReturnToRace({ office: race.office });
-              setScreen('quiz');
-            }}
             onRateIssue={(id, profile) => rateIssueReturn(id, 'browse', profile)}
-            initialRace={initialRace}
-            clearInitialRace={() => setInitialRace(null)}
             initialProfile={reopenProfile}
             clearInitialProfile={() => setReopenProfile(null)}
             focusIssueId={focusIssueId}
