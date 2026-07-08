@@ -4135,6 +4135,23 @@
           const bannerA = page.querySelector('a[href*="voteyourviews.org"]'); if (bannerA) links.push({ r: rel(bannerA), url: 'https://voteyourviews.org' });
           page.querySelectorAll('a[href*="vote.org"], a[href*="google.com/maps"], a[href*="maps.apple"]').forEach(a => links.push({ r: rel(a), url: a.href }));
 
+          // html2canvas misplaces text inside tight colored boxes (draws it ~5px low), so pill badges
+          // and section bands get repainted directly onto the captured canvas afterwards. Their
+          // geometry MUST be measured here, pre-capture, in the same coordinate space as the link
+          // rects — html2canvas can leave the live page scrolled/reflowed on mobile, so rects taken
+          // after capture land in the wrong place. (And never swap them for data-URL images in the
+          // clone: mobile Safari snapshots before those decode — blank bands/badges.)
+          const repaints = [];
+          page.querySelectorAll('.ballot-badge, .ballot-band').forEach(el => {
+            const r = rel(el); if (!r.w || !r.h) return;
+            const st = getComputedStyle(el);
+            repaints.push({ r, text: el.textContent.trim().toUpperCase(),
+              bg: st.backgroundColor, color: st.color, fontWeight: st.fontWeight,
+              fontSize: parseFloat(st.fontSize), fontFamily: st.fontFamily,
+              letterSpacing: parseFloat(st.letterSpacing) || 0,
+              radius: Math.min(parseFloat(st.borderRadius) || 0, r.h / 2) });
+          });
+
           const canvas = await html2canvas(page, { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 900,
             onclone: (doc) => {
               // html2canvas re-runs CSS animations on its clone — disable them so we don't capture a mid-fade (grayed-out) frame.
@@ -4142,36 +4159,24 @@
             }
           });
 
-          // html2canvas misplaces text inside tight colored boxes (draws it ~5px low), so redraw
-          // pill badges and section bands directly onto the captured canvas. (Previously these were
-          // swapped for data-URL images inside the clone, but mobile Safari captured them before the
-          // images decoded — blank bands/badges in the PDF. Painting the canvas is deterministic.)
           {
-            const cScaleFix = canvas.width / LAYOUT_W;
+            const k = canvas.width / LAYOUT_W;   // layout px → canvas px
             const ctx = canvas.getContext('2d');
-            const overdraw = (selector) => {
-              page.querySelectorAll(selector).forEach(el => {
-                const r = el.getBoundingClientRect(); if (!r.width || !r.height) return;
-                const st = getComputedStyle(el);
-                const x0 = (r.left - pageRect.left) * cScaleFix, y0 = (r.top - pageRect.top) * cScaleFix;
-                const w = r.width * cScaleFix, h = r.height * cScaleFix;
-                const rad = Math.min(parseFloat(st.borderRadius) || 0, r.height / 2) * cScaleFix;
-                ctx.save();
-                ctx.beginPath();
-                if (ctx.roundRect) ctx.roundRect(x0, y0, w, h, rad); else ctx.rect(x0, y0, w, h);
-                ctx.clip();
-                ctx.fillStyle = st.backgroundColor;
-                ctx.fillRect(x0, y0, w, h);
-                ctx.fillStyle = st.color;
-                ctx.font = `${st.fontWeight} ${parseFloat(st.fontSize) * cScaleFix}px ${st.fontFamily}`;
-                if ('letterSpacing' in ctx) ctx.letterSpacing = ((parseFloat(st.letterSpacing) || 0) * cScaleFix) + 'px';
-                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                ctx.fillText(el.textContent.trim().toUpperCase(), x0 + w / 2, y0 + h / 2 + cScaleFix);
-                ctx.restore();
-              });
-            };
-            overdraw('.ballot-badge');
-            overdraw('.ballot-band');
+            repaints.forEach(p => {
+              const x0 = p.r.x * k, y0 = p.r.y * k, w = p.r.w * k, h = p.r.h * k;
+              ctx.save();
+              ctx.beginPath();
+              if (ctx.roundRect) ctx.roundRect(x0, y0, w, h, p.radius * k); else ctx.rect(x0, y0, w, h);
+              ctx.clip();
+              ctx.fillStyle = p.bg;
+              ctx.fillRect(x0, y0, w, h);
+              ctx.fillStyle = p.color;
+              ctx.font = `${p.fontWeight} ${p.fontSize * k}px ${p.fontFamily}`;
+              if ('letterSpacing' in ctx) ctx.letterSpacing = (p.letterSpacing * k) + 'px';
+              ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+              ctx.fillText(p.text, x0 + w / 2, y0 + h / 2 + k);
+              ctx.restore();
+            });
           }
 
           const { jsPDF } = window.jspdf;
