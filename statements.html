@@ -11,6 +11,10 @@
     body { font-family: 'Inter', sans-serif; background: #0f172a; color: #e2e8f0; }
     h1, h2, h3 { font-family: 'Barlow Condensed', sans-serif; }
     textarea { resize: vertical; }
+    details > summary { list-style: none; }
+    details > summary::-webkit-details-marker { display: none; }
+    .chev { transition: transform 0.2s; }
+    details[open] > summary .chev { transform: rotate(90deg); }
   </style>
 </head>
 <body class="min-h-screen">
@@ -26,61 +30,71 @@
 
   <!-- Intro -->
   <div class="max-w-3xl mx-auto px-6 py-8">
-    <div class="bg-slate-800 border border-slate-600 rounded-xl p-5 mb-8">
+    <div class="bg-slate-800 border border-slate-600 rounded-xl p-5 mb-4">
       <p class="text-slate-300 text-sm leading-relaxed">
-        These are the belief statements shown to voters in the quiz. Each statement is shown as a swipe card — voters react with <strong class="text-white">agree</strong> or <strong class="text-white">disagree</strong>. Use the form below each statement to suggest an edit. Submissions go to a review sheet for approval before any change is made to the live app.
+        These are the belief statements shown to voters in the quiz. For each statement, mark <strong class="text-white">Okay</strong> if it reads well, or <strong class="text-white">Suggest edit</strong> to propose a rewrite. When you've reviewed all 3 statements in an issue, add your name + email at the bottom to submit.
       </p>
     </div>
 
+    <!-- Guided tour entry -->
+    <button onclick="VYVTutorial.open()"
+      class="w-full mb-8 py-3.5 rounded-xl font-black text-sm uppercase tracking-widest text-slate-900 transition-all hover:brightness-110 active:scale-[0.99]"
+      style="background:linear-gradient(135deg,#f59e0b,#d97706);letter-spacing:0.14em;box-shadow:0 8px 24px rgba(217,119,6,0.35)">
+      ★ New here? Take the 60-second tour
+    </button>
+
     <div id="statements-container">
-      <p class="text-slate-500 text-sm">Loading statements...</p>
+      <p class="text-slate-500 text-sm">Loading statements…</p>
     </div>
   </div>
 
   <!-- Submission confirmation toast -->
   <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-sm font-semibold px-5 py-3 rounded-full shadow-xl opacity-0 transition-opacity duration-300 pointer-events-none z-50">
-    ✓ Suggestion submitted — thank you!
+    ✓ Submitted — thank you!
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script src="/tutorial.js"></script>
   <script>
     const SHEET_ID = '1V1oaEy6ToV3LZt0et9bIWEJQbPrYZg73tDxGelhiFn8';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyq0l2PJfmQW6LbR_j-R4ooOyHP5Zvrr-RfexaTr9ugVo-F8oAFHSbI9xyQPrlhCmA/exec';
 
     async function loadStatements() {
       const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Statements`;
       try {
         const res = await fetch(url);
         const text = await res.text();
-        // Strip gviz's junk trailing empty columns — a malformed empty-quote in the header otherwise
-        // makes PapaParse merge the header with row 1, dropping the first statement (Reproductive Rights #1).
         const clean = text.replace(/\r/g, '').split('\n').map(l => l.replace(/(,"")+\s*$/, '')).join('\n');
         const { data } = Papa.parse(clean, { header: true, skipEmptyLines: true });
         const built = {};
+        const perspectives = {};
         data.forEach(r => {
           const issue = (r.issue || '').trim();
           const text  = (r.text  || '').trim();
+          const persp = (r['Party Perspective'] || '').trim();
           if (issue && text) {
             if (!built[issue]) built[issue] = [];
             built[issue].push(text);
+            if (persp && !perspectives[issue]) perspectives[issue] = persp;
           }
         });
+        window.ISSUE_PERSPECTIVES = perspectives;
         return Object.keys(built).length > 0 ? built : null;
       } catch (_) { return null; }
     }
-
-    // ── Google Form config ────────────────────────────────────────────────────
-    // Replace FORM_ID and entry IDs after creating your Google Form
-    // Form fields: Issue (entry.ISSUE), Statement # (entry.STMT_NUM),
-    //              Current Text (entry.CURRENT), Suggested Edit (entry.SUGGESTION),
-    //              Reason (entry.REASON)
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyq0l2PJfmQW6LbR_j-R4ooOyHP5Zvrr-RfexaTr9ugVo-F8oAFHSbI9xyQPrlhCmA/exec';
 
     function formatDateTime(d) {
       return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) +
         ' · ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
     }
 
-    // ── Render ────────────────────────────────────────────────────────────────
+    function escapeHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // State: reactions[topic][idx] = { status: 'okay' | 'edit', suggestion, reason }
+    const reactions = {};
+
     function render() {
       const container = document.getElementById('statements-container');
       container.innerHTML = '';
@@ -91,118 +105,247 @@
       }
 
       Object.entries(window.ISSUE_STATEMENTS).forEach(([topic, stmts]) => {
-        const section = document.createElement('div');
-        section.className = 'mb-12';
+        const persp = (window.ISSUE_PERSPECTIVES && window.ISSUE_PERSPECTIVES[topic]) || '';
+        const isLeft = persp.toLowerCase() === 'left';
+        const isRight = persp.toLowerCase() === 'right';
+        const perspColor = isLeft ? '#3b82f6' : isRight ? '#ef4444' : '#94a3b8';
+        const perspBg    = isLeft ? 'rgba(59,130,246,0.12)' : isRight ? 'rgba(239,68,68,0.12)' : 'rgba(148,163,184,0.12)';
+        const perspLabel = isLeft ? 'Liberal' : isRight ? 'Conservative' : '—';
+        const perspName  = persp ? persp.charAt(0).toUpperCase() + persp.slice(1).toLowerCase() : '—';
 
-        const heading = document.createElement('h2');
-        heading.className = 'text-2xl font-black uppercase tracking-widest text-white mb-4 pb-2 border-b border-slate-700';
-        heading.textContent = topic;
-        section.appendChild(heading);
+        if (!reactions[topic]) reactions[topic] = {};
+
+        const details = document.createElement('details');
+        details.className = 'mb-4 rounded-2xl overflow-hidden border border-slate-700 bg-slate-900/50';
+        details.dataset.topic = topic;
+
+        // Summary (collapsed header)
+        const summary = document.createElement('summary');
+        summary.className = 'cursor-pointer px-5 py-4 flex items-center gap-3 hover:bg-slate-800/60 transition-colors';
+        summary.innerHTML = `
+          <span class="chev text-slate-500 text-sm">▶</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <span class="text-lg font-black uppercase tracking-wider text-white" style="font-family:'Barlow Condensed',sans-serif">${escapeHtml(topic)}</span>
+              <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full" style="color:${perspColor};background:${perspBg};border:1px solid ${perspColor}66">${perspName} perspective</span>
+            </div>
+            <div class="flex items-center gap-1.5 mt-1 text-[11px] text-slate-400">
+              <img src="./icons/thumbs_up.png" alt="Agree" style="width:14px;height:14px;object-fit:contain;display:inline-block;vertical-align:middle" />
+              <span>Agree</span>
+              <span class="text-slate-600">=</span>
+              <span style="color:${perspColor};font-weight:700">${perspLabel} position</span>
+            </div>
+          </div>
+          <span class="progress-badge text-[11px] font-bold text-slate-500 shrink-0" data-topic="${escapeHtml(topic)}">0 / ${stmts.length}</span>
+        `;
+        details.appendChild(summary);
+
+        // Body
+        const body = document.createElement('div');
+        body.className = 'px-5 pb-5 pt-2 space-y-3';
 
         stmts.forEach((text, idx) => {
           const card = document.createElement('div');
-          card.className = 'bg-slate-800 border border-slate-700 rounded-xl p-5 mb-4';
-
+          card.className = 'bg-slate-800/70 border border-slate-700 rounded-xl p-4';
+          card.dataset.stmtIdx = idx;
           card.innerHTML = `
-            <div class="flex gap-3 items-start mb-4">
-              <span class="shrink-0 w-6 h-6 rounded-full bg-slate-600 text-slate-300 text-xs font-black flex items-center justify-center">${idx + 1}</span>
-              <p class="text-white text-sm leading-relaxed">${text}</p>
+            <div class="flex gap-3 items-start mb-3">
+              <span class="shrink-0 w-6 h-6 rounded-full bg-slate-600 text-slate-200 text-xs font-black flex items-center justify-center">${idx + 1}</span>
+              <p class="text-white text-sm leading-relaxed flex-1">${escapeHtml(text)}</p>
             </div>
-            <details class="group">
-              <summary class="cursor-pointer text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-blue-400 transition-colors list-none flex items-center gap-1">
-                <span class="group-open:hidden">▶ Suggest an edit</span>
-                <span class="hidden group-open:inline">▼ Suggest an edit</span>
-              </summary>
-              <form class="mt-4 space-y-3 suggest-form"
-                    data-issue="${topic}"
-                    data-stmt="${idx + 1}"
-                    data-current="${text.replace(/"/g, '&quot;')}">
-                <div>
-                  <label class="block text-xs font-bold text-slate-400 uppercase tracking-wide mb-1">Your suggested edit</label>
-                  <textarea name="suggestion" rows="3"
-                    class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
-                    placeholder="Paste the full revised statement here…"></textarea>
-                </div>
-                <div>
-                  <label class="block text-xs font-bold text-slate-400 uppercase tracking-wide mb-1">Reason / notes (optional)</label>
-                  <textarea name="reason" rows="2"
-                    class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
-                    placeholder="Why this change? Any context?"></textarea>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                  <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wide mb-1">Your name</label>
-                    <input type="text" name="submitter_name"
-                      class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
-                      placeholder="First Last" />
-                  </div>
-                  <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wide mb-1">Email</label>
-                    <input type="email" name="submitter_email"
-                      class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
-                      placeholder="you@example.com" />
-                  </div>
-                </div>
-                <button type="submit"
-                  class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-black uppercase tracking-widest px-4 py-2 rounded-lg transition-colors">
-                  Submit Suggestion
-                </button>
-              </form>
-            </details>
+            <div class="flex flex-wrap gap-2 stmt-actions">
+              <button type="button" data-action="okay"
+                class="okay-btn px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest bg-emerald-600/20 border border-emerald-600/50 text-emerald-300 hover:bg-emerald-600/30 transition-colors">
+                ✓ Okay
+              </button>
+              <button type="button" data-action="edit"
+                class="edit-btn px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest bg-amber-600/20 border border-amber-600/50 text-amber-300 hover:bg-amber-600/30 transition-colors">
+                ✎ Suggest edit
+              </button>
+              <span class="status-pill hidden ml-auto text-[11px] font-bold uppercase tracking-widest self-center"></span>
+            </div>
+            <div class="edit-panel hidden mt-3 space-y-2">
+              <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wide">Your suggested rewrite</label>
+              <textarea name="suggestion" rows="3"
+                class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                placeholder="Paste the full revised statement here…"></textarea>
+              <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wide">Reason / notes (optional)</label>
+              <textarea name="reason" rows="2"
+                class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                placeholder="Why this change?"></textarea>
+            </div>
           `;
 
-          section.appendChild(card);
+          // Wire buttons
+          const okayBtn = card.querySelector('.okay-btn');
+          const editBtn = card.querySelector('.edit-btn');
+          const editPanel = card.querySelector('.edit-panel');
+          const statusPill = card.querySelector('.status-pill');
+          const suggestion = card.querySelector('textarea[name="suggestion"]');
+          const reason = card.querySelector('textarea[name="reason"]');
+
+          function paint(state) {
+            // Reset visuals
+            okayBtn.classList.remove('ring-2','ring-emerald-400','bg-emerald-600/40');
+            editBtn.classList.remove('ring-2','ring-amber-400','bg-amber-600/40');
+            statusPill.classList.add('hidden');
+            editPanel.classList.add('hidden');
+            if (state === 'okay') {
+              okayBtn.classList.add('ring-2','ring-emerald-400','bg-emerald-600/40');
+              statusPill.textContent = '✓ Marked okay';
+              statusPill.style.color = '#6ee7b7';
+              statusPill.classList.remove('hidden');
+            } else if (state === 'edit') {
+              editBtn.classList.add('ring-2','ring-amber-400','bg-amber-600/40');
+              editPanel.classList.remove('hidden');
+              statusPill.textContent = '✎ Edit suggested';
+              statusPill.style.color = '#fcd34d';
+              statusPill.classList.remove('hidden');
+            }
+          }
+
+          okayBtn.addEventListener('click', () => {
+            reactions[topic][idx] = { status: 'okay', original: text };
+            paint('okay');
+            updateProgress(topic);
+          });
+          editBtn.addEventListener('click', () => {
+            const prev = reactions[topic][idx] || {};
+            reactions[topic][idx] = { status: 'edit', original: text, suggestion: prev.suggestion || '', reason: prev.reason || '' };
+            paint('edit');
+            suggestion.value = reactions[topic][idx].suggestion;
+            reason.value = reactions[topic][idx].reason;
+            setTimeout(() => suggestion.focus(), 50);
+          });
+          suggestion.addEventListener('input', () => {
+            if (reactions[topic][idx]) reactions[topic][idx].suggestion = suggestion.value;
+          });
+          reason.addEventListener('input', () => {
+            if (reactions[topic][idx]) reactions[topic][idx].reason = reason.value;
+          });
+
+          // Rehydrate if user re-opens
+          const existing = reactions[topic][idx];
+          if (existing) {
+            if (existing.suggestion) suggestion.value = existing.suggestion;
+            if (existing.reason) reason.value = existing.reason;
+            paint(existing.status);
+          }
+
+          body.appendChild(card);
         });
 
-        container.appendChild(section);
-      });
+        // Submit block at bottom of issue
+        const submitBlock = document.createElement('div');
+        submitBlock.className = 'mt-4 pt-4 border-t border-slate-700 space-y-3';
+        submitBlock.innerHTML = `
+          <p class="text-[11px] uppercase tracking-widest text-slate-400 font-bold">Submit your review for this issue</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input type="text" name="submitter_name" placeholder="Your name"
+              class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" />
+            <input type="email" name="submitter_email" placeholder="you@example.com"
+              class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" />
+          </div>
+          <div class="flex items-center gap-3">
+            <button type="button" class="submit-issue-btn bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-500 text-white text-xs font-black uppercase tracking-widest px-5 py-2.5 rounded-lg transition-colors" disabled>
+              Submit review
+            </button>
+            <span class="submit-hint text-[11px] text-slate-500">Review all ${stmts.length} statements to enable.</span>
+          </div>
+        `;
+        body.appendChild(submitBlock);
 
-      // Attach submit handlers
-      document.querySelectorAll('.suggest-form').forEach(form => {
-        form.addEventListener('submit', handleSubmit);
+        const submitBtn = submitBlock.querySelector('.submit-issue-btn');
+        const submitHint = submitBlock.querySelector('.submit-hint');
+        const nameInput = submitBlock.querySelector('input[name="submitter_name"]');
+        const emailInput = submitBlock.querySelector('input[name="submitter_email"]');
+
+        submitBtn.addEventListener('click', () => submitIssue(topic, stmts, submitBtn, submitHint, nameInput, emailInput));
+
+        details.appendChild(body);
+        container.appendChild(details);
+
+        updateProgress(topic);
       });
     }
 
-    function handleSubmit(e) {
-      e.preventDefault();
-      const form = e.target;
-      const issue      = form.dataset.issue;
-      const stmtNum    = form.dataset.stmt;
-      const current    = form.dataset.current;
-      const suggestion = form.querySelector('[name="suggestion"]').value.trim();
-      const reason     = form.querySelector('[name="reason"]').value.trim();
-      const name       = form.querySelector('[name="submitter_name"]').value.trim();
-      const email      = form.querySelector('[name="submitter_email"]').value.trim();
+    function updateProgress(topic) {
+      const stmts = window.ISSUE_STATEMENTS[topic] || [];
+      const done = Object.keys(reactions[topic] || {}).length;
+      const total = stmts.length;
+      const details = document.querySelector(`details[data-topic="${CSS.escape(topic)}"]`);
+      if (!details) return;
+      const badge = details.querySelector('.progress-badge');
+      if (badge) {
+        badge.textContent = `${done} / ${total}`;
+        badge.classList.toggle('text-emerald-400', done === total);
+        badge.classList.toggle('text-slate-500', done !== total);
+      }
+      const btn = details.querySelector('.submit-issue-btn');
+      const hint = details.querySelector('.submit-hint');
+      if (btn) {
+        const ready = done === total;
+        btn.disabled = !ready;
+        if (hint) hint.textContent = ready ? 'Ready — add your name + email and submit.' : `Review all ${total} statements to enable. (${done}/${total} done)`;
+      }
+    }
 
-      if (!suggestion) {
-        alert('Please enter your suggested edit before submitting.');
+    function submitIssue(topic, stmts, btn, hint, nameInput, emailInput) {
+      const name  = nameInput.value.trim();
+      const email = emailInput.value.trim();
+      if (!name || !email) {
+        alert('Please enter your name and email before submitting.');
         return;
       }
-
-      const btn = form.querySelector('button[type="submit"]');
+      const entries = reactions[topic] || {};
+      // Only submit statements that got a real "edit" — okays are still logged as approvals.
       btn.disabled = true;
       btn.textContent = 'Submitting…';
 
-      const params = new URLSearchParams({
-        issue,
-        stmtNum:     `Statement ${stmtNum}`,
-        currentText: current,
-        suggestion,
-        reason,
-        name,
-        email,
-        submitted:   formatDateTime(new Date()),
+      const submitted = formatDateTime(new Date());
+      const tasks = stmts.map((text, idx) => {
+        const r = entries[idx] || {};
+        const params = new URLSearchParams({
+          issue: topic,
+          stmtNum: `Statement ${idx + 1}`,
+          currentText: text,
+          status: r.status || 'unreviewed',
+          suggestion: r.suggestion || '',
+          reason: r.reason || '',
+          name,
+          email,
+          submitted,
+        });
+        return fetch(`${APPS_SCRIPT_URL}?${params.toString()}`, { mode: 'no-cors' }).catch(() => {});
       });
 
-      fetch(`${APPS_SCRIPT_URL}?${params.toString()}`, { mode: 'no-cors' })
-        .catch(() => {})
-        .finally(() => {
-          btn.disabled = false;
-          btn.textContent = 'Submit Suggestion';
-          form.reset();
-          form.closest('details').removeAttribute('open');
-          showToast();
-        });
+      Promise.all(tasks).finally(() => {
+        const details = document.querySelector(`details[data-topic="${CSS.escape(topic)}"]`);
+        // Mark submitted state on the details element + badge
+        if (details) {
+          details.dataset.submitted = 'true';
+          const badge = details.querySelector('.progress-badge');
+          if (badge) {
+            badge.textContent = '✓ Submitted';
+            badge.classList.remove('text-slate-500','text-emerald-400');
+            badge.classList.add('text-emerald-400');
+          }
+          details.open = false;
+          const next = details.nextElementSibling;
+          if (next && next.tagName === 'DETAILS') {
+            next.open = true;
+            requestAnimationFrame(() => next.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+          } else {
+            requestAnimationFrame(() => details.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+          }
+        }
+        btn.disabled = false;
+        btn.textContent = 'Re-submit review';
+        btn.classList.remove('bg-blue-600','hover:bg-blue-500');
+        btn.classList.add('bg-emerald-600','hover:bg-emerald-500');
+        if (hint) hint.textContent = 'Submitted — edit any response above and click Re-submit to send an update.';
+        showToast();
+      });
     }
 
     function showToast() {

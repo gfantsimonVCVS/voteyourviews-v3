@@ -23,6 +23,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@babel/standalone@7.23.10/babel.min.js"></script>
   <script src="https://unpkg.com/papaparse@5/papaparse.min.js"></script>
+  <script src="/tutorial.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
@@ -126,12 +127,17 @@
     .ballot-picks { column-count: 2; column-gap: 28px; }
     .ballot-pick-row { break-inside: avoid; -webkit-column-break-inside: avoid; page-break-inside: avoid; }
     /* Printable letter page — the desktop sheet the PDF is modeled on (WYSIWYG) */
-    .ballot-page { width: 816px; max-width: 100%; margin: 24px auto 40px; background: #fff; padding: 52px 60px 38px; box-shadow: 0 6px 28px rgba(0,0,0,0.12); }
+    /* container-type: the ballot's responsive rules key off the SHEET's width (not the
+       viewport) so the live page and the html2canvas PDF clone lay out identically —
+       otherwise link positions and page breaks measured live don't match the capture. */
+    .ballot-page { width: 816px; max-width: 100%; margin: 24px auto 40px; background: #fff; padding: 52px 60px 38px; box-shadow: 0 6px 28px rgba(0,0,0,0.12); container-type: inline-size; }
     .ballot-banner { width: 100%; max-width: 460px; height: auto; display: block; margin: 0 auto; }
-    .voteorg-svg svg { height: 30px; width: auto; display: block; }
-    @media (max-width: 880px) { .ballot-page { padding: 24px 18px 28px; margin: 0 auto; box-shadow: none; } }
-    /* Ballot mobile responsive */
-    @media (max-width: 640px) {
+    .ballot-date-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .ballot-checklist { display: grid; grid-template-columns: 1.2fr 1fr; gap: 14px; }
+    @container (max-width: 640px) {
+      .ballot-date-tiles { grid-template-columns: repeat(2, 1fr); }
+      .ballot-checklist { grid-template-columns: 1fr; }
+      .ballot-locs { grid-template-columns: 1fr !important; }
       .ballot-title { font-size: 24px !important; }
       .ballot-subtitle { font-size: 12px !important; }
       .ballot-matching { font-size: 22px !important; }
@@ -139,6 +145,9 @@
       .ballot-picks { column-count: 1 !important; }
       .ballot-dates { grid-template-columns: 1fr !important; }
     }
+    .voteorg-svg svg { height: 30px; width: auto; display: block; }
+    @media (max-width: 880px) { .ballot-page { padding: 24px 18px 28px; margin: 0 auto; box-shadow: none; } }
+    /* Ballot mobile responsive rules live in the @container block above (keyed to sheet width, not viewport) */
 
     @media print {
       /* Hide everything except the ballot */
@@ -1324,7 +1333,12 @@
       const [districts, setDistricts] = useState(null);
       const [outOfArea, setOutOfArea] = useState(null);   // county name when unsupported
       const [signupEmail, setSignupEmail] = useState('');
-      const [signupStatus, setSignupStatus] = useState(null); // null|invalid|sending|done
+      const [signupStatus, setSignupStatus] = useState(null); // null|invalid|sending|sent
+      // Return from the Wrong County Modal to the main address screen
+      function resetToMain() {
+        setOutOfArea(null); setSignupStatus(null); setSignupEmail('');
+        if (inputRef.current) { inputRef.current.value = ''; inputRef.current.style.fontStyle = 'normal'; }
+      }
       const inputRef = useRef(null);
       const exploreAddrRef = useRef(null);   // real courthouse address used silently while the field shows a friendly "test address" label
 
@@ -1345,17 +1359,21 @@
         handleSearch(realAddr);
       }
       const exploreChoices = onShowAll ? (
-        <div className="mt-1 pt-4 border-t border-white/10 text-center">
-          <p className="text-white text-base font-black mb-2.5">Just exploring? <span className="text-amber-300">Pick a county to test with.</span></p>
-          <div className="flex gap-2">
+        <div className="mt-5 mb-4 rounded-2xl px-4 pt-4 pb-5 text-center relative"
+             style={{background:'linear-gradient(160deg,rgba(251,191,36,0.14),rgba(217,119,6,0.07))', border:'1.5px solid rgba(251,191,36,0.55)', boxShadow:'0 6px 20px rgba(217,119,6,0.15)'}}>
+          <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-[0.18em] whitespace-nowrap"
+                style={{background:'#f59e0b', color:'#0f172a'}}>No Address Needed</span>
+          <p className="text-white text-base font-black mt-1.5 mb-1">Just exploring?</p>
+          <p className="text-amber-200/90 text-xs leading-snug mb-3.5">Take the guide for a test drive — choose a live county below.</p>
+          <div className="flex gap-2.5">
             <button onClick={() => exploreCounty('hays')}
-              className="flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-[0.98] hover:bg-white/10"
-              style={{background:'rgba(255,255,255,0.06)', border:'1.5px solid #fcd34d', color:'#fff', letterSpacing:'0.06em'}}>
+              className="flex-1 py-3 rounded-xl text-[11px] whitespace-nowrap font-black uppercase tracking-widest transition-all active:scale-[0.98] hover:brightness-110"
+              style={{background:'linear-gradient(135deg,#fbbf24,#d97706)', color:'#0f172a', letterSpacing:'0.06em', boxShadow:'0 4px 14px rgba(217,119,6,0.4)'}}>
               Hays County →
             </button>
             <button onClick={() => exploreCounty('travis')}
-              className="flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-[0.98] hover:bg-white/10"
-              style={{background:'rgba(255,255,255,0.06)', border:'1.5px solid #fcd34d', color:'#fff', letterSpacing:'0.06em'}}>
+              className="flex-1 py-3 rounded-xl text-[11px] whitespace-nowrap font-black uppercase tracking-widest transition-all active:scale-[0.98] hover:brightness-110"
+              style={{background:'linear-gradient(135deg,#fbbf24,#d97706)', color:'#0f172a', letterSpacing:'0.06em', boxShadow:'0 4px 14px rgba(217,119,6,0.4)'}}>
               Travis County →
             </button>
           </div>
@@ -1368,21 +1386,28 @@
         setSignupStatus('sending');
         try {
           if (MAILING_LIST_URL) {
-            await fetch(MAILING_LIST_URL, {
-              method: 'POST',
-              mode: 'no-cors',
-              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-              body: JSON.stringify({
-                email,
-                county: outOfArea || '',
-                address: (inputRef.current && inputRef.current.value) || '',
-                source: 'voteyourviews-beta',
-                ts: new Date().toISOString()
-              })
-            });
+            // Don't let a slow/dead endpoint strand the user on "Adding you…" —
+            // give the request 4s, then move on (no-cors hides the response anyway).
+            await Promise.race([
+              fetch(MAILING_LIST_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                  email,
+                  county: outOfArea || '',
+                  address: (inputRef.current && inputRef.current.value) || '',
+                  source: 'voteyourviews-beta',
+                  ts: new Date().toISOString()
+                })
+              }),
+              new Promise(resolve => setTimeout(resolve, 4000))
+            ]);
           }
         } catch (e) { /* no-cors hides the response; treat as sent */ }
-        setSignupStatus('done');
+        // Confirm on the button itself, then return to the address screen
+        setSignupStatus('sent');
+        setTimeout(resetToMain, 1800);
       }
 
       useEffect(() => {
@@ -1512,17 +1537,21 @@
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 pb-4" onClick={onClose}>
           <div className="absolute inset-0" style={{background:'rgba(0,0,0,0.92)'}} />
           <div className="relative w-full max-w-md rounded-2xl overflow-hidden shadow-2xl"
-               style={{background:'linear-gradient(160deg,#1e1b4b,#0f172a)', border:`1.5px solid ${btnColor}66`}}
+               style={outOfArea
+                 ? {background:'linear-gradient(160deg,#3b2606,#0f172a 55%)', border:'1.5px solid rgba(251,191,36,0.6)'}
+                 : {background:'linear-gradient(160deg,#1e1b4b,#0f172a)', border:`1.5px solid ${btnColor}66`}}
                onClick={e => e.stopPropagation()}>
 
             <div className="relative px-6 pt-5 pb-2">
-              <button onClick={onClose} className="absolute top-4 right-5 text-slate-300 hover:text-white text-2xl leading-none font-black">✕</button>
+              <button onClick={outOfArea ? resetToMain : onClose}
+                className="absolute top-1.5 right-1.5 w-10 h-10 flex items-center justify-center rounded-full text-white text-xl leading-none font-black transition-all hover:brightness-125 active:scale-95"
+                style={{background:'rgba(255,255,255,0.15)', border:'1px solid rgba(255,255,255,0.3)'}}>✕</button>
               {outOfArea ? (
                 <div className="flex flex-col items-center text-center pt-1">
                   <img src="icons/VoteYourViews_Logo_White.png" alt="VoteYourViews.org" className="mb-4" style={{height:'70px', width:'auto'}} />
-                  <h2 className="text-white font-black text-3xl leading-tight">
+                  <h2 className="text-white font-black text-2xl sm:text-3xl leading-tight">
                     Not available in<br/>
-                    <span style={{color: '#fcd34d'}}>{outOfArea}</span>…&nbsp;<span style={{color: '#ef4444'}}>YET!!!</span>
+                    <span className="whitespace-nowrap" style={{color: '#fcd34d'}}>{outOfArea}</span> — <span style={{color: '#ef4444'}}>yet!</span>
                   </h2>
                 </div>
               ) : (
@@ -1538,72 +1567,41 @@
 
             <div className="px-6 py-4">
               {outOfArea ? (
-                signupStatus === 'done' ? (
-                  <div className="text-center py-2">
-                    <div className="mx-auto mb-4 flex items-center justify-center w-16 h-16 rounded-full"
-                         style={{background:`${btnColor}26`, border:`1.5px solid ${btnColor}`}}>
-                      <span className="text-4xl" role="img" aria-label="check">✅</span>
-                    </div>
-                    <h3 className="text-white font-black text-2xl mb-2">You're on the list!</h3>
-                    <p className="text-slate-200 text-base leading-relaxed mb-4">
-                      We'll email you the moment the guide goes live for <strong className="text-white">{outOfArea}</strong>.
-                    </p>
-                    <p className="text-slate-300 text-sm leading-relaxed mb-5">
-                      In the meantime, explore how it works with our <strong className="text-white">Hays or Travis County</strong> candidates. 👇
-                    </p>
-                    {onShowAll ? (
-                      <div className="flex gap-2 mb-2">
-                        <button onClick={() => exploreCounty('hays')}
-                          className="flex-1 py-3 text-white font-black rounded-xl text-sm uppercase tracking-widest transition-all hover:brightness-110 active:scale-[0.98]"
-                          style={{background:`linear-gradient(90deg,${btnColorDark},${btnColor})`, letterSpacing:'0.06em'}}>
-                          Hays County →
-                        </button>
-                        <button onClick={() => exploreCounty('travis')}
-                          className="flex-1 py-3 text-white font-black rounded-xl text-sm uppercase tracking-widest transition-all hover:brightness-110 active:scale-[0.98]"
-                          style={{background:`linear-gradient(90deg,${btnColorDark},${btnColor})`, letterSpacing:'0.06em'}}>
-                          Travis County →
-                        </button>
-                      </div>
-                    ) : null}
-                    <button onClick={onClose}
-                      className="w-full py-2 text-slate-400 hover:text-white text-sm font-medium transition-colors">
-                      Done
-                    </button>
-                  </div>
-                ) : (
+                  /* Wrong County Modal — address resolved to a county we don't cover yet */
                   <>
-                    <div className="rounded-xl px-4 py-4 mb-4"
-                         style={{background:'rgba(255,255,255,0.05)', border:`1px solid ${btnColor}55`}}>
-                      <p className="text-slate-200 text-base leading-relaxed">
-                        If you want to know when <strong className="text-white">{outOfArea}</strong> is available… 👇
-                      </p>
-                    </div>
+                    <p className="text-slate-200 text-base leading-relaxed text-center mb-4">
+                      If you want to know when <strong className="text-white">{outOfArea}</strong> is available… 👇
+                    </p>
                     <input
+                      key="signup-email"
                       type="email"
                       value={signupEmail}
                       onChange={e => { setSignupEmail(e.target.value); if (signupStatus === 'invalid') setSignupStatus(null); }}
-                      placeholder="enter your email address"
-                      className="w-full px-4 py-3.5 rounded-xl text-base text-white placeholder-slate-400 focus:outline-none border mb-2 transition-colors"
-                      style={{background:'rgba(255,255,255,0.10)', borderColor: signupStatus === 'invalid' ? '#f87171' : `${btnColor}88`}}
+                      placeholder="Enter your email address"
+                      className="w-full px-4 py-3.5 rounded-xl text-base focus:outline-none border-2 mb-4 transition-colors"
+                      style={{background:'#f8fafc', color:'#0f172a', borderColor: signupStatus === 'invalid' ? '#f87171' : 'transparent', boxShadow:'inset 0 1px 3px rgba(0,0,0,0.15)'}}
+                      onFocus={e => { if (signupStatus !== 'invalid') e.currentTarget.style.borderColor = btnColor; }}
+                      onBlur={e => { if (signupStatus !== 'invalid') e.currentTarget.style.borderColor = 'transparent'; }}
                       onKeyDown={e => e.key === 'Enter' && handleNotify()}
                     />
                     {signupStatus === 'invalid' && <p className="text-sm text-red-400 mb-2">Please enter a valid email address.</p>}
-                    <button onClick={handleNotify} disabled={signupStatus === 'sending'}
-                      className="w-full py-3.5 text-white font-black rounded-xl text-base mb-2 transition-all disabled:opacity-50 uppercase tracking-widest hover:brightness-110 active:scale-[0.98]"
-                      style={{background:`linear-gradient(90deg,${btnColorDark},${btnColor})`, letterSpacing:'0.12em'}}>
-                      {signupStatus === 'sending' ? 'Adding you…' : 'Keep Me Posted →'}
+                    <button onClick={handleNotify} disabled={signupStatus === 'sending' || signupStatus === 'sent'}
+                      className="w-full py-3.5 font-black rounded-full text-base mb-2 transition-all uppercase tracking-widest hover:brightness-110 active:scale-[0.98]"
+                      style={signupStatus === 'sent'
+                        ? {background:'linear-gradient(90deg,#059669,#10b981)', color:'#fff', letterSpacing:'0.12em'}
+                        : {background:'linear-gradient(135deg,#fbbf24,#d97706)', color:'#0f172a', letterSpacing:'0.12em', boxShadow:'0 6px 18px rgba(217,119,6,0.4)', opacity: signupStatus === 'sending' ? 0.6 : 1}}>
+                      {signupStatus === 'sent' ? "✓ You're on the list!" : signupStatus === 'sending' ? 'Adding you…' : 'Keep Me Posted →'}
                     </button>
-                    <button onClick={() => { setOutOfArea(null); setSignupStatus(null); setSignupEmail(''); if (inputRef.current) inputRef.current.value=''; }}
+                    <p className="text-xs text-slate-500 text-center mb-1">We'll only email you about this guide. No spam, ever.</p>
+                    <button onClick={resetToMain}
                       className="w-full py-2 text-slate-400 hover:text-white text-sm font-medium transition-colors">
                       ← Try a different address
                     </button>
-                    {exploreChoices}
-                    <p className="text-xs text-slate-500 text-center mt-3">We'll only email you about this guide. No spam, ever.</p>
                   </>
-                )
               ) : !districts ? (
                 <>
                   <input
+                    key="address-search"
                     ref={inputRef}
                     type="text"
                     name="vyv-address-search"
@@ -1611,16 +1609,18 @@
                     autoCorrect="off"
                     autoCapitalize="off"
                     spellCheck="false"
-                    placeholder="enter your address"
-                    className="w-full px-4 py-3.5 rounded-xl text-base text-white placeholder-slate-400 focus:outline-none border mb-2 transition-colors"
-                    style={{background:'rgba(255,255,255,0.10)', borderColor:`${btnColor}88`}}
+                    placeholder="Enter your address"
+                    className="w-full px-4 py-3.5 rounded-xl text-base focus:outline-none border-2 mb-4 transition-colors"
+                    style={{background:'#f8fafc', color:'#0f172a', borderColor:'transparent', boxShadow:'inset 0 1px 3px rgba(0,0,0,0.15)'}}
+                    onFocus={e => e.currentTarget.style.borderColor = btnColor}
+                    onBlur={e => e.currentTarget.style.borderColor = 'transparent'}
                     onInput={e => { exploreAddrRef.current = null; e.currentTarget.style.fontStyle = 'normal'; }}
                     onKeyDown={e => e.key === 'Enter' && handleSearch()}
                   />
                   {error && <p className="text-sm text-red-400 mb-2">{error}</p>}
                   <button onClick={handleSearch} disabled={isSearching}
-                    className="w-full py-3.5 text-white font-black rounded-xl text-base mb-2 transition-all disabled:opacity-50 uppercase tracking-widest hover:brightness-110 active:scale-[0.98]"
-                    style={{background:`linear-gradient(90deg,${btnColorDark},${btnColor})`, letterSpacing:'0.12em'}}>
+                    className="w-full py-3.5 text-white font-black rounded-full text-base mb-2 transition-all disabled:opacity-50 uppercase tracking-widest hover:brightness-110 active:scale-[0.98]"
+                    style={{background:`linear-gradient(90deg,${btnColorDark},${btnColor})`, letterSpacing:'0.12em', boxShadow:'0 6px 18px rgba(37,99,235,0.4)'}}>
                     {isSearching ? 'Looking up your address…' : 'Find My Candidates →'}
                   </button>
                   <p className="text-xs text-slate-500 text-center mt-3 mb-3">Your address is only used to look up your districts. We don't store it.</p>
@@ -1649,12 +1649,9 @@
             </div>
 
             {/* Beta disclaimer — footer */}
-            <div className="flex items-start gap-3 px-5 py-3.5" style={{background:'rgba(251,191,36,0.13)', borderTop:'1.5px solid rgba(251,191,36,0.35)'}}>
-              <span className="text-2xl leading-none mt-0.5" role="img" aria-label="yield">⚠️</span>
-              <div>
-                <p className="text-amber-300 font-black text-sm uppercase tracking-[0.18em] mb-0.5">Beta Version</p>
-                <p className="text-amber-100/90 text-sm leading-snug font-medium">This preview includes candidates for <strong className="text-white font-bold">HAYS &amp; TRAVIS COUNTIES</strong>. <span className="text-amber-200 font-bold italic">More counties coming soon…</span></p>
-              </div>
+            <div className="flex items-center justify-center gap-2.5 px-5 py-3 mt-2" style={{background:'rgba(255,255,255,0.03)', borderTop:'1px solid rgba(255,255,255,0.08)'}}>
+              <span className="text-sm leading-none" role="img" aria-label="yield">⚠️</span>
+              <p className="text-slate-400 text-xs leading-snug"><span className="text-amber-300/90 font-black uppercase tracking-[0.14em]">Beta</span> · Hays &amp; Travis Counties now · more coming soon</p>
             </div>
           </div>
         </div>
@@ -1684,7 +1681,7 @@
     }
 
 
-    function Landing({ onQuiz, onBrowse, onSummary, onStartOver, county, setCounty, counties, dataSource, issues, answers = {}, checkedStatements = {} }) {
+    function Landing({ onQuiz, onBrowse, onSummary, onStartOver, county, setCounty, counties, dataSource, issues, answers = {}, checkedStatements = {}, picker = false }) {
       const available = true;
       const [confirmReset, setConfirmReset] = useState(false);
       const [hoveredIssue, setHoveredIssue] = useState(null);
@@ -1692,11 +1689,26 @@
       const [showBrowseDrop, setShowBrowseDrop] = useState(false);
       const answeredCount = Object.keys(answers).length;
       const issueList = issues.length ? issues : ISSUES;
+      // First-visit gate: tease the issue grid behind a blur until the user picks
+      // "tour" or "bring it on". Persists in localStorage so it only shows once.
+      const [showIntro, setShowIntro] = useState(() => {
+        try { return answeredCount === 0 && !localStorage.getItem('vyv_intro_seen'); } catch (e) { return false; }
+      });
+      const dismissIntro = (openTour) => {
+        try { localStorage.setItem('vyv_intro_seen', '1'); } catch (e) {}
+        setShowIntro(false);
+        if (openTour && window.VYVTutorial) window.VYVTutorial.open();
+      };
 
       return (
         <div className="min-h-screen flex flex-col" style={{background:'linear-gradient(160deg,#0f172a 0%,#020617 100%)'}}>
 
-          {/* Header */}
+          {/* Header — picker mode gets a quiet white logo, no election info */}
+          {picker ? (
+          <header className="flex items-center justify-center py-4 border-b border-white/5">
+            <img src="/icons/VoteYourViews_Logo_White.png" alt="VoteYourViews.org" className="h-[80px] lg:h-[100px] w-auto" />
+          </header>
+          ) : (
           <header className="flex items-center justify-center py-0 lg:py-5 border-b border-white/5 pt-[10px] lg:pt-0 px-[10px] lg:px-0">
 
             {/* Mobile: full logo, scaled to width, never cropped. height:auto shows the
@@ -1720,8 +1732,10 @@
             </div>
 
           </header>
+          )}
 
           {/* Mobile: election info bar */}
+          {!picker && (
           <div className="lg:hidden flex items-center justify-center flex-wrap gap-x-2 gap-y-0.5 px-4 pt-3 pb-2 border-b border-white/5" style={{fontFamily:"'Barlow Condensed', sans-serif"}}>
             <span className="text-[15px] font-bold text-slate-200 uppercase tracking-wide">Texas Midterm</span>
             <span className="text-slate-600 text-[15px]">·</span>
@@ -1729,11 +1743,13 @@
             <span className="text-slate-600 text-[15px]">·</span>
             <span className="text-slate-400 text-[15px]">Nov 4, 2026</span>
           </div>
+          )}
 
           {/* Main — two-column on desktop, stacked on mobile */}
           <main className="relative flex flex-col lg:flex-row items-center justify-center px-4 lg:px-16 xl:px-28 pt-1 pb-4 lg:pt-[50px] lg:pb-16 gap-3 lg:gap-20 fade-in">
 
             {/* ── Left col (desktop) / Top (mobile): Headline + description + CTAs ── */}
+            {!picker && (
             <div className="w-full max-w-xs lg:max-w-none lg:w-fit lg:shrink-0 flex flex-col items-center lg:items-start text-center lg:text-left">
               <h1 className="text-[20px] sm:text-2xl lg:text-[46px] font-black text-white leading-tight lg:leading-snug tracking-tight uppercase lg:whitespace-nowrap">
                 Rank Your Beliefs.<br/><span className="text-blue-400">Elect Who Agrees.</span>
@@ -1743,6 +1759,11 @@
                 <p className="text-white font-black text-[13px] uppercase leading-tight tracking-wide" style={{fontFamily:"'Barlow Condensed', sans-serif"}}>
                   <span className="text-red-400">STOP</span> voting parties.<br/><span className="text-blue-400">START</span> voting your views.
                 </p>
+                <button onClick={() => window.VYVTutorial && window.VYVTutorial.open()}
+                  className="mt-2 px-4 py-1.5 rounded-full font-black text-[10px] uppercase tracking-widest transition-all hover:brightness-110 active:scale-95"
+                  style={{letterSpacing:'0.16em', color:'#fbbf24', background:'rgba(217,119,6,0.14)', border:'1px solid rgba(251,191,36,0.55)'}}>
+                  ★ How It Works
+                </button>
               </div>
 
               {/* Desktop tagline */}
@@ -1750,6 +1771,11 @@
                 <p className="text-white font-black text-3xl uppercase leading-tight tracking-wide" style={{fontFamily:"'Barlow Condensed', sans-serif"}}>
                   <span className="text-red-400">STOP</span> voting parties.<br/><span className="text-blue-400">START</span> voting your views.
                 </p>
+                <button onClick={() => window.VYVTutorial && window.VYVTutorial.open()}
+                  className="mt-4 px-5 py-2 rounded-full font-black text-[11px] uppercase tracking-widest transition-all hover:brightness-110 active:scale-95"
+                  style={{letterSpacing:'0.16em', color:'#fbbf24', background:'rgba(217,119,6,0.14)', border:'1px solid rgba(251,191,36,0.55)'}}>
+                  ★ How It Works — 60-Second Tour
+                </button>
               </div>
 
               {/* Desktop CTAs */}
@@ -1794,10 +1820,38 @@
                 </div>
               </div>
             </div>
+            )}
 
             {/* ── Right col (desktop) / Bottom (mobile): Icon grid + mobile CTAs ── */}
             <div className="w-full max-w-xs lg:max-w-sm relative z-20">
-              <div className="grid grid-cols-3 gap-1.5 lg:gap-3 mb-3 lg:mb-0" onMouseLeave={() => setHoveredIssue(null)}>
+              {picker && (
+                <div className="text-center mb-3">
+                  <p className="text-white font-black uppercase text-[22px] leading-tight" style={{fontFamily:"'Barlow Condensed',sans-serif", letterSpacing:'0.05em'}}>
+                    <span className="text-amber-400">{answeredCount} of 9</span> views voted{answeredCount >= 9 ? '!' : ''}
+                  </p>
+                  <p className="text-slate-400 text-xs mt-1">Build your ballot with one view — or choose as many as you like.</p>
+                </div>
+              )}
+              {showIntro && (
+                <div className="absolute inset-0 z-30 flex items-center justify-center px-3">
+                  <div className="w-full rounded-3xl p-5 text-center" style={{background:'linear-gradient(160deg,rgba(30,27,75,0.97),rgba(15,23,42,0.97))', border:'1px solid rgba(255,255,255,0.2)', boxShadow:'0 24px 60px rgba(0,0,0,0.6)'}}>
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] mb-1.5" style={{color:'#f59e0b'}}>First time here?</p>
+                    <p className="text-white font-black uppercase leading-tight text-[22px] mb-1.5" style={{fontFamily:"'Barlow Condensed',sans-serif", letterSpacing:'0.03em'}}>9 Issues. Your Views.<br/>Your Ballot.</p>
+                    <p className="text-slate-300 text-xs leading-relaxed mb-4">See how it works in 60 seconds — or dive straight in.</p>
+                    <button onClick={() => dismissIntro(true)}
+                      className="w-full py-3 mb-2 rounded-full font-black text-xs uppercase tracking-widest transition-all hover:brightness-110 active:scale-[0.98]"
+                      style={{letterSpacing:'0.14em', color:'#0f172a', background:'linear-gradient(135deg,#fbbf24,#d97706)', boxShadow:'0 6px 18px rgba(217,119,6,0.45)'}}>
+                      ★ Take the 60-Second Tour
+                    </button>
+                    <button onClick={() => dismissIntro(false)}
+                      className="w-full py-3 rounded-full font-black text-xs uppercase tracking-widest text-white transition-all hover:opacity-90 active:scale-[0.98]"
+                      style={{letterSpacing:'0.14em', background:'#2563eb', border:'1px solid #60a5fa'}}>
+                      Bring It On →
+                    </button>
+                  </div>
+                </div>
+              )}
+              <div className={`grid grid-cols-3 gap-1.5 lg:gap-3 mb-3 lg:mb-0 transition-all duration-500 ${showIntro ? 'blur-[6px] pointer-events-none select-none' : ''}`} onMouseLeave={() => setHoveredIssue(null)}>
                 {issueList.map(issue => (
                   <button
                     key={issue.id}
@@ -1847,8 +1901,22 @@
                 ))}
               </div>
 
+              {/* Picker mode: single CTA under the grid, all breakpoints */}
+              {picker && (
+                <div className="flex flex-col gap-2.5 mt-3">
+                  {answeredCount > 0 && (
+                    <button onClick={onSummary}
+                      className="w-full py-3 text-white font-black text-xs uppercase tracking-widest rounded-full transition-all duration-150 hover:opacity-90 active:scale-[0.97]"
+                      style={{background:'#2563eb', border:'1px solid #60a5fa', letterSpacing:'0.12em', boxShadow:'0 6px 18px rgba(37,99,235,0.35)'}}>
+                      Build My Ballot ({answeredCount}/9) →
+                    </button>
+                  )}
+                </div>
+              )}
+
               {/* Mobile-only CTAs */}
-              <div className="lg:hidden flex flex-col gap-2.5 mt-2">
+              {!picker && (
+              <div className={`lg:hidden flex flex-col gap-2.5 mt-2 transition-all duration-500 ${showIntro ? 'blur-[6px] pointer-events-none select-none' : ''}`}>
                 {answeredCount > 0 ? (
                   <div className="flex items-center gap-2">
                     <button onClick={onSummary} className="flex-1 py-2.5 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all duration-150 hover:opacity-90 active:scale-[0.97]" style={{background:'#2563eb', border:'1px solid #60a5fa', letterSpacing:'0.12em'}}>
@@ -1889,6 +1957,7 @@
                   <div className="shrink-0 w-11 h-11" />
                 </div>
               </div>
+              )}
             </div>
 
           </main>
@@ -2055,7 +2124,7 @@
               <button onClick={handleSave}
                 className="text-sm font-black uppercase tracking-widest shrink-0 transition-all"
                 style={{letterSpacing:'0.08em', color: '#fff'}}>
-                {allDone ? 'Next →' : 'Skip →'}
+                Next →
               </button>
             </div>
           </div>
@@ -2807,13 +2876,13 @@
             const isActive = tab.key === activeTab;
             return (
               <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-                className={`flex items-center justify-center gap-1.5 rounded-lg font-black uppercase transition-all duration-150 ${isMobile ? 'flex-1 py-2 text-[11px] tracking-tight' : 'px-5 py-2 text-sm tracking-widest'}`}
+                className={`flex items-center justify-center rounded-lg font-black uppercase transition-all duration-150 min-w-0 ${isMobile ? 'flex-1 gap-1 py-2 px-0.5 text-[10px] tracking-tight' : 'gap-1.5 px-5 py-2 text-sm tracking-widest'}`}
                 style={isActive
                   ? { background: '#fff', color: '#0f172a', boxShadow: '0 2px 10px rgba(0,0,0,0.30)' }
                   : { background: 'transparent', color: '#cbd5e1' }}>
-                {CATEGORY_ICON[tab.key] && CATEGORY_ICON[tab.key](isMobile ? 'w-3.5 h-3.5 shrink-0' : 'w-4 h-4 shrink-0')}
-                <span>{tab.label}</span>
-                {tab.count > 0 && <span style={{ color: isActive ? '#059669' : '#34d399' }}>·{tab.count}</span>}
+                {!isMobile && CATEGORY_ICON[tab.key] && CATEGORY_ICON[tab.key]('w-4 h-4 shrink-0')}
+                <span className="truncate">{tab.label}</span>
+                {tab.count > 0 && <span className="shrink-0" style={{ color: isActive ? '#059669' : '#34d399', fontSize: isMobile ? '9px' : undefined }}>·{tab.count}</span>}
               </button>
             );
           })}
@@ -2821,12 +2890,12 @@
       );
     }
 
-    // County switcher — replaces the static "{County} Beta V1" label. Switching clears
+    // County switcher — replaces the static "{County} Beta V2" label. Switching clears
     // any address-narrowed districts (they belong to the prior county) and shows the new
     // county's full slate — also lets "Keep Exploring" users flip counties freely.
     // The prominent "{County} Candidates" banner IS the county switcher (replaces the old corner pulldown).
     // Works in both explore mode and address ("Showing your candidates") mode. Dropdown drops below the banner.
-    function CountyBanner({ county, counties, setCounty, userDistricts, setUserDistricts, onMyCandidates }) {
+    function CountyBanner({ county, counties, setCounty, userDistricts, setUserDistricts, onMyCandidates, compact = false }) {
       const [open, setOpen] = useState(false);
       const ref = useRef(null);
       useEffect(() => {
@@ -2849,6 +2918,58 @@
 
       const name = (counties[county] && counties[county].name) || 'County';
       const chevron = <svg className={`w-4 h-4 shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth={2.6} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/></svg>;
+
+      if (compact) {
+        // Quiet one-line context chip: "📍 Hays County · Change" — same dropdown below
+        return (
+          <div ref={ref} className="relative inline-block">
+            <button onClick={() => setOpen(o => !o)} title={userDistricts ? 'Showing your ballot — tap to change' : 'Tap to change county'}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all hover:bg-white/10 whitespace-nowrap"
+              style={{color:'#94a3b8', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.12)'}}>
+              <svg className="w-3.5 h-3.5 shrink-0" style={{color: userDistricts ? '#4ade80' : '#60a5fa'}} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
+              <span className="text-white">{name}</span>
+              {chevron}
+            </button>
+            {open && (
+              <div className="absolute left-0 mt-2 z-50 w-64 rounded-xl overflow-hidden"
+                style={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.14)', boxShadow: '0 12px 30px rgba(0,0,0,0.5)' }}>
+                {onMyCandidates && (
+                  <button onClick={() => { onMyCandidates(); setOpen(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-left transition-all hover:brightness-110"
+                    style={{ color: '#fff', background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)', borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-black leading-tight">Enter your address</div>
+                      <div className="text-[11px] font-medium leading-tight mt-0.5" style={{ color: 'rgba(255,255,255,0.8)' }}>See only the candidates you can vote for</div>
+                    </div>
+                  </button>
+                )}
+                {userDistricts && (
+                  <button onClick={() => { setUserDistricts(null); setOpen(false); }}
+                    className="w-full px-4 py-2.5 text-left text-xs font-black uppercase tracking-widest transition-colors hover:bg-white/5"
+                    style={{ color: '#f87171' }}>
+                    ✕ Clear my address filter
+                  </button>
+                )}
+                <div className="px-4 pt-3 pb-1 text-[9px] font-bold uppercase tracking-wider" style={{ color: '#64748b' }}>Or browse a county</div>
+                {entries.map(e => e.hasRaces ? (
+                  <button key={e.key} onClick={() => pick(e.key)}
+                    className="w-full flex items-center justify-between gap-3 px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-colors text-left hover:bg-white/5"
+                    style={{ color: e.key === county ? '#fff' : '#cbd5e1' }}>
+                    <span>{e.name}</span>
+                    {e.key === county && <svg className="w-4 h-4 shrink-0" style={{ color: '#4ade80' }} fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>}
+                  </button>
+                ) : (
+                  <div key={e.key} className="flex items-center justify-between gap-3 px-4 py-2.5 text-xs font-black uppercase tracking-widest"
+                    style={{ color: '#475569' }}>
+                    <span>{e.name}</span>
+                    <span className="text-[9px] font-bold tracking-wider" style={{ color: '#64748b' }}>Soon</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      }
 
       return (
         <div ref={ref} className="relative flex-1">
@@ -2909,12 +3030,12 @@
       );
     }
 
-    // Small "Beta V1" pill — moved out of the county label so the corner is a clean switcher.
+    // Small "Beta V2" pill — moved out of the county label so the corner is a clean switcher.
     function BetaChip() {
       return (
         <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0"
           style={{ background: 'rgba(217,119,6,0.16)', color: '#f59e0b', border: '1px solid rgba(217,119,6,0.35)' }}>
-          Beta V1
+          Beta V2
         </span>
       );
     }
@@ -2958,12 +3079,25 @@
 
       const answeredCount = Object.keys(answers).filter(id => answers[id] !== 'D').length;
 
+      // Color the Save/Print CTA by the voter's own overall lean (same scheme as the
+      // constellation + landing checkmarks): blue = progressive, red = conservative,
+      // purple = mixed. Neutral slate when nothing is answered — never assume a side.
+      const leanCounts = { A: 0, B: 0, C: 0 };
+      issues.forEach(i => { const p = deriveVoterPos(i.id, answers, checkedStatements); if (leanCounts[p] !== undefined) leanCounts[p]++; });
+      const ctaColors = leanCounts.A === 0 && leanCounts.B === 0 && leanCounts.C === 0
+        ? { grad: 'linear-gradient(90deg,#334155,#475569)', border: '#94a3b8', glow: 'rgba(100,116,139,0.45)' }
+        : leanCounts.A > leanCounts.C
+          ? { grad: 'linear-gradient(90deg,#1d4ed8,#2563eb)', border: '#60a5fa', glow: 'rgba(37,99,235,0.45)' }
+          : leanCounts.C > leanCounts.A
+            ? { grad: 'linear-gradient(90deg,#b91c1c,#dc2626)', border: '#f87171', glow: 'rgba(220,38,38,0.45)' }
+            : { grad: 'linear-gradient(90deg,#7e22ce,#9333ea)', border: '#c084fc', glow: 'rgba(147,51,234,0.45)' };
+
       const TABS = [
         { key: 'federal',  label: 'Federal' },
         { key: 'state',    label: 'State' },
         { key: 'county',   label: 'County' },
         { key: 'judicial', label: 'Judicial' },
-      ];
+      ].map(t => ({ ...t, count: filterRacesByDistrict(countyData[t.key] || [], userDistricts).length }));
 
       return (
         <React.Fragment>
@@ -2975,6 +3109,7 @@
             <div className="lg:hidden px-4 py-3">
               <div className="flex items-center justify-between gap-2">
                 <button onClick={onBack} className="text-sm font-medium flex items-center gap-1 shrink-0" style={{color:'#94a3b8'}}>← Back</button>
+                <CountyBanner compact county={county} counties={counties} setCounty={setCounty} userDistricts={userDistricts} setUserDistricts={setUserDistricts} onMyCandidates={() => setShowAddr(true)} />
                 <BetaChip />
               </div>
               <div className="mt-3">
@@ -2990,6 +3125,9 @@
               <div className="mx-auto">
                 <CategoryTabs tabs={TABS} activeTab={activeTab} setActiveTab={setActiveTab} size="desktop" />
               </div>
+              <div className="absolute right-8">
+                <CountyBanner compact county={county} counties={counties} setCounty={setCounty} userDistricts={userDistricts} setUserDistricts={setUserDistricts} onMyCandidates={() => setShowAddr(true)} />
+              </div>
             </div>
           </header>
           {showAddr && (
@@ -3000,25 +3138,6 @@
               onShowAll={() => setShowAddr(false)} />
           )}
 
-          {/* 3-item action row: Address | Compare Opponents | My Ballot — frosted glass set */}
-          <div className="max-w-5xl mx-auto w-full px-4 pt-3 flex flex-col sm:flex-row items-stretch gap-3">
-            {/* County banner = county switcher (My Candidates + county list) */}
-            <CountyBanner county={county} counties={counties} setCounty={setCounty} userDistricts={userDistricts} setUserDistricts={setUserDistricts} onMyCandidates={() => setShowAddr(true)} />
-            {/* Compare Opponents — frosted red glass */}
-            <button onClick={onBrowse}
-              className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-black text-sm uppercase tracking-widest transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
-              style={{background:'linear-gradient(135deg, rgba(239,68,68,0.38), rgba(185,28,28,0.24))', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', border:'1px solid rgba(252,165,165,0.42)', boxShadow:'0 10px 28px rgba(220,38,38,0.24), inset 0 1px 0 rgba(255,255,255,0.26)', color:'#fff', letterSpacing:'0.08em', minWidth:'170px'}}>
-              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4"/></svg>
-              Compare Opponents
-            </button>
-            {/* My Ballot — frosted glass, subtle blue lead */}
-            <button onClick={onBallot}
-              className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-black text-sm uppercase tracking-widest transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
-              style={{background:'linear-gradient(135deg, rgba(59,130,246,0.42), rgba(37,99,235,0.26))', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', border:'1px solid rgba(147,197,253,0.45)', boxShadow:'0 10px 28px rgba(37,99,235,0.28), inset 0 1px 0 rgba(255,255,255,0.28)', color:'#fff', letterSpacing:'0.08em', minWidth:'150px'}}>
-              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-              My Ballot
-            </button>
-          </div>
 
           {showFilterModal && (
             <AddressModal
@@ -3029,6 +3148,18 @@
               onShowAll={() => { if (setUserDistricts) setUserDistricts(null); setShowFilterModal(false); }}
             />
           )}
+
+          {/* Section header — solid banner naming the active section */}
+          <div style={{background:'rgba(255,255,255,0.06)', borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
+            <div className="max-w-5xl mx-auto w-full px-4 py-2.5 flex items-center gap-2">
+              <p className="text-white font-black uppercase tracking-wide text-[17px] leading-none" style={{fontFamily:"'Barlow Condensed',sans-serif", letterSpacing:'0.06em'}}>
+                Your {TABS.find(t => t.key === activeTab)?.label} Candidates
+              </p>
+              <span className="text-[11px] font-bold" style={{color:'#34d399'}}>
+                {TABS.find(t => t.key === activeTab)?.count || 0} races
+              </span>
+            </div>
+          </div>
 
           <div className="flex-1 max-w-5xl mx-auto w-full px-4 py-4">
 
@@ -3179,6 +3310,18 @@
             })()}
 
 
+          </div>
+
+          {/* Spacer so the last race card can scroll clear of the fixed bar */}
+          <div style={{height:'84px'}} />
+          {/* Fixed finish line — always on screen; the whole page funnels here */}
+          <div className="fixed bottom-0 left-0 right-0 z-40 px-4 pt-3 pb-4" style={{background:'linear-gradient(to top, #0c1a2e 65%, rgba(12,26,46,0))'}}>
+            <button onClick={onBallot}
+              className="w-full max-w-5xl mx-auto flex items-center justify-center gap-2 py-3.5 rounded-full font-black text-sm uppercase tracking-widest text-white transition-all hover:brightness-110 active:scale-[0.99]"
+              style={{background: ctaColors.grad, border: `1px solid ${ctaColors.border}`, letterSpacing:'0.12em', boxShadow: `0 8px 24px ${ctaColors.glow}`}}>
+              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              Build My Ballot →
+            </button>
           </div>
         </div>
 
@@ -3436,8 +3579,12 @@
       const [hookCollapsed, setHookCollapsed] = useState(() => !!focusIssueId && window.matchMedia('(max-width: 767px)').matches); // mobile only: returning from a quiz keeps bio collapsed for room (desktop has a separate column)
       const border = candidate.party === 'D' ? 'border-blue-500' : candidate.party === 'R' ? 'border-red-500' : 'border-slate-300';
       const accentBg = candidate.party === 'D' ? 'bg-blue-800' : candidate.party === 'R' ? 'bg-red-800' : 'bg-slate-800';
-      // Subtle party-color gradient so the identity panel has the same depth as the dimensional issue cards (instead of a flat slab)
-      const accentGrad = candidate.party === 'D' ? 'linear-gradient(165deg,#2a52c9 0%,#16317c 100%)' : candidate.party === 'R' ? 'linear-gradient(165deg,#c0212e 0%,#6f0f17 100%)' : 'linear-gradient(165deg,#3b4a63 0%,#1e293b 100%)';
+      // Identity panel shares the app's dark-indigo gradient; party shows as ACCENTS
+      // (photo ring, party label, match pill) instead of a full-color slab, so the
+      // profile reads as one cohesive surface with the issue list below it.
+      const accentGrad = 'linear-gradient(165deg,#1e1b4b 0%,#0f172a 100%)';
+      const partyTint = candidate.party === 'D' ? '#60a5fa' : candidate.party === 'R' ? '#f87171' : '#94a3b8';
+      const partyPillBg = candidate.party === 'D' ? 'rgba(37,99,235,0.35)' : candidate.party === 'R' ? 'rgba(220,38,38,0.35)' : 'rgba(100,116,139,0.35)';
       const matchScore = hasAnswers ? calcMatch(candidate, answers, _cs, ranks || {}) : null;
       const _ISSUE_KEYS = ['reproductiveRights','immigration','gunPolicy','education','healthcare','climate','electionIntegrity','socialSecurity','affordability'];
       const isJudicialCandidate = raceCategory === 'judicial' || !_ISSUE_KEYS.some(k => { const p = candidate.positions?.[k]; return p && p !== 'D' && p !== 'Unknown'; });
@@ -3497,7 +3644,7 @@
                 )}
                 <h2 className="text-white font-black text-xl lg:text-2xl leading-tight mb-1">{candidate.name}</h2>
                 <div className="flex items-center gap-2 mb-1.5">
-                  <p className="text-white/60 text-[14px] font-bold uppercase tracking-normal">{candidate.party === 'D' ? 'Democrat' : candidate.party === 'R' ? 'Republican' : 'Independent'}</p>
+                  <p className="text-[14px] font-bold uppercase tracking-normal" style={{color: partyTint}}>{candidate.party === 'D' ? 'Democrat' : candidate.party === 'R' ? 'Republican' : 'Independent'}</p>
                   {candidate.website ? (
                     <a href={candidate.website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-white/85 hover:text-white transition-colors shrink-0" title="Visit website">
                       <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
@@ -3514,27 +3661,34 @@
                     </span>
                   )}
                 </div>
-                {(isJudicialCandidate || matchScore !== null) && (
+                {(isJudicialCandidate || matchScore !== null || onCompare) && (
                   <div className="flex items-center gap-2 flex-wrap">
                     {isJudicialCandidate ? (
                       <span className="text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full bg-white/20 text-white/60">Party Aligned</span>
-                    ) : (
-                      <span className="text-[13px] font-black px-3 py-1 rounded-full bg-white/25 text-white">{matchScore}% match</span>
-                    )}
+                    ) : matchScore !== null ? (
+                      <span className="text-[13px] font-black px-3 py-1 rounded-full text-white" style={{background: partyPillBg, border: `1px solid ${partyTint}66`}}>{matchScore}% match</span>
+                    ) : null}
+                    {onCompare && (() => {
+                      // Tint by the candidate the pill jumps TO (the opponent prop), so the
+                      // pill previews whose profile you'll land on.
+                      const targetTint = opponent?.party === 'D' ? '#60a5fa' : opponent?.party === 'R' ? '#f87171' : '#94a3b8';
+                      const targetBg = opponent?.party === 'D' ? 'rgba(37,99,235,0.3)' : opponent?.party === 'R' ? 'rgba(220,38,38,0.3)' : 'rgba(100,116,139,0.3)';
+                      return (
+                        <button onClick={onCompare}
+                          className="text-[11px] font-black uppercase tracking-wide px-3 py-1 rounded-full text-white hover:brightness-125 transition-all whitespace-nowrap"
+                          style={{background: targetBg, border: `1px solid ${targetTint}88`, letterSpacing:'0.06em'}}>
+                          {isOpponent ? '← Your Match' : `vs. ${opponent?.name ? opponent.name.split(' ').filter(Boolean).pop() : 'Opponent'} →`}
+                        </button>
+                      );
+                    })()}
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Compare / Uncontested */}
-            {onCompare ? (
-              <button onClick={onCompare}
-                className="mt-4 w-full py-2.5 rounded-xl text-[12px] font-black uppercase tracking-widest text-white/90 hover:text-white transition-colors"
-                style={{background:'rgba(255,255,255,0.15)', border:'1px solid rgba(255,255,255,0.3)', letterSpacing:'0.08em'}}>
-                {isOpponent ? '← Back to Your Match' : 'Compare to Opponent →'}
-              </button>
-            ) : (
-              <div className="mt-4 w-full py-2.5 rounded-xl text-center text-[12px] font-black uppercase tracking-widest text-white/35"
+            {/* Uncontested note (compare now lives as a pill next to the match score) */}
+            {!onCompare && (
+              <div className="mt-4 w-full py-2 rounded-xl text-center text-[11px] font-black uppercase tracking-widest text-white/35"
                 style={{background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.12)', letterSpacing:'0.08em'}}>
                 No Opponent — Uncontested
               </div>
@@ -3545,7 +3699,8 @@
               <div className="mt-4 border-t border-white/15 pt-4 px-2">
                 {hookCollapsed ? (
                   <button onClick={() => setHookCollapsed(false)}
-                    className="text-white/70 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest">
+                    className="transition-all hover:brightness-125 text-[10px] font-bold uppercase tracking-widest"
+                    style={{color:'#f59e0b'}}>
                     ▶ Show bio
                   </button>
                 ) : (
@@ -3564,7 +3719,8 @@
                       <p className="text-white/80 mt-2 leading-snug text-[14px]">{candidate.summary}</p>
                     ) : null}
                     <button onClick={() => setHookCollapsed(true)}
-                      className="mt-2 text-white/50 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest">
+                      className="mt-2 transition-all hover:brightness-125 text-[10px] font-bold uppercase tracking-widest"
+                      style={{color:'#f59e0b'}}>
                       Hide bio ▲
                     </button>
                   </>
@@ -3575,10 +3731,16 @@
             {/* Add to Ballot — desktop only (mobile has it in bottom bar) */}
             {onSelect && (
               <div className="hidden md:block mt-5">
-                <button onClick={onSelect}
-                  className={`w-full py-3 rounded-xl font-black text-sm uppercase tracking-wide transition-all active:scale-95 ${isSelected ? 'bg-white text-slate-900' : 'bg-white/20 text-white border-2 border-white/40 hover:bg-white/30'}`}>
-                  {isSelected ? '✓ On Your Ballot' : '+ Add to Ballot'}
-                </button>
+                {isSelected ? (
+                  <div className="w-full py-3 text-center font-black text-sm uppercase tracking-wide" style={{color:'#34d399'}}>
+                    ✓ On your ballot
+                  </div>
+                ) : (
+                  <button onClick={onSelect}
+                    className="w-full py-3 rounded-xl font-black text-sm uppercase tracking-wide transition-all active:scale-95 bg-white text-slate-900 hover:bg-slate-100">
+                    + Add to Ballot
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -3600,7 +3762,7 @@
                   ) : sharedEvidence ? (
                     <p className="text-sm text-slate-300 leading-relaxed px-5 lg:px-6 pt-4 pb-2 border-b border-white/10 italic">{sharedEvidence}</p>
                   ) : null}
-            <div className="flex flex-col gap-2.5 px-0 lg:px-5 py-3">
+            <div className="flex flex-col gap-1.5 px-3 lg:px-5 py-3">
               {issues && issues.map((issue, idx) => {
                 const rawPos = candidate.positions?.[issue.id];
                 // Normalize new Agree/Disagree/Unknown data into a lean letter using the issue's voice
@@ -3663,15 +3825,15 @@
                 return (
                   <div key={issue.id}
                     ref={issue.id === focusIssueId ? focusRef : null}
-                    className={`slide-in rounded-xl overflow-hidden border transition-all duration-200 hover:-translate-y-0.5 ${pulseId === issue.id ? 'focus-pulse border-amber-300/70' : 'border-white/10'}`}
-                    style={{ animationDelay: `${Math.min(idx, 8) * 55}ms`, animationFillMode: 'backwards', boxShadow: '0 2px 10px rgba(0,0,0,0.4)' }}>
-                    {/* Dark header — topic + at-a-glance status chip (the payoff, visible collapsed OR expanded; tap the chip to take/redo the 1-question quiz) */}
-                    <div className="flex items-center justify-between gap-2 px-4 py-3.5 cursor-pointer" style={{ background: cardHeaderGrad, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.09)' }} onClick={() => { if (!isOpen && window.matchMedia('(max-width: 767px)').matches) setHookCollapsed(true); setTab(issue.id, isOpen ? tab : defaultTab); }}>
-                      <span className="text-white font-black uppercase tracking-wide text-base lg:text-lg leading-tight min-w-0 truncate">{issue.topic}</span>
+                    className={`slide-in rounded-lg overflow-hidden border transition-all duration-200 ${pulseId === issue.id ? 'focus-pulse border-amber-300/70' : 'border-white/8'}`}
+                    style={{ animationDelay: `${Math.min(idx, 8) * 55}ms`, animationFillMode: 'backwards' }}>
+                    {/* Row header — topic + at-a-glance status chip (the payoff, visible collapsed OR expanded; tap the chip to take/redo the 1-question quiz) */}
+                    <div className="flex items-center justify-between gap-2 px-4 py-2.5 cursor-pointer transition-colors hover:bg-white/10" style={{ background: isOpen ? cardHeaderGrad : 'rgba(255,255,255,0.05)' }} onClick={() => { if (!isOpen && window.matchMedia('(max-width: 767px)').matches) setHookCollapsed(true); setTab(issue.id, isOpen ? tab : defaultTab); }}>
+                      <span className="text-white font-black uppercase text-[15px] lg:text-[17px] leading-tight min-w-0" style={{fontFamily:"'Barlow Condensed',sans-serif", letterSpacing:'0.04em'}}>{issue.topic}</span>
                       <span className="flex items-center gap-3.5 shrink-0">
                         {!isJudicialCandidate && (() => {
                           const userSkipped = answers?.[issue.id] === 'D'; // chose No Opinion on every statement = skipped the whole issue
-                          const chipBase = "text-[10px] lg:text-xs font-black uppercase tracking-wide px-2.5 py-1 rounded-full whitespace-nowrap border leading-none text-center min-w-[7.25rem] lg:min-w-[8.25rem]";
+                          const chipBase = "text-[9px] lg:text-[11px] font-black uppercase tracking-wide px-2.5 py-1 rounded-full whitespace-nowrap border leading-none text-center min-w-[5.5rem] lg:min-w-[7rem]";
                           let label, cls, pulse = '', tappable = !!onRateIssue;
                           if (isMatch) { label = '✓ Match'; cls = 'text-emerald-50 bg-emerald-500/35 border-emerald-400/70'; }
                           else if (isMismatch) { label = '✗ No Match'; cls = 'text-rose-50 bg-rose-500/35 border-rose-400/70'; }
@@ -3694,17 +3856,13 @@
                           {issueFact && <button onClick={() => setTab(issue.id, 'facts')} style={segStyle(tab === 'facts', 'facts')} className={segCls}>The Facts</button>}
                           <button onClick={() => setTab(issue.id, 'opp')} style={segStyle(tab === 'opp', 'opp', opponent?.party)} className={segCls}>{oppHasInfo ? `${oppLastName}'s View` : `No ${missingParty} Opponent`}</button>
                         </div>
-                        {/* Dark content — symbol + heading + body; slides in on each tab change */}
-                        <div key={tab} className="issue-enter flex items-center gap-4 px-6 lg:px-9 py-5" style={{ background: contentBg }}>
-                          {isFactsTab ? (
-                            <div className="relative shrink-0 w-20 lg:w-28 h-20 lg:h-28">
-                              <img src="/icons/illustrations/light-bulb-off.png" alt="" className="absolute inset-0 w-full h-full object-contain opacity-25" onError={e => { e.currentTarget.style.display = 'none'; }} />
-                              <img src="/icons/illustrations/light-bulb-on.png" alt="" className="bulb-on absolute inset-0 w-full h-full object-contain" onError={e => { e.currentTarget.style.display = 'none'; }} />
-                            </div>
-                          ) : (
-                            <img src={artSrc} alt="" className="symbol-glow shrink-0 object-contain w-16 lg:w-20 h-16 lg:h-20" style={{ '--glow': glowColor }} onError={e => { e.currentTarget.style.display = 'none'; }} />
-                          )}
-                          <div className="flex-1 min-w-0">
+                        {/* Dark content — full-width text with the issue symbol as a soft watermark behind it */}
+                        <div key={tab} className="issue-enter relative overflow-hidden px-5 lg:px-7 py-5" style={{ background: contentBg }}>
+                          <img src={isFactsTab ? '/icons/illustrations/light-bulb-on.png' : artSrc} alt="" aria-hidden="true"
+                            className="absolute inset-0 m-auto pointer-events-none object-contain"
+                            style={{ maxWidth: '68%', maxHeight: '82%', opacity: 0.12 }}
+                            onError={e => { e.currentTarget.style.display = 'none'; }} />
+                          <div className="relative min-w-0">
                             <h4 className={`font-black uppercase text-base lg:text-lg mb-1 leading-tight ${headCls}`}>{aHead}</h4>
                             <p className={`text-sm leading-snug ${bodyCls} ${aItalic ? 'italic' : ''}`}>{aBody}</p>
                           </div>
@@ -3727,7 +3885,7 @@
             </div>
 
             {/* Bottom CTA — mobile only (desktop has Add button in left panel) */}
-            <div className={`md:hidden px-5 py-4 ${accentBg} flex items-center justify-between gap-4`}>
+            <div className="md:hidden px-5 py-4 flex items-center justify-between gap-4" style={{background:'#0f172a', borderTop:'1px solid rgba(255,255,255,0.1)'}}>
               {onClose && (
                 <button onClick={onClose}
                   className="flex items-center gap-2 text-white/80 hover:text-white font-black text-sm uppercase tracking-widest transition-colors">
@@ -3735,12 +3893,18 @@
                 </button>
               )}
               {onSelect && (
-                <button
-                  onClick={onSelect}
-                  className={`ml-auto whitespace-nowrap flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-sm uppercase tracking-wide transition-all active:scale-95 ${isSelected ? 'bg-white text-slate-900' : 'bg-white/20 text-white border-2 border-white/50 hover:bg-white/30'}`}
-                >
-                  {isSelected ? '✓ On Ballot' : '+ Add to Ballot'}
-                </button>
+                isSelected ? (
+                  <span className="ml-auto whitespace-nowrap text-sm font-black uppercase tracking-wide" style={{color:'#34d399'}}>
+                    ✓ On your ballot
+                  </span>
+                ) : (
+                  <button
+                    onClick={onSelect}
+                    className="ml-auto whitespace-nowrap flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-sm uppercase tracking-wide transition-all active:scale-95 bg-white text-slate-900 hover:bg-slate-100"
+                  >
+                    + Add to Ballot
+                  </button>
+                )
               )}
             </div>
           </div>
@@ -4420,6 +4584,17 @@
 
       const races = filterRacesByDistrict(countyData[activeTab] || [], userDistricts);
       const selectedCount = Object.keys(selected).length;
+      // Same lean-coded CTA colors as the Pre-Ballot page (blue/red/purple by the
+      // voter's own views; neutral slate when nothing answered).
+      const leanCounts = { A: 0, B: 0, C: 0 };
+      issues.forEach(i => { const p = deriveVoterPos(i.id, answers, checkedStatements); if (leanCounts[p] !== undefined) leanCounts[p]++; });
+      const ctaColors = leanCounts.A === 0 && leanCounts.B === 0 && leanCounts.C === 0
+        ? { grad: 'linear-gradient(90deg,#334155,#475569)', border: '#94a3b8', glow: 'rgba(100,116,139,0.45)' }
+        : leanCounts.A > leanCounts.C
+          ? { grad: 'linear-gradient(90deg,#1d4ed8,#2563eb)', border: '#60a5fa', glow: 'rgba(37,99,235,0.45)' }
+          : leanCounts.C > leanCounts.A
+            ? { grad: 'linear-gradient(90deg,#b91c1c,#dc2626)', border: '#f87171', glow: 'rgba(220,38,38,0.45)' }
+            : { grad: 'linear-gradient(90deg,#7e22ce,#9333ea)', border: '#c084fc', glow: 'rgba(147,51,234,0.45)' };
       const tabsWithCounts = TABS.map(tab => {
         const tabRaces = filterRacesByDistrict(countyData[tab.key] || [], userDistricts);
         return { ...tab, count: tabRaces.filter(r => selected[r.office]).length };
@@ -4434,6 +4609,7 @@
             <div className="lg:hidden px-4 py-3">
               <div className="flex items-center justify-between gap-2">
                 <button onClick={onBack} className="text-sm text-slate-400 hover:text-white font-medium flex items-center gap-1 transition-colors shrink-0">{backLabel}</button>
+                <CountyBanner compact county={county} counties={counties} setCounty={setCounty} userDistricts={userDistricts} setUserDistricts={setUserDistricts} onMyCandidates={() => setShowAddr(true)} />
                 <BetaChip />
               </div>
               <div className="mt-3">
@@ -4450,6 +4626,9 @@
               <div className="mx-auto">
                 <CategoryTabs tabs={tabsWithCounts} activeTab={activeTab} setActiveTab={setActiveTab} size="desktop" />
               </div>
+              <div className="absolute right-8">
+                <CountyBanner compact county={county} counties={counties} setCounty={setCounty} userDistricts={userDistricts} setUserDistricts={setUserDistricts} onMyCandidates={() => setShowAddr(true)} />
+              </div>
             </div>
           </header>
           {showAddr && (
@@ -4460,19 +4639,14 @@
               onShowAll={() => setShowAddr(false)} />
           )}
 
-          {/* County indicator + Build My Ballot — frosted glass row */}
-          <div className="max-w-5xl mx-auto px-4 pt-3 flex flex-col sm:flex-row items-stretch gap-3">
-            {/* County banner = county switcher (My Candidates + county list) */}
-            <CountyBanner county={county} counties={counties} setCounty={setCounty} userDistricts={userDistricts} setUserDistricts={setUserDistricts} onMyCandidates={() => setShowAddr(true)} />
-            {/* Right — Build My Ballot (frosted glass; green when races selected, blue lead otherwise) */}
-            <button onClick={onBallot}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-sm uppercase tracking-widest transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
-              style={selectedCount > 0
-                ? {background:'linear-gradient(135deg, rgba(22,163,74,0.42), rgba(5,150,105,0.26))', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', border:'1px solid rgba(134,239,172,0.45)', boxShadow:'0 10px 28px rgba(22,163,74,0.28), inset 0 1px 0 rgba(255,255,255,0.28)', color:'#fff', letterSpacing:'0.06em'}
-                : {background:'linear-gradient(135deg, rgba(59,130,246,0.42), rgba(37,99,235,0.26))', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', border:'1px solid rgba(147,197,253,0.45)', boxShadow:'0 10px 28px rgba(37,99,235,0.28), inset 0 1px 0 rgba(255,255,255,0.28)', color:'#fff', letterSpacing:'0.06em'}}>
-              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-              {selectedCount > 0 ? `Build My Ballot · ${selectedCount} race${selectedCount !== 1 ? 's' : ''}` : 'Build My Ballot →'}
-            </button>
+          {/* Section header — solid banner naming the active section */}
+          <div style={{background:'rgba(255,255,255,0.06)', borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
+            <div className="max-w-5xl mx-auto w-full px-4 py-2.5 flex items-center gap-2">
+              <p className="text-white font-black uppercase tracking-wide text-[17px] leading-none" style={{fontFamily:"'Barlow Condensed',sans-serif", letterSpacing:'0.06em'}}>
+                Compare {TABS.find(t => t.key === activeTab)?.label} Candidates
+              </p>
+              <span className="text-[11px] font-bold" style={{color:'#34d399'}}>{races.length} races</span>
+            </div>
           </div>
 
           {/* Race list */}
@@ -4496,7 +4670,7 @@
                     <button onClick={() => toggleRace(race.office)}
                       className="w-full lg:w-1/2 flex text-left hover:brightness-110 transition-all cursor-pointer border-b border-white/10 lg:border-b-0 lg:border-r lg:border-white/20">
                       {/* Title col */}
-                      <div className="flex-1 lg:w-1/2 px-5 py-4 lg:py-5 flex items-center justify-center lg:flex-col lg:items-center lg:justify-center border-r border-white/20">
+                      <div className="flex-1 lg:w-1/2 px-4 py-2.5 lg:py-4 flex items-center justify-center lg:flex-col lg:items-center lg:justify-center border-r border-white/20">
                         {isSelected && <span className="text-sm text-emerald-400 font-bold mr-2 lg:mr-0 lg:mb-2">✓</span>}
                         <h2 className="text-white font-black uppercase leading-tight text-center"
                           style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'20px', letterSpacing:'0.04em'}}>
@@ -4620,15 +4794,19 @@
               );
             })}
 
-            {selectedCount > 0 && (
-              <div className="pt-2 pb-6">
-                <button onClick={onBallot}
-                  className="w-full py-4 bg-slate-900 text-white font-black rounded-xl hover:bg-slate-700 transition-colors text-sm tracking-wide">
-                  Build My Ballot ({selectedCount} race{selectedCount !== 1 ? 's' : ''} selected) →
-                </button>
-              </div>
-            )}
+            {/* Spacer so the last race card can scroll clear of the fixed bar */}
+            <div style={{height:'84px'}} />
           </main>
+
+          {/* Fixed finish line — Build My Ballot always on screen */}
+          <div className="fixed bottom-0 left-0 right-0 z-40 px-4 pt-3 pb-4" style={{background:'linear-gradient(to top, #0c1a2e 65%, rgba(12,26,46,0))'}}>
+            <button onClick={onBallot}
+              className="w-full max-w-5xl mx-auto flex items-center justify-center gap-2 py-3.5 rounded-full font-black text-sm uppercase tracking-widest text-white transition-all hover:brightness-110 active:scale-[0.99]"
+              style={{background: ctaColors.grad, border: `1px solid ${ctaColors.border}`, letterSpacing:'0.12em', boxShadow: `0 8px 24px ${ctaColors.glow}`}}>
+              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              {selectedCount > 0 ? `Build My Ballot · ${selectedCount} race${selectedCount !== 1 ? 's' : ''} →` : 'Build My Ballot →'}
+            </button>
+          </div>
 
           {showFilterModal && (
             <AddressModal
@@ -4739,6 +4917,7 @@
       const countyData = counties[county];
       const hasAnswers = answers && Object.keys(answers).length > 0;
       const [downloading, setDownloading] = React.useState(false);
+      const [showEmailTBA, setShowEmailTBA] = React.useState(false);
 
       // Share the guide — native share sheet when available, else copy-link, else a manual-copy prompt (never silently fails).
       async function handleShareGuide() {
@@ -4863,27 +5042,30 @@
 
       return (
         <div className="min-h-screen" style={{background:'#e2e8f0'}}>
-          {/* Screen-only nav bar */}
-          <header className="no-print sticky top-0 z-10 px-4 py-3 flex items-center justify-center gap-3 relative"
+          {/* Screen-only nav bar — fixed so Save/Print/Back stay on screen while scrolling */}
+          <div className="no-print" style={{height:'64px'}} />
+          <header className="no-print fixed top-0 left-0 right-0 z-40 px-3 py-3 flex items-center gap-2"
             style={{background:'#0f172a', borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
-            <button onClick={onBack} className="absolute left-4 text-slate-400 hover:text-white text-sm font-semibold flex items-center gap-1.5">
+            <button onClick={onBack}
+              className="shrink-0 flex items-center gap-1 text-white text-sm font-black uppercase tracking-wide px-2.5 py-2.5 rounded-xl active:scale-95 transition-transform"
+              style={{background:'rgba(255,255,255,0.12)', border:'1px solid rgba(255,255,255,0.25)'}}>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/></svg>
-              <span className="hidden sm:inline">Back</span>
+              <span className="hidden md:inline">Back</span>
             </button>
             {/* Centered action buttons — rounded-rectangle, prominent */}
-            <div className="flex items-center gap-2.5">
+            <div className="flex-1 flex items-center justify-center gap-2 sm:gap-2.5 min-w-0">
               <button onClick={handleDownloadPDF} disabled={downloading}
-                className="flex items-center gap-2 text-sm font-black uppercase tracking-wide px-4 py-2.5 rounded-xl text-white whitespace-nowrap active:scale-95 transition-transform"
+                className="flex items-center gap-1.5 text-[13px] sm:text-sm font-black uppercase tracking-wide px-3 sm:px-4 py-2.5 rounded-xl text-white whitespace-nowrap active:scale-95 transition-transform"
                 style={{background:'#16a34a', letterSpacing:'0.04em', boxShadow:'0 2px 8px rgba(0,0,0,0.35)', opacity: downloading ? 0.6 : 1}}>
                 <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                 {downloading ? 'Saving…' : 'Save PDF'}
               </button>
-              <button onClick={() => window.print()} className="flex items-center gap-2 text-sm font-black uppercase tracking-wide px-4 py-2.5 rounded-xl text-white whitespace-nowrap active:scale-95 transition-transform"
+              <button onClick={() => window.print()} className="flex items-center gap-1.5 text-[13px] sm:text-sm font-black uppercase tracking-wide px-3 sm:px-4 py-2.5 rounded-xl text-white whitespace-nowrap active:scale-95 transition-transform"
                 style={{background:'#2563eb', letterSpacing:'0.04em', boxShadow:'0 2px 8px rgba(0,0,0,0.35)'}}>
                 <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                 Print
               </button>
-              <button onClick={handleShareGuide} className="flex items-center gap-2 text-sm font-black uppercase tracking-wide px-4 py-2.5 rounded-xl text-white whitespace-nowrap active:scale-95 transition-transform"
+              <button onClick={handleShareGuide} className="flex items-center gap-1.5 text-[13px] sm:text-sm font-black uppercase tracking-wide px-3 sm:px-4 py-2.5 rounded-xl text-white whitespace-nowrap active:scale-95 transition-transform"
                 style={{background:'#7c3aed', letterSpacing:'0.04em', boxShadow:'0 2px 8px rgba(0,0,0,0.35)'}}>
                 <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.7 10.7l6.6-3.4M8.7 13.3l6.6 3.4M18 8a3 3 0 10-3-3 3 3 0 003 3zM6 15a3 3 0 10-3-3 3 3 0 003 3zm12 7a3 3 0 10-3-3 3 3 0 003 3z"/></svg>
                 Share
@@ -4959,33 +5141,39 @@
                   Key <span style={{color:'#2563eb'}}>Dates &amp; Times</span>
                 </div>
               </div>
-              <div className="ballot-dates" style={{display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:'6px 24px'}}>
+              {/* 4 calendar tiles — big, readable at arm's length */}
+              <div className="ballot-date-tiles">
                 {[
-                  {label:'Register by', value:'Oct 5, 2026'},
-                  {label:'Early voting', value:'Oct 19–30, 2026'},
-                  {label:'Election Day', value:'Nov 4, 2026'},
-                  {label:'Poll hours', value:'7 AM – 7 PM'},
+                  {label:'Register by', value:'Oct 5', sub:'2026', color:'#d97706'},
+                  {label:'Early voting', value:'Oct 19–30', sub:'2026', color:'#16a34a'},
+                  {label:'Election Day', value:'Nov 4', sub:'2026', color:'#dc2626'},
+                  {label:'Poll hours', value:'7 AM – 7 PM', sub:'every voting day', color:'#2563eb'},
                 ].map((d, i) => (
-                  <div key={i} style={{display:'flex', alignItems:'baseline', justifyContent:'space-between', gap:'10px', borderBottom:'1px solid #eef2f7', padding:'5px 0'}}>
-                    <span style={{fontSize:'10px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.05em', color:'#64748b'}}>{d.label}</span>
-                    <span style={{fontSize:'13px', fontWeight:900, color:'#0f172a', whiteSpace:'nowrap'}}>{d.value}</span>
+                  <div key={i} style={{border:'1.5px solid #e2e8f0', borderTop:`4px solid ${d.color}`, borderRadius:'10px', padding:'10px 8px 9px', textAlign:'center', background:'#f8fafc'}}>
+                    <div style={{fontSize:'9.5px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.08em', color:'#64748b'}}>{d.label}</div>
+                    <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'21px', fontWeight:900, color:'#0f172a', lineHeight:1.05, marginTop:'3px', whiteSpace:'nowrap'}}>{d.value}</div>
+                    <div style={{fontSize:'9.5px', fontWeight:700, color:'#94a3b8', marginTop:'2px'}}>{d.sub}</div>
                   </div>
                 ))}
               </div>
-              {/* Not-registered helper — for people who aren't on the rolls yet */}
-              <div style={{marginTop:'10px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:'12px', background:'#eff6ff', border:'1px solid #bfdbfe', borderRadius:'10px', padding:'10px 16px'}}>
-                <div style={{display:'flex', alignItems:'center', gap:'12px', minWidth:0}}>
-                  <img src="/icons/illustrations/MagnifyingGlass.png" alt="" style={{height:'34px', width:'auto', flexShrink:0}} onError={e=>{e.currentTarget.style.display='none';}} />
+              {/* Registration helpers — two separate clickable boxes (distinct vote.org URLs, kept clickable in the PDF) */}
+              <div className="ballot-locs" style={{marginTop:'10px', display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:'10px'}}>
+                <a href="https://www.vote.org/am-i-registered-to-vote/" target="_blank" rel="noopener noreferrer"
+                   style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'10px', background:'#eff6ff', border:'1px solid #bfdbfe', borderRadius:'10px', padding:'10px 14px', textDecoration:'none'}}>
                   <div style={{minWidth:0}}>
                     <div style={{fontSize:'12.5px', fontWeight:900, color:'#0f172a', lineHeight:1.2}}>Not sure you're registered?</div>
-                    <div style={{fontSize:'11.5px', color:'#475569', marginTop:'2px', lineHeight:1.3}}>
-                      <a href="https://www.vote.org/am-i-registered-to-vote/" target="_blank" rel="noopener noreferrer" style={{color:'#2563eb', fontWeight:900}}>Check your status</a>
-                      <span style={{color:'#94a3b8'}}> · </span>
-                      <a href="https://www.vote.org/register-to-vote/" target="_blank" rel="noopener noreferrer" style={{color:'#2563eb', fontWeight:900}}>Register to vote</a>
-                    </div>
+                    <div style={{fontSize:'11.5px', color:'#2563eb', fontWeight:900, marginTop:'2px', lineHeight:1.3}}>Check your status →</div>
                   </div>
-                </div>
-                <span className="voteorg-svg" role="img" aria-label="vote.org" style={{flexShrink:0}} dangerouslySetInnerHTML={{__html: VOTEORG_SVG}} />
+                  <span className="voteorg-svg" role="img" aria-label="vote.org" style={{flexShrink:0}} dangerouslySetInnerHTML={{__html: VOTEORG_SVG}} />
+                </a>
+                <a href="https://www.vote.org/register-to-vote/" target="_blank" rel="noopener noreferrer"
+                   style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'10px', background:'#f0fdf4', border:'1px solid #bbf7d0', borderRadius:'10px', padding:'10px 14px', textDecoration:'none'}}>
+                  <div style={{minWidth:0}}>
+                    <div style={{fontSize:'12.5px', fontWeight:900, color:'#0f172a', lineHeight:1.2}}>Not registered yet?</div>
+                    <div style={{fontSize:'11.5px', color:'#16a34a', fontWeight:900, marginTop:'2px', lineHeight:1.3}}>Register to vote →</div>
+                  </div>
+                  <span className="voteorg-svg" role="img" aria-label="vote.org" style={{flexShrink:0}} dangerouslySetInnerHTML={{__html: VOTEORG_SVG}} />
+                </a>
               </div>
             </div>
 
@@ -5004,17 +5192,24 @@
                 </div>
               </div>
               {/* Locations — 2-column grid */}
-              <div style={{display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:'12px'}}>
+              <div className="ballot-locs" style={{display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:'12px'}}>
                 {[
-                  {name:'Closest Polling Location #1', addr:'Address TBA'},
-                  {name:'Closest Polling Location #2', addr:'Address TBA'},
+                  {name:'Closest Polling Location #1', addr:'Address TBA', when:'both'},
+                  {name:'Closest Polling Location #2', addr:'Address TBA', when:'both'},
+                  {name:'Closest Polling Location #3', addr:'Address TBA', when:'early'},
+                  {name:'Closest Polling Location #4', addr:'Address TBA', when:'early'},
                 ].map((loc, i) => (
                   <div key={i} className="ballot-loc-box" style={{display:'flex', alignItems:'center', gap:'12px', background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:'10px', padding:'12px 16px'}}>
                     <div style={{flexShrink:0, width:'30px', height:'30px', borderRadius:'50%', background:'#2563eb', display:'flex', alignItems:'center', justifyContent:'center'}}>
                       <svg style={{width:'16px', height:'16px', color:'#fff'}} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
                     </div>
-                    <div style={{minWidth:0}}>
-                      <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'15px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.04em', color:'#0f172a', lineHeight:1.1}}>{loc.name}</div>
+                    <div style={{minWidth:0, flex:1}}>
+                      <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'8px'}}>
+                        <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'15px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.04em', color:'#0f172a', lineHeight:1.1}}>{loc.name}</div>
+                        <span style={{flexShrink:0, display:'inline-flex', alignItems:'center', justifyContent:'center', height:'18px', fontSize:'9px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.05em', padding:'0 9px', borderRadius:'9px', background: loc.when === 'both' ? '#16a34a' : '#d97706', color:'#fff', whiteSpace:'nowrap', lineHeight:'18px'}}>
+                          {loc.when === 'both' ? 'Early + Election Day' : 'Early Voting Only'}
+                        </span>
+                      </div>
                       <div style={{fontSize:'11.5px', color:'#64748b', marginTop:'3px', lineHeight:1.25}}>{loc.addr}</div>
                     </div>
                   </div>
@@ -5022,22 +5217,71 @@
               </div>
             </div>
 
-            <div className="no-print flex gap-3 mt-8 pb-6">
-              <button onClick={onHome}
-                className="flex-1 py-3 rounded-xl font-bold text-sm"
-                style={{border:'1.5px solid #e2e8f0', color:'#475569'}}>
-                ← Back to Home
-              </button>
-              <button onClick={handleDownloadPDF} disabled={downloading}
-                className="flex-1 py-3 rounded-xl font-black text-sm text-white"
-                style={{background:'#16a34a', opacity: downloading ? 0.6 : 1}}>
-                {downloading ? 'Saving…' : '⬇ Save PDF'}
-              </button>
-              <button onClick={() => window.print()}
-                className="flex-1 py-3 rounded-xl font-black text-sm text-white"
-                style={{background:'#0f172a'}}>
-                🖨 Print
-              </button>
+            {/* What to bring — Texas voter ID checklist (turns the printout into a complete voting kit) */}
+            <div data-sec="bring" style={{marginTop:'24px', borderTop:'2px solid #0f172a', paddingTop:'18px'}}>
+              <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'12px'}}>
+                <div style={{flexShrink:0, width:'40px', height:'40px', borderRadius:'10px', background:'#eff6ff', border:'1px solid #bfdbfe', display:'flex', alignItems:'center', justifyContent:'center'}}>
+                  <svg style={{width:'22px', height:'22px', color:'#2563eb'}} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="2"/><path d="M5.5 17c.6-1.8 1.7-2.6 3-2.6s2.4.8 3 2.6M14 9.5h5M14 12.5h5M14 15.5h3"/></svg>
+                </div>
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'26px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.06em', lineHeight:1, color:'#0f172a'}}>
+                  What to <span style={{color:'#2563eb'}}>Bring</span>
+                </div>
+              </div>
+              <div className="ballot-checklist">
+                <div style={{background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:'10px', padding:'12px 16px'}}>
+                  <div style={{fontSize:'11px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.06em', color:'#0f172a', marginBottom:'7px'}}>Any ONE of these photo IDs:</div>
+                  {['Texas driver license', 'Texas personal ID card', 'Texas handgun license (LTC)', 'Texas Election ID certificate', 'U.S. passport (book or card)', 'U.S. military ID with photo', 'U.S. citizenship certificate with photo'].map((id, i) => (
+                    <div key={i} style={{display:'flex', alignItems:'center', gap:'8px', padding:'2.5px 0'}}>
+                      <span style={{flexShrink:0, width:'13px', height:'13px', border:'1.5px solid #94a3b8', borderRadius:'3px'}} />
+                      <span style={{fontSize:'11.5px', color:'#334155', lineHeight:1.25}}>{id}</span>
+                    </div>
+                  ))}
+                  <div style={{fontSize:'10px', color:'#64748b', marginTop:'7px', lineHeight:1.35, fontStyle:'italic'}}>Expired up to 4 years is still OK. Age 70+? Any expiration works.</div>
+                </div>
+                <div style={{background:'#fffbeb', border:'1px solid #fde68a', borderRadius:'10px', padding:'12px 16px'}}>
+                  <div style={{fontSize:'11px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.06em', color:'#0f172a', marginBottom:'7px'}}>Good to know:</div>
+                  {[
+                    'Bring this printed ballot — it\'s legal to use it in the booth',
+                    'Any line at closing time? Stay in it — you can still vote',
+                    'No photo ID? Ask for a "Reasonable Impediment Declaration"',
+                    'Phones must stay in your pocket inside the polling place',
+                  ].map((tip, i) => (
+                    <div key={i} style={{display:'flex', alignItems:'flex-start', gap:'8px', padding:'3px 0'}}>
+                      <span style={{flexShrink:0, color:'#d97706', fontWeight:900, fontSize:'12px', lineHeight:'1.2'}}>★</span>
+                      <span style={{fontSize:'11.5px', color:'#334155', lineHeight:1.3}}>{tip}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+
+            {/* Email-my-ballot reminder card — screen only */}
+            <div className="no-print mt-8 mb-6 rounded-2xl overflow-hidden relative"
+                 style={{background:'linear-gradient(135deg,#1e1b4b 0%,#0f172a 70%)', border:'1.5px solid rgba(251,191,36,0.5)', boxShadow:'0 12px 32px rgba(0,0,0,0.35)'}}>
+              <div className="flex items-center gap-4 p-5">
+                <img src="/icons/illustrations/Email%20Me%202.png" alt="Email my ballot"
+                  className="shrink-0 w-[116px] h-[116px] sm:w-[134px] sm:h-[134px] object-contain"
+                  onError={e => { e.currentTarget.style.display='none'; }} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1" style={{color:'#f59e0b'}}>Don't lose this!</p>
+                  <p className="text-white font-black uppercase leading-tight text-[19px] sm:text-[22px]" style={{fontFamily:"'Barlow Condensed',sans-serif", letterSpacing:'0.03em'}}>
+                    We'll email your ballot back to you
+                  </p>
+                  <p className="text-slate-300 text-xs sm:text-sm leading-snug mt-1">Get it as a reminder <strong className="text-white">one week before early voting starts</strong> — right when you need it.</p>
+                </div>
+              </div>
+              <div className="px-5 pb-5">
+                <button onClick={() => setShowEmailTBA(true)}
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-full font-black text-xs uppercase whitespace-nowrap transition-all hover:brightness-110 active:scale-95"
+                  style={{letterSpacing:'0.1em', color:'#0f172a', background:'linear-gradient(135deg,#fbbf24,#d97706)', boxShadow:'0 6px 18px rgba(217,119,6,0.45)'}}>
+                  <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.4}>
+                    <rect x="3" y="5" width="18" height="14" rx="2"/>
+                    <path d="M3 7l9 6 9-6"/>
+                  </svg>
+                  Email My Ballot →
+                </button>
+              </div>
             </div>
 
             {/* Print footer — fixed to bottom of every printed page */}
@@ -5046,6 +5290,24 @@
             </div>
           </main>
           </div>
+
+          {/* Email-my-ballot TBA modal */}
+          {showEmailTBA && (
+            <div className="no-print fixed inset-0 z-50 flex items-center justify-center px-4" style={{background:'rgba(0,0,0,0.8)'}} onClick={() => setShowEmailTBA(false)}>
+              <div className="w-full max-w-sm rounded-2xl p-6 text-center" onClick={e => e.stopPropagation()}
+                   style={{background:'linear-gradient(160deg,#1e1b4b,#0f172a)', border:'1.5px solid rgba(251,191,36,0.5)', boxShadow:'0 24px 60px rgba(0,0,0,0.6)'}}>
+                <img src="/icons/illustrations/Email%20Me%202.png" alt="" className="mx-auto w-24 h-24 object-contain mb-3" onError={e => { e.currentTarget.style.display='none'; }} />
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{color:'#f59e0b'}}>Coming soon</p>
+                <p className="text-white font-black uppercase leading-tight text-[20px] mb-2" style={{fontFamily:"'Barlow Condensed',sans-serif", letterSpacing:'0.03em'}}>Ballot email reminders</p>
+                <p className="text-slate-300 text-sm leading-relaxed mb-5">We're building this now! Soon you'll be able to get your ballot emailed to you one week before early voting starts. For now, save the PDF or print your ballot above.</p>
+                <button onClick={() => setShowEmailTBA(false)}
+                  className="w-full py-3 rounded-full font-black text-xs uppercase tracking-widest transition-all hover:brightness-110 active:scale-[0.98]"
+                  style={{letterSpacing:'0.14em', color:'#0f172a', background:'linear-gradient(135deg,#fbbf24,#d97706)'}}>
+                  Got it
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       );
     }
@@ -5347,6 +5609,19 @@
         return ['', 'index.html', 'statements', 'ballot'].includes(p.toLowerCase()) ? null : p;
       })();
       const [screen, setScreen] = useState(_params.get('testBallot') === '1' ? 'loading' : SHEETS.master ? 'loading' : 'landing');
+      // Browser back/forward support: mirror screen changes into history so the
+      // browser Back button navigates the app instead of reloading the page.
+      useEffect(() => {
+        window.history.replaceState({ vyvScreen: screen }, '');
+        const onPop = (e) => { const s = e.state && e.state.vyvScreen; if (s) setScreen(s); };
+        window.addEventListener('popstate', onPop);
+        return () => window.removeEventListener('popstate', onPop);
+      }, []);
+      useEffect(() => {
+        if (screen === 'loading') return;
+        if (window.history.state && window.history.state.vyvScreen === screen) return; // popstate restore — don't re-push
+        window.history.pushState({ vyvScreen: screen }, '');
+      }, [screen]);
       // ?persist=1 in URL uses localStorage (for testing); otherwise sessionStorage (clears on new visit)
       const store = new URLSearchParams(window.location.search).get('persist') === '1' ? localStorage : sessionStorage;
       const [county, setCounty] = useState(() => store.getItem('vyv_county') || 'hays');
@@ -5408,6 +5683,9 @@
         setSelected(prev => ({ ...autoSelected, ...prev }));
       }, [answers, ranks, checkedStatements, counties]);
       const [startIssueId, setStartIssueId] = useState(null);
+      // Landing "picker mode": after a quiz submit, show the bare icon grid so the
+      // user picks the next issue visually instead of being marched issue-to-issue.
+      const [landingPicker, setLandingPicker] = useState(false);
       const [quizReturnScreen, setQuizReturnScreen] = useState(null); // single-issue "rate this" → return here after one answer
       const [quizEntryIssueId, setQuizEntryIssueId] = useState(null);  // the issue the quiz was ENTERED on → BACK past it returns to origin, not the positional-previous issue
       const [reopenProfile, setReopenProfile] = useState(null); // candidate profile to reopen when returning from "rate this"
@@ -5521,9 +5799,10 @@
             issues={issues}
             answers={answers}
             checkedStatements={checkedStatements}
+            picker={landingPicker}
             onQuiz={(id) => { const startId = id || (issues[0] && issues[0].id); setStartIssueId(startId); setQuizEntryIssueId(startId); setPendingScreen('landing'); setScreen('quiz'); }}
             onSummary={() => { setResultsReturn('landing'); userDistricts ? setScreen('results') : setAddrModal('results'); }}
-            onStartOver={() => { setAnswers({}); setRanks({}); setCheckedStatements({}); setSelected({}); setStartIssueId(null); store.removeItem('vyv_answers'); store.removeItem('vyv_ranks'); store.removeItem('vyv_stmts'); }}
+            onStartOver={() => { setAnswers({}); setRanks({}); setCheckedStatements({}); setSelected({}); setStartIssueId(null); setLandingPicker(false); store.removeItem('vyv_answers'); store.removeItem('vyv_ranks'); store.removeItem('vyv_stmts'); }}
             onBrowse={() => { setBrowseReturn('landing'); userDistricts ? setScreen('browse') : setAddrModal('browse'); }}
           />
           {addrModal && (
@@ -5589,14 +5868,11 @@
                 setStartIssueId(null);
                 setScreen('browse');
               } else {
-                const currentIdx = issues.findIndex(i => i.id === issue.id);
-                const nextIssue = issues[currentIdx + 1];
-                if (nextIssue) {
-                  setStartIssueId(nextIssue.id);
-                } else {
-                  setStartIssueId(null);
-                  setScreen('landing');
-                }
+                // Return to the landing grid in picker mode so the user chooses
+                // the next issue visually instead of being auto-advanced.
+                setStartIssueId(null);
+                setLandingPicker(true);
+                setScreen('landing');
               }
             }}
             onBack={() => {
@@ -5633,8 +5909,8 @@
                 return next;
               });
             }}
-            onHome={() => { setStartIssueId(null); setScreen('landing'); }}
-            onStartOver={() => { setAnswers({}); setRanks({}); setSelected({}); setStartIssueId(null); setScreen('landing'); store.removeItem('vyv_answers'); store.removeItem('vyv_ranks'); }}
+            onHome={() => { setStartIssueId(null); setLandingPicker(false); setScreen('landing'); }}
+            onStartOver={() => { setAnswers({}); setRanks({}); setSelected({}); setStartIssueId(null); setLandingPicker(false); setScreen('landing'); store.removeItem('vyv_answers'); store.removeItem('vyv_ranks'); }}
             answers={answers}
             onSummary={() => { setStartIssueId(null); setResultsReturn('landing'); userDistricts ? setScreen('results') : setAddrModal('results'); }}
           />
@@ -5666,8 +5942,8 @@
             onMatchMine={(districts) => { setUserDistricts(districts); setResultsReturn('summary'); setScreen('results'); }}
             onViewConstellation={() => setScreen('constellation')}
             onAnswerMore={(id) => { setStartIssueId(id); setPendingScreen('summary'); setScreen('quiz'); }}
-            onHome={() => { setStartIssueId(null); setScreen('landing'); }}
-            onStartOver={() => { setAnswers({}); setRanks({}); setSelected({}); setStartIssueId(null); setScreen('landing'); store.removeItem('vyv_answers'); store.removeItem('vyv_ranks'); }}
+            onHome={() => { setStartIssueId(null); setLandingPicker(false); setScreen('landing'); }}
+            onStartOver={() => { setAnswers({}); setRanks({}); setSelected({}); setStartIssueId(null); setLandingPicker(false); setScreen('landing'); store.removeItem('vyv_answers'); store.removeItem('vyv_ranks'); }}
           />
         );
       }
