@@ -151,6 +151,11 @@
     /* Ballot mobile responsive rules live in the @container block above (keyed to sheet width, not viewport) */
 
     @media print {
+      @page { size: letter; margin: 9mm 11mm; }
+      /* Exactly 2 pages: page 1 ends with county races, Judicial opens page 2 */
+      [data-sec="judicial"] { break-before: page; page-break-before: always; }
+      [data-sec="dates"], [data-sec="polling"], [data-sec="bring"] { margin-top: 8px !important; padding-top: 8px !important; break-inside: avoid; page-break-inside: avoid; }
+      .ballot-loc-box, .ballot-date-tiles, .ballot-checklist { break-inside: avoid; page-break-inside: avoid; }
       /* Hide everything except the ballot */
       .no-print { display: none !important; }
       header { display: none !important; }
@@ -174,7 +179,7 @@
       #root { width: 7.5in !important; }
       .ballot-grid { grid-template-columns: repeat(7, 1fr) !important; gap: 4px !important; }
       .ballot-picks { column-count: 3 !important; column-gap: 18px !important; }
-      .ballot-page { width: 100% !important; padding: 0 !important; margin: 0 !important; box-shadow: none !important; }
+      .ballot-page { width: 100% !important; padding: 0 !important; margin: 0 !important; box-shadow: none !important; zoom: 0.96; }
       main { max-width: 100% !important; padding: 8px 12px !important; width: 100% !important; }
 
       /* Candidate cards */
@@ -4128,34 +4133,49 @@
           noprint.forEach(n => { n.style.display = 'none'; });
           await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-          const pageRect = page.getBoundingClientRect();
-          const rel = (el) => { const r = el.getBoundingClientRect(); return { x: r.left - pageRect.left, y: r.top - pageRect.top, w: r.width, h: r.height }; };
-          // Links to keep clickable in the PDF (logo → site; registration → vote.org; polling → maps).
+          // ALL geometry (links, band/badge repaints, the judicial page-break) is measured inside
+          // html2canvas's CLONE, not the live page: on narrow viewports the live page lays out in
+          // the mobile arrangement (much taller) even with the width forced, while the clone renders
+          // at windowWidth 900 in the desktop arrangement — live rects land in the wrong place.
           const links = [];
-          const bannerA = page.querySelector('a[href*="voteyourviews.org"]'); if (bannerA) links.push({ r: rel(bannerA), url: 'https://voteyourviews.org' });
-          page.querySelectorAll('a[href*="vote.org"], a[href*="google.com/maps"], a[href*="maps.apple"]').forEach(a => links.push({ r: rel(a), url: a.href }));
-
-          // html2canvas misplaces text inside tight colored boxes (draws it ~5px low), so pill badges
-          // and section bands get repainted directly onto the captured canvas afterwards. Their
-          // geometry MUST be measured here, pre-capture, in the same coordinate space as the link
-          // rects — html2canvas can leave the live page scrolled/reflowed on mobile, so rects taken
-          // after capture land in the wrong place. (And never swap them for data-URL images in the
-          // clone: mobile Safari snapshots before those decode — blank bands/badges.)
           const repaints = [];
-          page.querySelectorAll('.ballot-badge, .ballot-band').forEach(el => {
-            const r = rel(el); if (!r.w || !r.h) return;
-            const st = getComputedStyle(el);
-            repaints.push({ r, text: el.textContent.trim().toUpperCase(),
-              bg: st.backgroundColor, color: st.color, fontWeight: st.fontWeight,
-              fontSize: parseFloat(st.fontSize), fontFamily: st.fontFamily,
-              letterSpacing: parseFloat(st.letterSpacing) || 0,
-              radius: Math.min(parseFloat(st.borderRadius) || 0, r.h / 2) });
-          });
+          let judicialCloneY = null;
 
           const canvas = await html2canvas(page, { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 900,
             onclone: (doc) => {
               // html2canvas re-runs CSS animations on its clone — disable them so we don't capture a mid-fade (grayed-out) frame.
               doc.querySelectorAll('.fade-in, .slide-in, .issue-enter, [class*="fade"], [class*="slide"]').forEach(n => { n.style.animation = 'none'; n.style.opacity = '1'; n.style.transform = 'none'; });
+
+              const cp = doc.querySelector('.ballot-page');
+              if (!cp) return;
+              const cpr = cp.getBoundingClientRect();
+              const crel = (el) => { const r = el.getBoundingClientRect(); return { x: r.left - cpr.left, y: r.top - cpr.top, w: r.width, h: r.height }; };
+              const cs = (el) => { try { return (doc.defaultView || window).getComputedStyle(el); } catch (e) { return window.getComputedStyle(el); } };
+
+              // Links to keep clickable in the PDF (logo → site; registration → vote.org; polling → maps).
+              const bannerA = cp.querySelector('a[href*="voteyourviews.org"]'); if (bannerA) links.push({ r: crel(bannerA), url: 'https://voteyourviews.org' });
+              cp.querySelectorAll('a[href*="vote.org"], a[href*="google.com/maps"], a[href*="maps.apple"]').forEach(a => links.push({ r: crel(a), url: a.href }));
+
+              // html2canvas misplaces text inside tight colored boxes (draws it ~5px low), so pill
+              // badges and section bands get repainted directly onto the captured canvas afterwards.
+              // (Never swap them for data-URL images in the clone: mobile Safari snapshots before
+              // those decode — blank bands/badges.)
+              cp.querySelectorAll('.ballot-badge, .ballot-band').forEach(el => {
+                const r = crel(el); if (!r.w || !r.h) return;
+                const st = cs(el);
+                repaints.push({ r, text: el.textContent.trim().toUpperCase(),
+                  bg: st.backgroundColor, color: st.color, fontWeight: st.fontWeight,
+                  fontSize: parseFloat(st.fontSize), fontFamily: st.fontFamily,
+                  letterSpacing: parseFloat(st.letterSpacing) || 0,
+                  radius: Math.min(parseFloat(st.borderRadius) || 0, r.h / 2) });
+                // Hide the original in the clone (visibility keeps its layout space): on narrow
+                // viewports html2canvas paints these boxes at ~2x scale in the wrong place — the
+                // repaint below is the only rendering we trust.
+                el.style.visibility = 'hidden';
+              });
+
+              const jud = cp.querySelector('[data-sec="judicial"]');
+              if (jud) judicialCloneY = crel(jud).y;
             }
           });
 
@@ -4165,6 +4185,9 @@
             repaints.forEach(p => {
               const x0 = p.r.x * k, y0 = p.r.y * k, w = p.r.w * k, h = p.r.h * k;
               ctx.save();
+              // html2canvas leaves its internal transform (scale + scroll translate) on the context —
+              // reset to identity or every repaint lands scaled and offset (the giant-bands bug).
+              ctx.setTransform(1, 0, 0, 1, 0, 0);
               ctx.beginPath();
               if (ctx.roundRect) ctx.roundRect(x0, y0, w, h, p.radius * k); else ctx.rect(x0, y0, w, h);
               ctx.clip();
@@ -4187,13 +4210,11 @@
           // Exactly TWO letter pages: page 1 ends with the county races, page 2 starts at the
           // Judicial band. Each page is scaled down (slightly, centered) if its content runs long.
           const pageHpt = pdf.internal.pageSize.getHeight();                 // 792
-          const judicial = page.querySelector('[data-sec="judicial"]');
           const slices = [];
-          if (judicial) {
-            // The clone html2canvas renders can reflow a few px vs the live page, so don't trust
-            // live coordinates — find the Judicial band (solid dark bar) in the canvas pixels,
-            // searching around the live-page estimate.
-            const approxY = Math.round((judicial.getBoundingClientRect().top - pageRect.top) * cScale);
+          if (judicialCloneY !== null) {
+            // Belt & suspenders: the clone measurement is authoritative, but confirm against the
+            // canvas pixels — find the Judicial band (solid dark bar) near the estimate.
+            const approxY = Math.round(judicialCloneY * cScale);
             let breakY = approxY;
             try {
               const cx = canvas.getContext('2d');
@@ -4370,7 +4391,7 @@
             })}
 
             {/* Key Dates & Times */}
-            <div style={{marginTop:'14px', borderTop:'2px solid #0f172a', paddingTop:'12px'}}>
+            <div data-sec="dates" style={{marginTop:'14px', borderTop:'2px solid #0f172a', paddingTop:'12px'}}>
               <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'8px'}}>
                 <img src="/icons/illustrations/Time_to_Vote.png" alt="" style={{height:'38px', width:'auto', flexShrink:0}} onError={e=>{e.currentTarget.style.display='none';}} />
                 <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'22px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.06em', lineHeight:1, color:'#0f172a'}}>
@@ -4414,7 +4435,7 @@
             </div>
 
             {/* Polling locations — after candidates */}
-            <div style={{marginTop:'14px', borderTop:'2px solid #0f172a', paddingTop:'12px'}}>
+            <div data-sec="polling" style={{marginTop:'14px', borderTop:'2px solid #0f172a', paddingTop:'12px'}}>
               {/* Header row: title (left) + QR (right) */}
               <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'16px', marginBottom:'12px'}}>
                 <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
