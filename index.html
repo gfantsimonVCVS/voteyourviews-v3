@@ -1745,12 +1745,25 @@
       return (
         <div className="min-h-screen flex flex-col" style={{background:'linear-gradient(160deg,#0f172a 0%,#020617 100%)'}}>
 
-          {/* Header — picker mode gets a quiet white logo, no election info */}
+          {/* Header — picker mode: no logo, just the animated no-pressure pitch */}
           {picker ? (
-          <header className="flex items-center justify-center py-4 border-b border-white/5">
-            <button onClick={onLogo} className="active:scale-95 transition-transform" title="Back to home">
-              <img src="/icons/VoteYourViews_Logo_White.png" alt="VoteYourViews.org" className="h-[80px] lg:h-[100px] w-auto" />
+          <header className="relative pt-12 lg:pt-14 pb-1 px-6">
+            <button onClick={onLogo} className="absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full hover:opacity-80 transition-all" style={{background:'rgba(255,255,255,0.1)'}} title="Back to home">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/>
+                <path d="M9 21V12h6v9"/>
+              </svg>
             </button>
+            <div className="text-center max-w-xl mx-auto">
+              <h1 className="hero-in text-white font-black text-[27px] lg:text-4xl uppercase leading-tight tracking-wide" style={{fontFamily:"'Barlow Condensed', sans-serif"}}>
+                Answer one issue —<br className="lg:hidden"/> or all nine.
+              </h1>
+              <p className={`hero-in text-sm lg:text-base font-semibold mt-2 ${answeredCount === 9 ? 'text-amber-400' : 'text-slate-300'}`} style={{animationDelay:'0.6s'}}>
+                {answeredCount === 9
+                  ? '9 for 9. Your matches are dialed in!'
+                  : 'Your candidate matches are ready whenever you are.'}
+              </p>
+            </div>
           </header>
           ) : (
           <header className="flex items-center justify-center py-0 lg:py-5 border-b border-white/5 pt-[10px] lg:pt-0 px-[10px] lg:px-0">
@@ -1849,7 +1862,7 @@
                 {answeredCount > 0 && (
                   <div className="flex items-center gap-2">
                     <button onClick={onSummary} className="flex-1 py-2.5 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all duration-150 hover:opacity-95 active:scale-[0.97]" style={{background:'#2563eb', border:'1px solid #60a5fa', letterSpacing:'0.12em'}}>
-                      Build My Ballot ({answeredCount}/9) →
+                      Find My Matches ({answeredCount}/9) →
                     </button>
                     {confirmReset ? (
                       <div className="flex items-center gap-1.5 shrink-0 bg-slate-800 rounded-xl px-3 py-2">
@@ -1937,9 +1950,11 @@
                 <div className="flex flex-col gap-2.5 mt-3">
                   {answeredCount > 0 && (
                     <button onClick={onSummary}
-                      className="w-full py-3 text-white font-black text-xs uppercase tracking-widest rounded-full transition-all duration-150 hover:opacity-90 active:scale-[0.97]"
-                      style={{background:'#2563eb', border:'1px solid #60a5fa', letterSpacing:'0.12em', boxShadow:'0 6px 18px rgba(37,99,235,0.35)'}}>
-                      Build My Ballot ({answeredCount}/9) →
+                      className="w-full py-3 font-black text-xs uppercase tracking-widest rounded-full transition-all duration-150 hover:opacity-90 active:scale-[0.97]"
+                      style={answeredCount === 9
+                        ? {background:'linear-gradient(135deg,#d97706,#fbbf24)', border:'1px solid #fde68a', color:'#0f172a', letterSpacing:'0.12em', boxShadow:'0 6px 22px rgba(245,158,11,0.55)'}
+                        : {background:'#2563eb', border:'1px solid #60a5fa', color:'#fff', letterSpacing:'0.12em', boxShadow:'0 6px 18px rgba(37,99,235,0.35)'}}>
+                      Find My Matches ({answeredCount}/9) →
                     </button>
                   )}
                 </div>
@@ -1951,7 +1966,7 @@
                 {answeredCount > 0 ? (
                   <div className="flex items-center gap-2">
                     <button onClick={onSummary} className="flex-1 py-2.5 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all duration-150 hover:opacity-90 active:scale-[0.97]" style={{background:'#2563eb', border:'1px solid #60a5fa', letterSpacing:'0.12em'}}>
-                      Build My Ballot ({answeredCount}/9) →
+                      Find My Matches ({answeredCount}/9) →
                     </button>
                     {confirmReset ? (
                       <div className="flex items-center gap-1.5 shrink-0 bg-slate-800 rounded-xl px-3 py-2">
@@ -2313,7 +2328,7 @@
                 {/* Build My Ballot shortcut */}
                 {Object.keys(answers).length > 0 && onSummary && (
                   <button onClick={onSummary} className={`mt-2 ${BTN.std}`} style={BTN_STYLE.blue}>
-                    Build My Ballot ({Object.keys(answers).length}/9) →
+                    Find My Matches ({Object.keys(answers).length}/9) →
                   </button>
                 )}
 
@@ -2392,7 +2407,7 @@
 
                 {Object.keys(answers).length > 0 && onSummary && (
                   <button onClick={onSummary} className={BTN.std} style={BTN_STYLE.blue}>
-                    Build My Ballot ({Object.keys(answers).length}/9) →
+                    Find My Matches ({Object.keys(answers).length}/9) →
                   </button>
                 )}
               </div>
