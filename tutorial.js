@@ -30,7 +30,7 @@
       key: 'issues',
       eyebrow: 'Step 1',
       title: '9 Key Issues.<br/>Pick one — or all nine.',
-      body: 'VoteYourViews.org distills every race down to 9 issues that matter most in Texas. You choose which ones matter to <em>you</em>.',
+      body: 'We boiled the election down to 9 issues Texans care about most. You pick the ones that matter to <em>you</em>.',
       render: () => `
         <div class="vyv-issue-grid">
           ${ISSUES.map(i => `
@@ -46,35 +46,46 @@
       key: 'statements',
       eyebrow: 'Step 2',
       title: '3 Statements per Issue.',
-      body: 'Each issue is a concise page with 3 belief statements. <strong>Agree</strong>, <strong>disagree</strong>, or <strong>skip</strong> each one. That\'s it — no essays, no jargon.',
+      body: 'Each issue gives you 3 plain-English statements. <strong>Agree</strong>, <strong>Disagree</strong>, or <strong>skip</strong> each one. That\'s it.',
       render: () => shot('/images/Tutorial%20Shots/3%20Statements.png', '3 Statements Example'),
     },
     {
       key: 'facts',
       eyebrow: 'Step 3',
       title: 'Get the Facts.',
-      body: 'Every issue includes a non-partisan factual overview — one tap away. Know the context before you weigh in.',
+      body: 'Not sure where you stand? Every issue has a short, nonpartisan fact box — one tap away.',
       render: () => shot('/images/Tutorial%20Shots/Get%20the%20Facts.png', 'Issue Fact Example'),
     },
     {
       key: 'rank',
       eyebrow: 'Step 4',
       title: 'Rank How Much It Matters.',
-      body: 'After the statements, slide the dial to tell us how strongly this issue drives your vote. Deal-breaker? Nice-to-have? You decide.',
+      body: 'Use the slider to tell us how much this issue drives your vote. Deal-breaker or nice-to-have — you decide.',
       render: () => shot('/images/Tutorial%20Shots/Rank%20Your%20View.png', 'Rank Your View Example'),
     },
     {
       key: 'nine',
       eyebrow: 'Step 5',
-      title: 'Answer 1 — or All 9.',
-      body: 'Choose the issue(s) important to you and then choose <strong>Build My Ballot</strong>.',
-      render: () => shot('/images/Tutorial%20Shots/9%20Views.png', 'Your views, filled in'),
+      title: 'Build Your Ballot.',
+      body: 'When you\'re ready, let\'s fill your ballot with candidates who share your views.',
+      render: () => `
+        <div class="vyv-shot-stage">
+          <div class="vyv-phone">
+            <div class="vyv-phone-bar"><span class="vyv-phone-notch"></span></div>
+            <div class="vyv-btn-pulse-wrap">
+              <img class="vyv-phone-img" src="/images/Tutorial%20Shots/9%20Views.png" alt="Your views, filled in"/>
+              <span class="vyv-btn-glow" aria-hidden="true"></span>
+              <img class="vyv-phone-img vyv-btn-pulse-layer" src="/images/Tutorial%20Shots/9%20Views.png" alt="" aria-hidden="true"/>
+            </div>
+          </div>
+          <div class="vyv-shot-label">Your views, filled in</div>
+        </div>`,
     },
     {
       key: 'address',
       eyebrow: 'Step 6',
       title: 'Match Your Candidates.',
-      body: 'Enter your address and we\'ll show only the candidates on <strong>your</strong> ballot — your districts, your races.',
+      body: 'Type your address and we\'ll show only the races on <strong>your</strong> ballot. Just looking? Test-drive a county — no address needed.',
       render: () => `
         <div class="vyv-shot-stage">
           <div class="vyv-xfade">
@@ -105,7 +116,7 @@
       key: 'match',
       eyebrow: 'Step 7',
       title: 'Meet and Compare.',
-      body: 'Meet the candidates who share your views and compare them to opponents quickly and easily.',
+      body: 'See which candidates share your views — then compare them side by side.',
       render: () => `
         <div class="vyv-shot-stage">
           <div class="vyv-xfade">
@@ -132,15 +143,15 @@
     },
     {
       key: 'ballot',
-      eyebrow: 'The Payoff',
+      eyebrow: 'Your Final Step',
       title: 'A Printable Ballot — With Everything You Need.',
-      body: 'Not just your candidates — key election dates, your closest polling locations, and what to bring. All on one printable page you can take with you.',
+      body: 'Your candidates, key dates, your closest polling places, and what to bring — all on one page you can print or save.',
       render: () => `
         <div class="vyv-shot-stage vyv-payoff-stage">
           <div class="vyv-paper vyv-pan-view">
             <img class="vyv-pan-img" src="/images/Tutorial%20Shots/Printable%20Ballot%20Full.jpg" alt="Printable ballot — picks, dates, polling locations"/>
           </div>
-          <div class="vyv-shot-label">Your Picks · Key Dates · Polling Locations · What to Bring</div>
+          <div class="vyv-shot-label">Your Candidates · Key Dates · Polling Locations · What to Bring</div>
         </div>`,
     },
     {
@@ -184,6 +195,18 @@
     .vyv-phone-notch{width:64px;height:5px;border-radius:3px;background:rgba(255,255,255,0.35);}
     .vyv-phone-img{width:100%;display:block;border-radius:14px;}
     .vyv-shot-label{text-align:center;margin-top:10px;font-size:10px;font-weight:800;letter-spacing:0.2em;text-transform:uppercase;color:#94a3b8;}
+    /* Step 5: pulse just the Build My Ballot button inside the static screenshot.
+       A duplicate of the shot sits exactly on top, clipped to the button's pixels, and beats. */
+    .vyv-btn-pulse-wrap{position:relative;}
+    .vyv-btn-pulse-layer{position:absolute;inset:0;clip-path:inset(88.32% 7.94% 2.95% 5.57% round 999px);
+      transform-origin:48.8% 92.62%;animation:vyvBtnBeat 2.4s ease-in-out infinite;}
+    @keyframes vyvBtnBeat{0%,100%{transform:scale(1);}50%{transform:scale(1.06);}}
+    .vyv-btn-glow{position:absolute;left:5.57%;right:7.94%;top:88.32%;bottom:2.95%;border-radius:999px;
+      transform-origin:50% 50%;animation:vyvBtnGlow 2.4s ease-in-out infinite;pointer-events:none;}
+    @keyframes vyvBtnGlow{
+      0%,100%{transform:scale(1);box-shadow:0 0 10px 2px rgba(96,165,250,0.5);}
+      50%{transform:scale(1.06);box-shadow:0 0 16px 4px rgba(147,197,253,0.95),0 0 40px 10px rgba(59,130,246,0.7);}
+    }
     .vyv-xfade{position:relative;}
     .vyv-xfade-slide{opacity:0;transition:opacity .3s ease;}
     .vyv-xfade-slide.vyv-show{opacity:1;}
@@ -248,7 +271,7 @@
       .vyv-slide.active{display:flex;align-items:center;gap:44px;}
       .vyv-slide-text{flex:0 0 42%;min-width:0;}
       .vyv-slide-visual{flex:1;min-width:0;}
-      .vyv-eyebrow{font-size:12px;margin-bottom:12px;}
+      .vyv-eyebrow{font-size:14px;margin-bottom:12px;}
       .vyv-title{font-size:40px;margin-bottom:14px;}
       .vyv-body-text{font-size:16px;line-height:1.6;margin-bottom:0;}
       .vyv-phone{max-width:380px;}

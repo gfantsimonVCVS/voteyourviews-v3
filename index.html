@@ -81,6 +81,28 @@
       animation: patriotPulse 2.8s ease-in-out infinite;
       border: 3px solid #3b82f6;
     }
+    .ballot-cta-pulse { animation: ballotCtaPulse 2.4s ease-in-out infinite; }
+    .hero-beat { animation: heroBeatIn .5s ease both; }
+    .hero-in { animation: heroBeatIn .6s ease both; }
+    /* Tour line: cinematic settle-in, then a slow gold shimmer sweeps the text */
+    .hero-tour-line { cursor: pointer;
+      background-image: linear-gradient(100deg, #d97706 0%, #fbbf24 32%, #fff7d6 50%, #fbbf24 68%, #d97706 100%);
+      background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+      animation: heroTourIn .9s cubic-bezier(.16,1,.3,1) both, heroTourShimmer 3.2s ease-in-out .9s infinite; }
+    .hero-tour-line:active { transform: scale(.96); }
+    @keyframes heroTourIn {
+      0% { opacity: 0; transform: scale(.6); filter: blur(8px); }
+      60% { opacity: 1; filter: blur(0); }
+      75% { transform: scale(1.06); }
+      100% { opacity: 1; transform: scale(1); filter: blur(0); }
+    }
+    @keyframes heroTourShimmer { 0% { background-position: 115% 0; } 55%, 100% { background-position: -135% 0; } }
+    .hero-beat-late { display: inline-block; animation: heroBeatIn .5s ease 0.9s both; }
+    @keyframes heroBeatIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes ballotCtaPulse {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.035); }
+    }
     @keyframes patriotPulse {
       0%   { background: #dc2626; border-color: #3b82f6; box-shadow: 0 0 14px rgba(220,38,38,0.5); }
       50%  { background: #2563eb; border-color: #dc2626; box-shadow: 0 0 14px rgba(37,99,235,0.5); }
@@ -1703,6 +1725,23 @@
       const answeredCount = Object.keys(answers).length;
       const issueList = issues.length ? issues : ISSUES;
 
+      // Mobile hero banner: cycle the pitch (tour line shows 4s per pass),
+      // loop a couple of times, then rest on the tour line for good.
+      const [heroBeat, setHeroBeat] = useState(0);
+      const heroLoops = useRef(0);
+      useEffect(() => {
+        if (picker) return;
+        if (heroBeat >= 2) {
+          if (heroLoops.current >= 2) return; // done looping — rest on the tour line
+          const t = setTimeout(() => { heroLoops.current += 1; setHeroBeat(0); }, 4000);
+          return () => clearTimeout(t);
+        }
+        const t = setTimeout(() => setHeroBeat(heroBeat + 1), 3200);
+        return () => clearTimeout(t);
+      }, [heroBeat]);
+
+      const openTour = () => { if (window.VYVTutorial) window.VYVTutorial.open(); };
+
       return (
         <div className="min-h-screen flex flex-col" style={{background:'linear-gradient(160deg,#0f172a 0%,#020617 100%)'}}>
 
@@ -1759,30 +1798,41 @@
             {/* ── Left col (desktop) / Top (mobile): Headline + description + CTAs ── */}
             {!picker && (
             <div className="w-full max-w-xs lg:max-w-none lg:w-fit lg:shrink-0 flex flex-col items-center lg:items-start text-center lg:text-left">
-              <h1 className="text-[20px] sm:text-2xl lg:text-[46px] font-black text-white leading-tight lg:leading-snug tracking-tight uppercase lg:whitespace-nowrap">
-                Rank Your Beliefs.<br/><span className="text-blue-400">Elect Who Agrees.</span>
+              <h1 className="hidden lg:block lg:text-[46px] font-black text-white leading-snug tracking-tight uppercase whitespace-nowrap">
+                <span className="hero-in inline-block">Rank Your Beliefs.</span><br/>
+                <span className="hero-in inline-block text-blue-400" style={{animationDelay:'0.6s'}}>Elect Who Agrees.</span>
               </h1>
-              {/* Mobile tagline */}
-              <div className="lg:hidden mt-2 mb-2 text-center">
-                <p className="text-white font-black text-[13px] uppercase leading-tight tracking-wide" style={{fontFamily:"'Barlow Condensed', sans-serif"}}>
-                  <span className="text-red-400">STOP</span> voting parties.<br/><span className="text-blue-400">START</span> voting your views.
-                </p>
-                <button onClick={() => window.VYVTutorial && window.VYVTutorial.open()}
-                  className="mt-2 px-4 py-1.5 rounded-full font-black text-[10px] uppercase tracking-widest transition-all hover:brightness-110 active:scale-95"
-                  style={{letterSpacing:'0.16em', color:'#fbbf24', background:'rgba(217,119,6,0.14)', border:'1px solid rgba(251,191,36,0.55)'}}>
-                  ★ How It Works
-                </button>
+              {/* Mobile: animated hero banner — one fixed-height stage cycling the pitch, resting on the tour */}
+              <div className="lg:hidden relative w-full h-[104px] flex items-center justify-center text-center">
+                {heroBeat === 0 && (
+                  <h1 className="font-black text-white leading-tight tracking-tight uppercase text-[22px]">
+                    <span className="hero-beat inline-block">Rank Your Beliefs.</span><br/>
+                    <span className="hero-beat-late text-blue-400">Elect Who Agrees.</span>
+                  </h1>
+                )}
+                {heroBeat === 1 && (
+                  <p className="text-white font-black text-[24px] uppercase leading-tight tracking-wide" style={{fontFamily:"'Barlow Condensed', sans-serif"}}>
+                    <span className="hero-beat inline-block"><span className="text-red-400">STOP</span> voting parties.</span><br/>
+                    <span className="hero-beat-late"><span className="text-blue-400">START</span> voting your views.</span>
+                  </p>
+                )}
+                {heroBeat === 2 && (
+                  <button onClick={openTour} className="hero-tour-line font-black text-[23px] uppercase leading-tight tracking-wider"
+                    style={{fontFamily:"'Barlow Condensed', sans-serif", border:'none'}}>
+                    ★ Take the 1 Minute Tour →
+                  </button>
+                )}
               </div>
 
               {/* Desktop tagline */}
               <div className="hidden lg:block mt-10 mb-8">
                 <p className="text-white font-black text-3xl uppercase leading-tight tracking-wide" style={{fontFamily:"'Barlow Condensed', sans-serif"}}>
-                  <span className="text-red-400">STOP</span> voting parties.<br/><span className="text-blue-400">START</span> voting your views.
+                  <span className="hero-in inline-block" style={{animationDelay:'1.2s'}}><span className="text-red-400">STOP</span> voting parties.</span><br/>
+                  <span className="hero-in inline-block" style={{animationDelay:'1.8s'}}><span className="text-blue-400">START</span> voting your views.</span>
                 </p>
-                <button onClick={() => window.VYVTutorial && window.VYVTutorial.open()}
-                  className="mt-4 px-5 py-2 rounded-full font-black text-[11px] uppercase tracking-widest transition-all hover:brightness-110 active:scale-95"
-                  style={{letterSpacing:'0.16em', color:'#fbbf24', background:'rgba(217,119,6,0.14)', border:'1px solid rgba(251,191,36,0.55)'}}>
-                  ★ How It Works — 60-Second Tour
+                <button onClick={openTour} className="hero-tour-line font-black text-[26px] uppercase tracking-wider mt-7"
+                  style={{fontFamily:"'Barlow Condensed', sans-serif", border:'none', animationDelay:'2.6s, 3.5s'}}>
+                  ★ Take the 1 Minute Tour →
                 </button>
               </div>
 
@@ -3298,7 +3348,7 @@
           {/* Fixed finish line — always on screen; the whole page funnels here */}
           <div className="fixed bottom-0 left-0 right-0 z-40 px-4 pt-3 pb-4" style={{background:'linear-gradient(to top, #0c1a2e 65%, rgba(12,26,46,0))'}}>
             <button onClick={() => { if (userDistricts) { onBallot(); } else { setPendingBallot(true); setShowAddr(true); } }}
-              className="w-full sm:w-auto sm:min-w-[340px] sm:px-10 max-w-md mx-auto flex items-center justify-center gap-2 py-3.5 rounded-full font-black text-sm uppercase tracking-widest text-white transition-all hover:brightness-110 active:scale-[0.99]"
+              className="ballot-cta-pulse w-full sm:w-auto sm:min-w-[340px] sm:px-10 max-w-md mx-auto flex items-center justify-center gap-2 py-3.5 rounded-full font-black text-sm uppercase tracking-widest text-white transition-all hover:brightness-110 active:scale-[0.99]"
               style={{background: ctaColors.grad, border: `1px solid ${ctaColors.border}`, letterSpacing:'0.12em', boxShadow: `0 8px 24px ${ctaColors.glow}`}}>
               <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
               Build My Ballot →
@@ -4039,7 +4089,7 @@
           {/* Fixed finish line — Build My Ballot always on screen */}
           <div className="fixed bottom-0 left-0 right-0 z-40 px-4 pt-3 pb-4" style={{background:'linear-gradient(to top, #0c1a2e 65%, rgba(12,26,46,0))'}}>
             <button onClick={() => { if (userDistricts) { onBallot(); } else { setPendingBallot(true); setShowAddr(true); } }}
-              className="w-full sm:w-auto sm:min-w-[340px] sm:px-10 max-w-md mx-auto flex items-center justify-center gap-2 py-3.5 rounded-full font-black text-sm uppercase tracking-widest text-white transition-all hover:brightness-110 active:scale-[0.99]"
+              className="ballot-cta-pulse w-full sm:w-auto sm:min-w-[340px] sm:px-10 max-w-md mx-auto flex items-center justify-center gap-2 py-3.5 rounded-full font-black text-sm uppercase tracking-widest text-white transition-all hover:brightness-110 active:scale-[0.99]"
               style={{background: ctaColors.grad, border: `1px solid ${ctaColors.border}`, letterSpacing:'0.12em', boxShadow: `0 8px 24px ${ctaColors.glow}`}}>
               <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
               {selectedCount > 0 ? `Build My Ballot · ${selectedCount} race${selectedCount !== 1 ? 's' : ''} →` : 'Build My Ballot →'}

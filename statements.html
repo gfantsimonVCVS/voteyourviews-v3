@@ -26,7 +26,8 @@
     .issue-body { background: #f1f5f9; }
     .stmt-card { background: #ffffff; border: 1.5px solid #e2e8f0; box-shadow: 0 2px 8px rgba(15,23,42,0.06); transition: border-color .2s, background .2s; }
     .stmt-card p { color: #0f172a !important; }
-    .stmt-card .stmt-num { background: #e2e8f0 !important; color: #475569 !important; }
+    .stmt-card .stmt-num { background: rgba(245,158,11,0.14) !important; color: #b45309 !important; border: 1.5px solid #f59e0b; }
+    .stmt-card[data-state="okay"] .stmt-num { background: rgba(16,185,129,0.14) !important; color: #047857 !important; border-color: #10b981; }
     .stmt-card[data-state="okay"] { border-color: #10b981; background: #ecfdf5; }
     .stmt-card[data-state="edit"] { border-color: #f59e0b; background: #fffbeb; }
     .seg-btn { transition: all .15s; }
@@ -47,18 +48,17 @@
     .issue-tile img { width: 72%; height: 72%; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5)); }
     input:focus, textarea:focus { outline: none; border-color: #f59e0b !important; box-shadow: 0 0 0 3px rgba(245,158,11,0.18); }
     #progress-fill { transition: width .4s ease; }
-    /* Starburst tour badge */
-    .tour-badge { position: relative; display: block; width: 156px; height: 156px; flex-shrink: 0;
+    /* Tour badge button */
+    .tour-badge { display: block; width: 148px; height: 148px; flex-shrink: 0;
       background: none; border: none; padding: 0; cursor: pointer;
       filter: drop-shadow(0 10px 24px rgba(0,0,0,0.5));
-      animation: badgeBeat 3.2s ease-in-out infinite; transition: transform .2s; }
-    .tour-badge:hover { transform: scale(1.1) rotate(-6deg); animation-play-state: paused; }
-    .tour-badge img { width: 100%; height: 100%; display: block; }
-    .tour-badge span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-      text-align: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; text-transform: uppercase;
-      color: #fff; font-size: 24px; line-height: 1.02; letter-spacing: 0.02em; transform: rotate(-8deg);
-      text-shadow: 0 2px 5px rgba(0,0,0,0.55); padding: 28px; }
-    @keyframes badgeBeat { 0%,100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.05) rotate(-2.5deg); } }
+      transition: transform .2s, filter .2s; }
+    .tour-badge:hover { transform: scale(1.08);
+      filter: drop-shadow(0 14px 30px rgba(0,0,0,0.6)) brightness(1.15); }
+    .tour-badge:hover img { animation-play-state: paused; }
+    .tour-badge img { width: 100%; height: 100%; display: block; object-fit: contain;
+      animation: badgeBeat 3.2s ease-in-out infinite; }
+    @keyframes badgeBeat { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
   </style>
 </head>
 <body class="min-h-screen">
@@ -67,18 +67,18 @@
   <div class="sticky top-0 z-40 border-b border-white/10 px-4 sm:px-6 py-3" style="background:rgba(10,20,36,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)">
     <div class="max-w-3xl mx-auto flex items-center gap-4 py-1 relative">
       <div class="min-w-0">
-        <h1 class="text-[26px] sm:text-4xl font-black uppercase text-white leading-none whitespace-nowrap" style="letter-spacing:0.03em">Statement <span style="color:#f59e0b">Review</span></h1>
-        <p class="text-slate-400 text-[10px] sm:text-[11px] mt-1 font-black uppercase" style="letter-spacing:0.28em">VoteYourViews.org · Internal Tool</p>
+        <h1 class="text-[24px] sm:text-4xl font-black uppercase text-white leading-none whitespace-nowrap" style="letter-spacing:0.03em">Statement <span style="color:#f59e0b">Review</span></h1>
+        <p class="text-slate-400 text-[9px] sm:text-[11px] mt-1 font-black uppercase whitespace-nowrap tracking-[0.18em] sm:tracking-[0.28em]">VoteYourViews.org<span class="hidden sm:inline"> · Internal Tool</span></p>
       </div>
-      <a href="/" title="Back to VoteYourViews.org" class="flex ml-auto sm:mx-auto w-11 h-11 items-center justify-center rounded-full transition-all hover:opacity-80 active:scale-95" style="background:rgba(255,255,255,0.1)">
+      <a href="/" title="Back to VoteYourViews.org" class="flex ml-auto sm:mx-auto w-10 h-10 sm:w-11 sm:h-11 shrink-0 items-center justify-center rounded-full transition-all hover:opacity-80 active:scale-95" style="background:rgba(255,255,255,0.1)">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/>
           <path d="M9 21V12h6v9"/>
         </svg>
       </a>
-      <div class="shrink-0 hidden sm:block text-center px-4 py-2 rounded-2xl" style="background:rgba(245,158,11,0.10);border:1.5px solid rgba(245,158,11,0.45);box-shadow:0 4px 16px rgba(245,158,11,0.15)">
-        <div id="overall-badge" class="text-lg font-black leading-none" style="color:#f59e0b;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.06em">0 / 9</div>
-        <div class="text-[9px] font-black uppercase tracking-[0.22em] text-slate-400 mt-0.5">Issues Done</div>
+      <div class="shrink-0 text-center px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl" style="background:rgba(245,158,11,0.10);border:1.5px solid rgba(245,158,11,0.45);box-shadow:0 4px 16px rgba(245,158,11,0.15)">
+        <div id="overall-badge" class="text-sm sm:text-lg font-black leading-none" style="color:#f59e0b;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.06em">0 / 9</div>
+        <div class="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.14em] sm:tracking-[0.22em] text-slate-400 mt-0.5"><span class="hidden sm:inline">Issues </span>Done</div>
       </div>
     </div>
     <div class="max-w-3xl mx-auto mt-3 h-1.5 rounded-full overflow-hidden" style="background:rgba(255,255,255,0.08)">
@@ -92,31 +92,21 @@
     <div class="rounded-2xl p-[1.5px] mb-6" style="background:linear-gradient(135deg,rgba(245,158,11,0.6),rgba(37,99,235,0.5) 50%,rgba(220,38,38,0.5))">
       <div class="rounded-2xl p-5 sm:p-6 sm:flex sm:items-center sm:gap-7" style="background:linear-gradient(160deg,#141f3a 0%,#0e182c 100%);box-shadow:0 18px 44px rgba(0,0,0,0.5)">
         <div class="flex-1 min-w-0">
-          <div class="text-[10px] font-black uppercase tracking-[0.3em] mb-1.5" style="color:#f59e0b">★ Special Guest Review</div>
-          <h2 class="text-2xl sm:text-[26px] font-black uppercase text-white leading-none mb-2.5" style="letter-spacing:0.03em">Help us refine the statements</h2>
-          <p class="text-slate-300 text-sm leading-relaxed mb-5">
-            We're inviting special guests to help edit and refine the 3 statements within each of the 9 Views.
-            Read each statement and click <strong class="text-emerald-300">Okay</strong> or
-            <strong class="text-amber-300">Suggest an Edit</strong> — then Submit with your name and email.
+          <div class="text-[10px] font-black uppercase tracking-[0.3em] mb-1.5" style="color:#f59e0b">★ Review the 9 Issues</div>
+          <h2 class="text-2xl sm:text-[26px] font-black uppercase text-white leading-none mb-2.5" style="letter-spacing:0.03em">Suggest an Edit</h2>
+          <p class="text-slate-300 text-sm leading-relaxed">
+            We welcome input and edit suggestions for the 9 issues and their accompanying statements. Click below.
           </p>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block text-[10px] font-black text-slate-300 uppercase tracking-[0.18em] mb-1.5">Your name</label>
-              <input id="reviewer-name" type="text" placeholder="Jane Doe"
-                class="w-full rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500"
-                style="background:rgba(0,0,0,0.4);border:1.5px solid rgba(255,255,255,0.28)" />
-            </div>
-            <div>
-              <label class="block text-[10px] font-black text-slate-300 uppercase tracking-[0.18em] mb-1.5">Your email</label>
-              <input id="reviewer-email" type="email" placeholder="you@example.com"
-                class="w-full rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500"
-                style="background:rgba(0,0,0,0.4);border:1.5px solid rgba(255,255,255,0.28)" />
-            </div>
+          <div id="reviewing-as" class="hidden mt-3.5 items-center gap-2 text-[12px] text-slate-400">
+            <span>Reviewing as <strong id="reviewing-as-name" class="text-white font-bold"></strong></span>
+            <button type="button" id="reviewing-as-change" class="font-black uppercase tracking-widest text-[10px] px-2.5 py-1 rounded-full transition-colors hover:text-white"
+              style="color:#f59e0b;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.4)">✎ Change</button>
+            <button type="button" id="reviewing-as-clear" class="font-black uppercase tracking-widest text-[10px] px-2.5 py-1 rounded-full transition-colors text-slate-500 hover:text-white"
+              style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18)">✕ Clear</button>
           </div>
         </div>
         <button onclick="VYVTutorial.open()" class="tour-badge mx-auto mt-6 sm:mt-0 sm:mx-0" title="Take the 1 minute tour">
-          <img src="/icons/One%20Minute%20Tour.png" alt=""/>
-          <span>Take the<br/>1 Minute<br/>Tour!</span>
+          <img src="/icons/One_Minute_Tour_Button.png" alt="Take the 1 minute tour"/>
         </button>
       </div>
     </div>
@@ -130,6 +120,37 @@
       <button onclick="VYVTutorial.open()" class="text-[12px] font-bold uppercase tracking-widest text-slate-500 hover:text-amber-400 transition-colors">
         ★ New here? Take the 60-second tour
       </button>
+    </div>
+  </div>
+
+  <!-- Reviewer identity modal — shown once, at the first submit -->
+  <div id="identity-modal" class="fixed inset-0 z-50 hidden items-center justify-center px-4" style="background:rgba(5,10,22,0.75);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)">
+    <div class="w-full max-w-sm rounded-2xl p-[1.5px]" style="background:linear-gradient(135deg,rgba(245,158,11,0.6),rgba(37,99,235,0.5) 50%,rgba(220,38,38,0.5))">
+      <div class="rounded-2xl p-6" style="background:linear-gradient(160deg,#141f3a 0%,#0e182c 100%);box-shadow:0 24px 60px rgba(0,0,0,0.6)">
+        <h2 class="text-2xl font-black uppercase text-white leading-none mb-2" style="letter-spacing:0.03em">Before we send this…</h2>
+        <p class="text-slate-300 text-sm leading-relaxed mb-4">Add your name and email so we know who this review is from. We'll remember it for the rest of your reviews.</p>
+        <label class="block text-[10px] font-black text-slate-300 uppercase tracking-[0.18em] mb-1.5">Your name</label>
+        <input id="reviewer-name" type="text" placeholder="Jane Doe" autocomplete="name"
+          class="w-full rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 mb-3.5"
+          style="background:rgba(0,0,0,0.4);border:1.5px solid rgba(255,255,255,0.28)" />
+        <label class="block text-[10px] font-black text-slate-300 uppercase tracking-[0.18em] mb-1.5">Your email</label>
+        <input id="reviewer-email" type="email" placeholder="you@example.com" autocomplete="email"
+          class="w-full rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500"
+          style="background:rgba(0,0,0,0.4);border:1.5px solid rgba(255,255,255,0.28)" />
+        <p id="identity-error" class="hidden text-[12px] font-semibold mt-2" style="color:#fbbf24">⚠ Please add both your name and email.</p>
+        <div class="flex flex-col sm:flex-row gap-2.5 mt-5">
+          <button type="button" id="identity-save" class="w-full sm:w-auto text-white text-xs font-black uppercase tracking-widest px-6 py-3 rounded-full transition-all hover:brightness-110 active:scale-[0.98]"
+            style="background:linear-gradient(135deg,#2563eb,#1d4ed8);box-shadow:0 6px 18px rgba(37,99,235,0.4)">
+            Save &amp; submit →
+          </button>
+          <button type="button" id="identity-cancel" class="w-full sm:w-auto text-slate-400 hover:text-white text-xs font-black uppercase tracking-widest px-6 py-3 rounded-full transition-colors">
+            Cancel
+          </button>
+          <button type="button" id="identity-clear" class="w-full sm:w-auto sm:ml-auto text-slate-500 hover:text-red-300 text-[11px] font-black uppercase tracking-widest px-3 py-3 rounded-full transition-colors">
+            ✕ Clear
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -190,7 +211,7 @@
       return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    // Reviewer identity — remembered across visits
+    // Reviewer identity — asked once (modal at first submit), remembered across visits
     const nameEl = document.getElementById('reviewer-name');
     const emailEl = document.getElementById('reviewer-email');
     try {
@@ -200,9 +221,75 @@
     nameEl.addEventListener('input', () => { try { localStorage.setItem('vyv_reviewer_name', nameEl.value); } catch (_) {} });
     emailEl.addEventListener('input', () => { try { localStorage.setItem('vyv_reviewer_email', emailEl.value); } catch (_) {} });
 
+    const identityModal = document.getElementById('identity-modal');
+    const identityError = document.getElementById('identity-error');
+    const identitySaveBtn = document.getElementById('identity-save');
+    let pendingSubmit = null; // resumes the submit that triggered the modal
+
+    // "Reviewing as …" chip in the welcome card — always shows whose name submissions carry
+    function updateReviewingAs() {
+      const chip = document.getElementById('reviewing-as');
+      const name = nameEl.value.trim();
+      chip.classList.toggle('hidden', !name);
+      chip.classList.toggle('flex', !!name);
+      if (name) document.getElementById('reviewing-as-name').textContent =
+        `${name} (${emailEl.value.trim()})`;
+    }
+    updateReviewingAs();
+    document.getElementById('reviewing-as-change').addEventListener('click', () => openIdentityModal(null));
+
+    function clearIdentity() {
+      nameEl.value = '';
+      emailEl.value = '';
+      try {
+        localStorage.removeItem('vyv_reviewer_name');
+        localStorage.removeItem('vyv_reviewer_email');
+      } catch (_) {}
+      updateReviewingAs();
+    }
+    document.getElementById('reviewing-as-clear').addEventListener('click', clearIdentity);
+    document.getElementById('identity-clear').addEventListener('click', () => { clearIdentity(); nameEl.focus(); });
+
+    function openIdentityModal(onSave) {
+      pendingSubmit = onSave;
+      identitySaveBtn.textContent = onSave ? 'Save & submit →' : 'Save';
+      identityError.classList.add('hidden');
+      identityModal.classList.remove('hidden');
+      identityModal.classList.add('flex');
+      setTimeout(() => (nameEl.value.trim() ? emailEl : nameEl).focus(), 50);
+    }
+    function closeIdentityModal() {
+      identityModal.classList.add('hidden');
+      identityModal.classList.remove('flex');
+    }
+    document.getElementById('identity-save').addEventListener('click', () => {
+      if (!nameEl.value.trim() || !emailEl.value.trim()) {
+        identityError.classList.remove('hidden');
+        return;
+      }
+      closeIdentityModal();
+      updateReviewingAs();
+      const go = pendingSubmit; pendingSubmit = null;
+      if (go) go();
+    });
+    document.getElementById('identity-cancel').addEventListener('click', () => { pendingSubmit = null; closeIdentityModal(); });
+    identityModal.addEventListener('click', e => { if (e.target === identityModal) { pendingSubmit = null; closeIdentityModal(); } });
+
     // State: reactions[topic][idx] = { status: 'okay' | 'edit', suggestion, reason }
-    const reactions = {};
-    const submittedTopics = new Set();
+    // Persisted so a reviewer can leave and come back to edit or finish.
+    let reactions = {};
+    let submittedAt = {}; // topic -> human-readable date/time of last submission
+    try {
+      reactions = JSON.parse(localStorage.getItem('vyv_reactions')) || {};
+      submittedAt = JSON.parse(localStorage.getItem('vyv_submitted')) || {};
+    } catch (_) { reactions = {}; submittedAt = {}; }
+    const submittedTopics = new Set(Object.keys(submittedAt));
+    function saveState() {
+      try {
+        localStorage.setItem('vyv_reactions', JSON.stringify(reactions));
+        localStorage.setItem('vyv_submitted', JSON.stringify(submittedAt));
+      } catch (_) {}
+    }
 
     function render() {
       const container = document.getElementById('statements-container');
@@ -231,7 +318,7 @@
         const details = document.createElement('details');
         details.className = 'glass mb-3.5 rounded-2xl overflow-hidden';
         details.dataset.topic = topic;
-        if (topicIdx === 0) details.open = true;
+        if (topicIdx === 0 && !submittedTopics.has(topic)) details.open = true;
 
         // Summary (collapsed header)
         const summary = document.createElement('summary');
@@ -263,29 +350,29 @@
           card.innerHTML = `
             <div class="flex gap-3 items-start">
               <span class="stmt-num shrink-0 w-6 h-6 rounded-full text-[11px] font-black flex items-center justify-center text-slate-300" style="background:rgba(255,255,255,0.1)">${idx + 1}</span>
-              <p class="text-white text-[14px] leading-relaxed flex-1">${escapeHtml(text)}</p>
+              <p class="text-white text-[14px] font-bold leading-relaxed flex-1">${escapeHtml(text)}</p>
             </div>
-            <div class="flex gap-2 mt-3.5 ml-9 stmt-actions">
+            <div class="flex gap-2 mt-3.5 ml-0 sm:ml-9 stmt-actions">
               <button type="button" data-action="okay"
-                class="okay-btn seg-btn px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-widest text-emerald-300"
+                class="okay-btn seg-btn flex-1 sm:flex-initial whitespace-nowrap px-2 sm:px-4 py-2.5 sm:py-2 rounded-full text-[11px] font-black uppercase tracking-wider sm:tracking-widest text-emerald-300"
                 style="background:rgba(5,150,105,0.14);border:1px solid rgba(52,211,153,0.4)">
                 ✓ Okay
               </button>
               <button type="button" data-action="edit"
-                class="edit-btn seg-btn px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-widest text-amber-300"
+                class="edit-btn seg-btn flex-1 sm:flex-initial whitespace-nowrap px-2 sm:px-4 py-2.5 sm:py-2 rounded-full text-[11px] font-black uppercase tracking-wider sm:tracking-widest text-amber-300"
                 style="background:rgba(217,119,6,0.14);border:1px solid rgba(251,191,36,0.4)">
                 ✎ Suggest edit
               </button>
             </div>
-            <div class="edit-panel ml-9 space-y-2.5">
+            <div class="edit-panel ml-0 sm:ml-9 space-y-2.5">
               <textarea name="suggestion" rows="3"
                 class="w-full rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500"
                 style="background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.14)"
-                placeholder="Your suggested rewrite — paste the full revised statement…"></textarea>
+                placeholder="Your suggested rewrite…"></textarea>
               <textarea name="reason" rows="2"
                 class="w-full rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500"
                 style="background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.14)"
-                placeholder="Why this change? (optional)"></textarea>
+                placeholder="Other feedback (optional)"></textarea>
             </div>
           `;
 
@@ -306,6 +393,7 @@
           okayBtn.addEventListener('click', () => {
             reactions[topic][idx] = { status: 'okay', original: text };
             paint('okay');
+            saveState();
             updateProgress(topic);
           });
           editBtn.addEventListener('click', () => {
@@ -315,13 +403,14 @@
             suggestion.value = reactions[topic][idx].suggestion;
             reason.value = reactions[topic][idx].reason;
             setTimeout(() => suggestion.focus(), 300);
+            saveState();
             updateProgress(topic);
           });
           suggestion.addEventListener('input', () => {
-            if (reactions[topic][idx]) reactions[topic][idx].suggestion = suggestion.value;
+            if (reactions[topic][idx]) { reactions[topic][idx].suggestion = suggestion.value; saveState(); }
           });
           reason.addEventListener('input', () => {
-            if (reactions[topic][idx]) reactions[topic][idx].reason = reason.value;
+            if (reactions[topic][idx]) { reactions[topic][idx].reason = reason.value; saveState(); }
           });
 
           // Rehydrate if user re-opens
@@ -337,13 +426,13 @@
 
         // Submit row at bottom of issue — reviewer info comes from the top of the page
         const submitBlock = document.createElement('div');
-        submitBlock.className = 'mt-4 pt-4 flex items-center gap-3 border-t border-slate-300';
+        submitBlock.className = 'mt-4 pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 border-t border-slate-300';
         submitBlock.innerHTML = `
-          <button type="button" class="submit-issue-btn text-white text-xs font-black uppercase tracking-widest px-6 py-3 rounded-full transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+          <button type="button" class="submit-issue-btn w-full sm:w-auto text-white text-xs font-black uppercase tracking-widest px-6 py-3 rounded-full transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
             style="background:linear-gradient(135deg,#2563eb,#1d4ed8);box-shadow:0 6px 18px rgba(37,99,235,0.4)" disabled>
             Submit review →
           </button>
-          <span class="submit-hint text-[11px] font-semibold text-slate-500">Review all ${stmts.length} statements to enable.</span>
+          <span class="submit-hint text-[11px] font-semibold text-slate-500 text-center sm:text-left">Review at least one statement to enable.</span>
         `;
         body.appendChild(submitBlock);
 
@@ -353,6 +442,19 @@
 
         details.appendChild(body);
         container.appendChild(details);
+
+        // Restore submitted state from a previous visit
+        if (submittedTopics.has(topic)) {
+          details.dataset.submitted = 'true';
+          const badge = details.querySelector('.progress-badge');
+          badge.textContent = '✓ Submitted';
+          badge.classList.remove('text-slate-400');
+          badge.classList.add('text-emerald-400');
+          submitBtn.textContent = 'Re-submit review';
+          submitBtn.style.background = 'linear-gradient(135deg,#059669,#10b981)';
+          submitBtn.style.boxShadow = '0 6px 18px rgba(5,150,105,0.4)';
+          submitHint.textContent = `Submitted ${submittedAt[topic]} — edit any response and re-submit to update.`;
+        }
 
         updateProgress(topic);
       });
@@ -374,9 +476,10 @@
       const btn = details.querySelector('.submit-issue-btn');
       const hint = details.querySelector('.submit-hint');
       if (btn) {
-        const ready = done === total;
+        const ready = done > 0;
         btn.disabled = !ready;
-        if (hint) hint.textContent = ready ? 'Ready to submit.' : `${done} of ${total} reviewed`;
+        if (hint && !submittedTopics.has(topic)) hint.textContent = !ready ? `Review at least one statement to enable.`
+          : done === total ? 'Ready to submit.' : `${done} of ${total} reviewed — you can submit now or keep going.`;
       }
     }
 
@@ -395,9 +498,7 @@
       const name  = nameEl.value.trim();
       const email = emailEl.value.trim();
       if (!name || !email) {
-        nameEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        setTimeout(() => (name ? emailEl : nameEl).focus(), 400);
-        if (hint) hint.textContent = '⚠ Add your name + email at the top first.';
+        openIdentityModal(() => submitIssue(topic, stmts, btn, hint));
         return;
       }
       const entries = reactions[topic] || {};
@@ -427,6 +528,8 @@
 
       Promise.all(tasks).finally(() => {
         submittedTopics.add(topic);
+        submittedAt[topic] = submitted;
+        saveState();
         const details = document.querySelector(`details[data-topic="${CSS.escape(topic)}"]`);
         if (details) {
           details.dataset.submitted = 'true';
