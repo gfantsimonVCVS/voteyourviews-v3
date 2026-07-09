@@ -5412,8 +5412,9 @@
           if (!c1) return;
           const s1 = calcMatch(c1, answers, checkedStatements, ranks);
           const s2 = c2 ? calcMatch(c2, answers, checkedStatements, ranks) : null;
-          if (s1 !== null) {
-            autoSelected[race.office] = (s2 !== null && s2 > s1) ? c2.name : c1.name;
+          // Pick whichever candidate is scoreable (ties favor c1); skip races where neither is
+          if (s1 !== null || s2 !== null) {
+            autoSelected[race.office] = (s2 !== null && (s1 === null || s2 > s1)) ? c2.name : c1.name;
           }
         });
         const lastAutoPicks = autoPickRef.current; // snapshot BEFORE updating the ref — the updater below may run later
