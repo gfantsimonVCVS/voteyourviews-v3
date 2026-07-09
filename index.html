@@ -1378,7 +1378,12 @@
                     disabled={isSearching}
                     className="w-full py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-700 transition-colors text-sm disabled:opacity-50 mb-3"
                   >
-                    {isSearching ? 'Looking up your districts…' : 'Find My Races'}
+                    {isSearching
+                      ? <span className="inline-flex items-center justify-center gap-2.5">
+                          <span className="w-4 h-4 rounded-full border-2 animate-spin" style={{borderColor:'rgba(255,255,255,0.35)', borderTopColor:'#fff'}}></span>
+                          Looking up your districts…
+                        </span>
+                      : 'Find My Races'}
                   </button>
                   <button onClick={onSkip} className="w-full py-2 text-sm text-slate-500 hover:text-slate-800 font-medium">
                     Skip — show all races
@@ -1723,9 +1728,16 @@
                   <button onClick={handleSearch} disabled={isSearching}
                     className="w-full py-3.5 text-white font-black rounded-full text-base mb-2 transition-all disabled:opacity-50 uppercase tracking-widest hover:brightness-110 active:scale-[0.98]"
                     style={{background:`linear-gradient(90deg,${btnColorDark},${btnColor})`, letterSpacing:'0.12em', boxShadow:'0 6px 18px rgba(37,99,235,0.4)'}}>
-                    {isSearching ? 'Looking up your address…' : 'Find My Candidates →'}
+                    {isSearching
+                      ? <span className="inline-flex items-center justify-center gap-2.5">
+                          <span className="w-4 h-4 rounded-full border-2 animate-spin" style={{borderColor:'rgba(255,255,255,0.35)', borderTopColor:'#fff'}}></span>
+                          Looking up your address…
+                        </span>
+                      : 'Find My Candidates →'}
                   </button>
-                  <p className="text-xs text-slate-500 text-center mt-3 mb-3">Your address is only used to look up your districts. We don't store it.</p>
+                  {isSearching
+                    ? <p className="text-xs text-amber-300 font-bold text-center mt-3 mb-3 animate-pulse">Matching your address to your districts — this can take a few seconds…</p>
+                    : <p className="text-xs text-slate-500 text-center mt-3 mb-3">Your address is only used to look up your districts. We don't store it.</p>}
                   {exploreChoices}
                 </>
               ) : (
@@ -1838,7 +1850,7 @@
             {/* Mobile: full logo, scaled to width, never cropped. height:auto shows the
                 WHOLE wordmark (incl .org); maxWidth caps it so it can't get giant. Breakpoint
                 is lg so landscape phones (<1024px) keep this and don't pick up the desktop header. */}
-            <button onClick={onLogo} className="block lg:hidden mx-auto" style={{width:'100%', maxWidth:'440px'}}>
+            <button onClick={onLogo} className="block lg:hidden mx-auto w-full max-w-[440px] md:max-w-[600px]">
               <img src="/icons/VoteYourViews_ThinHeader1.png" alt="VoteYourViews.org"
                 style={{width:'100%', height:'auto'}} />
             </button>
@@ -1877,27 +1889,27 @@
 
             {/* ── Left col (desktop) / Top (mobile): Headline + description + CTAs ── */}
             {!picker && (
-            <div className="w-full max-w-xs lg:max-w-none lg:w-fit lg:shrink-0 flex flex-col items-center lg:items-start text-center lg:text-left">
+            <div className="w-full max-w-xs md:max-w-[440px] lg:max-w-none lg:w-fit lg:shrink-0 flex flex-col items-center lg:items-start text-center lg:text-left">
               <h1 className="hidden lg:block lg:text-[46px] font-black text-white leading-snug tracking-tight uppercase whitespace-nowrap">
                 <span className="hero-in inline-block">Rank Your Beliefs.</span><br/>
                 <span className="hero-in inline-block text-blue-400" style={{animationDelay:'0.6s'}}>Elect Who Agrees.</span>
               </h1>
               {/* Mobile: animated hero banner — one fixed-height stage cycling the pitch, resting on the tour */}
-              <div className="lg:hidden relative w-full h-[104px] flex items-center justify-center text-center">
+              <div className="lg:hidden relative w-full h-[104px] md:h-[144px] flex items-center justify-center text-center">
                 {heroBeat === 0 && (
-                  <h1 className="font-black text-white leading-tight tracking-tight uppercase text-[22px]">
+                  <h1 className="font-black text-white leading-tight tracking-tight uppercase text-[22px] md:text-[30px]">
                     <span className="hero-beat inline-block">Rank Your Beliefs.</span><br/>
                     <span className="hero-beat-late text-blue-400">Elect Who Agrees.</span>
                   </h1>
                 )}
                 {heroBeat === 1 && (
-                  <p className="text-white font-black text-[24px] uppercase leading-tight tracking-wide" style={{fontFamily:"'Barlow Condensed', sans-serif"}}>
+                  <p className="text-white font-black text-[24px] md:text-[33px] uppercase leading-tight tracking-wide" style={{fontFamily:"'Barlow Condensed', sans-serif"}}>
                     <span className="hero-beat inline-block"><span className="text-red-400">STOP</span> voting parties.</span><br/>
                     <span className="hero-beat-late"><span className="text-blue-400">START</span> voting your views.</span>
                   </p>
                 )}
                 {heroBeat === 2 && (
-                  <button onClick={openTour} className="hero-tour-line font-black text-[23px] uppercase leading-tight tracking-wider"
+                  <button onClick={openTour} className="hero-tour-line font-black text-[23px] md:text-[31px] uppercase leading-tight tracking-wider"
                     style={{fontFamily:"'Barlow Condensed', sans-serif", border:'none'}}>
                     ★ Take the 1 Minute Tour →
                   </button>
@@ -1920,7 +1932,7 @@
               <div className="hidden lg:flex flex-col gap-2.5 mt-8 w-80">
                 {answeredCount === 0 && (
                   <div className="flex items-center gap-2">
-                    <button onClick={() => onQuiz()} className="flex-1 py-2.5 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all duration-150 hover:opacity-90 active:scale-[0.97]" style={{background:'#2563eb', border:'1px solid #60a5fa', letterSpacing:'0.12em'}}>
+                    <button onClick={() => onQuiz()} className="flex-1 py-2.5 md:py-3.5 text-white font-black text-xs md:text-sm uppercase tracking-widest rounded-xl transition-all duration-150 hover:opacity-90 active:scale-[0.97]" style={{background:'#2563eb', border:'1px solid #60a5fa', letterSpacing:'0.12em'}}>
                       Choose Your Views →
                     </button>
                     <div className="shrink-0 w-11 h-11" />
@@ -1928,7 +1940,7 @@
                 )}
                 {answeredCount > 0 && (
                   <div className="flex items-center gap-2">
-                    <button onClick={onSummary} className="flex-1 py-2.5 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all duration-150 hover:opacity-95 active:scale-[0.97]" style={{background:'#2563eb', border:'1px solid #60a5fa', letterSpacing:'0.12em'}}>
+                    <button onClick={onSummary} className="flex-1 py-2.5 md:py-3.5 text-white font-black text-xs md:text-sm uppercase tracking-widest rounded-xl transition-all duration-150 hover:opacity-95 active:scale-[0.97]" style={{background:'#2563eb', border:'1px solid #60a5fa', letterSpacing:'0.12em'}}>
                       Find My Matches ({answeredCount}/9) →
                     </button>
                     {confirmReset ? (
@@ -1950,7 +1962,7 @@
                 )}
                 <div className="flex items-center gap-2">
                   <button onClick={() => onBrowse()} disabled={!available}
-                    className="flex-1 py-2.5 font-bold text-xs uppercase tracking-widest text-white rounded-xl transition-all duration-150 hover:opacity-90 active:scale-[0.97] disabled:opacity-40"
+                    className="flex-1 py-2.5 md:py-3.5 font-bold text-xs md:text-sm uppercase tracking-widest text-white rounded-xl transition-all duration-150 hover:opacity-90 active:scale-[0.97] disabled:opacity-40"
                     style={{letterSpacing:'0.12em', background:'#b91c1c', border:'1px solid #ef4444'}}>
                     Compare Candidates
                   </button>
@@ -1961,8 +1973,8 @@
             )}
 
             {/* ── Right col (desktop) / Bottom (mobile): Icon grid + mobile CTAs ── */}
-            <div className="w-full max-w-xs lg:max-w-sm relative z-20">
-              <div className="grid grid-cols-3 gap-1.5 lg:gap-3 mb-3 lg:mb-0" onMouseLeave={() => setHoveredIssue(null)}>
+            <div className="w-full max-w-xs md:max-w-[440px] lg:max-w-sm relative z-20">
+              <div className="grid grid-cols-3 gap-1.5 md:gap-2.5 lg:gap-3 mb-3 lg:mb-0" onMouseLeave={() => setHoveredIssue(null)}>
                 {issueList.map(issue => (
                   <button
                     key={issue.id}
@@ -2032,7 +2044,7 @@
               <div className="lg:hidden flex flex-col gap-2.5 mt-2">
                 {answeredCount > 0 ? (
                   <div className="flex items-center gap-2">
-                    <button onClick={onSummary} className="flex-1 py-2.5 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all duration-150 hover:opacity-90 active:scale-[0.97]" style={{background:'#2563eb', border:'1px solid #60a5fa', letterSpacing:'0.12em'}}>
+                    <button onClick={onSummary} className="flex-1 py-2.5 md:py-3.5 text-white font-black text-xs md:text-sm uppercase tracking-widest rounded-xl transition-all duration-150 hover:opacity-90 active:scale-[0.97]" style={{background:'#2563eb', border:'1px solid #60a5fa', letterSpacing:'0.12em'}}>
                       Find My Matches ({answeredCount}/9) →
                     </button>
                     {confirmReset ? (
@@ -2054,7 +2066,7 @@
                 ) : (
                   <div className="flex items-center gap-2">
                     <button onClick={available ? () => onQuiz(null) : undefined} disabled={!available}
-                      className="flex-1 py-2.5 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all duration-150 hover:opacity-90 active:scale-[0.97] disabled:opacity-40"
+                      className="flex-1 py-2.5 md:py-3.5 text-white font-black text-xs md:text-sm uppercase tracking-widest rounded-xl transition-all duration-150 hover:opacity-90 active:scale-[0.97] disabled:opacity-40"
                       style={{background:'#2563eb', letterSpacing:'0.12em', border:'1px solid #60a5fa'}}>
                       Choose Your Views →
                     </button>
@@ -2063,7 +2075,7 @@
                 )}
                 <div className="flex items-center gap-2">
                   <button onClick={available ? onBrowse : undefined} disabled={!available}
-                    className="flex-1 py-2.5 font-bold text-xs uppercase tracking-widest text-white rounded-xl transition-all duration-150 disabled:opacity-40 hover:opacity-90 active:scale-[0.97]"
+                    className="flex-1 py-2.5 md:py-3.5 font-bold text-xs md:text-sm uppercase tracking-widest text-white rounded-xl transition-all duration-150 disabled:opacity-40 hover:opacity-90 active:scale-[0.97]"
                     style={{letterSpacing:'0.12em', background:'#b91c1c', border:'1px solid #ef4444'}}>
                     Compare Candidates
                   </button>
@@ -2989,11 +3001,11 @@
             const isActive = tab.key === activeTab;
             return (
               <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-                className={`flex items-center justify-center rounded-lg font-black uppercase transition-all duration-150 min-w-0 ${isMobile ? 'flex-1 gap-1 py-2 px-0.5 text-[10px] tracking-tight' : 'gap-1.5 px-5 py-2 text-sm tracking-widest'}`}
+                className={`flex items-center justify-center rounded-lg font-black uppercase transition-all duration-150 min-w-0 ${isMobile ? 'flex-1 gap-1 py-2 px-0.5 text-[10px] tracking-tight' : 'gap-1.5 px-2.5 lg:px-5 py-2 text-[12px] lg:text-sm tracking-wide lg:tracking-widest'}`}
                 style={isActive
                   ? { background: '#fff', color: '#0f172a', boxShadow: '0 2px 10px rgba(0,0,0,0.30)' }
                   : { background: 'transparent', color: '#cbd5e1' }}>
-                {!isMobile && CATEGORY_ICON[tab.key] && CATEGORY_ICON[tab.key]('w-4 h-4 shrink-0')}
+                {!isMobile && CATEGORY_ICON[tab.key] && CATEGORY_ICON[tab.key]('w-4 h-4 shrink-0 hidden lg:block')}
                 <span className="truncate">{tab.label}</span>
                 {tab.count > 0 && <span className="shrink-0" style={{ color: isActive ? '#059669' : '#34d399', fontSize: isMobile ? '9px' : undefined }}>·{tab.count}</span>}
               </button>
@@ -3262,8 +3274,9 @@
             />
           )}
 
-          {/* Section header — solid banner naming the active section */}
-          <div style={{background:'rgba(255,255,255,0.06)', borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
+          {/* Section header — solid banner naming the active section. Opaque + above the
+              sticky race-row headers so they don't bleed through while scrolling under it. */}
+          <div className="relative z-30" style={{background:'#1b2136', borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
             <div className="max-w-5xl mx-auto w-full px-4 py-2.5 flex items-center gap-2">
               <p className="text-white font-black uppercase tracking-wide text-[17px] leading-none" style={{fontFamily:"'Barlow Condensed',sans-serif", letterSpacing:'0.06em'}}>
                 Your {TABS.find(t => t.key === activeTab)?.label} Candidates
@@ -3708,13 +3721,16 @@
                 </React.Fragment>
               );
             })()}
-          {/* Panels row — full-width footer bar sits below both */}
-          <div className="flex flex-col md:flex-row flex-1 min-h-0">
+          {/* Panels row — full-width footer bar sits below both.
+              Mobile: ONE scroll context (this wrapper) so the bio scrolls away and only the
+              photo/identity row stays sticky. Desktop: each panel scrolls independently. */}
+          <div className="flex flex-col md:flex-row flex-1 min-h-0 overflow-y-auto md:overflow-visible">
           {/* LEFT PANEL — identity (mobile: top, desktop: fixed-width left column) */}
           <div className={`${accentBg} md:w-[300px] lg:w-[380px] md:flex-shrink-0 md:overflow-y-auto relative flex-shrink-0 px-5 pt-8 pb-5 lg:pt-10`} style={{ background: accentGrad, boxShadow: '6px 0 24px rgba(0,0,0,0.35)' }}>
 
-            {/* Top row: photo + identity */}
-            <div className="flex items-center gap-4">
+            {/* Top row: photo + identity — the only sticky piece on mobile; bio below scrolls away */}
+            <div className="flex items-center gap-4 sticky md:static top-0 z-20 -mx-5 px-5 -mt-8 pt-6 pb-3 md:mx-0 md:px-0 md:mt-0 md:pt-0 md:pb-0"
+                 style={{ background: accentGrad }}>
               {/* Photo — larger on desktop */}
               <div className="flex-shrink-0">
                 {onSelect ? (
@@ -3879,8 +3895,8 @@
               </div>
             )}
           </div>
-          {/* RIGHT PANEL — issues (scrollable on desktop) */}
-          <div className="flex-1 overflow-y-auto min-w-0" style={{ background: 'linear-gradient(160deg,#0f172a 0%,#020617 100%)' }}>
+          {/* RIGHT PANEL — issues (scrollable on desktop; scrolls with the page on mobile) */}
+          <div className="flex-1 md:overflow-y-auto min-w-0" style={{ background: 'linear-gradient(160deg,#0f172a 0%,#020617 100%)' }}>
             {(() => {
               const lastName = candidate.name.split(' ').slice(-1)[0];
               const allEvidenceVals = issues ? issues.map(i => candidate.evidence?.[i.id]).filter(Boolean) : [];
@@ -4136,7 +4152,7 @@
           {/* Header */}
           <header className="sticky top-0 z-50" style={{background:'#0f172a', borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
             {/* Mobile: stacked layout */}
-            <div className="lg:hidden px-4 py-3">
+            <div className="md:hidden px-4 py-3">
               <div className="flex items-center justify-between gap-2">
                 <button onClick={onBack} className="text-sm text-slate-400 hover:text-white font-medium flex items-center gap-1 transition-colors shrink-0">{backLabel}</button>
                 <CountyBanner compact county={county} counties={counties} setCounty={setCounty} userDistricts={userDistricts} setUserDistricts={setUserDistricts} onMyCandidates={() => setShowAddr(true)} />
@@ -4148,15 +4164,15 @@
             </div>
 
             {/* Desktop: single dark row */}
-            <div className="hidden lg:flex items-center h-16 px-8 relative">
-              <div className="absolute left-8 flex items-center gap-2.5">
+            <div className="hidden md:flex items-center h-16 px-4 lg:px-8 gap-3">
+              <div className="flex items-center gap-2.5 shrink-0">
                 <button onClick={onBack} className="text-sm text-slate-400 hover:text-white font-semibold flex items-center gap-1.5 transition-colors">{backLabel}</button>
                 <BetaChip />
               </div>
-              <div className="mx-auto">
+              <div className="flex-1 flex justify-center min-w-0">
                 <CategoryTabs tabs={tabsWithCounts} activeTab={activeTab} setActiveTab={setActiveTab} size="desktop" />
               </div>
-              <div className="absolute right-8">
+              <div className="shrink-0">
                 <CountyBanner compact county={county} counties={counties} setCounty={setCounty} userDistricts={userDistricts} setUserDistricts={setUserDistricts} onMyCandidates={() => setShowAddr(true)} />
               </div>
             </div>
@@ -4169,8 +4185,9 @@
               onShowAll={pendingBallot ? undefined : () => setShowAddr(false)} />
           )}
 
-          {/* Section header — solid banner naming the active section */}
-          <div style={{background:'rgba(255,255,255,0.06)', borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
+          {/* Section header — solid banner naming the active section. Opaque + above the
+              sticky race-row headers so they don't bleed through while scrolling under it. */}
+          <div className="relative z-30" style={{background:'#1b2136', borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
             <div className="max-w-5xl mx-auto w-full px-4 py-2.5 flex items-center gap-2">
               <p className="text-white font-black uppercase tracking-wide text-[17px] leading-none" style={{fontFamily:"'Barlow Condensed',sans-serif", letterSpacing:'0.06em'}}>
                 Compare {TABS.find(t => t.key === activeTab)?.label} Candidates
@@ -4192,14 +4209,14 @@
               return (
                 <div key={race.office} id={'race-'+race.office.replace(/\s+/g,'-')} className="rounded-2xl shadow-sm border border-slate-800 overflow-hidden">
                   {/* Dark header */}
-                  <div className="sticky top-0 z-20 w-full flex flex-col lg:flex-row"
+                  <div className="sticky top-0 z-20 w-full flex flex-col md:flex-row"
                     style={{background:'linear-gradient(135deg,#0f172a 0%,#1e293b 100%)'}}>
 
                     {/* Mobile: full-width title row / Desktop: left 50% (title + description) */}
-                    <div className="w-full lg:w-1/2 flex text-left border-b border-white/10 lg:border-b-0 lg:border-r lg:border-white/20">
+                    <div className="w-full md:w-1/2 flex text-left border-b border-white/10 md:border-b-0 md:border-r md:border-white/20">
                       {/* Title col */}
-                      <div className="flex-1 lg:w-1/2 px-4 py-2.5 lg:py-4 flex items-center justify-center lg:flex-col lg:items-center lg:justify-center border-r border-white/20">
-                        {isSelected && <span className="text-sm text-emerald-400 font-bold mr-2 lg:mr-0 lg:mb-2">✓</span>}
+                      <div className="flex-1 md:w-1/2 px-4 py-2.5 md:py-4 flex items-center justify-center md:flex-col md:items-center md:justify-center border-r border-white/20">
+                        {isSelected && <span className="text-sm text-emerald-400 font-bold mr-2 md:mr-0 md:mb-2">✓</span>}
                         <h2 className="text-white font-black uppercase leading-tight text-center"
                           style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'20px', letterSpacing:'0.04em'}}>
                           {(() => {
@@ -4211,14 +4228,14 @@
                         </h2>
                       </div>
                       {/* Description col — desktop only */}
-                      <div className="hidden lg:flex w-1/2 px-5 py-5 flex-col justify-center">
+                      <div className="hidden md:flex w-1/2 px-5 py-5 flex-col justify-center">
                         {race.description && <p className="text-slate-400 text-xs leading-relaxed">{formatDescription(race.description)}</p>}
                         {isSelected && <div className="text-xs text-emerald-400 font-bold mt-2">✓ {selected[race.office]}</div>}
                       </div>
                     </div>
 
                     {/* Candidate columns — 50/50 on mobile, 25/25 on desktop */}
-                    <div className="w-full lg:w-1/2 flex relative">
+                    <div className="w-full md:w-1/2 flex relative">
                       {/* Compare button removed */}
                       {race.candidates.filter(Boolean).slice(0,2).map(c => {
                         const accent = c.party==='D'?'#3b82f6':c.party==='R'?'#ef4444':'#94a3b8';
@@ -4230,7 +4247,7 @@
                         return (
                           <button key={c.name}
                             onClick={() => setBrowseProfile({candidate: c, race})}
-                            className="flex-1 flex flex-col items-center justify-center py-4 lg:py-5 gap-2 border-r border-white/10 cursor-pointer active:bg-white/10 transition-colors"
+                            className="flex-1 flex flex-col items-center justify-center py-4 md:py-5 gap-2 border-r border-white/10 cursor-pointer active:bg-white/10 transition-colors"
                             style={{background:'rgba(255,255,255,0.05)', margin:'8px', borderRadius:'14px', border:`1.5px solid #d97706`}}>
                             <p className="text-[12px] font-black text-slate-200 uppercase tracking-widest text-center leading-tight">{c.name}</p>
                             <div className="relative" style={{width: Math.round(ringSize*1.04), height: Math.round(ringSize*1.04)}}>
@@ -4275,7 +4292,7 @@
                         if (reals.length !== 1 || !reals[0].uncontested) return null;
                         const missing = reals[0].party === 'D' ? 'Republican' : 'Democratic';
                         return (
-                          <div className="flex-1 flex flex-col items-center justify-center py-4 lg:py-5 gap-2"
+                          <div className="flex-1 flex flex-col items-center justify-center py-4 md:py-5 gap-2"
                             style={{margin:'8px', borderRadius:'14px', border:'1.5px dashed rgba(255,255,255,0.18)', background:'rgba(255,255,255,0.02)'}}>
                             <p className="text-[12px] font-black uppercase tracking-widest text-center leading-tight" style={{color:'rgba(255,255,255,0.45)'}}>No {missing}<br/>Candidate</p>
                             <div className="relative" style={{width:75, height:75}}>
@@ -5378,13 +5395,20 @@
       React.useEffect(() => { try { store.setItem('vyv_ranks', JSON.stringify(ranks)); } catch(e) {} }, [ranks]);
       React.useEffect(() => { try { store.setItem('vyv_stmts', JSON.stringify(checkedStatements)); } catch(e) {} }, [checkedStatements]);
 
-      // Auto-select best-matched candidate per race whenever answers/ranks/statements change
+      // Auto-select best-matched candidate per race whenever answers/ranks/statements change.
+      // autoPickRef remembers what THIS effect chose, so a re-run with fresher data (the
+      // sheet load replacing the hardcoded fallback) can update its own picks — while a
+      // pick the user made or changed by hand is never overwritten.
+      const autoPickRef = useRef({});
       React.useEffect(() => {
         if (Object.keys(answers).length === 0) return;
-        const allRaces = Object.values(counties).flatMap(c => Object.values(c.races || {}).flat());
+        // Active county only — office names repeat across counties (e.g. "U.S. House"),
+        // so scanning every county would let another county's race overwrite this one's pick.
+        const allRaces = ['federal', 'state', 'county', 'judicial'].flatMap(k => (counties[county] || {})[k] || []);
         const autoSelected = {};
         allRaces.forEach(race => {
-          const [c1, c2] = (race.candidates || []).filter(Boolean);
+          // Skip TBD placeholders — never auto-add a nominee that doesn't exist yet
+          const [c1, c2] = (race.candidates || []).filter(c => c && !/^TBD/i.test(c.name || ''));
           if (!c1) return;
           const s1 = calcMatch(c1, answers, checkedStatements, ranks);
           const s2 = c2 ? calcMatch(c2, answers, checkedStatements, ranks) : null;
@@ -5392,8 +5416,16 @@
             autoSelected[race.office] = (s2 !== null && s2 > s1) ? c2.name : c1.name;
           }
         });
-        setSelected(prev => ({ ...autoSelected, ...prev }));
-      }, [answers, ranks, checkedStatements, counties]);
+        const lastAutoPicks = autoPickRef.current; // snapshot BEFORE updating the ref — the updater below may run later
+        autoPickRef.current = autoSelected;
+        setSelected(prev => {
+          const next = { ...prev };
+          Object.entries(autoSelected).forEach(([office, name]) => {
+            if (prev[office] === undefined || prev[office] === lastAutoPicks[office]) next[office] = name;
+          });
+          return next;
+        });
+      }, [answers, ranks, checkedStatements, counties, county]);
       const [startIssueId, setStartIssueId] = useState(null);
       // Landing "picker mode": after a quiz submit, show the bare icon grid so the
       // user picks the next issue visually instead of being marched issue-to-issue.
