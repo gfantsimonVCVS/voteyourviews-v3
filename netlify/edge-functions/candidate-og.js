@@ -34,10 +34,16 @@ export default async (request, context) => {
   const response = await context.next();
   const html = await response.text();
 
-  const title = `${cand.name} — ${cand.office} | VoteYourViews.org`;
-  const description = `See where ${cand.name} stands on the issues — and find out in 2 minutes if your views match.`;
-  const image = `${url.origin}/icons/og/${slug}.png`;
-  const pageUrl = `${url.origin}/${m[1]}`;
+  // /edit links get the invitation card; bare candidate links get their share card.
+  const isEdit = !!m[2];
+  const title = isEdit
+    ? `${cand.name} — you're invited to edit your candidate profile | VoteYourViews.org`
+    : `${cand.name} — ${cand.office} | VoteYourViews.org`;
+  const description = isEdit
+    ? 'Your photo, your words, where you stand — speak for yourself. Reviewed before anything goes live.'
+    : `See where ${cand.name} stands on the issues — and find out in 2 minutes if your views match.`;
+  const image = `${url.origin}/icons/og/${slug}${isEdit ? '-edit' : ''}.png`;
+  const pageUrl = `${url.origin}/${m[1]}${isEdit ? '/edit' : ''}`;
 
   const rewritten = html
     .replace(/<title>[^<]*<\/title>/, `<title>${esc(title)}</title>`)

@@ -124,6 +124,56 @@ h1 {{ font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:{nam
 </div>
 </body></html>'''
 
+def build_edit_html(cand, photo_b64, header_b64):
+    """Lean invitation card for /<slug>/edit — photo + name + the invite, none of the issue busyness."""
+    p_label, p_color, p_bg, p_text = PARTY.get(cand['party'], PARTY_OTHER)
+    name_size = 82 if len(cand['name']) <= 16 else (66 if len(cand['name']) <= 22 else 54)
+    return f'''<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Inter:wght@600;700&display=swap" rel="stylesheet"/>
+<style>
+* {{ margin:0; padding:0; box-sizing:border-box; }}
+body {{ width:1200px; height:630px; overflow:hidden; font-family:'Inter',sans-serif; display:flex; flex-direction:column;
+  background: linear-gradient(160deg,#0f172a 0%,#020617 100%); color:#fff; }}
+.band img {{ width:100%; display:block; }}
+.main {{ flex:1; display:flex; align-items:center; gap:56px; padding:0 80px; }}
+.photo-wrap {{ flex-shrink:0; width:300px; }}
+.photo {{ width:300px; height:300px; border-radius:32px; object-fit:cover; object-position:top; display:block; background:#1e293b;
+  border:5px solid {p_color}; box-shadow:0 24px 60px rgba(0,0,0,0.65), 0 0 44px {p_bg}; }}
+.party {{ margin:16px auto 0; width:fit-content; padding:6px 18px; border-radius:999px; background:{p_bg};
+  border:1.5px solid {p_color}; color:{p_text}; font-weight:800; font-size:17px; letter-spacing:0.12em; text-transform:uppercase; }}
+.info {{ flex:1; min-width:0; }}
+h1 {{ font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:{name_size}px; line-height:0.98;
+  text-transform:uppercase; letter-spacing:0.01em; margin-bottom:22px; }}
+.invite {{ font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:47px; line-height:1.05; text-transform:uppercase;
+  letter-spacing:0.02em; margin-bottom:20px;
+  background:linear-gradient(100deg,#d97706,#fbbf24 40%,#fff7d6 55%,#fbbf24 70%,#d97706);
+  -webkit-background-clip:text; background-clip:text; color:transparent; }}
+.cta {{ font-size:24px; font-weight:700; color:#cbd5e1; }}
+</style></head><body>
+<div class="band"><img src="{header_b64}"/></div>
+<div class="main">
+  <div class="photo-wrap">
+    <img class="photo" src="{photo_b64}"/>
+    <div class="party">{p_label}</div>
+  </div>
+  <div class="info">
+    <h1>{cand['name']}</h1>
+    <div class="invite">You're invited to edit<br/>your candidate profile</div>
+    <div class="cta">Your photo, your words, where you stand &mdash; speak for yourself.</div>
+  </div>
+</div>
+</body></html>'''
+
+def render(html, out):
+    with tempfile.NamedTemporaryFile('w', suffix='.html', delete=False) as f:
+        f.write(html); tmp = f.name
+    subprocess.run([CHROME, '--headless', '--disable-gpu', '--hide-scrollbars',
+                    '--window-size=1200,630', '--virtual-time-budget=8000',
+                    f'--screenshot={out}', f'file://{tmp}'],
+                   capture_output=True)
+    os.unlink(tmp)
+    return os.path.exists(out)
+
 def main():
     only = canonical_slug(sys.argv[1]) if len(sys.argv) > 1 else None
     os.makedirs(OUT_DIR, exist_ok=True)
@@ -148,17 +198,9 @@ def main():
                 continue
             stances = [k for k in ISSUE_ORDER if (row.get(k) or '').strip() in ('Agree', 'Disagree')]
             tiles = [tile_cache[k] for k in stances[:5]]
-            html = build_html(cand, photo, header_b64, tiles)
-            with tempfile.NamedTemporaryFile('w', suffix='.html', delete=False) as f:
-                f.write(html); tmp = f.name
-            out = os.path.join(OUT_DIR, slug + '.png')
-            subprocess.run([CHROME, '--headless', '--disable-gpu', '--hide-scrollbars',
-                            '--window-size=1200,630', '--virtual-time-budget=8000',
-                            f'--screenshot={out}', f'file://{tmp}'],
-                           capture_output=True)
-            os.unlink(tmp)
-            ok = os.path.exists(out)
-            print(f'  {"✓" if ok else "✗"} {name} -> og/{slug}.png')
+            ok = render(build_html(cand, photo, header_b64, tiles), os.path.join(OUT_DIR, slug + '.png'))
+            ok_edit = render(build_edit_html(cand, photo, header_b64), os.path.join(OUT_DIR, slug + '-edit.png'))
+            print(f'  {"✓" if ok else "✗"} {name} -> og/{slug}.png {"+ edit card" if ok_edit else "(edit card FAILED)"}')
             if ok:
                 manifest[slug] = {'name': name, 'office': cand['office'], 'party': cand['party'],
                                   'stances': len(stances)}

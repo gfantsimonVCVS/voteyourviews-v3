@@ -56,13 +56,32 @@ exports.handler = async (event) => {
   const match = contacts.find((row) => candidateSlug(row[0]) === p.slug);
   const onFileEmail = match && (match[3] || '').includes('@') ? match[3].trim() : '';
 
+  // One column per issue (fixed order, must match the sheet header). Each cell reads:
+  //   ✓✓✗ Agree      (statement answers 1-2-3: ✓ agree, ✗ disagree, – skip)
+  //   "own words"
+  //   note: …
+  const ISSUE_ORDER = ['reproductiveRights', 'immigration', 'gunPolicy', 'education', 'healthcare', 'climate', 'electionIntegrity', 'socialSecurity', 'affordability'];
+  const SYM = { up: '✓', down: '✗', skip: '–' };
+  const issueCell = (issueId) => {
+    const rx = (p.statementReactions || {})[issueId] || {};
+    const own = ((p.ownWords || {})[issueId] || '').trim();
+    const note = ((p.notes || {})[issueId] || '').trim();
+    if (!Object.keys(rx).length && !own && !note) return '';
+    const marks = [0, 1, 2].map((i) => SYM[rx[i]] || '·').join('');
+    const stance = (p.positions || {})[issueId];
+    const lines = [`${marks}${stance ? ` ${stance}` : ''}`];
+    if (own) lines.push(`"${own}"`);
+    if (note) lines.push(`note: ${note}`);
+    return lines.join('\n');
+  };
+
   const id = crypto.randomUUID();
   await appendRow('submissions', [
     id, 'pending-review', new Date().toISOString(), '',
     p.candidate, p.slug, p.office || '', p.party || '',
     onFileEmail, p.website || '', p.hook1 || '', p.hook2 || '',
-    JSON.stringify(p.positions || {}), JSON.stringify(p.ownWords || {}), JSON.stringify(p.notes || {}),
-    p.photoChanged ? 'yes' : 'no', p.photoDataUrl || '', 'yes', JSON.stringify(p.statementReactions || {}),
+    ...ISSUE_ORDER.map(issueCell),
+    p.photoChanged ? 'yes' : 'no', p.photoDataUrl || '', 'yes',
     p.submitterName.trim(), p.submitterRole.trim(), p.submitterEmail.trim(),
     p.whatChanged || '',
   ]);

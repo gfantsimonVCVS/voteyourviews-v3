@@ -4998,9 +4998,10 @@
           whatChanged,
           photoChanged: !!photoName,
           photoDataUrl: photoName ? photoPreview : null,
-          positions: Object.fromEntries(editIssues.map(i => [i.id, stanceFor(i.id)])), // issue-level stance derived from statement reactions
+          // Sparse on purpose: only issues the candidate actually answered appear in the review sheet.
+          positions: Object.fromEntries(editIssues.filter(i => Object.keys(reactions[i.id] || {}).length > 0).map(i => [i.id, stanceFor(i.id)])),
           statementReactions: reactions, // per-statement Agree/Disagree/Skip — the same quiz voters take
-          ownWords,                      // "Where do you stand…" — their first-person answer per issue
+          ownWords: Object.fromEntries(Object.entries(ownWords).filter(([, v]) => v && v.trim())),
           notes: Object.fromEntries(Object.entries(notes).filter(([,v]) => v && v.trim())),
           submitterName: submitterName.trim(),
           submitterRole,
