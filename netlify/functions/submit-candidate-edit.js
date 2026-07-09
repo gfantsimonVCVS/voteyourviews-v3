@@ -64,6 +64,7 @@ exports.handler = async (event) => {
     JSON.stringify(p.positions || {}), JSON.stringify(p.ownWords || {}), JSON.stringify(p.notes || {}),
     p.photoChanged ? 'yes' : 'no', p.photoDataUrl || '', 'yes', JSON.stringify(p.statementReactions || {}),
     p.submitterName.trim(), p.submitterRole.trim(), p.submitterEmail.trim(),
+    p.whatChanged || '',
   ]);
 
   // Heads-up to Gina when email sending is configured; silently skipped otherwise.

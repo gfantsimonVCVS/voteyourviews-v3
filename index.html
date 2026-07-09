@@ -4973,13 +4973,29 @@
       }
 
       async function submit() {
+        // Only transmit what actually changed — untouched prefills stay blank in the
+        // review sheet, so a filled cell always means "the candidate edited this".
+        const hook1Changed = hook1 !== (candidate.hook || '');
+        const hook2Changed = hook2 !== (candidate.summary || '');
+        const websiteChanged = website !== (candidate.website || '');
+        const answeredIssues = editIssues.filter(i => Object.keys(reactions[i.id] || {}).length > 0 || (ownWords[i.id] || '').trim());
+        const whatChanged = [
+          photoName && 'photo',
+          websiteChanged && 'website',
+          hook1Changed && 'headline',
+          hook2Changed && 'bio',
+          answeredIssues.length && `${answeredIssues.length} issue${answeredIssues.length > 1 ? 's' : ''}: ${answeredIssues.map(i => i.topic).join(', ')}`,
+          Object.values(notes).some(v => v && v.trim()) && 'notes',
+        ].filter(Boolean).join(' · ');
         const payload = {
           candidate: candidate.name,
           slug: candidateSlug(candidate.name),
           office: race?.office || null,
           party: candidate.party,
-          website,
-          hook1, hook2,
+          website: websiteChanged ? website : '',
+          hook1: hook1Changed ? hook1 : '',
+          hook2: hook2Changed ? hook2 : '',
+          whatChanged,
           photoChanged: !!photoName,
           photoDataUrl: photoName ? photoPreview : null,
           positions: Object.fromEntries(editIssues.map(i => [i.id, stanceFor(i.id)])), // issue-level stance derived from statement reactions
@@ -5076,7 +5092,7 @@
               {/* Candidate URL + copy — for sharing on campaign materials */}
               <div className="mt-5 flex items-center justify-between gap-3 flex-wrap rounded-xl px-4 py-2.5" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)' }}>
                 <div className="min-w-0 flex items-baseline gap-2 flex-wrap">
-                  <span className="text-[9px] font-black uppercase tracking-[0.22em]" style={{ color: '#f59e0b' }}>Your VoteYourViews candidate URL</span>
+                  <span className="text-[9px] font-black uppercase tracking-[0.22em]" style={{ color: '#f59e0b' }}>Your candidate URL</span>
                   <span className="text-white font-bold text-[13px] sm:text-[14px] break-all">{fullProfileUrl}</span>
                 </div>
                 <button onClick={copyProfileUrl}
@@ -5095,7 +5111,7 @@
           <div className="max-w-3xl mx-auto px-5 py-8 lg:px-10 space-y-8">
 
             {/* Photo + website — show what we have, keep or replace */}
-            <section className="bg-white rounded-2xl border border-slate-200 p-5 lg:p-6 space-y-6">
+            <section className="bg-white rounded-2xl p-5 lg:p-6 space-y-6" style={{ border: '1.5px solid #cbd5e1', boxShadow: '0 4px 16px rgba(15,23,42,0.08)' }}>
               {/* Photo */}
               <div>
                 <h2 className="text-lg font-black text-slate-900 mb-3">Your photo</h2>
@@ -5136,7 +5152,7 @@
             </section>
 
             {/* Hooks */}
-            <section className="bg-white rounded-2xl border border-slate-200 p-5 lg:p-6">
+            <section className="bg-white rounded-2xl p-5 lg:p-6" style={{ border: '1.5px solid #cbd5e1', boxShadow: '0 4px 16px rgba(15,23,42,0.08)' }}>
               <h2 className="text-lg font-black text-slate-900 mb-1">Your headline &amp; bio</h2>
               <p className="text-sm text-slate-500 mb-4">How you introduce yourself. These replace our draft once approved.</p>
 
@@ -5171,6 +5187,11 @@
               <div className="space-y-3.5">
                 {editIssues.map(issue => {
                   const stmts = (ISSUE_STATEMENTS[issue.topic] || []).slice(0, 3);
+                  // Same perspective chip as /statements: which side this issue's statements are voiced from
+                  const isLeft = (ISSUE_VOICE[issue.id] || 'LEFT') === 'LEFT';
+                  const perspColor = isLeft ? '#60a5fa' : '#f87171';
+                  const perspBg = isLeft ? 'rgba(59,130,246,0.14)' : 'rgba(239,68,68,0.14)';
+                  const perspLabel = isLeft ? 'Liberal' : 'Conservative';
                   const record = candidate.evidence?.[issue.id] || '';
                   const ow = ownWords[issue.id] || '';
                   const rx = reactions[issue.id] || {};
@@ -5182,8 +5203,11 @@
                       <summary className="cursor-pointer px-4 sm:px-5 py-4 flex items-center gap-3.5 hover:bg-white/5 transition-colors select-none">
                         <span className="ce-issue-tile"><img src={`/icons/Symbols/${issue.symbol}.png`} alt="" onError={e => { e.target.parentElement.style.display = 'none'; }} /></span>
                         <div className="flex-1 min-w-0">
-                          <span className="text-xl font-black uppercase tracking-wider text-white leading-none" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>{issue.topic}</span>
-                          <div className="mt-1 text-[11px] text-slate-400">{done ? 'Done' : `${stmts.length} statements + your answer`}</div>
+                          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                            <span className="text-xl font-black uppercase tracking-wider text-white leading-none" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>{issue.topic}</span>
+                            <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full" style={{ color: perspColor, background: perspBg, border: `1px solid ${perspColor}55` }}>{perspLabel} perspective</span>
+                          </div>
+                          <div className="mt-1 text-[11px] text-slate-400">{done ? 'Done' : <>Agree = <span style={{ color: perspColor, fontWeight: 700 }}>{perspLabel}</span></>}</div>
                         </div>
                         <span className={`text-[11px] font-black uppercase tracking-widest shrink-0 px-2.5 py-1 rounded-full ${done ? 'text-emerald-300' : 'text-slate-400'}`} style={{ background: done ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)' }}>{answered} / {stmts.length}</span>
                         {/* Completion checkbox — fills in when the statements are answered and the own-words box has text */}
@@ -5234,7 +5258,7 @@
             </section>
 
             {/* Save + submit — Submit opens the who-are-you modal */}
-            <section className="bg-white rounded-2xl border border-slate-200 p-5 lg:p-6">
+            <section className="bg-white rounded-2xl p-5 lg:p-6" style={{ border: '1.5px solid #cbd5e1', boxShadow: '0 4px 16px rgba(15,23,42,0.08)' }}>
               <div className="flex flex-col sm:flex-row gap-3">
                 <button onClick={saveDraft}
                   className="sm:flex-1 py-3.5 rounded-xl font-black text-slate-700 bg-white border-2 border-slate-300 hover:border-slate-400 transition">
