@@ -4143,7 +4143,7 @@
             : { grad: 'linear-gradient(90deg,#7e22ce,#9333ea)', border: '#c084fc', glow: 'rgba(147,51,234,0.45)' };
       const tabsWithCounts = TABS.map(tab => {
         const tabRaces = filterRacesByDistrict(countyData[tab.key] || [], userDistricts);
-        return { ...tab, count: tabRaces.filter(r => selected[r.office]).length };
+        return { ...tab, count: tabRaces.length };
       });
       const [showHeaderDrop, setShowHeaderDrop] = useState(false);
 
