@@ -1650,7 +1650,7 @@
                 style={{background:'rgba(255,255,255,0.15)', border:'1px solid rgba(255,255,255,0.3)'}}>✕</button>
               {outOfArea ? (
                 <div className="flex flex-col items-center text-center pt-1">
-                  <img src="icons/VoteYourViews_Logo_White.png" alt="VoteYourViews.org" className="mb-4" style={{height:'70px', width:'auto'}} />
+                  <img src="/icons/VoteYourViews_Logo_White.png" alt="VoteYourViews.org" className="mb-4" style={{height:'70px', width:'auto'}} />
                   <h2 className="text-white font-black text-2xl sm:text-3xl leading-tight">
                     Not available in<br/>
                     <span className="whitespace-nowrap" style={{color: '#fcd34d'}}>{outOfArea}</span> — <span style={{color: '#ef4444'}}>yet!</span>
@@ -1658,7 +1658,7 @@
                 </div>
               ) : (
                 <div className="flex flex-col items-center text-center pt-1">
-                  <img src="icons/VoteYourViews_Logo_White.png" alt="VoteYourViews.org" className="mb-4" style={{height:'70px', width:'auto'}} />
+                  <img src="/icons/VoteYourViews_Logo_White.png" alt="VoteYourViews.org" className="mb-4" style={{height:'70px', width:'auto'}} />
                   <h2 className="text-white font-black text-3xl leading-tight">
                     See who's on<br/><span style={{color: '#fcd34d'}}>YOUR</span> ballot.
                   </h2>
@@ -5071,7 +5071,7 @@
           <div className="text-white px-5 pt-5 pb-7 lg:px-10" style={{ background: 'radial-gradient(900px 420px at 50% -140px, #46538c 0%, #2e3a63 55%, #273254 100%) #273254', boxShadow: '0 14px 34px rgba(0,0,0,0.35)' }}>
             <div className="max-w-3xl mx-auto">
               <div className="flex items-center justify-between gap-3 pb-4 mb-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.14)' }}>
-                <img src="/icons/VoteYourViews_Logo_White.png" alt="VoteYourViews" className="h-14 sm:h-16 w-auto" />
+                <a href="/" title="VoteYourViews home"><img src="/icons/VoteYourViews_Logo_White.png" alt="VoteYourViews" className="h-14 sm:h-16 w-auto transition-opacity hover:opacity-80" /></a>
                 <div className="flex items-center gap-4 sm:gap-5">
                   <button onClick={onBack} className="text-[12px] sm:text-sm text-slate-300 hover:text-white transition-colors">← Back to profile</button>
                   <a href={profileUrl} target="_blank" rel="noopener" className="text-[12px] sm:text-sm font-bold transition-colors hover:brightness-125" style={{ color: '#f59e0b' }}>Live profile ↗</a>
