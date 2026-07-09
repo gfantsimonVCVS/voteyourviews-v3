@@ -4982,8 +4982,8 @@
         const whatChanged = [
           photoName && 'photo',
           websiteChanged && 'website',
-          hook1Changed && 'headline',
-          hook2Changed && 'bio',
+          hook1Changed && 'Hook 1',
+          hook2Changed && 'Hook 2',
           answeredIssues.length && `${answeredIssues.length} issue${answeredIssues.length > 1 ? 's' : ''}: ${answeredIssues.map(i => i.topic).join(', ')}`,
           Object.values(notes).some(v => v && v.trim()) && 'notes',
         ].filter(Boolean).join(' · ');
