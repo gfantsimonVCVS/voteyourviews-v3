@@ -1,6 +1,8 @@
 # Candidate Self-Submission — Feature Spec
 *VoteYourViews.org — let candidates supply their own photo, positions, and bio.*
 
+> **Two designs in this doc:** (1) the original **separate form** (`/candidate?token=…`) — sections below; and (2) the newer **edit-in-place** vision — clean per-candidate URLs with an inline Edit button on the real profile page. See **"V2 — Clean URLs + edit-in-place"** at the bottom. V2 is the preferred long-term shape; the form is the simpler fallback. Both share the same backend, approval gate, and field-scoping rules.
+
 > **Not to be confused with** the `statement_submissions` sheet tab, which is for **organizations** to suggest edits to the 3 belief statements per issue. This spec is **candidates** populating/correcting **their own profile**.
 
 ## Why this exists (the payoff)
@@ -56,3 +58,48 @@ With a private link, the token = identity. With open self-claim, we must prevent
 - **Push (private links):** high trust, but Gina does the outreach.
 - **Pull ("Is this you?"):** scales itself, but requires the approval gate to block impostors.
 - **Do both.**
+
+---
+
+# V2 — Clean URLs + edit-in-place (the next evolution)
+*The preferred long-term shape: every candidate has a shareable URL, and their team edits the real page directly behind a login — instead of filling out a separate form.*
+
+## The idea
+- Every candidate profile lives at a clean URL: **`voteyourviews.org/JamesTalarico`**.
+- The page shows the normal public profile. For a logged-in candidate (or their team), an **"Edit this page"** button appears, unlocking **inline editing of safe fields right on the page**.
+- Edits go to a pending queue → Gina approves → live. (Same gate as the form.)
+
+## Why it's better than the separate form
+- **Shareable + SEO:** candidates put `voteyourviews.org/TheirName` on their own site and socials; their name ranks in search. Free distribution.
+- **No context switch:** they edit what they actually see, in place — higher completion than a separate form.
+- **One canonical page** instead of form + profile drifting apart.
+
+## Piece 1 — Clean per-candidate URLs (small, do anytime)
+- The app is a single static `index.html`. Add a Netlify redirect so `/:slug` serves `index.html` (SPA-style), then the app reads the slug from `location.pathname`, finds the matching candidate, and renders their profile directly.
+- Slug = candidate name slugified (`james-talarico` or `JamesTalarico`); store a `slug` column in the sheet to keep it stable and avoid collisions (two "John Smith"s → `john-smith-hd50`).
+- This piece needs **no backend** and can ship independently of editing.
+
+## Piece 2 — Auth (the part a static site can't do alone)
+**Hard rule (today's lesson):** the Google Sheet write key must **never** reach the browser. Editing therefore needs a server piece.
+- **Use Netlify Functions** (serverless) — upgrade path from the Apps Script approach, or keep Apps Script if preferred. The function holds the secret and does the writing.
+- **Passwordless magic-link auth** (recommended): candidate enters their email → function emails a one-time signed link → clicking it grants a short-lived edit session. **No passwords for Gina to store, none for anyone to mishandle.**
+- Only emails on an **approved allow-list for that specific candidate** can unlock editing (prevents a rival from claiming an opponent's page). The allow-list is seeded from the official contact on file (county filing / Ballotpedia) or added by Gina.
+
+## Piece 3 — Inline edit UI + pending/approval
+- Edit button reveals editable fields in place; Save posts to the Netlify Function.
+- Function writes to the **pending tab** (`candidate_submissions`), never the live county tab.
+- Gina reviews → approve maps it into the live row. Nothing auto-publishes. (Identical to the form workflow above.)
+
+## Field scoping (credibility guardrail — important)
+The guide's value is **independent research.** If candidates write their own belief positions, they'll soften them and the tool loses meaning. So:
+- ✅ **Candidate may edit:** photo, bio / "in their own words" statement, campaign website, contact info, social links.
+- 🔒 **Team-controlled (or clearly labeled):** the 9 belief positions. Either keep them research-only, **or** show candidate-submitted positions tagged **"candidate's claim"** distinct from the team's **"✓ verified"** research — never silently let a candidate overwrite the researched stance.
+- This keeps the matching honest while still letting candidates fix photos/bios fast.
+
+## Build order
+1. **Clean URLs + slug routing** — no backend, ship first (immediate sharing/SEO win).
+2. **Netlify Function + magic-link auth + pending/approval** — the real infrastructure.
+3. **Inline edit UI**, scoped to safe fields, with the "candidate's claim" vs "verified" labeling.
+
+## Still deliberately avoided
+- No public account system, no passwords (magic link only), no candidate directory, no payment. Auth is per-candidate allow-list + one-time links; safety still rests on the **approval gate**.

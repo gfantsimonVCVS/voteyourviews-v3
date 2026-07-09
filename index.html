@@ -262,13 +262,49 @@
       /* Page setup */
       @page { margin: 0.5in; size: letter; }
     }
+
+    /* ─── Candidate editor issue accordion — same design language as /statements ─── */
+    .ce-glass { background: linear-gradient(135deg,#16213c 0%,#253352 100%);
+      border: 1px solid rgba(255,255,255,0.22);
+      box-shadow: 0 14px 34px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.12);
+      transition: transform .15s, border-color .15s, box-shadow .15s; }
+    details.ce-glass > summary { list-style: none; }
+    details.ce-glass > summary::-webkit-details-marker { display: none; }
+    .ce-chev { transition: transform 0.25s; }
+    details[open] > summary .ce-chev { transform: rotate(90deg); }
+    details.ce-glass:not([open]):hover { transform: translateY(-2px); border-color: rgba(245,158,11,0.55);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.12); }
+    details[open].ce-glass { border-color: rgba(245,158,11,0.55); box-shadow: 0 18px 48px rgba(0,0,0,0.55); }
+    .ce-issue-body { background: #f1f5f9; }
+    .ce-stmt-card { background: #ffffff; border: 1.5px solid #e2e8f0; box-shadow: 0 2px 8px rgba(15,23,42,0.06); transition: border-color .2s, background .2s; }
+    .ce-stmt-num { background: rgba(245,158,11,0.14); color: #b45309; border: 1.5px solid #f59e0b; }
+    .ce-stmt-card[data-state="up"] { border-color: #10b981; background: #ecfdf5; }
+    .ce-stmt-card[data-state="up"] .ce-stmt-num { background: rgba(16,185,129,0.14); color: #047857; border-color: #10b981; }
+    .ce-stmt-card[data-state="down"] { border-color: #e11d48; background: #fff1f2; }
+    .ce-stmt-card[data-state="down"] .ce-stmt-num { background: rgba(225,29,72,0.12); color: #be123c; border-color: #e11d48; }
+    .ce-stmt-card[data-state="skip"] { border-color: #94a3b8; background: #f8fafc; }
+    .ce-stmt-card[data-state="skip"] .ce-stmt-num { background: rgba(100,116,139,0.12); color: #475569; border-color: #94a3b8; }
+    .ce-seg { transition: all .15s; background: #fff; }
+    .ce-seg-agree { border: 1.5px solid #10b981; color: #047857; }
+    .ce-seg-agree.ce-on { background: #059669; border-color: #059669; color: #fff; box-shadow: 0 4px 14px rgba(5,150,105,0.4); }
+    .ce-seg-disagree { border: 1.5px solid #e11d48; color: #be123c; }
+    .ce-seg-disagree.ce-on { background: #e11d48; border-color: #e11d48; color: #fff; box-shadow: 0 4px 14px rgba(225,29,72,0.4); }
+    .ce-seg-skip { border: 1.5px solid #94a3b8; color: #475569; }
+    .ce-seg-skip.ce-on { background: #475569; border-color: #475569; color: #fff; box-shadow: 0 4px 14px rgba(71,85,105,0.4); }
+    .ce-issue-tile { width: 56px; height: 56px; border-radius: 14px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #1e3a8a 0%, #7c2d12 100%);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.18);
+      transition: transform .2s; }
+    summary:hover .ce-issue-tile { transform: scale(1.06); }
+    .ce-issue-tile img { width: 72%; height: 72%; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5)); }
   </style>
 </head>
 <body class="bg-slate-50">
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
+    const { useState, useEffect, useRef, useMemo } = React;
 
     // ─────────────────────────────────────────────
     // GOOGLE SHEETS CONFIG
@@ -3656,7 +3692,7 @@
       return (
         <React.Fragment>
         <div className="fixed inset-0 z-50 flex flex-col bg-black/85 md:items-center md:justify-center md:p-6">
-          <div className="flex flex-col md:flex-row bg-white md:rounded-2xl md:shadow-2xl md:ring-1 md:ring-white/15 md:max-w-6xl w-full md:max-h-[92vh] overflow-hidden relative">
+          <div className="flex flex-col bg-white md:rounded-2xl md:shadow-2xl md:ring-1 md:ring-white/15 md:max-w-6xl w-full md:max-h-[92vh] overflow-hidden relative">
             <button onClick={onClose} aria-label="Close" className="absolute top-3 right-3 z-20 w-9 h-9 bg-white text-slate-900 rounded-full flex items-center justify-center font-bold text-base shadow-lg ring-1 ring-black/10 hover:bg-slate-200">✕</button>
             {/* Full-panel match celebration */}
             {celebrateMatch && (() => {
@@ -3672,6 +3708,8 @@
                 </React.Fragment>
               );
             })()}
+          {/* Panels row — full-width footer bar sits below both */}
+          <div className="flex flex-col md:flex-row flex-1 min-h-0">
           {/* LEFT PANEL — identity (mobile: top, desktop: fixed-width left column) */}
           <div className={`${accentBg} md:w-[300px] lg:w-[380px] md:flex-shrink-0 md:overflow-y-auto relative flex-shrink-0 px-5 pt-8 pb-5 lg:pt-10`} style={{ background: accentGrad, boxShadow: '6px 0 24px rgba(0,0,0,0.35)' }}>
 
@@ -4008,14 +4046,6 @@
                 </>
               );
             })()}
-            {/* Sources & methodology strip */}
-            <div className="px-5 py-3 flex justify-center border-t border-white/15 sticky bottom-0" style={{ background: 'linear-gradient(0deg,#0b1120 0%,#0d1426 100%)' }}>
-              <button onClick={() => setShowSources(true)} className="text-xs text-slate-400 hover:text-white transition-colors flex items-center gap-1.5">
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-                Sources &amp; methodology
-              </button>
-            </div>
-
             {/* Bottom CTA — mobile only (desktop has Add button in left panel) */}
             <div className="md:hidden px-5 py-4 flex items-center justify-between gap-4" style={{background:'#0f172a', borderTop:'1px solid rgba(255,255,255,0.1)'}}>
               {onClose && (
@@ -4038,6 +4068,21 @@
                   </button>
                 )
               )}
+            </div>
+          </div>
+          </div>
+          {/* Full-width footer bar — candidates entry under the identity column, sources centered under the issues */}
+          <div className="flex items-center border-t border-white/15 px-5 py-3 gap-4" style={{ background: 'linear-gradient(0deg,#0b1120 0%,#0d1426 100%)' }}>
+            <div className="md:w-[300px] lg:w-[380px] md:shrink-0 md:text-center">
+              {!lowInfoSummary && (
+                <a href={editHref} className="text-xs text-slate-400 hover:text-white transition-colors whitespace-nowrap">Candidates: update your profile →</a>
+              )}
+            </div>
+            <div className="flex-1 flex justify-center">
+              <button onClick={() => setShowSources(true)} className="text-xs text-slate-400 hover:text-white transition-colors flex items-center gap-1.5">
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                Sources &amp; methodology
+              </button>
             </div>
           </div>
           </div>
@@ -4833,64 +4878,164 @@
     function CandidateEditPage({ candidate, race, issues, onBack }) {
       const _ISSUE_KEYS = ['reproductiveRights','immigration','gunPolicy','education','healthcare','climate','electionIntegrity','socialSecurity','affordability'];
       const editIssues = (issues || []).filter(i => _ISSUE_KEYS.includes(i.id));
-      // Read the researched stance as Agree / Disagree / No opinion (handles both full-word data and legacy A/C/D).
-      const stanceFromPos = (raw, issueId) => {
-        if (raw === 'Agree' || raw === 'Disagree') return raw;
-        if (raw === 'Unknown' || raw == null || raw === 'D') return 'No opinion';
-        const voice = ISSUE_VOICE[issueId];
-        if (raw === 'A') return voice === 'RIGHT' ? 'Disagree' : 'Agree';
-        if (raw === 'C') return voice === 'RIGHT' ? 'Agree' : 'Disagree';
-        return 'No opinion';
-      };
-      const [hook1, setHook1] = useState(candidate.hook || '');
-      const [hook2, setHook2] = useState(candidate.summary || '');
-      const [website, setWebsite] = useState(candidate.website || '');
+      // Save draft: work-in-progress lives in THIS browser only (localStorage, keyed by
+      // candidate) — lets a staffer save and get campaign sign-off before submitting.
+      // Nothing is transmitted until Submit.
+      const draftKey = `vyv-edit-draft-${candidateSlug(candidate.name)}`;
+      const draft = useMemo(() => {
+        try { return JSON.parse(localStorage.getItem(draftKey)) || null; } catch { return null; }
+      }, [draftKey]);
+      const [hook1, setHook1] = useState(draft?.hook1 ?? (candidate.hook || ''));
+      const [hook2, setHook2] = useState(draft?.hook2 ?? (candidate.summary || ''));
+      const [website, setWebsite] = useState(draft?.website ?? (candidate.website || ''));
       const [editWebsite, setEditWebsite] = useState(false);
-      const [stances, setStances] = useState(() => Object.fromEntries(editIssues.map(i => [i.id, stanceFromPos(candidate.positions?.[i.id], i.id)])));
-      const [ownWords, setOwnWords] = useState(() => Object.fromEntries(editIssues.map(i => [i.id, ''])));
-      const [flagOpen, setFlagOpen] = useState({});
-      const [flags, setFlags] = useState({});
-      const [photoPreview, setPhotoPreview] = useState(candidate.photo || null);
-      const [photoName, setPhotoName] = useState('');
-      const [consent, setConsent] = useState(false);
+      // The candidate takes the same quiz voters take: react to each issue's statements
+      // (the exact statements voters see), answer "Where do you stand…" in their own
+      // words, plus an optional per-issue notes field for corrections/context.
+      const [reactions, setReactions] = useState(draft?.reactions || {});   // { issueId: { stmtIdx: 'up'|'down'|'skip' } }
+      const [ownWords, setOwnWords] = useState(() => ({ ...Object.fromEntries(editIssues.map(i => [i.id, ''])), ...(draft?.ownWords || {}) }));
+      const [notes, setNotes] = useState(draft?.notes || {});               // { issueId: string }
+      // Derive the issue-level stance from the statement reactions (majority rule),
+      // same Agree/Disagree/No opinion vocabulary the match scoring already understands.
+      const stanceFor = (issueId) => {
+        const r = Object.values(reactions[issueId] || {});
+        const ups = r.filter(v => v === 'up').length, downs = r.filter(v => v === 'down').length;
+        return ups > downs ? 'Agree' : downs > ups ? 'Disagree' : 'No opinion';
+      };
+      const [photoPreview, setPhotoPreview] = useState(draft?.photoPreview || candidate.photo || null);
+      const [photoName, setPhotoName] = useState(draft?.photoName || '');
+      const [submitterName, setSubmitterName] = useState(draft?.submitterName || '');
+      const [submitterRole, setSubmitterRole] = useState(draft?.submitterRole || '');
+      const [submitterEmail, setSubmitterEmail] = useState(draft?.submitterEmail || '');
+      const submitterOk = submitterName.trim().length > 1 && submitterRole && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(submitterEmail);
+      const [showSubmitModal, setShowSubmitModal] = useState(false);
+      const [blockMsg, setBlockMsg] = useState(null);
       const [submitted, setSubmitted] = useState(null);
+      // Submission gates: must have actually changed/answered something, and no profanity.
+      const PROFANITY_RE = /\b\w*(fuck|shit|bitch|nigger|faggot)\w*\b|\b(cunt\w*|asshole\w*|goddamn\w*|whore\w*|slut\w*)\b/i;
+      function submissionBlockReason() {
+        const touchedQuiz = Object.values(reactions).some(r => Object.keys(r).length > 0)
+          || Object.values(ownWords).some(v => v && v.trim());
+        const touchedInfo = hook1 !== (candidate.hook || '') || hook2 !== (candidate.summary || '')
+          || website !== (candidate.website || '') || !!photoName
+          || Object.values(notes).some(v => v && v.trim());
+        if (!touchedQuiz && !touchedInfo) return "Nothing to submit yet — answer at least one issue or update your info first.";
+        const texts = [hook1, hook2, ...Object.values(ownWords), ...Object.values(notes)];
+        if (texts.some(t => t && PROFANITY_RE.test(t))) return "Please remove the strong language before submitting — this appears on a public voter guide.";
+        return null;
+      }
+      function openSubmitModal() {
+        const reason = submissionBlockReason();
+        setBlockMsg(reason);
+        if (!reason) setShowSubmitModal(true);
+      }
+      const [submitState, setSubmitState] = useState(null); // null | 'sending' | 'error'
+      const [draftSavedAt, setDraftSavedAt] = useState(draft?.savedAt || null);
+
+      function saveDraft() {
+        const data = {
+          hook1, hook2, website, reactions, ownWords, notes,
+          submitterName, submitterRole, submitterEmail,
+          photoPreview: photoName ? photoPreview : null, photoName,
+          savedAt: new Date().toISOString(),
+        };
+        try {
+          localStorage.setItem(draftKey, JSON.stringify(data));
+          setDraftSavedAt(data.savedAt);
+        } catch { /* storage full/blocked — the button just won't confirm */ }
+      }
 
       const counterStyle = (len, max) => len >= max ? 'text-rose-600' : len >= max * 0.85 ? 'text-amber-600' : 'text-slate-400';
-      const STANCE_OPTS = ['Agree', 'Disagree', 'No opinion'];
 
       function onPhoto(e) {
         const f = e.target.files && e.target.files[0];
         if (!f) return;
         setPhotoName(f.name);
+        // Downscale to a review-sized JPEG that fits in one sheet cell (~45k chars);
+        // the full-quality photo gets sourced during approval, this is just for review.
         const reader = new FileReader();
-        reader.onload = ev => setPhotoPreview(ev.target.result);
+        reader.onload = ev => {
+          const img = new Image();
+          img.onload = () => {
+            for (const size of [480, 360, 280, 200]) {
+              const scale = Math.min(1, size / Math.max(img.width, img.height));
+              const cnv = document.createElement('canvas');
+              cnv.width = Math.round(img.width * scale);
+              cnv.height = Math.round(img.height * scale);
+              cnv.getContext('2d').drawImage(img, 0, 0, cnv.width, cnv.height);
+              const url = cnv.toDataURL('image/jpeg', 0.78);
+              if (url.length < 45000 || size === 200) { setPhotoPreview(url); return; }
+            }
+          };
+          img.src = ev.target.result;
+        };
         reader.readAsDataURL(f);
       }
 
-      function submit() {
-        // Assemble the pending-submission payload. (Backend wiring is the next phase.)
+      async function submit() {
         const payload = {
           candidate: candidate.name,
+          slug: candidateSlug(candidate.name),
           office: race?.office || null,
           party: candidate.party,
-          submittedAt: new Date().toISOString(),
           website,
           hook1, hook2,
           photoChanged: !!photoName,
-          photoFileName: photoName || null,
-          positions: stances,            // candidate's self-reported Agree/Disagree/No opinion
-          ownWords,                      // their first-person paragraph per issue
-          corrections: Object.fromEntries(Object.entries(flags).filter(([,v]) => v && v.trim())),
-          consent,
+          photoDataUrl: photoName ? photoPreview : null,
+          positions: Object.fromEntries(editIssues.map(i => [i.id, stanceFor(i.id)])), // issue-level stance derived from statement reactions
+          statementReactions: reactions, // per-statement Agree/Disagree/Skip — the same quiz voters take
+          ownWords,                      // "Where do you stand…" — their first-person answer per issue
+          notes: Object.fromEntries(Object.entries(notes).filter(([,v]) => v && v.trim())),
+          submitterName: submitterName.trim(),
+          submitterRole,
+          submitterEmail: submitterEmail.trim(),
+          consent: true, // asserted by the declaration in the submit modal
         };
-        console.log('[VYV candidate submission]', payload);
-        setSubmitted(payload);
-        window.scrollTo(0, 0);
+        setSubmitState('sending');
+        try {
+          const res = await fetch('/.netlify/functions/submit-candidate-edit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+          if (!res.ok || !data.ok) throw new Error(data.error || 'Submission failed');
+          setSubmitted(data);
+          setShowSubmitModal(false);
+          try { localStorage.removeItem(draftKey); } catch {}
+          window.scrollTo(0, 0);
+        } catch (err) {
+          setSubmitState('error');
+          return;
+        }
+        setSubmitState(null);
       }
 
       const partyLabel = candidate.party === 'D' ? 'Democrat' : candidate.party === 'R' ? 'Republican' : 'Candidate';
       const partyBar = candidate.party === 'D' ? '#2563eb' : candidate.party === 'R' ? '#dc2626' : '#475569';
       const profileUrl = (window.location.pathname.replace(/\/edit\/?$/i, '') || '/');
+      // Display/copy the pretty PascalCase form (JamesTalarico) — routing is case-insensitive.
+      const fullProfileUrl = `${window.location.origin}/${(candidate.name || '').replace(/[^a-zA-Z0-9]/g, '')}`;
+      const [urlCopied, setUrlCopied] = useState(false);
+      function copyProfileUrl() {
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(fullProfileUrl);
+          } else {
+            // Older browsers / non-secure contexts: hidden-textarea fallback
+            const ta = document.createElement('textarea');
+            ta.value = fullProfileUrl;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+          }
+          setUrlCopied(true);
+          setTimeout(() => setUrlCopied(false), 2000);
+        } catch {}
+      }
 
       if (submitted) {
         return (
@@ -4905,25 +5050,47 @@
 
       return (
         <div className="min-h-screen bg-slate-50">
-          {/* Identity header */}
-          <div className="text-white px-5 py-6 lg:px-10" style={{ background: 'linear-gradient(160deg,#0f172a 0%,#020617 100%)', borderBottom: `4px solid ${partyBar}` }}>
+          {/* Identity header — VoteYourViews-branded, same design language as /statements */}
+          <div className="text-white px-5 pt-5 pb-7 lg:px-10" style={{ background: 'radial-gradient(900px 420px at 50% -140px, #46538c 0%, #2e3a63 55%, #273254 100%) #273254', boxShadow: '0 14px 34px rgba(0,0,0,0.35)' }}>
             <div className="max-w-3xl mx-auto">
-              <div className="flex items-center justify-between gap-3 mb-4">
-                <button onClick={onBack} className="text-sm text-slate-300 hover:text-white">← Back to profile</button>
-                <a href={profileUrl} target="_blank" rel="noopener" className="text-sm font-bold text-sky-300 hover:text-sky-200">See your live profile ↗</a>
-              </div>
-              <p className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-3">Candidate Profile Editor</p>
-              <div className="flex items-center gap-4">
-                {photoPreview
-                  ? <img src={photoPreview} alt="" className="w-16 h-16 rounded-full object-cover border-2 border-white/30" style={{ objectPosition: 'center top' }} />
-                  : <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center text-2xl">👤</div>}
-                <div>
-                  <h1 className="text-2xl font-black leading-tight">{candidate.name}</h1>
-                  <p className="text-slate-300 text-sm font-bold uppercase tracking-wide">{partyLabel}{race?.office ? ` · ${race.office}` : ''}</p>
+              <div className="flex items-center justify-between gap-3 pb-4 mb-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.14)' }}>
+                <img src="/icons/VoteYourViews_Logo_White.png" alt="VoteYourViews" className="h-14 sm:h-16 w-auto" />
+                <div className="flex items-center gap-4 sm:gap-5">
+                  <button onClick={onBack} className="text-[12px] sm:text-sm text-slate-300 hover:text-white transition-colors">← Back to profile</button>
+                  <a href={profileUrl} target="_blank" rel="noopener" className="text-[12px] sm:text-sm font-bold transition-colors hover:brightness-125" style={{ color: '#f59e0b' }}>Live profile ↗</a>
                 </div>
+              </div>
+              <p className="text-[13px] sm:text-[15px] font-black uppercase tracking-[0.3em] mb-3" style={{ color: '#f59e0b' }}>★ Candidate Editor</p>
+              <div className="flex items-center gap-4 sm:gap-5">
+                {photoPreview
+                  ? <img src={photoPreview} alt="" className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover shrink-0" style={{ objectPosition: 'center top', border: '2.5px solid rgba(245,158,11,0.75)', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }} />
+                  : <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center text-2xl shrink-0" style={{ background: 'rgba(255,255,255,0.1)', border: '2.5px solid rgba(245,158,11,0.75)' }}>👤</div>}
+                <div className="min-w-0">
+                  <h1 className="text-3xl sm:text-4xl font-black uppercase leading-none tracking-wide" style={{ fontFamily: "'Barlow Condensed', sans-serif", textShadow: '0 2px 12px rgba(0,0,0,0.4)' }}>{candidate.name}</h1>
+                  <p className="text-slate-300 text-[12px] sm:text-sm font-bold uppercase tracking-wider mt-1.5 flex items-center gap-2">
+                    <span className="inline-block w-2 h-2 rounded-full shrink-0" style={{ background: partyBar }}></span>
+                    {partyLabel}{race?.office ? ` · ${race.office}` : ''}
+                  </p>
+                </div>
+              </div>
+              {/* Candidate URL + copy — for sharing on campaign materials */}
+              <div className="mt-5 flex items-center justify-between gap-3 flex-wrap rounded-xl px-4 py-2.5" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)' }}>
+                <div className="min-w-0 flex items-baseline gap-2 flex-wrap">
+                  <span className="text-[9px] font-black uppercase tracking-[0.22em]" style={{ color: '#f59e0b' }}>Your VoteYourViews candidate URL</span>
+                  <span className="text-white font-bold text-[13px] sm:text-[14px] break-all">{fullProfileUrl}</span>
+                </div>
+                <button onClick={copyProfileUrl}
+                  className="shrink-0 font-black uppercase tracking-widest text-[10px] px-3 py-1.5 rounded-full transition-all hover:brightness-125"
+                  style={urlCopied
+                    ? { color: '#34d399', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(52,211,153,0.5)' }
+                    : { color: '#f59e0b', background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.4)' }}>
+                  {urlCopied ? '✓ Copied' : '⧉ Copy'}
+                </button>
               </div>
             </div>
           </div>
+          {/* Amber brand hairline under the header */}
+          <div className="h-1" style={{ background: 'linear-gradient(90deg,#f59e0b,#fbbf24 50%,#f59e0b)', boxShadow: '0 2px 10px rgba(245,158,11,0.45)' }}></div>
 
           <div className="max-w-3xl mx-auto px-5 py-8 lg:px-10 space-y-8">
 
@@ -4974,7 +5141,7 @@
               <p className="text-sm text-slate-500 mb-4">How you introduce yourself. These replace our draft once approved.</p>
 
               {/* Live preview — shows the candidate exactly where Hook 1 and Hook 2 appear on their profile */}
-              <div className="rounded-xl p-4 mb-5" style={{ background: 'linear-gradient(165deg,#2a52c9 0%,#16317c 100%)' }}>
+              <div className="rounded-xl p-4 mb-5" style={{ background: 'linear-gradient(135deg,#16213c 0%,#253352 100%)', border: '1px solid rgba(255,255,255,0.22)', boxShadow: '0 14px 34px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.12)' }}>
                 <div className="text-[11px] uppercase tracking-widest text-white/55 font-black mb-3">Live preview — your profile card</div>
                 <div className="flex items-start gap-2.5">
                   <span className="shrink-0 mt-0.5 text-[9px] font-black bg-amber-400 text-amber-950 px-1.5 py-0.5 rounded">HOOK 1</span>
@@ -4986,87 +5153,131 @@
                 </div>
               </div>
 
-              <label className="block text-sm font-bold text-slate-700 mb-1">Hook 1 — one-line headline</label>
+              <label className="block text-sm font-bold text-slate-700 mb-1">Hook 1 — one-line headline <span className="font-normal text-slate-400">· click below to edit</span></label>
               <textarea value={hook1} maxLength={HOOK1_MAX} onChange={e => setHook1(e.target.value)} rows={2}
                 className="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm leading-snug focus:outline-none focus:ring-2 focus:ring-slate-400 resize-none" />
               <div className={`text-right text-xs font-bold mt-1 ${counterStyle(hook1.length, HOOK1_MAX)}`}>{hook1.length} / {HOOK1_MAX}</div>
 
-              <label className="block text-sm font-bold text-slate-700 mb-1 mt-4">Hook 2 — short bio</label>
+              <label className="block text-sm font-bold text-slate-700 mb-1 mt-4">Hook 2 — short bio <span className="font-normal text-slate-400">· click below to edit</span></label>
               <textarea value={hook2} maxLength={HOOK2_MAX} onChange={e => setHook2(e.target.value)} rows={4}
                 className="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm leading-snug focus:outline-none focus:ring-2 focus:ring-slate-400 resize-none" />
               <div className={`text-right text-xs font-bold mt-1 ${counterStyle(hook2.length, HOOK2_MAX)}`}>{hook2.length} / {HOOK2_MAX}</div>
             </section>
 
-            {/* Issues */}
+            {/* Issues — the candidate takes the same quiz voters take */}
             <section>
               <h2 className="text-lg font-black text-slate-900 mb-1">Where you stand</h2>
-              <p className="text-sm text-slate-500 mb-4">Confirm your stance, then say it in your own words. The left column is our independent research — read-only. If it's wrong, flag it and we'll review.</p>
-              <div className="space-y-4">
+              <p className="text-sm text-slate-500 mb-4">These are the exact statements voters respond to. Agree or disagree with each one, then answer the question in your own words — that's what appears on your profile.</p>
+              <div className="space-y-3.5">
                 {editIssues.map(issue => {
+                  const stmts = (ISSUE_STATEMENTS[issue.topic] || []).slice(0, 3);
                   const record = candidate.evidence?.[issue.id] || '';
                   const ow = ownWords[issue.id] || '';
+                  const rx = reactions[issue.id] || {};
+                  const answered = Object.keys(rx).length;
+                  const done = answered >= stmts.length && ow.trim().length > 0;
+                  const setRx = (idx, val) => setReactions(r => ({ ...r, [issue.id]: { ...(r[issue.id] || {}), [idx]: val } }));
                   return (
-                    <div key={issue.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-                      <div className="px-5 py-3 bg-slate-900 text-white flex items-center justify-between gap-2">
-                        <span className="font-black uppercase tracking-wide text-sm">{issue.topic}</span>
-                      </div>
-                      <div className="p-5">
-                        {/* Stance selector (the quiz lean) */}
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {STANCE_OPTS.map(opt => {
-                            const on = stances[issue.id] === opt;
-                            const onCls = opt === 'Agree' ? 'bg-emerald-600 text-white border-emerald-600' : opt === 'Disagree' ? 'bg-rose-600 text-white border-rose-600' : 'bg-slate-600 text-white border-slate-600';
-                            return (
-                              <button key={opt} onClick={() => setStances(s => ({ ...s, [issue.id]: opt }))}
-                                className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wide border transition ${on ? onCls : 'bg-white text-slate-500 border-slate-300 hover:border-slate-400'}`}>
-                                {opt}
-                              </button>
-                            );
-                          })}
+                    <details key={issue.id} className="ce-glass rounded-2xl overflow-hidden">
+                      <summary className="cursor-pointer px-4 sm:px-5 py-4 flex items-center gap-3.5 hover:bg-white/5 transition-colors select-none">
+                        <span className="ce-issue-tile"><img src={`/icons/Symbols/${issue.symbol}.png`} alt="" onError={e => { e.target.parentElement.style.display = 'none'; }} /></span>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-xl font-black uppercase tracking-wider text-white leading-none" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>{issue.topic}</span>
+                          <div className="mt-1 text-[11px] text-slate-400">{done ? 'Done' : `${stmts.length} statements + your answer`}</div>
                         </div>
-                        {/* Two columns */}
-                        <div className="grid md:grid-cols-2 gap-4">
-                          {/* From the record — locked */}
+                        <span className={`text-[11px] font-black uppercase tracking-widest shrink-0 px-2.5 py-1 rounded-full ${done ? 'text-emerald-300' : 'text-slate-400'}`} style={{ background: done ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)' }}>{answered} / {stmts.length}</span>
+                        {/* Completion checkbox — fills in when the statements are answered and the own-words box has text */}
+                        <span className="shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-[15px] font-black transition-all"
+                          style={done
+                            ? { background: '#059669', color: '#fff', boxShadow: '0 3px 10px rgba(5,150,105,0.5)' }
+                            : { border: '2px solid rgba(255,255,255,0.3)', color: 'transparent' }}>✓</span>
+                        <span className="ce-chev text-slate-500 text-xs shrink-0">▶</span>
+                      </summary>
+                      <div className="ce-issue-body px-4 sm:px-5 pb-5 pt-4 space-y-3">
+                        {stmts.map((stmt, i) => (
+                          <div key={i} className="ce-stmt-card rounded-xl p-4" data-state={rx[i] || ''}>
+                            <div className="flex gap-3 items-start">
+                              <span className="ce-stmt-num shrink-0 w-6 h-6 rounded-full text-[11px] font-black flex items-center justify-center">{i + 1}</span>
+                              <p className="text-slate-900 text-[14px] font-bold leading-relaxed flex-1">{stmt}</p>
+                            </div>
+                            <div className="flex gap-2 mt-3.5 ml-0 sm:ml-9">
+                              {[['up', '✓ Agree', 'ce-seg-agree'], ['down', '✕ Disagree', 'ce-seg-disagree'], ['skip', 'Skip', 'ce-seg-skip']].map(([val, label, cls]) => (
+                                <button key={val} type="button" onClick={() => setRx(i, val)}
+                                  className={`ce-seg ${cls} ${rx[i] === val ? 'ce-on' : ''} flex-1 sm:flex-initial whitespace-nowrap px-2 sm:px-4 py-2.5 sm:py-2 rounded-full text-[11px] font-black uppercase tracking-wider sm:tracking-widest`}>
+                                  {label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                        {/* Where do you stand — the answer that appears on the profile */}
+                        <div className="rounded-xl bg-white p-4" style={{ border: '1.5px solid #e2e8f0', boxShadow: '0 2px 8px rgba(15,23,42,0.06)' }}>
+                          <label className="block text-[14px] font-black text-slate-900 mb-2">Where do you stand with the issue of {issue.topic}?</label>
+                          <textarea value={ow} maxLength={OWNWORDS_MAX} onChange={e => setOwnWords(o => ({ ...o, [issue.id]: e.target.value }))} rows={4} placeholder="In your own words — this appears on your profile once approved…"
+                            className="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm text-slate-900 leading-snug focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none" />
+                          <div className={`text-right text-xs font-bold mt-1 ${counterStyle(ow.length, OWNWORDS_MAX)}`}>{ow.length} / {OWNWORDS_MAX}</div>
+                        </div>
+                        {/* From the record + notes */}
+                        {record && (
                           <div className="rounded-xl bg-slate-50 border border-slate-200 p-4">
-                            <div className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wide text-slate-500 mb-2">🔒 From the record <span className="font-normal normal-case text-slate-400">· read-only</span></div>
-                            <p className="text-sm text-slate-700 leading-snug">{record || <span className="italic text-slate-400">No research on file yet.</span>}</p>
-                            {flagOpen[issue.id] ? (
-                              <div className="mt-3">
-                                <textarea value={flags[issue.id] || ''} onChange={e => setFlags(f => ({ ...f, [issue.id]: e.target.value }))} rows={2} placeholder="What's inaccurate? We'll review."
-                                  className="w-full px-2.5 py-2 rounded-lg border border-amber-300 bg-amber-50 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 resize-none" />
-                              </div>
-                            ) : (
-                              <button onClick={() => setFlagOpen(o => ({ ...o, [issue.id]: true }))} className="mt-2 text-[11px] font-bold text-amber-700 hover:text-amber-800">⚐ Flag this as inaccurate →</button>
-                            )}
+                            <div className="text-[11px] font-black uppercase tracking-wide text-slate-500 mb-1.5">🔒 From the record <span className="font-normal normal-case text-slate-400">· our independent research, read-only</span></div>
+                            <p className="text-sm text-slate-700 leading-snug">{record}</p>
                           </div>
-                          {/* In your own words — editable */}
-                          <div className="rounded-xl bg-white border border-slate-300 p-4">
-                            <div className="text-[11px] font-black uppercase tracking-wide text-slate-700 mb-2">In your own words</div>
-                            <textarea value={ow} maxLength={OWNWORDS_MAX} onChange={e => setOwnWords(o => ({ ...o, [issue.id]: e.target.value }))} rows={5} placeholder="In your own words…"
-                              className="w-full px-2.5 py-2 rounded-lg border border-slate-300 text-sm leading-snug focus:outline-none focus:ring-2 focus:ring-slate-400 resize-none" />
-                            <div className={`text-right text-xs font-bold mt-1 ${counterStyle(ow.length, OWNWORDS_MAX)}`}>{ow.length} / {OWNWORDS_MAX}</div>
-                          </div>
-                        </div>
+                        )}
+                        <textarea value={notes[issue.id] || ''} onChange={e => setNotes(n => ({ ...n, [issue.id]: e.target.value }))} rows={2} placeholder="Other feedback — corrections to our research, context, links (optional)"
+                          className="w-full px-3 py-2.5 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none" />
                       </div>
-                    </div>
+                    </details>
                   );
                 })}
               </div>
             </section>
 
-            {/* Consent + submit */}
+            {/* Save + submit — Submit opens the who-are-you modal */}
             <section className="bg-white rounded-2xl border border-slate-200 p-5 lg:p-6">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} className="mt-1 w-4 h-4" />
-                <span className="text-sm text-slate-700 leading-snug">I confirm I am this candidate or authorized by their campaign, and I grant VoteYourViews permission to publish the photo and text I've submitted.</span>
-              </label>
-              <button onClick={submit} disabled={!consent}
-                className={`mt-5 w-full py-3.5 rounded-xl font-black text-white transition ${consent ? 'bg-slate-900 hover:bg-slate-800' : 'bg-slate-300 cursor-not-allowed'}`}>
-                Submit for review
-              </button>
-              <p className="text-xs text-slate-400 text-center mt-3">Nothing publishes automatically. Every submission is reviewed first.</p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button onClick={saveDraft}
+                  className="sm:flex-1 py-3.5 rounded-xl font-black text-slate-700 bg-white border-2 border-slate-300 hover:border-slate-400 transition">
+                  Save draft
+                </button>
+                <button onClick={openSubmitModal}
+                  className="sm:flex-[2] py-3.5 rounded-xl font-black text-white bg-slate-900 hover:bg-slate-800 transition">
+                  Submit for review
+                </button>
+              </div>
+              {blockMsg && <p className="text-sm font-bold text-amber-700 text-center mt-3">{blockMsg}</p>}
+              {draftSavedAt && <p className="text-xs font-bold text-emerald-700 text-center mt-3">✓ Draft saved on this device {new Date(draftSavedAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })} — come back anytime to finish.</p>}
+              <p className="text-xs text-slate-400 text-center mt-3">Saving keeps your work in this browser only — nothing is sent until you submit. Nothing publishes automatically; every submission is reviewed first.</p>
             </section>
           </div>
+
+          {/* Submit modal — who's submitting; every submission carries a contact email + declaration */}
+          {showSubmitModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={() => submitState !== 'sending' && setShowSubmitModal(false)}>
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
+                <h2 className="text-xl font-black text-slate-900 mb-1">Almost done — who's submitting?</h2>
+                <p className="text-sm text-slate-500 mb-4">So we can verify and follow up. This is never published.</p>
+                <input type="text" value={submitterName} onChange={e => setSubmitterName(e.target.value)} placeholder="Your name"
+                  className="w-full px-3 py-2.5 mb-3 rounded-lg border border-slate-300 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400" />
+                <input type="email" value={submitterEmail} onChange={e => setSubmitterEmail(e.target.value)} placeholder="Your email"
+                  className="w-full px-3 py-2.5 mb-4 rounded-lg border border-slate-300 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400" />
+                <div className="space-y-2 mb-5">
+                  {['I am the candidate', 'I am authorized by the candidate'].map(opt => (
+                    <label key={opt} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border cursor-pointer transition ${submitterRole === opt ? 'border-amber-500 bg-amber-50' : 'border-slate-300 hover:border-slate-400'}`}>
+                      <input type="radio" name="submitterRole" checked={submitterRole === opt} onChange={() => setSubmitterRole(opt)} className="w-4 h-4" />
+                      <span className="text-sm font-bold text-slate-800">{opt}</span>
+                    </label>
+                  ))}
+                </div>
+                <button onClick={submit} disabled={!submitterOk || submitState === 'sending'}
+                  className={`w-full py-3.5 rounded-xl font-black text-white transition ${submitterOk && submitState !== 'sending' ? 'bg-slate-900 hover:bg-slate-800' : 'bg-slate-300 cursor-not-allowed'}`}>
+                  {submitState === 'sending' ? 'Submitting…' : 'Submit for review'}
+                </button>
+                {submitState === 'error' && <p className="text-sm font-bold text-rose-600 text-center mt-3">Something went wrong sending your submission. Please try again.</p>}
+                <p className="text-[11px] text-slate-400 text-center mt-3">By submitting, you grant VoteYourViews permission to publish the photo and text you've provided. Nothing goes live until the VoteYourViews team reviews and approves it.</p>
+              </div>
+            </div>
+          )}
         </div>
       );
     }

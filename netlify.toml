@@ -5,6 +5,11 @@
   path = "/*"
   function = "candidate-og"
 
+# Candidate self-submission backend (submit + magic-link verify).
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
 [build.environment]
   # The Google Maps browser key is public by design (domain-restricted in Google's
   # console); tell Netlify's secrets scanner it isn't a leak so builds can publish.
