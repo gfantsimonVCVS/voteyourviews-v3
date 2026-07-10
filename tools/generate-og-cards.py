@@ -189,9 +189,7 @@ def render(html, out):
 
 # Per-candidate OG photo overrides — graphics prepared specifically for the share card
 # (e.g. Gina Hinojosa's stylized cutout) that should NOT replace the app's profile photo.
-OG_PHOTO_OVERRIDES = {
-    'ginahinojosa': 'images/candidates/hays/D/GinaH_New.png',
-}
+OG_PHOTO_OVERRIDES = {}
 
 def main():
     only = canonical_slug(sys.argv[1]) if len(sys.argv) > 1 else None
