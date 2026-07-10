@@ -14,7 +14,7 @@ export default async (request, context) => {
   const url = new URL(request.url);
   // Only bare candidate paths (or their /edit page). Anything with a dot, or a known
   // app path, falls straight through to normal serving.
-  const m = url.pathname.match(/^\/([A-Za-z0-9]+)(\/edit\/?)?$/);
+  const m = url.pathname.match(/^\/([A-Za-z0-9]+)(\/edit)?\/?$/);  // trailing slash allowed on both forms
   if (!m) return context.next();
   const slug = m[1].toLowerCase();
 
