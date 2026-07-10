@@ -1289,6 +1289,7 @@
             stateHouse: house ? String(house.district_number) : null,
             commissionerPrecinct: commPrecinct,
             jpPrecinct: jpPrecinct,
+            coa: ['3'],   // Hays + Travis are both in the 3rd Court of Appeals region
           });
           setIsSearching(false);
         } catch(err) {
@@ -1578,7 +1579,8 @@
           stateSenate: senate ? String(senate.district_number) : null,
           stateHouse: house ? String(house.district_number) : null,
           commissionerPrecinct: commPrecinct,
-          jpPrecinct: jpPrecinct
+          jpPrecinct: jpPrecinct,
+          coa: ['3']   // Hays + Travis are both in the 3rd Court of Appeals region
         });
         setIsSearching(false);
       }
@@ -3041,6 +3043,9 @@
         if (race.districtType === 'jpPrecinct') return !userDistricts.jpPrecinct || userDistricts.jpPrecinct === num;
         if (race.districtType === 'commissioner') return !userDistricts.commissionerPrecinct || userDistricts.commissionerPrecinct === num;
         if (race.districtType === 'constable') return !userDistricts.jpPrecinct || userDistricts.jpPrecinct === num; // Travis: constable precincts share JP boundaries
+        // Courts of Appeals regions are keyed by COUNTY (Gov't Code ch.22), not by a geocoded
+        // district — show only when the region is known; hidden (not over-shown) when unknown.
+        if (race.districtType === 'coa') return Array.isArray(userDistricts.coa) && userDistricts.coa.includes(num);
         return true;
       });
     }
