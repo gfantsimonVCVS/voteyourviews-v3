@@ -1296,7 +1296,7 @@
           const SUPPORTED_COUNTIES = { hays: 'hays', travis: 'travis' };
           const matchedCounty = Object.keys(SUPPORTED_COUNTIES).find(k => detectedCounty.includes(k));
           if (!matchedCounty) {
-            setError(`This guide currently covers Hays and Travis counties. Your address appears to be in ${components.county || 'an unsupported county'}.`);
+            setError(`This guide currently covers Hays and Travis counties. We matched your address to ${result.formatted_address || 'an address'} in ${components.county || 'an unsupported county'} — if that's not you, try retyping your full address with city and ZIP.`);
             setIsSearching(false);
             return;
           }
@@ -1447,11 +1447,12 @@
       const [error, setError] = useState(null);
       const [districts, setDistricts] = useState(null);
       const [outOfArea, setOutOfArea] = useState(null);   // county name when unsupported
+      const [matchedAddress, setMatchedAddress] = useState(null); // formatted address Geocodio matched, shown so a bad match is visible
       const [signupEmail, setSignupEmail] = useState('');
       const [signupStatus, setSignupStatus] = useState(null); // null|invalid|sending|sent
       // Return from the Wrong County Modal to the main address screen
       function resetToMain() {
-        setOutOfArea(null); setSignupStatus(null); setSignupEmail('');
+        setOutOfArea(null); setMatchedAddress(null); setSignupStatus(null); setSignupEmail('');
         if (inputRef.current) { inputRef.current.value = ''; inputRef.current.style.fontStyle = 'normal'; }
       }
       const inputRef = useRef(null);
@@ -1600,6 +1601,7 @@
         const matchedCounty2 = ['hays', 'travis'].find(k => detectedCounty2.includes(k));
         if (!matchedCounty2) {
           setOutOfArea(components.county || 'your area');
+          setMatchedAddress(result.formatted_address || null);
           setIsSearching(false); return;
         }
         const fields = result.fields || {};
@@ -1684,6 +1686,13 @@
               {outOfArea ? (
                   /* Wrong County Modal — address resolved to a county we don't cover yet */
                   <>
+                    {matchedAddress && (
+                      <p className="text-slate-400 text-sm leading-snug text-center mb-4">
+                        We matched your address to:<br/>
+                        <span className="text-slate-200 font-semibold">{matchedAddress}</span><br/>
+                        Not you? <button onClick={resetToMain} className="underline text-slate-300 hover:text-white">Try a different address</button>
+                      </p>
+                    )}
                     <p className="text-slate-200 text-base leading-relaxed text-center mb-4">
                       If you want to know when <strong className="text-white">{outOfArea}</strong> is available… 👇
                     </p>
