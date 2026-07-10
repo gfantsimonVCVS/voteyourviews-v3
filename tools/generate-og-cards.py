@@ -14,8 +14,10 @@ import base64, csv, io, json, os, re, subprocess, sys, tempfile, unicodedata, ur
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SHEET_ID = '1V1oaEy6ToV3LZt0et9bIWEJQbPrYZg73tDxGelhiFn8'
-TABS = ['HaysCounty', 'TravisCounty']
-COUNTY_DIR = {'HaysCounty': 'hays', 'TravisCounty': 'travis'}
+# Shared tabs first (three-tab architecture, July 2026) so their canonical rows win the
+# per-slug dedupe over any leftover mirrored rows still sitting in the county tabs.
+TABS = ['Statewide', 'Districts', 'HaysCounty', 'TravisCounty']
+COUNTY_DIR = {'Statewide': 'statewide', 'Districts': 'statewide', 'HaysCounty': 'hays', 'TravisCounty': 'travis'}
 CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 OUT_DIR = os.path.join(ROOT, 'icons', 'og')
 

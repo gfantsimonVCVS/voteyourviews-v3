@@ -5,24 +5,26 @@ This is the repeatable process. Travis is the first run; everything here is writ
 
 ---
 
-## 0. The model (read once)
-- **One tab per county** in the master Google Sheet: `HaysCounty`, `TravisCounty`, … Each tab is that county's *full* ballot.
-- **`HaysCounty` is the master** for the 18 statewide races (rows 2–37, color-coded light yellow).
-- Every other county tab pulls those 18 races with **one formula** — `={HaysCounty!A2:AG37}` at the top — so statewide stays in sync forever. Below that go the county's **district-based** and **local** races.
+## 0. The model (read once) — UPDATED July 2026 (three-tab architecture)
+The app composes every voter's ballot from three kinds of tabs:
+- **`Statewide` tab** — the 18 races on every Texas ballot. ONE copy, the master. Edit here, live everywhere.
+- **`Districts` tab** — every district-based race (U.S. House, TX Senate, TX House). One row per candidate, with `districtType`, `districtNumber`, and a `counties` column (comma-separated, e.g. `hays,travis`) naming every county the district touches. Researched once, served to every county in the list. This is where the Democracy Works harvest writes.
+- **County tabs** (`HaysCounty`, `TravisCounty`, …) — ONLY genuinely county-local races: County Judge, Commissioners, JPs, Clerks, DA, district courts, regional Courts of Appeals, SBOE. No formulas, no mirrors, no shared content.
+
+A voter's ballot = Statewide + the Districts rows whose `counties` include their county (narrowed to their exact districts when they enter an address) + their county tab.
+
+> **Historical note:** before July 2026 the statewide block lived in `HaysCounty` rows 2–37 and was mirrored into other county tabs by array formula. That mirror system is retired; if you see leftover mirrored rows in a county tab, they are ignored by the app (it skips any county-tab office that the shared tabs already provide) and can be deleted once the composing code is deployed.
 - **The API (Democracy Works) gives the skeleton** (which races/districts/candidates exist). **We build the meat** (photos, hooks, office descriptions, and the 9 belief positions + evidence). The meat is the real work and the reason scale = a content effort, not a tech one.
 - Sheet column layout (A–AG, 33 cols): `office, category, districtType, districtNumber, name, party, confirmed, description, summary, website, photo, [9 stance cols: Agree/Disagree/Unknown], hook1, hook2, uncontested, [9 evidence cols: story sentence per issue], source`. (The 9 stance cols are the issue-named columns; the 9 evidence cols are `<issue>Evidence`. Old data used A/B/C/D here — legacy, overwrite it. See §6b.)
 - **`source` column values:** `manual` (entered by hand), `api` (pulled from Democracy Works), `api+manual` (API gave name/party, human added beliefs).
 
 ---
 
-## 1. Set up the county tab (10 min)
-1. Duplicate the column **header row** structure (copy row 1 from `HaysCounty`).
-2. Create a new tab named exactly `<County>County` (e.g., `TravisCounty`).
-3. In the new tab, **row 2, column A**, paste the statewide formula:
-   ```
-   ={HaysCounty!A2:AG37}
-   ```
-   → the 18 statewide races auto-populate (read-only mirror). Local races start **below** the spilled block.
+## 1. Set up the county tab (5 min)
+1. Create a new tab named exactly `<County>County` (e.g., `HarrisCounty`).
+2. Copy the **header row** (row 1) from an existing county tab.
+3. That's it — no formulas. Statewide and district races come from the shared tabs automatically. This tab holds only the county's local races.
+4. If any of the county's districts (U.S. House, TX Senate, TX House) aren't in the `Districts` tab yet, add those candidate rows there and put the county's key in their `counties` column (append to the list if the district already exists for another county).
 
 ## 2. Get the skeleton (which races/candidates) 
 - **Preferred (when Democracy Works key is live):** query the API for the county to get its contests, districts, and candidate names/party/website. Confirm which **districts** apply (US House, State Senate, State House, SBOE differ by county).
@@ -48,7 +50,7 @@ For each non-statewide race, add rows (one per candidate) below the statewide bl
 
 ## 4. Write the office descriptions
 - Plain, casual, "what it does + why it matters," **no candidate names**, low-propensity-voter friendly (same voice as the Hays descriptions).
-- Statewide descriptions are inherited via the formula — only write the **county-specific** ones.
+- Statewide descriptions live once in the `Statewide` tab; district descriptions once in `Districts` — only write the **county-specific** ones.
 
 ## 5. Candidate photos (tiered pipeline)
 Always **download + self-host** (`images/candidates/<county>/first-last.jpg`); never hot-link. Statewide photos are shared (`images/candidates/statewide/`).
@@ -122,7 +124,7 @@ Reference (live examples in the code):
 - Out-of-county address → the waitlist modal still fires correctly.
 - Every candidate has: photo, hook1, hook2, 9 positions, evidence, description.
 - Spot-check matching math on a known profile.
-- Confirm the statewide block matches Hays (formula working).
+- Confirm the statewide races appear (they come from the `Statewide` tab automatically — if missing, the tab fetch failed).
 
 ## 9. Polling (optional, low priority)
 Per analytics, users want candidates >> polling. Baseline: link to the county's official elections page + "vote at any vote center in your county" where it applies. Don't over-build. (See memory `project-democracyworks`.)
@@ -130,7 +132,7 @@ Per analytics, users want candidates >> polling. Baseline: link to the county's 
 ---
 
 ## Scale notes (why this stays manageable)
-- **Statewide = once.** Maintained only in `HaysCounty`, mirrored by formula. A statewide change updates everywhere automatically.
+- **Statewide = once.** Maintained only in the `Statewide` tab. A statewide change updates everywhere automatically. Districts likewise: one row set per district in `Districts`, served to every county in its `counties` list.
 - **Per county, the only NEW work** is: district-based + local races' content (descriptions, photos, hooks, 9 positions). That's inherent — it's the product's value.
 - **Photos** scale via Tier 1/2 automation + self-submission for the tail.
 - **The bottleneck is research** (the 9 positions per candidate), so plan county rollout around research capacity, not code.

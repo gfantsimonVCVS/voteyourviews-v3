@@ -29,6 +29,8 @@ OUT_SIZE = 512          # final square px
 PAD = 0.12             # headroom padding around the subject (fraction of bbox)
 
 def tab_for(county):   # county arg -> sheet tab name
+    # Shared tabs (three-tab architecture, July 2026): --county statewide | districts
+    if county.lower() in ("statewide", "districts"): return county[:1].upper() + county[1:].lower()
     return county[:1].upper() + county[1:].lower() + "County"
 
 def slugify(name):
@@ -103,7 +105,10 @@ def main():
     if args.limit:
         rows = rows[: args.limit]
 
-    base_dir = Path(args.repo) / "images" / "candidates" / args.county.lower()
+    # Statewide AND district candidates share images/candidates/statewide/ — the app looks
+    # in <county>/ first then falls back to statewide/, and district races are cross-county.
+    photo_dir = "statewide" if args.county.lower() in ("statewide", "districts") else args.county.lower()
+    base_dir = Path(args.repo) / "images" / "candidates" / photo_dir
     print(f"Processing {len(rows)} photos from {tab} -> {base_dir}/<party>/")
 
     ok, fail = 0, []

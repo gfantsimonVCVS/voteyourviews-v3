@@ -452,11 +452,20 @@
     let PHOTO_MANIFEST = new Set();
     const photoSlug = n => n.normalize('NFKD').replace(/[̀-ͯ]/g,'')
       .replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase();
+    // Full party names by sheet code. Unknown/blank codes read as Independent.
+    const PARTY_NAME = { D: 'Democrat', R: 'Republican', I: 'Independent', L: 'Libertarian', G: 'Green' };
+    const partyName = (p) => PARTY_NAME[(p || '').toUpperCase()] || 'Independent';
     function resolveLocalPhoto(county, party, name) {
       const p = (party || 'NA').toUpperCase(), slug = photoSlug(name);
       for (const dir of [`${county}/${p}`, `statewide/${p}`]) {
         const rel = `${dir}/${slug}.png`;
         if (PHOTO_MANIFEST.has(rel)) return `/images/candidates/${rel}`;
+      }
+      // Shared (Districts-tab) candidates: their photo may still live in a county folder
+      // from before the three-tab migration — scan the whole manifest by party+slug.
+      if (county === 'statewide') {
+        const tail = `/${p}/${slug}.png`;
+        for (const rel of PHOTO_MANIFEST) if (rel.endsWith(tail)) return `/images/candidates/${rel}`;
       }
       return null;
     }
@@ -495,6 +504,8 @@
             districtType: row.districtType || null,
             districtNumber: row.districtNumber ? String(row.districtNumber) : null,
             description: row.description || '',
+            // Districts tab only: which counties this district touches (comma-separated), for explore-mode filtering
+            counties: (row.counties || '').split(',').map(s => s.trim()).filter(Boolean),
             candidates: []
           };
         }
@@ -1448,11 +1459,12 @@
       const [districts, setDistricts] = useState(null);
       const [outOfArea, setOutOfArea] = useState(null);   // county name when unsupported
       const [matchedAddress, setMatchedAddress] = useState(null); // formatted address Geocodio matched, shown so a bad match is visible
+      const [statewideOffer, setStatewideOffer] = useState(null); // {countyName, districts} — statewide-ballot handoff for uncovered counties
       const [signupEmail, setSignupEmail] = useState('');
       const [signupStatus, setSignupStatus] = useState(null); // null|invalid|sending|sent
       // Return from the Wrong County Modal to the main address screen
       function resetToMain() {
-        setOutOfArea(null); setMatchedAddress(null); setSignupStatus(null); setSignupEmail('');
+        setOutOfArea(null); setMatchedAddress(null); setStatewideOffer(null); setSignupStatus(null); setSignupEmail('');
         if (inputRef.current) { inputRef.current.value = ''; inputRef.current.style.fontStyle = 'normal'; }
       }
       const inputRef = useRef(null);
@@ -1600,8 +1612,23 @@
         const detectedCounty2 = (components.county || '').toLowerCase().replace(' county', '').trim();
         const matchedCounty2 = ['hays', 'travis'].find(k => detectedCounty2.includes(k));
         if (!matchedCounty2) {
+          // County not covered yet — still offer the statewide ballot (the 18 races on every TX
+          // ballot), keyed to the 'texas' pseudo-county, with their real county name on the pill.
+          const f2 = result.fields || {};
+          const cd2 = f2.congressional_districts && f2.congressional_districts[0];
+          const sl2 = f2.state_legislative_districts || {};
           setOutOfArea(components.county || 'your area');
           setMatchedAddress(result.formatted_address || null);
+          setStatewideOffer({
+            countyName: components.county || null,
+            districts: {
+              congressionalDistrict: cd2 ? String(cd2.district_number) : null,
+              stateSenate: sl2.senate && sl2.senate[0] ? String(sl2.senate[0].district_number) : null,
+              stateHouse: sl2.house && sl2.house[0] ? String(sl2.house[0].district_number) : null,
+              commissionerPrecinct: null,
+              jpPrecinct: null
+            }
+          });
           setIsSearching(false); return;
         }
         const fields = result.fields || {};
@@ -1692,6 +1719,16 @@
                         <span className="text-slate-200 font-semibold">{matchedAddress}</span><br/>
                         Not you? <button onClick={resetToMain} className="underline text-slate-300 hover:text-white">Try a different address</button>
                       </p>
+                    )}
+                    {statewideOffer && (
+                      <>
+                        <button onClick={() => { if (onCountyDetected) onCountyDetected('texas', statewideOffer.countyName); onContinue(statewideOffer.districts); }}
+                          className="w-full py-3.5 text-white font-black rounded-full text-base mb-2 transition-all uppercase tracking-widest hover:brightness-110 active:scale-[0.98]"
+                          style={{background:'linear-gradient(90deg,#1d4ed8,#2563eb)', letterSpacing:'0.12em', boxShadow:'0 6px 18px rgba(37,99,235,0.4)'}}>
+                          See My Statewide Ballot →
+                        </button>
+                        <p className="text-xs text-slate-400 text-center mb-4">U.S. Senate, Governor &amp; every statewide race — the same on every Texas ballot. Your local {outOfArea} races are coming.</p>
+                      </>
                     )}
                     <p className="text-slate-200 text-base leading-relaxed text-center mb-4">
                       If you want to know when <strong className="text-white">{outOfArea}</strong> is available… 👇
@@ -3016,6 +3053,15 @@
           style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)' }}>
           {tabs.map(tab => {
             const isActive = tab.key === activeTab;
+            if (tab.comingSoon) return (
+              <div key={tab.key} title={`${tab.label} races for your county are coming soon`}
+                className={`flex items-center justify-center rounded-lg font-black uppercase min-w-0 cursor-default ${isMobile ? 'flex-1 gap-1 py-2 px-0.5 text-[10px] tracking-tight' : 'gap-1.5 px-2.5 lg:px-5 py-2 text-[12px] lg:text-sm tracking-wide lg:tracking-widest'}`}
+                style={{ background: 'transparent', color: '#64748b' }}>
+                {!isMobile && CATEGORY_ICON[tab.key] && CATEGORY_ICON[tab.key]('w-4 h-4 shrink-0 hidden lg:block')}
+                <span className="truncate">{tab.label}</span>
+                <span className="shrink-0 normal-case font-bold" style={{ color: '#fbbf24', fontSize: isMobile ? '8px' : '10px' }}>Soon</span>
+              </div>
+            );
             return (
               <button key={tab.key} onClick={() => setActiveTab(tab.key)}
                 className={`flex items-center justify-center rounded-lg font-black uppercase transition-all duration-150 min-w-0 ${isMobile ? 'flex-1 gap-1 py-2 px-0.5 text-[10px] tracking-tight' : 'gap-1.5 px-2.5 lg:px-5 py-2 text-[12px] lg:text-sm tracking-wide lg:tracking-widest'}`}
@@ -3047,7 +3093,8 @@
         return () => document.removeEventListener('mousedown', h);
       }, [open]);
 
-      const entries = Object.keys(counties).map(key => {
+      // 'texas' (the statewide-only pseudo-county) is reachable via address lookup, not the browse list
+      const entries = Object.keys(counties).filter(key => key !== 'texas').map(key => {
         const c = counties[key] || {};
         const hasRaces = ['federal', 'state', 'county', 'judicial'].some(s => (c[s] || []).length > 0);
         return { key, name: c.name || key, hasRaces };
@@ -3068,7 +3115,7 @@
             <button onClick={() => setOpen(o => !o)} title={userDistricts ? 'Showing your ballot — tap to change' : 'Tap to change county'}
               className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all hover:bg-white/10 whitespace-nowrap"
               style={{color:'#94a3b8', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.12)'}}>
-              <svg className="w-4 h-4 shrink-0" style={{color: userDistricts ? '#4ade80' : '#60a5fa'}} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
+              <svg className="w-4 h-4 shrink-0" style={{color: county === 'texas' ? '#f87171' : userDistricts ? '#4ade80' : '#60a5fa'}} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
               <span className="text-white">{name}</span>
               {chevron}
             </button>
@@ -3119,7 +3166,7 @@
             <div onClick={() => setOpen(o => !o)}
               className="h-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 cursor-pointer hover:-translate-y-0.5"
               style={{background:'linear-gradient(135deg, rgba(22,163,74,0.30), rgba(20,83,45,0.18))', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', border:'1px solid rgba(134,239,172,0.35)', boxShadow:'0 8px 22px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.18)', color:'#fff'}}>
-              <svg className="w-5 h-5 shrink-0" style={{color:'#4ade80'}} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
+              <svg className="w-5 h-5 shrink-0" style={{color: county === 'texas' ? '#f87171' : '#4ade80'}} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
               <div className="min-w-0">
                 <div className="text-[10px] font-bold uppercase tracking-widest" style={{color:'rgba(255,255,255,0.7)'}}>Showing your candidates</div>
                 <div className="text-sm font-black uppercase tracking-wide truncate">{name}</div>
@@ -3131,7 +3178,7 @@
             <button onClick={() => setOpen(o => !o)}
               className="w-full h-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99] text-left"
               style={{background:'linear-gradient(135deg, rgba(37,99,235,0.22), rgba(30,58,138,0.12))', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', border:'1px solid rgba(147,197,253,0.28)', boxShadow:'0 8px 22px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.18)', color:'#fff'}}>
-              <svg className="w-5 h-5 shrink-0" style={{color:'#60a5fa'}} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
+              <svg className="w-5 h-5 shrink-0" style={{color: county === 'texas' ? '#f87171' : '#60a5fa'}} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
               <div className="text-sm font-black uppercase tracking-wide truncate">{name} Candidates</div>
               <span className="ml-auto">{chevron}</span>
             </button>
@@ -3239,7 +3286,7 @@
         { key: 'state',    label: 'State' },
         { key: 'county',   label: 'County' },
         { key: 'judicial', label: 'Judicial' },
-      ].map(t => ({ ...t, count: filterRacesByDistrict(countyData[t.key] || [], userDistricts).length }));
+      ].map(t => ({ ...t, count: filterRacesByDistrict(countyData[t.key] || [], userDistricts).length, comingSoon: county === 'texas' && t.key === 'county' }));
 
       return (
         <React.Fragment>
@@ -3274,7 +3321,7 @@
           </header>
           {showAddr && (
             <AddressModal county={county} accentColor="#3b82f6" accentColorDark="#1d4ed8"
-              onCountyDetected={setCounty}
+              onCountyDetected={handleCountyDetected}
               onClose={() => { setShowAddr(false); setPendingBallot(false); }}
               onContinue={(districts) => { setUserDistricts(districts); setShowAddr(false); if (pendingBallot) { setPendingBallot(false); onBallot(); } }}
               onShowAll={pendingBallot ? undefined : () => setShowAddr(false)} />
@@ -3357,7 +3404,7 @@
                             <p className="text-white font-black text-lg leading-tight mb-1.5">{displayCand?.name}</p>
                             <span className="inline-block text-[10px] font-black uppercase tracking-wide px-2.5 py-0.5 rounded-full"
                               style={{background: partyColor + '28', color: partyColor, border: `1px solid ${partyColor}55`}}>
-                              {displayCand?.party === 'D' ? 'Democrat' : displayCand?.party === 'R' ? 'Republican' : 'Independent'}
+                              {partyName(displayCand?.party)}
                             </span>
                           </button>
                           {/* Get the Facts — compact, to the right */}
@@ -3410,7 +3457,7 @@
                               </div>
                               <span className="mt-2 text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full"
                                 style={{background: partyColor + '28', color: partyColor, border:`1px solid ${partyColor}55`}}>
-                                {displayCand?.party === 'D' ? 'Democrat' : displayCand?.party === 'R' ? 'Republican' : 'Independent'}
+                                {partyName(displayCand?.party)}
                               </span>
                             </button>
 
@@ -3795,7 +3842,7 @@
                 )}
                 <h2 className="text-white font-black text-xl lg:text-2xl leading-tight mb-1">{candidate.name}</h2>
                 <div className="flex items-center gap-2 mb-1.5">
-                  <p className="text-[14px] font-bold uppercase tracking-normal" style={{color: partyTint}}>{candidate.party === 'D' ? 'Democrat' : candidate.party === 'R' ? 'Republican' : 'Independent'}</p>
+                  <p className="text-[14px] font-bold uppercase tracking-normal" style={{color: partyTint}}>{partyName(candidate.party)}</p>
                   {candidate.website ? (
                     <a href={candidate.website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-white/85 hover:text-white transition-colors shrink-0" title="Visit website">
                       <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
@@ -4176,7 +4223,7 @@
             : { grad: 'linear-gradient(90deg,#7e22ce,#9333ea)', border: '#c084fc', glow: 'rgba(147,51,234,0.45)' };
       const tabsWithCounts = TABS.map(tab => {
         const tabRaces = filterRacesByDistrict(countyData[tab.key] || [], userDistricts);
-        return { ...tab, count: tabRaces.length };
+        return { ...tab, count: tabRaces.length, comingSoon: county === 'texas' && tab.key === 'county' };
       });
       const [showHeaderDrop, setShowHeaderDrop] = useState(false);
 
@@ -4212,7 +4259,7 @@
           </header>
           {showAddr && (
             <AddressModal county={county} accentColor="#3b82f6" accentColorDark="#1d4ed8"
-              onCountyDetected={setCounty}
+              onCountyDetected={handleCountyDetected}
               onClose={() => { setShowAddr(false); setPendingBallot(false); }}
               onContinue={(districts) => { setUserDistricts(districts); setShowAddr(false); if (pendingBallot) { setPendingBallot(false); onBallot(); } }}
               onShowAll={pendingBallot ? undefined : () => setShowAddr(false)} />
@@ -4225,7 +4272,7 @@
               <p className="text-white font-black uppercase tracking-wide text-[17px] leading-none" style={{fontFamily:"'Barlow Condensed',sans-serif", letterSpacing:'0.06em'}}>
                 Compare {TABS.find(t => t.key === activeTab)?.label} Candidates
               </p>
-              <span className="text-[11px] font-bold" style={{color:'#34d399'}}>{races.length} races</span>
+              <span className="text-[11px] font-bold" style={{color:'#34d399'}}>{races.length} {races.length === 1 ? 'race' : 'races'}</span>
             </div>
           </div>
 
@@ -4272,17 +4319,23 @@
                       {/* Compare button removed */}
                       {race.candidates.filter(Boolean).map(c => {
                         const accent = c.party==='D'?'#3b82f6':c.party==='R'?'#ef4444':'#94a3b8';
-                        const partyLabel = c.party==='D'?'Democrat':c.party==='R'?'Republican':'Independent';
+                        const partyLabel = partyName(c.party);
                         const partyColor = c.party==='D'?'text-blue-400':c.party==='R'?'text-red-400':'text-slate-400';
                         const candMatch = answers && Object.keys(answers).length > 0 ? calcMatch(c, answers, checkedStatements, ranks) : null;
                         const ringSize = 72;
                         const border = 4;
+                        // 3+ candidates: break every name onto two lines (first / last) so the
+                        // narrower cards align — a one-line name next to a wrapped one looks ragged.
+                        const crowded = race.candidates.filter(Boolean).length > 2;
+                        const sp = c.name.lastIndexOf(' ');
                         return (
                           <button key={c.name}
                             onClick={() => setBrowseProfile({candidate: c, race})}
                             className="flex-1 flex flex-col items-center justify-center py-4 md:py-5 gap-2 border-r border-white/10 cursor-pointer active:bg-white/10 transition-colors"
                             style={{background:'rgba(255,255,255,0.05)', margin:'8px', borderRadius:'14px', border:`1.5px solid #d97706`}}>
-                            <p className="text-[12px] font-black text-slate-200 uppercase tracking-widest text-center leading-tight">{c.name}</p>
+                            <p className="text-[12px] font-black text-slate-200 uppercase tracking-widest text-center leading-tight">
+                              {crowded && sp > 0 ? (<>{c.name.slice(0, sp)}<br/>{c.name.slice(sp + 1)}</>) : c.name}
+                            </p>
                             <div className="relative" style={{width: Math.round(ringSize*1.04), height: Math.round(ringSize*1.04)}}>
                               <div className="absolute inset-0 rounded-full" style={{background: accent}} />
                               <div className="absolute rounded-full overflow-hidden bg-slate-700" style={{inset: border}}>
@@ -4692,7 +4745,7 @@
                   <div className={sec.key === 'judicial' ? 'ballot-picks ballot-picks-3' : 'ballot-picks'}>
                     {sectionCandidates.map(({ race, candidate }) => {
                       const partyColor = candidate.party === 'D' ? '#2563eb' : candidate.party === 'R' ? '#dc2626' : '#64748b';
-                      const partyLabel = candidate.party === 'D' ? 'Democrat' : candidate.party === 'R' ? 'Republican' : candidate.party || 'Independent';
+                      const partyLabel = partyName(candidate.party);
                       return (
                         <div key={race.office} className="ballot-pick-row" style={{padding:'2px 0 5px'}}>
                           <div style={{fontSize:'9px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.05em', color:'#64748b', lineHeight:1.2}}>{race.office}</div>
@@ -5423,6 +5476,12 @@
       });
       // Persist county + looked-up districts so a returning voter isn't re-asked for their address
       React.useEffect(() => { try { store.setItem('vyv_county', county); } catch(e) {} }, [county]);
+      // County detected from an address lookup. For counties we don't cover yet the modal hands
+      // us 'texas' (the statewide block) plus the voter's real county name for the header pill.
+      function handleCountyDetected(key, label) {
+        setCounty(key);
+        if (key === 'texas' && label) setCounties(prev => prev.texas ? { ...prev, texas: { ...prev.texas, name: label } } : prev);
+      }
       React.useEffect(() => { try { userDistricts ? store.setItem('vyv_districts', JSON.stringify(userDistricts)) : store.removeItem('vyv_districts'); } catch(e) {} }, [userDistricts]);
       const [pendingScreen, setPendingScreen] = useState('quiz');
 
@@ -5506,6 +5565,19 @@
             if (mres.ok) PHOTO_MANIFEST = new Set(await mres.json());
           } catch (_) {}
 
+          // Shared tabs: `Statewide` (the 18 races on every TX ballot — single master) and
+          // `Districts` (district-based races, each tagged with the counties it touches).
+          // Each county's ballot = Statewide + its Districts + its county-local races.
+          const [statewideRows, districtRows] = await Promise.all([
+            fetchSheet(SHEETS.master, 'Statewide'),
+            fetchSheet(SHEETS.master, 'Districts').catch(() => []),
+          ]);
+          const statewideRaces = buildRaces(statewideRows, 'statewide');
+          const districtRaces = buildRaces(districtRows, 'statewide');
+          // Transition guard: county tabs still carry mirrored statewide + district rows until
+          // they're retired — skip any county-tab office the shared tabs already provide.
+          const sharedOffices = new Set([...statewideRaces, ...districtRaces].map(r => r.office));
+
           const builtCounties = {};
           for (const [key, meta] of Object.entries(COUNTY_META)) {
             builtCounties[key] = { ...meta, available: false, statewide: [], local: [] };
@@ -5513,12 +5585,16 @@
             if (countySheet) {
               try {
                 const countyRows = await fetchSheet(countySheet.sheetId, countySheet.tab);
-                const countyRaces = buildRaces(countyRows, key);
-                Object.assign(builtCounties[key], buildCountyRaces([], countyRaces));
-                builtCounties[key].available = countyRaces.length > 0;
+                const localRaces = buildRaces(countyRows, key).filter(r => !sharedOffices.has(r.office));
+                const countyDistricts = districtRaces.filter(r => r.counties.includes(key));
+                Object.assign(builtCounties[key], buildCountyRaces([...statewideRaces, ...countyDistricts], localRaces));
+                builtCounties[key].available = localRaces.length > 0;
               } catch (_) {}
             }
           }
+          // "texas" pseudo-county — voters in counties we don't cover yet: all statewide races
+          // plus every district race (the voter's address districts narrow them to theirs).
+          builtCounties.texas = { name: 'Texas — Statewide Races', available: true, statewide: [], local: [], ...buildCountyRaces([...statewideRaces, ...districtRaces], []) };
 
           setIssues(builtIssues);
           setCounties(builtCounties);
@@ -5590,7 +5666,7 @@
               county={county}
               accentColor="#3b82f6"
               accentColorDark="#1d4ed8"
-              onCountyDetected={setCounty}
+              onCountyDetected={handleCountyDetected}
               onClose={() => setAddrModal(null)}
               onContinue={(districts) => { const dest = addrModal; setUserDistricts(districts); setAddrModal(null); setScreen(dest); }}
               onShowAll={() => { const dest = addrModal; setAddrModal(null); setScreen(dest); }}
@@ -5604,7 +5680,7 @@
         return (
           <AddressScreen
             county={county}
-            onCountyDetected={setCounty}
+            onCountyDetected={handleCountyDetected}
             onContinue={districts => {
               setUserDistricts(districts);
               if (pendingScreen === 'quiz') { setAnswers({}); setRanks({}); setSelected({}); }
@@ -5693,7 +5769,7 @@
               county={county}
               accentColor="#3b82f6"
               accentColorDark="#1d4ed8"
-              onCountyDetected={setCounty}
+              onCountyDetected={handleCountyDetected}
               onClose={() => setAddrModal(null)}
               onContinue={(districts) => { const dest = addrModal; setUserDistricts(districts); setAddrModal(null); setScreen(dest); }}
               onShowAll={() => { const dest = addrModal; setAddrModal(null); setScreen(dest); }}
