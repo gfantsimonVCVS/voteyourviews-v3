@@ -38,7 +38,7 @@ export default async (request, context) => {
   const isEdit = !!m[2];
   const title = isEdit
     ? `${cand.name} — you're invited to edit your candidate profile | VoteYourViews.org`
-    : `${cand.name} — ${cand.office} | VoteYourViews.org`;
+    : `${cand.name} for ${cand.office} | VoteYourViews.org`;
   const description = isEdit
     ? 'Your photo, your words, where you stand — speak for yourself. Reviewed before anything goes live.'
     : `See where ${cand.name} stands on the issues — and find out in 2 minutes if your views match.`;

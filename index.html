@@ -8,13 +8,13 @@
   <meta property="og:title" content="Stop voting Parties. Start voting your views.">
   <meta property="og:description" content="Everything you need to vote in the 2026 Texas Midterm in minutes…">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="https://voteyourviews.org/icons/og-image.png">
+  <meta property="og:image" content="https://voteyourviews.org/icons/og-main.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Stop voting Parties. Start voting your views.">
   <meta name="twitter:description" content="Everything you need to vote in the 2026 Texas Midterm in minutes…">
-  <meta name="twitter:image" content="https://voteyourviews.org/icons/og-image.png">
+  <meta name="twitter:image" content="https://voteyourviews.org/icons/og-main.png">
   <link rel="icon" href="/icons/Favicon.jpg" type="image/jpeg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
@@ -3666,6 +3666,13 @@
       // clerks and new candidates like independents have no positions but aren't judges, and the
       // "judicial ethics" explanation would be false for them; their per-issue evidence explains itself.)
       const isJudicialCandidate = raceCategory === 'judicial';
+      // Lock the page behind the modal while it's open — kills the double scrollbar and
+      // stops end-of-modal scrolling from "chaining" into the underlying page on mobile.
+      useEffect(() => {
+        const prev = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        return () => { document.body.style.overflow = prev; };
+      }, []);
       // Standardized "thin profile" state: empty bio OR an internal review placeholder leaking through ([Info limited…], "no public biography", "please review").
       const editHref = `/${candidateSlug(candidate.name)}/edit`;
       const lowInfoSummary = !candidate.summary || /\[\s*info limited|no public (bio|information)|please review/i.test(candidate.summary);
