@@ -49,6 +49,29 @@ def fetch_csv(tab):
     lines = [re.sub(r'(,"")+\s*$', '', l) for l in text.replace('\r', '').split('\n')]
     return list(csv.DictReader(io.StringIO('\n'.join(lines))))
 
+def ensure_cutout(b64_data):
+    """The plate design needs transparent cutouts. If a photo has no usable alpha,
+    remove its background with rembg (affects the card render only, never the source file)."""
+    import base64 as _b64, io as _io
+    from PIL import Image
+    raw = _b64.b64decode(b64_data.split(',', 1)[1])
+    img = Image.open(_io.BytesIO(raw)).convert('RGBA')
+    alpha = img.getchannel('A')
+    # A real cutout is MOSTLY transparent around the subject. A rectangle with a stray
+    # transparent corner isn't one — measure the transparent fraction, not its existence.
+    hist = alpha.histogram()
+    transparent_ratio = sum(hist[:32]) / (img.width * img.height)
+    if transparent_ratio < 0.05:  # effectively rectangular — cut the background out
+        from rembg import remove
+        img = remove(img)
+    # Trim transparent margins so the SUBJECT (not the file edge) pins to the gold bar
+    bbox = img.getchannel('A').point(lambda a: 255 if a > 16 else 0).getbbox()
+    if bbox:
+        img = img.crop(bbox)
+    buf = _io.BytesIO()
+    img.save(buf, format='PNG')
+    return 'data:image/png;base64,' + _b64.b64encode(buf.getvalue()).decode()
+
 def resolve_photo(row, county_dir):
     url = (row.get('photo') or '').strip()
     slug = photo_slug(row['name'])
@@ -68,61 +91,51 @@ def resolve_photo(row, county_dir):
 def first_name(name):
     return name.split()[0]
 
-def build_html(cand, photo_b64, header_b64, tile_b64s):
-    p_label, p_color, p_bg, p_text = PARTY.get(cand['party'], PARTY_OTHER)
-    office = cand['office']
-    office_size = 25 if len(office) <= 30 else 20
-    name_size = 82 if len(cand['name']) <= 16 else (66 if len(cand['name']) <= 22 else 54)
-    tiles = ''.join(
-        f'<div class="tile"><img src="{b}"/><span>&#10003;</span></div>' for b in tile_b64s)
-    stands = (f'Where {first_name(cand["name"])} stands on the issues:'
-              if tile_b64s else 'On the ballot in the 2026 Texas Midterm')
-    return f'''<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Inter:wght@600;700;800&display=swap" rel="stylesheet"/>
+def build_html(cand, photo_b64, plate_b64):
+    """Gina's plate design (icons/og-candidate-plate.png). Per-candidate pieces only: the photo
+    (cutout, bottom pinned to the gold bar: 69px offset), the name (one word per line so long
+    names stay BIG, sized by the longest word), and the race line (#3968A1, wraps up to 3 lines)."""
+    name = cand['name']
+    words = name.split()
+    lines = words if len(words) >= 2 else [name]
+    longest = max(len(w) for w in lines)
+    # Long words (Gutierrez, Hernandez-Moreno...) drop ~20% so they never crowd the panel
+    name_size = 83 if longest <= 7 else (66 if longest <= 10 else (56 if longest <= 13 else 46))
+    # County offices ALWAYS split: "For Hays County" on its own line, the race below it
+    m = re.match(r'^([A-Z][A-Za-z ]+?) County (.+)$', cand['office'])
+    if m:
+        office_line1, office_line2 = f"For {m.group(1)} County", m.group(2)
+    elif ' of ' in cand['office']:
+        # "Governor of Texas" -> "For Governor" / "of Texas" (same for Comptroller etc.)
+        head, tail = cand['office'].split(' of ', 1)
+        office_line1, office_line2 = f"For {head}", f"of {tail}"
+    else:
+        office_line1, office_line2 = f"For {cand['office']}", ''
+    office_size = 35 if max(len(office_line1), len(office_line2)) <= 26 else 29
+    office_html = f'{office_line1}<br/>{office_line2}' if office_line2 else office_line1
+    name_html = '<br/>'.join(lines)
+    return f"""<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet"/>
 <style>
 * {{ margin:0; padding:0; box-sizing:border-box; }}
-body {{ width:1200px; height:630px; overflow:hidden; font-family:'Inter',sans-serif; display:flex; flex-direction:column;
-  background: linear-gradient(160deg,#0f172a 0%,#020617 100%); color:#fff; }}
-.band img {{ width:100%; display:block; }}
-.main {{ flex:1; display:flex; align-items:center; gap:52px; padding:0 70px; }}
-.photo-wrap {{ flex-shrink:0; width:300px; }}
-.photo {{ width:300px; height:300px; border-radius:32px; object-fit:cover; object-position:top; display:block; background:#1e293b;
-  border:5px solid {p_color}; box-shadow:0 24px 60px rgba(0,0,0,0.65), 0 0 44px {p_bg}; }}
-.party {{ margin:16px auto 0; width:fit-content; padding:6px 18px; border-radius:999px; background:{p_bg};
-  border:1.5px solid {p_color}; color:{p_text}; font-weight:800; font-size:17px; letter-spacing:0.12em; text-transform:uppercase; }}
-.info {{ flex:1; min-width:0; }}
-.eyebrow {{ font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:{office_size}px; letter-spacing:0.26em;
-  color:#f59e0b; text-transform:uppercase; margin-bottom:10px; }}
-h1 {{ font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:{name_size}px; line-height:0.98;
-  text-transform:uppercase; letter-spacing:0.01em; margin-bottom:20px; }}
-.stands {{ font-size:21px; font-weight:700; color:#cbd5e1; text-transform:uppercase; letter-spacing:0.14em; margin-bottom:14px;
-  font-family:'Barlow Condensed',sans-serif; }}
-.tiles {{ display:flex; gap:16px; margin-bottom:26px; }}
-.tile {{ position:relative; }}
-.tile img {{ width:92px; height:92px; border-radius:18px; display:block;
-  box-shadow:0 10px 26px rgba(0,0,0,0.5); border:1.5px solid rgba(255,255,255,0.25); }}
-.tile span {{ position:absolute; top:-8px; right:-8px; width:28px; height:28px; border-radius:50%;
-  background:#10b981; border:2px solid #fff; display:flex; align-items:center; justify-content:center;
-  font-size:15px; font-weight:900; color:#fff; }}
-.cta {{ font-size:25px; font-weight:800; color:#fff; }}
-.cta .gold {{ background:linear-gradient(100deg,#d97706,#fbbf24 40%,#fff7d6 55%,#fbbf24 70%,#d97706);
-  -webkit-background-clip:text; background-clip:text; color:transparent; }}
+body {{ width:1200px; height:630px; overflow:hidden; position:relative; }}
+.plate {{ position:absolute; inset:0; width:1200px; height:630px; }}
+.photo {{ position:absolute; left:50%; transform:translateX(-56%); bottom:69px; height:490px; z-index:2;
+  filter: drop-shadow(0 14px 34px rgba(0,0,0,0.45)); }}
+.col {{ position:absolute; left:56px; top:92px; width:400px; z-index:3;
+  display:flex; flex-direction:column; gap:24px; text-align:center; align-items:center; }}
+.name {{ font-family:'Anton',sans-serif; font-size:{name_size}px; line-height:1.04; text-transform:uppercase;
+  letter-spacing:0.015em; color:#0A2870; }}
+.office {{ font-family:'Anton',sans-serif; font-size:{office_size}px; line-height:1.2; letter-spacing:0.05em;
+  text-transform:uppercase; width:360px; color:#3968A1; }}
 </style></head><body>
-<div class="band"><img src="{header_b64}"/></div>
-<div class="main">
-  <div class="photo-wrap">
-    <img class="photo" src="{photo_b64}"/>
-    <div class="party">{p_label}</div>
-  </div>
-  <div class="info">
-    <div class="eyebrow">Texas 2026 &middot; {office}</div>
-    <h1>{cand['name']}</h1>
-    <div class="stands">{stands}</div>
-    <div class="tiles">{tiles}</div>
-    <div class="cta">Do your views match? <span class="gold">Find out in 2 minutes.</span></div>
-  </div>
+<img class="plate" src="{plate_b64}"/>
+<img class="photo" src="{photo_b64}"/>
+<div class="col">
+  <div class="name">{name_html}</div>
+  <div class="office">{office_html}</div>
 </div>
-</body></html>'''
+</body></html>"""
 
 def build_edit_html(cand, photo_b64, header_b64):
     """Lean invitation card for /<slug>/edit — photo + name + the invite, none of the issue busyness."""
@@ -174,11 +187,17 @@ def render(html, out):
     os.unlink(tmp)
     return os.path.exists(out)
 
+# Per-candidate OG photo overrides — graphics prepared specifically for the share card
+# (e.g. Gina Hinojosa's stylized cutout) that should NOT replace the app's profile photo.
+OG_PHOTO_OVERRIDES = {
+    'ginahinojosa': 'images/candidates/hays/D/GinaH_New.png',
+}
+
 def main():
     only = canonical_slug(sys.argv[1]) if len(sys.argv) > 1 else None
     os.makedirs(OUT_DIR, exist_ok=True)
     header_b64 = b64_file(os.path.join(ROOT, 'icons', 'VoteYourViews_Header2.png'))
-    tile_cache = {k: b64_file(os.path.join(ROOT, 'icons', k + '.png')) for k in ISSUE_ORDER}
+    plate_b64 = b64_file(os.path.join(ROOT, 'icons', 'og-candidate-plate.png'))
 
     seen, manifest = set(), {}
     for tab in TABS:
@@ -192,18 +211,20 @@ def main():
             seen.add(slug)
             cand = {'name': name, 'office': (row.get('office') or '').strip(),
                     'party': (row.get('party') or '').strip().upper()}
-            photo = resolve_photo(row, COUNTY_DIR[tab])
+            override = OG_PHOTO_OVERRIDES.get(slug)
+            photo = b64_file(os.path.join(ROOT, override)) if override else resolve_photo(row, COUNTY_DIR[tab])
             if not photo:
                 print(f'  - skipped (no photo): {name}')
                 continue
-            stances = [k for k in ISSUE_ORDER if (row.get(k) or '').strip() in ('Agree', 'Disagree')]
-            tiles = [tile_cache[k] for k in stances[:5]]
-            ok = render(build_html(cand, photo, header_b64, tiles), os.path.join(OUT_DIR, slug + '.png'))
+            try:
+                photo = ensure_cutout(photo)
+            except Exception as e:
+                print(f'  ! cutout failed for {name} ({e}) — using photo as-is')
+            ok = render(build_html(cand, photo, plate_b64), os.path.join(OUT_DIR, slug + '.png'))
             ok_edit = render(build_edit_html(cand, photo, header_b64), os.path.join(OUT_DIR, slug + '-edit.png'))
             print(f'  {"✓" if ok else "✗"} {name} -> og/{slug}.png {"+ edit card" if ok_edit else "(edit card FAILED)"}')
             if ok:
-                manifest[slug] = {'name': name, 'office': cand['office'], 'party': cand['party'],
-                                  'stances': len(stances)}
+                manifest[slug] = {'name': name, 'office': cand['office'], 'party': cand['party']}
     if not only:
         with open(os.path.join(OUT_DIR, 'manifest.json'), 'w') as f:
             json.dump(manifest, f, indent=1)

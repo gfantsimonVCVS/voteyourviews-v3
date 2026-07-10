@@ -441,7 +441,6 @@
     const PHOTO_FALLBACK = {
       'James Talarico': 'https://lh3.googleusercontent.com/d/1xT_tzvyzpedvvRDZJ3V09TqjcoTiPiDO',
       // Hays Dems whose Sheet photo cell is empty — Drive file IDs, same lh3 format as the rest
-      'Elaine H. Cárdenas': 'https://lh3.googleusercontent.com/d/1FWhHrcA0OrlOZ-j49m7PW7_4DzV5ve5G',
       'Maggie Hernandez-Moreno': 'https://lh3.googleusercontent.com/d/1K6T4raB32Hv4zismhpBZAZe0768DNu1L',
       'Beth Smith': 'https://lh3.googleusercontent.com/d/1--CHI_DGGt73n7nD-Zq5GkbMpZIOk0NH',
       'Sandra Bryant': 'https://lh3.googleusercontent.com/d/1ckAyPB35hCDpTT5NFpCZbUfCK4Mmz_y4',
@@ -523,6 +522,15 @@
 
     // Clean per-candidate URLs (voteyourviews.org/JamesTalarico): match a URL slug to a candidate across all counties.
     const candidateSlug = (name) => (name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+    // Next candidate in the race after the current one (cyclic) — the profile's "vs. X →" pill
+    // walks through ALL opponents this way, so 3-way races (D/R + independent) cycle cleanly.
+    function nextOpponent(race, currentName) {
+      const cands = (race?.candidates || []).filter(Boolean);
+      if (cands.length < 2) return null;
+      const i = cands.findIndex(c => c.name === currentName);
+      return cands[(i + 1) % cands.length];
+    }
     function findCandidateBySlug(counties, slug) {
       const target = candidateSlug(slug);
       if (!target) return null;
@@ -846,7 +854,7 @@
             office: 'Hays County Clerk',
             category: 'county',
             description: '**The County Clerk** maintains official county records, processes elections, and records deeds, birth certificates, and marriage licenses. 4-year term.',
-            candidates: [UNCONTESTED('Elaine H. Cárdenas', 'D', 'Democratic nominee. No Republican filed — running unopposed in November.')]
+            candidates: [UNCONTESTED('Cynthia Millonzi', 'D', 'Democratic nominee. No Republican filed — running unopposed in November.')]
           },
           {
             office: 'Hays County Treasurer',
@@ -3455,7 +3463,9 @@
         {profileData && (
           <CandidateProfile
             candidate={profileData.candidate}
-            opponent={profileData.race.candidates.find(c => c && c.name !== profileData.candidate.name) || null}
+            opponent={nextOpponent(profileData.race, profileData.candidate.name)}
+            opponents={profileData.race.candidates.filter(c => c && c.name !== profileData.candidate.name)}
+            onCompareTo={(opp) => setProfileData({ candidate: opp, race: profileData.race, isBest: false })}
             issues={issues}
             answers={answers}
             checkedStatements={checkedStatements}
@@ -3473,8 +3483,8 @@
             onRateIssue={onRateIssue ? (id) => onRateIssue(id, profileData) : undefined}
             focusIssueId={focusIssueId}
             clearFocusIssue={clearFocusIssue}
-            onCompare={profileData.race.candidates.find(c => c && c.name !== profileData.candidate.name) ? () => {
-              const opponent = profileData.race.candidates.find(c => c && c.name !== profileData.candidate.name);
+            onCompare={nextOpponent(profileData.race, profileData.candidate.name) ? () => {
+              const opponent = nextOpponent(profileData.race, profileData.candidate.name);
               setProfileData({ candidate: opponent, race: profileData.race, isBest: !profileData.isBest });
             } : undefined}
           />
@@ -3485,10 +3495,9 @@
 
     function RaceResultCard({ race, answers, ranks, checkedStatements, issues, selected, onSelect, expanded, onToggle }) {
       const candidates = race.candidates.filter(Boolean);
-      const [c1, c2] = candidates;
-      const s1 = calcMatch(c1, answers, checkedStatements, ranks);
-      const s2 = c2 ? calcMatch(c2, answers, checkedStatements, ranks) : null;
-      const recommended = (s1 !== null && s2 !== null) ? (s1 >= s2 ? c1.name : c2.name) : null;
+      // Best match across ALL candidates (races can have 3+: D/R plus independents or third parties)
+      const scored = candidates.map(c => ({ c, s: calcMatch(c, answers, checkedStatements, ranks) })).filter(x => x.s !== null);
+      const recommended = scored.length >= 2 ? scored.reduce((a, b) => (b.s > a.s ? b : a)).c.name : null;
       const currentSelected = selected[race.office];
 
       return (
@@ -3613,7 +3622,7 @@
       );
     }
 
-    function CandidateProfile({ candidate, opponent, issues, answers, checkedStatements, ranks, onClose, onSelect, isSelected, raceName, raceCategory, onCompare, isOpponent, onRateIssue, focusIssueId, clearFocusIssue }) {
+    function CandidateProfile({ candidate, opponent, opponents, onCompareTo, issues, answers, checkedStatements, ranks, onClose, onSelect, isSelected, raceName, raceCategory, onCompare, isOpponent, onRateIssue, focusIssueId, clearFocusIssue }) {
       const _cs = checkedStatements || {};
       const hasAnswers = answers && Object.keys(answers).length > 0;
       // Per-issue active tab: undefined = collapsed, else 'their' | 'opp' | 'facts'
@@ -3653,7 +3662,10 @@
       const partyPillBg = candidate.party === 'D' ? '#2563eb' : candidate.party === 'R' ? '#dc2626' : '#475569';
       const matchScore = hasAnswers ? calcMatch(candidate, answers, _cs, ranks || {}) : null;
       const _ISSUE_KEYS = ['reproductiveRights','immigration','gunPolicy','education','healthcare','climate','electionIntegrity','socialSecurity','affordability'];
-      const isJudicialCandidate = raceCategory === 'judicial' || !_ISSUE_KEYS.some(k => { const p = candidate.positions?.[k]; return p && p !== 'D' && p !== 'Unknown'; });
+      // Judicial = the race's category only. (Don't infer it from having no positions — county
+      // clerks and new candidates like independents have no positions but aren't judges, and the
+      // "judicial ethics" explanation would be false for them; their per-issue evidence explains itself.)
+      const isJudicialCandidate = raceCategory === 'judicial';
       // Standardized "thin profile" state: empty bio OR an internal review placeholder leaking through ([Info limited…], "no public biography", "please review").
       const editHref = `/${candidateSlug(candidate.name)}/edit`;
       const lowInfoSummary = !candidate.summary || /\[\s*info limited|no public (bio|information)|please review/i.test(candidate.summary);
@@ -3784,28 +3796,33 @@
                     </span>
                   )}
                 </div>
-                {(isJudicialCandidate || matchScore !== null || onCompare) && (
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {isJudicialCandidate ? (
-                      <span className="text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full bg-white/20 text-white/60">Party Aligned</span>
-                    ) : matchScore !== null ? (
-                      <span className={`md:hidden text-[13px] font-black px-3 py-1 rounded-full text-white${allTested ? ' match-final' : ''}`} style={{background: partyPillBg, border: `1px solid ${partyTint}66`}}>{matchScore}% match</span>
-                    ) : null}
-                    {onCompare && (() => {
-                      // Tint by the candidate the pill jumps TO (the opponent prop), so the
-                      // pill previews whose profile you'll land on.
-                      const targetTint = opponent?.party === 'D' ? '#60a5fa' : opponent?.party === 'R' ? '#f87171' : '#94a3b8';
-                      const targetBg = opponent?.party === 'D' ? '#2563eb' : opponent?.party === 'R' ? '#dc2626' : '#475569';
-                      return (
-                        <button onClick={onCompare}
-                          className="text-[11px] font-black uppercase tracking-wide px-3 py-1 rounded-full text-white hover:brightness-125 transition-all whitespace-nowrap"
-                          style={{background: targetBg, border: `1px solid ${targetTint}88`, letterSpacing:'0.06em'}}>
-                          {isOpponent ? '← Your Match' : `vs. ${opponent?.name ? opponent.name.split(' ').filter(Boolean).pop() : 'Opponent'} →`}
-                        </button>
-                      );
-                    })()}
-                  </div>
-                )}
+                {(() => {
+                  // One "vs." pill per opponent (3-way races show both), each tinted by the
+                  // candidate it jumps TO so the pill previews whose profile you'll land on.
+                  const others = (opponents && opponents.length ? opponents : (opponent ? [opponent] : [])).filter(Boolean);
+                  const jump = (opp) => onCompareTo ? onCompareTo(opp) : (onCompare && onCompare());
+                  if (!isJudicialCandidate && matchScore === null && !others.length) return null;
+                  return (
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {isJudicialCandidate ? (
+                        <span className="text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full bg-white/20 text-white/60">Party Aligned</span>
+                      ) : matchScore !== null ? (
+                        <span className={`md:hidden text-[13px] font-black px-3 py-1 rounded-full text-white${allTested ? ' match-final' : ''}`} style={{background: partyPillBg, border: `1px solid ${partyTint}66`}}>{matchScore}% match</span>
+                      ) : null}
+                      {(onCompareTo || onCompare) && others.map(opp => {
+                        const targetTint = opp.party === 'D' ? '#60a5fa' : opp.party === 'R' ? '#f87171' : '#94a3b8';
+                        const targetBg = opp.party === 'D' ? '#2563eb' : opp.party === 'R' ? '#dc2626' : '#475569';
+                        return (
+                          <button key={opp.name} onClick={() => jump(opp)}
+                            className="text-[11px] font-black uppercase tracking-wide px-3 py-1 rounded-full text-white hover:brightness-125 transition-all whitespace-nowrap"
+                            style={{background: targetBg, border: `1px solid ${targetTint}88`, letterSpacing:'0.06em'}}>
+                            {`vs. ${opp.name.split(' ').filter(Boolean).pop()} →`}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
               </div>
             </div>
 
@@ -4237,7 +4254,7 @@
                     {/* Candidate columns — 50/50 on mobile, 25/25 on desktop */}
                     <div className="w-full md:w-1/2 flex relative">
                       {/* Compare button removed */}
-                      {race.candidates.filter(Boolean).slice(0,2).map(c => {
+                      {race.candidates.filter(Boolean).map(c => {
                         const accent = c.party==='D'?'#3b82f6':c.party==='R'?'#ef4444':'#94a3b8';
                         const partyLabel = c.party==='D'?'Democrat':c.party==='R'?'Republican':'Independent';
                         const partyColor = c.party==='D'?'text-blue-400':c.party==='R'?'text-red-400':'text-slate-400';
@@ -4340,11 +4357,14 @@
           )}
 
           {browseProfile && (() => {
-            const opponent = browseProfile.race.candidates.filter(Boolean).find(c => c.name !== browseProfile.candidate.name);
+            const opponent = nextOpponent(browseProfile.race, browseProfile.candidate.name);
             return (
             <CandidateProfile
               candidate={browseProfile.candidate}
-              opponent={browseProfile.race.candidates.find(c => c && c.name !== browseProfile.candidate.name) || null}
+              raceCategory={browseProfile.race.category}
+              opponent={nextOpponent(browseProfile.race, browseProfile.candidate.name)}
+              opponents={browseProfile.race.candidates.filter(c => c && c.name !== browseProfile.candidate.name)}
+              onCompareTo={(opp) => setBrowseProfile({ candidate: opp, race: browseProfile.race })}
               issues={issues}
               answers={answers}
               checkedStatements={checkedStatements}
@@ -5407,14 +5427,14 @@
         const allRaces = ['federal', 'state', 'county', 'judicial'].flatMap(k => (counties[county] || {})[k] || []);
         const autoSelected = {};
         allRaces.forEach(race => {
-          // Skip TBD placeholders — never auto-add a nominee that doesn't exist yet
-          const [c1, c2] = (race.candidates || []).filter(c => c && !/^TBD/i.test(c.name || ''));
-          if (!c1) return;
-          const s1 = calcMatch(c1, answers, checkedStatements, ranks);
-          const s2 = c2 ? calcMatch(c2, answers, checkedStatements, ranks) : null;
-          // Pick whichever candidate is scoreable (ties favor c1); skip races where neither is
-          if (s1 !== null || s2 !== null) {
-            autoSelected[race.office] = (s2 !== null && (s1 === null || s2 > s1)) ? c2.name : c1.name;
+          // Skip TBD placeholders — never auto-add a nominee that doesn't exist yet.
+          // Score EVERY real candidate (races can have 3+); highest match wins, earlier listing wins ties.
+          const scored = (race.candidates || [])
+            .filter(c => c && !/^TBD/i.test(c.name || ''))
+            .map(c => ({ c, s: calcMatch(c, answers, checkedStatements, ranks) }))
+            .filter(x => x.s !== null);
+          if (scored.length) {
+            autoSelected[race.office] = scored.reduce((a, b) => (b.s > a.s ? b : a)).c.name;
           }
         });
         const lastAutoPicks = autoPickRef.current; // snapshot BEFORE updating the ref — the updater below may run later

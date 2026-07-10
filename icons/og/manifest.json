@@ -2,691 +2,581 @@
  "jamestalarico": {
   "name": "James Talarico",
   "office": "U.S. Senate",
-  "party": "D",
-  "stances": 9
+  "party": "D"
  },
  "kenpaxton": {
   "name": "Ken Paxton",
   "office": "U.S. Senate",
-  "party": "R",
-  "stances": 9
+  "party": "R"
  },
  "ginahinojosa": {
   "name": "Gina Hinojosa",
   "office": "Governor of Texas",
-  "party": "D",
-  "stances": 9
+  "party": "D"
  },
  "gregabbott": {
   "name": "Greg Abbott",
   "office": "Governor of Texas",
-  "party": "R",
-  "stances": 9
+  "party": "R"
  },
  "vikkigoodwin": {
   "name": "Vikki Goodwin",
   "office": "Lieutenant Governor",
-  "party": "D",
-  "stances": 9
+  "party": "D"
  },
  "danpatrick": {
   "name": "Dan Patrick",
   "office": "Lieutenant Governor",
-  "party": "R",
-  "stances": 9
+  "party": "R"
  },
  "nathanjohnson": {
   "name": "Nathan Johnson",
   "office": "Attorney General",
-  "party": "D",
-  "stances": 9
+  "party": "D"
  },
  "mayesmiddleton": {
   "name": "Mayes Middleton",
   "office": "Attorney General",
-  "party": "R",
-  "stances": 9
+  "party": "R"
  },
  "saraheckhardt": {
   "name": "Sarah Eckhardt",
   "office": "Comptroller of Public Accounts",
-  "party": "D",
-  "stances": 9
+  "party": "D"
  },
  "donhuffines": {
   "name": "Don Huffines",
   "office": "Comptroller of Public Accounts",
-  "party": "R",
-  "stances": 9
+  "party": "R"
  },
  "benjaminflores": {
   "name": "Benjamin Flores",
   "office": "Commissioner of General Land Office",
-  "party": "D",
-  "stances": 9
+  "party": "D"
  },
  "dawnbuckingham": {
   "name": "Dawn Buckingham",
   "office": "Commissioner of General Land Office",
-  "party": "R",
-  "stances": 9
+  "party": "R"
  },
  "claytontucker": {
   "name": "Clayton Tucker",
   "office": "Commissioner of Agriculture",
-  "party": "D",
-  "stances": 9
+  "party": "D"
  },
  "natesheets": {
   "name": "Nate Sheets",
   "office": "Commissioner of Agriculture",
-  "party": "R",
-  "stances": 8
+  "party": "R"
  },
  "jonrosenthal": {
   "name": "Jon Rosenthal",
   "office": "Railroad Commissioner",
-  "party": "D",
-  "stances": 9
+  "party": "D"
  },
  "bofrench": {
   "name": "Bo French",
   "office": "Railroad Commissioner",
-  "party": "R",
-  "stances": 8
+  "party": "R"
  },
  "maggieellis": {
   "name": "Maggie Ellis",
   "office": "TX Supreme Court \u2014 Chief Justice",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "jimmyblacklock": {
   "name": "Jimmy Blacklock",
   "office": "TX Supreme Court \u2014 Chief Justice",
-  "party": "R",
-  "stances": 0
+  "party": "R"
  },
  "charikelly": {
   "name": "Chari Kelly",
   "office": "TX Supreme Court \u2014 Place 2",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "jamessullivan": {
   "name": "James Sullivan",
   "office": "TX Supreme Court \u2014 Place 2",
-  "party": "R",
-  "stances": 0
+  "party": "R"
  },
  "kristenhawkins": {
   "name": "Kristen Hawkins",
   "office": "TX Supreme Court \u2014 Place 7",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "kylehawkins": {
   "name": "Kyle Hawkins",
   "office": "TX Supreme Court \u2014 Place 7",
-  "party": "R",
-  "stances": 0
+  "party": "R"
  },
  "giselatriana": {
   "name": "Gisela Triana",
   "office": "TX Supreme Court \u2014 Place 8",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "brettbusby": {
   "name": "Brett Busby",
   "office": "TX Supreme Court \u2014 Place 8",
-  "party": "R",
-  "stances": 0
+  "party": "R"
  },
  "okeyanyiam": {
   "name": "Okey Anyiam",
   "office": "Court of Criminal Appeals \u2014 Place 3",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "thomassmith": {
   "name": "Thomas Smith",
   "office": "Court of Criminal Appeals \u2014 Place 3",
-  "party": "R",
-  "stances": 0
+  "party": "R"
  },
  "audrariley": {
   "name": "Audra Riley",
   "office": "Court of Criminal Appeals \u2014 Place 4",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "kevinpatrickyeary": {
   "name": "Kevin Patrick Yeary",
   "office": "Court of Criminal Appeals \u2014 Place 4",
-  "party": "R",
-  "stances": 0
+  "party": "R"
  },
  "hollytaylor": {
   "name": "Holly Taylor",
   "office": "Court of Criminal Appeals \u2014 Place 9",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "johnmessinger": {
   "name": "John Messinger",
   "office": "Court of Criminal Appeals \u2014 Place 9",
-  "party": "R",
-  "stances": 0
+  "party": "R"
  },
  "jerryzimmerer": {
   "name": "Jerry Zimmerer",
   "office": "15th Court of Appeals \u2014 Chief Justice",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "scottbrister": {
   "name": "Scott Brister",
   "office": "15th Court of Appeals \u2014 Chief Justice",
-  "party": "R",
-  "stances": 0
+  "party": "R"
  },
  "tombaker": {
   "name": "Tom Baker",
   "office": "15th Court of Appeals \u2014 Place 2",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "scottfield": {
   "name": "Scott Field",
   "office": "15th Court of Appeals \u2014 Place 2",
-  "party": "R",
-  "stances": 0
+  "party": "R"
  },
  "marcmeyer": {
   "name": "Marc Meyer",
   "office": "15th Court of Appeals \u2014 Place 3",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "aprilfarris": {
   "name": "April Farris",
   "office": "15th Court of Appeals \u2014 Place 3",
-  "party": "R",
-  "stances": 0
+  "party": "R"
  },
  "kristinhook": {
   "name": "Kristin Hook",
   "office": "U.S. House \u2014 District 21",
-  "party": "D",
-  "stances": 9
+  "party": "D"
  },
  "markteixeira": {
   "name": "Mark Teixeira",
   "office": "U.S. House \u2014 District 21",
-  "party": "R",
-  "stances": 8
+  "party": "R"
  },
  "tanyalloyd": {
   "name": "Tanya Lloyd",
   "office": "U.S. House \u2014 District 27",
-  "party": "D",
-  "stances": 9
+  "party": "D"
  },
  "michaelcloud": {
   "name": "Michael Cloud",
   "office": "U.S. House \u2014 District 27",
-  "party": "R",
-  "stances": 9
+  "party": "R"
  },
  "allisonbush": {
   "name": "Allison Bush",
   "office": "State Board of Education, District 5",
-  "party": "D",
-  "stances": 7
+  "party": "D"
  },
  "micaarellano": {
   "name": "Mica Arellano",
   "office": "State Board of Education, District 5",
-  "party": "R",
-  "stances": 4
+  "party": "R"
  },
  "judithzaffarini": {
   "name": "Judith Zaffarini",
   "office": "TX State Senate \u2014 District 21",
-  "party": "D",
-  "stances": 9
+  "party": "D"
  },
  "juliedahlberg": {
   "name": "Julie Dahlberg",
   "office": "TX State Senate \u2014 District 21",
-  "party": "R",
-  "stances": 8
+  "party": "R"
  },
  "erinzwiener": {
   "name": "Erin Zwiener",
   "office": "TX State House \u2014 District 45",
-  "party": "D",
-  "stances": 9
+  "party": "D"
  },
  "tennysonmoreno": {
   "name": "Tennyson Moreno",
   "office": "TX State House \u2014 District 45",
-  "party": "R",
-  "stances": 8
+  "party": "R"
  },
  "merriefox": {
   "name": "Merrie Fox",
   "office": "TX State House \u2014 District 73",
-  "party": "D",
-  "stances": 9
+  "party": "D"
  },
  "carrieisaac": {
   "name": "Carrie Isaac",
   "office": "TX State House \u2014 District 73",
-  "party": "R",
-  "stances": 9
+  "party": "R"
  },
  "michellegutierrezcohen": {
   "name": "Michelle Gutierrez Cohen",
   "office": "Hays County Judge",
-  "party": "D",
-  "stances": 8
+  "party": "D"
  },
  "geoffreytahuahua": {
   "name": "Geoffrey Tahuahua",
   "office": "Hays County Judge",
-  "party": "R",
-  "stances": 8
+  "party": "R"
  },
  "alfonsosalazar": {
   "name": "Alfonso Salazar",
   "office": "Hays County Criminal District Attorney",
-  "party": "D",
-  "stances": 6
+  "party": "D"
  },
  "amandacalvert": {
   "name": "Amanda Calvert",
   "office": "Hays County District Clerk",
-  "party": "D",
-  "stances": 0
- },
- "elainehcrdenas": {
-  "name": "Elaine H. C\u00e1rdenas",
-  "office": "Hays County Clerk",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "daphnetenorio": {
   "name": "Daphne Tenorio",
   "office": "Hays County Treasurer",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "johnnyflores": {
   "name": "Johnny Flores",
   "office": "Hays County Commissioner \u2014 Precinct 2",
-  "party": "D",
-  "stances": 8
+  "party": "D"
  },
  "abbygibson": {
   "name": "Abby Gibson",
   "office": "Hays County Commissioner \u2014 Precinct 2",
-  "party": "R",
-  "stances": 8
+  "party": "R"
  },
  "angieunger": {
   "name": "Angie Unger",
   "office": "Hays County Commissioner \u2014 Precinct 4",
-  "party": "D",
-  "stances": 8
+  "party": "D"
  },
  "robmcclelland": {
   "name": "Rob McClelland",
   "office": "Hays County Commissioner \u2014 Precinct 4",
-  "party": "R",
-  "stances": 8
+  "party": "R"
  },
  "maggiehernandezmoreno": {
   "name": "Maggie Hernandez-Moreno",
   "office": "Hays County Justice of the Peace \u2014 Precinct 1, Place 2",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "bethsmith": {
   "name": "Beth Smith",
   "office": "Hays County Justice of the Peace \u2014 Precinct 2, Place 1",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "sandrabryant": {
   "name": "Sandra Bryant",
   "office": "Hays County Justice of the Peace \u2014 Precinct 5",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "darlenebyrne": {
   "name": "Darlene Byrne",
   "office": "3rd Court of Appeals \u2014 Chief Justice",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "coryliu": {
   "name": "Cory Liu",
   "office": "3rd Court of Appeals \u2014 Chief Justice",
-  "party": "R",
-  "stances": 0
+  "party": "R"
  },
  "cassiebenoisttempleton": {
   "name": "Cassie Benoist-Templeton",
   "office": "Hays County District Court \u2014 428th",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "jimmyalanhall": {
   "name": "Jimmy Alan Hall",
   "office": "Hays County Court at Law No. 1",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "chrisjohnson": {
   "name": "Chris Johnson",
   "office": "Hays County Court at Law No. 2",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "charmainewilde": {
   "name": "Charmaine Wilde",
   "office": "Hays County Court at Law No. 2",
-  "party": "R",
-  "stances": 0
+  "party": "R"
+ },
+ "josephjamieson": {
+  "name": "Joseph Jamieson",
+  "office": "Hays County Justice of the Peace \u2014 Precinct 3",
+  "party": "R"
+ },
+ "johnburns": {
+  "name": "John Burns",
+  "office": "Hays County Justice of the Peace \u2014 Precinct 4",
+  "party": "R"
+ },
+ "lizsumtergajdos": {
+  "name": "Liz \"Sumter\" Gajdos",
+  "office": "Hays County Judge",
+  "party": "I"
  },
  "gregcasar": {
   "name": "Greg Casar",
   "office": "U.S. House \u2014 District 37",
-  "party": "D",
-  "stances": 9
+  "party": "D"
  },
  "laurenpea": {
   "name": "Lauren Pe\u00f1a",
   "office": "U.S. House \u2014 District 37",
-  "party": "R",
-  "stances": 8
+  "party": "R"
  },
  "caitlinrourk": {
   "name": "Caitlin Rourk",
   "office": "U.S. House \u2014 District 10",
-  "party": "D",
-  "stances": 6
+  "party": "D"
  },
  "chrisgober": {
   "name": "Chris Gober",
   "office": "U.S. House \u2014 District 10",
-  "party": "R",
-  "stances": 6
+  "party": "R"
  },
  "johnnygarcia": {
   "name": "Johnny Garcia",
   "office": "U.S. House \u2014 District 35",
-  "party": "D",
-  "stances": 4
+  "party": "D"
  },
  "carlosdelacruz": {
   "name": "Carlos De La Cruz",
   "office": "U.S. House \u2014 District 35",
-  "party": "R",
-  "stances": 5
+  "party": "R"
  },
  "montserratgaribay": {
   "name": "Montserrat Garibay",
   "office": "TX State House \u2014 District 49",
-  "party": "D",
-  "stances": 9
+  "party": "D"
  },
  "arshiapapari": {
   "name": "Arshia Papari",
   "office": "TX State House \u2014 District 49",
-  "party": "G",
-  "stances": 9
+  "party": "G"
  },
  "andybrown": {
   "name": "Andy Brown",
   "office": "Travis County Judge",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "dyanalimonmercado": {
   "name": "Dyana Limon-Mercado",
   "office": "Travis County Clerk",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "velvaprice": {
   "name": "Velva Price",
   "office": "Travis County District Clerk",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "doloresortegacarter": {
   "name": "Dolores Ortega Carter",
   "office": "Travis County Treasurer",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "tanisajeffers": {
   "name": "Tanisa Jeffers",
   "office": "Travis County Justice of the Peace \u2014 Precinct 5",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "toddwong": {
   "name": "Todd Wong",
   "office": "Travis County Court at Law No. 1",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "lesliedippel": {
   "name": "Leslie Dippel",
   "office": "Travis County Court at Law No. 2",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "biancagarcia": {
   "name": "Bianca Garcia",
   "office": "Travis County Court at Law No. 3",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "dimplemalhotra": {
   "name": "Dimple Malhotra",
   "office": "Travis County Court at Law No. 4",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "maryannespiritu": {
   "name": "Mary Ann Espiritu",
   "office": "Travis County Court at Law No. 5",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "denisehernndez": {
   "name": "Denise Hern\u00e1ndez",
   "office": "Travis County Court at Law No. 6",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "elisabethaearle": {
   "name": "Elisabeth A. Earle",
   "office": "Travis County Court at Law No. 7",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "guyherman": {
   "name": "Guy Herman",
   "office": "Travis County Probate Court No. 1",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "judithzaffirini": {
   "name": "Judith Zaffirini",
   "office": "TX State Senate \u2014 District 21",
-  "party": "D",
-  "stances": 9
+  "party": "D"
  },
  "sherylcole": {
   "name": "Sheryl Cole",
   "office": "TX State House \u2014 District 46",
-  "party": "D",
-  "stances": 9
+  "party": "D"
  },
  "marialuisaflores": {
   "name": "Maria Luisa Flores",
   "office": "TX State House \u2014 District 51",
-  "party": "D",
-  "stances": 9
+  "party": "D"
  },
  "jessicamartinez": {
   "name": "Jessica Martinez",
   "office": "TX State House \u2014 District 51",
-  "party": "R",
-  "stances": 0
+  "party": "R"
  },
  "brigidshea": {
   "name": "Brigid Shea",
   "office": "Travis County Commissioner \u2014 Precinct 2",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "poojasethi": {
   "name": "Pooja Sethi",
   "office": "TX State House \u2014 District 47",
-  "party": "D",
-  "stances": 9
+  "party": "D"
  },
  "jennifermushtaler": {
   "name": "Jennifer Mushtaler",
   "office": "TX State House \u2014 District 47",
-  "party": "R",
-  "stances": 0
+  "party": "R"
  },
  "donnahoward": {
   "name": "Donna Howard",
   "office": "TX State House \u2014 District 48",
-  "party": "D",
-  "stances": 9
+  "party": "D"
  },
  "anthonygupta": {
   "name": "Anthony Gupta",
   "office": "TX State House \u2014 District 48",
-  "party": "R",
-  "stances": 0
+  "party": "R"
  },
  "samanthalopezresendez": {
   "name": "Samantha Lopez-Resendez",
   "office": "TX State House \u2014 District 50",
-  "party": "D",
-  "stances": 9
+  "party": "D"
  },
  "howardolseniv": {
   "name": "Howard Olsen IV",
   "office": "TX State House \u2014 District 50",
-  "party": "R",
-  "stances": 0
+  "party": "R"
  },
  "georgemoralesiii": {
   "name": "George Morales III",
   "office": "Travis County Commissioner \u2014 Precinct 4",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "gabrielpadilla": {
   "name": "Gabriel Padilla",
   "office": "Travis County Constable \u2014 Precinct 4",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "ciaraparks": {
   "name": "Ciara Parks",
   "office": "Travis County Justice of the Peace \u2014 Precinct 1",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "marielkelley": {
   "name": "Mariel Kelley",
   "office": "Travis County Justice of the Peace \u2014 Precinct 2",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "sylviaholmes": {
   "name": "Sylvia Holmes",
   "office": "Travis County Justice of the Peace \u2014 Precinct 3",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "ralarturogonzlez": {
   "name": "Ra\u00fal Arturo Gonz\u00e1lez",
   "office": "Travis County Justice of the Peace \u2014 Precinct 4",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "amyclarkmeachum": {
   "name": "Amy Clark Meachum",
   "office": "Travis County District Court \u2014 201st",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
- "karincrump": {
-  "name": "Karin Crump",
+ "kennonwooten": {
+  "name": "Kennon Wooten",
   "office": "Travis County District Court \u2014 250th",
-  "party": "D",
-  "stances": 0
- },
- "kennonlilywooten": {
-  "name": "Kennon Lily Wooten",
-  "office": "Travis County District Court \u2014 250th",
-  "party": "R",
-  "stances": 0
+  "party": "D"
  },
  "danielladesetalyttle": {
   "name": "Daniella Deseta Lyttle",
   "office": "Travis County District Court \u2014 261st",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "karensage": {
   "name": "Karen Sage",
   "office": "Travis County District Court \u2014 299th",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "chantaleldridge": {
   "name": "Chantal Eldridge",
   "office": "Travis County District Court \u2014 331st",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "brandymueller": {
   "name": "Brandy Mueller",
   "office": "Travis County District Court \u2014 403rd",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "catherinemauzy": {
   "name": "Catherine Mauzy",
   "office": "Travis County District Court \u2014 419th",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "laurieeiserloh": {
   "name": "Laurie Eiserloh",
   "office": "Travis County District Court \u2014 455th",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  },
  "mayaguerragamble": {
   "name": "Maya Guerra Gamble",
   "office": "Travis County District Court \u2014 459th",
-  "party": "D",
-  "stances": 0
+  "party": "D"
  }
 }
