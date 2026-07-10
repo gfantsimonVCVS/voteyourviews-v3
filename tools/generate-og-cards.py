@@ -137,45 +137,35 @@ body {{ width:1200px; height:630px; overflow:hidden; position:relative; }}
 </div>
 </body></html>"""
 
-def build_edit_html(cand, photo_b64, header_b64):
-    """Lean invitation card for /<slug>/edit — photo + name + the invite, none of the issue busyness."""
-    p_label, p_color, p_bg, p_text = PARTY.get(cand['party'], PARTY_OTHER)
-    name_size = 82 if len(cand['name']) <= 16 else (66 if len(cand['name']) <= 22 else 54)
-    return f'''<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Inter:wght@600;700&display=swap" rel="stylesheet"/>
+def build_edit_html(cand, photo_b64, plate_b64):
+    """Edit-invite card on Gina's party plates (DemEdit/RepEdit/IndEdit): the plate carries
+    "CLICK TO EDIT YOUR PROFILE"; we add the name band (party color, Anton white, width-adaptive),
+    "AT VOTEYOURVIEWS.ORG", and the candidate photo pinned bottom-right."""
+    band_colors = {'D': '#2FA3DC', 'R': '#C0392B'}
+    band = band_colors.get(cand['party'], '#64748B')
+    # "at VoteYourViews.org" matches the plate's ink: navy for D/R, gray on the Independent plate
+    at_color = '#0A2870' if cand['party'] in band_colors else '#64748B'
+    name = cand['name']
+    name_size = 64 if len(name) <= 14 else (52 if len(name) <= 20 else 42)
+    return f"""<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet"/>
 <style>
 * {{ margin:0; padding:0; box-sizing:border-box; }}
-body {{ width:1200px; height:630px; overflow:hidden; font-family:'Inter',sans-serif; display:flex; flex-direction:column;
-  background: linear-gradient(160deg,#0f172a 0%,#020617 100%); color:#fff; }}
-.band img {{ width:100%; display:block; }}
-.main {{ flex:1; display:flex; align-items:center; gap:56px; padding:0 80px; }}
-.photo-wrap {{ flex-shrink:0; width:300px; }}
-.photo {{ width:300px; height:300px; border-radius:32px; object-fit:cover; object-position:top; display:block; background:#1e293b;
-  border:5px solid {p_color}; box-shadow:0 24px 60px rgba(0,0,0,0.65), 0 0 44px {p_bg}; }}
-.party {{ margin:16px auto 0; width:fit-content; padding:6px 18px; border-radius:999px; background:{p_bg};
-  border:1.5px solid {p_color}; color:{p_text}; font-weight:800; font-size:17px; letter-spacing:0.12em; text-transform:uppercase; }}
-.info {{ flex:1; min-width:0; }}
-h1 {{ font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:{name_size}px; line-height:0.98;
-  text-transform:uppercase; letter-spacing:0.01em; margin-bottom:22px; }}
-.invite {{ font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:47px; line-height:1.05; text-transform:uppercase;
-  letter-spacing:0.02em; margin-bottom:20px;
-  background:linear-gradient(100deg,#d97706,#fbbf24 40%,#fff7d6 55%,#fbbf24 70%,#d97706);
-  -webkit-background-clip:text; background-clip:text; color:transparent; }}
-.cta {{ font-size:24px; font-weight:700; color:#cbd5e1; }}
+body {{ width:1200px; height:630px; overflow:hidden; position:relative; font-family:'Anton',sans-serif; }}
+.plate {{ position:absolute; inset:0; width:1200px; height:630px; }}
+.photo {{ position:absolute; right:24px; bottom:0; height:560px; z-index:2;
+  filter: drop-shadow(0 12px 30px rgba(0,0,0,0.35)); }}
+.band {{ position:absolute; left:88px; top:330px; z-index:3; background:{band};
+  padding:18px 34px; }}
+.band .nm {{ color:#fff; font-size:{name_size}px; letter-spacing:0.04em; text-transform:uppercase; line-height:1; }}
+.at {{ position:absolute; left:92px; top:472px; z-index:3; color:{at_color};
+  font-size:38px; letter-spacing:0.05em; text-transform:uppercase; }}
 </style></head><body>
-<div class="band"><img src="{header_b64}"/></div>
-<div class="main">
-  <div class="photo-wrap">
-    <img class="photo" src="{photo_b64}"/>
-    <div class="party">{p_label}</div>
-  </div>
-  <div class="info">
-    <h1>{cand['name']}</h1>
-    <div class="invite">You're invited to edit<br/>your candidate profile</div>
-    <div class="cta">Your photo, your words, where you stand &mdash; speak for yourself.</div>
-  </div>
-</div>
-</body></html>'''
+<img class="plate" src="{plate_b64}"/>
+<img class="photo" src="{photo_b64}"/>
+<div class="band"><div class="nm">{name}</div></div>
+<div class="at">at VoteYourViews.org</div>
+</body></html>"""
 
 def render(html, out):
     with tempfile.NamedTemporaryFile('w', suffix='.html', delete=False) as f:
@@ -194,8 +184,8 @@ OG_PHOTO_OVERRIDES = {}
 def main():
     only = canonical_slug(sys.argv[1]) if len(sys.argv) > 1 else None
     os.makedirs(OUT_DIR, exist_ok=True)
-    header_b64 = b64_file(os.path.join(ROOT, 'icons', 'VoteYourViews_Header2.png'))
     plate_b64 = b64_file(os.path.join(ROOT, 'icons', 'og-candidate-plate.png'))
+    edit_plates = {p: b64_file(os.path.join(ROOT, 'icons', f'{n}Edit.png')) for p, n in (('D', 'Dem'), ('R', 'Rep'), ('I', 'Ind'))}
 
     seen, manifest = set(), {}
     for tab in TABS:
@@ -219,7 +209,7 @@ def main():
             except Exception as e:
                 print(f'  ! cutout failed for {name} ({e}) — using photo as-is')
             ok = render(build_html(cand, photo, plate_b64), os.path.join(OUT_DIR, slug + '.png'))
-            ok_edit = render(build_edit_html(cand, photo, header_b64), os.path.join(OUT_DIR, slug + '-edit.png'))
+            ok_edit = render(build_edit_html(cand, photo, edit_plates.get(cand['party'], edit_plates['I'])), os.path.join(OUT_DIR, slug + '-edit.png'))
             print(f'  {"✓" if ok else "✗"} {name} -> og/{slug}.png {"+ edit card" if ok_edit else "(edit card FAILED)"}')
             if ok:
                 manifest[slug] = {'name': name, 'office': cand['office'], 'party': cand['party']}

@@ -259,6 +259,11 @@
   "office": "Hays County District Clerk",
   "party": "D"
  },
+ "cynthiamillonzi": {
+  "name": "Cynthia Millonzi",
+  "office": "Hays County Clerk",
+  "party": "D"
+ },
  "daphnetenorio": {
   "name": "Daphne Tenorio",
   "office": "Hays County Treasurer",
@@ -577,6 +582,11 @@
  "mayaguerragamble": {
   "name": "Maya Guerra Gamble",
   "office": "Travis County District Court \u2014 459th",
+  "party": "D"
+ },
+ "cliffbrown": {
+  "name": "Cliff Brown",
+  "office": "Travis County District Court \u2014 147th",
   "party": "D"
  }
 }
