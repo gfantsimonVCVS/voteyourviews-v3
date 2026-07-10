@@ -3254,7 +3254,7 @@
 
 
 
-    function Results({ county, counties, setCounty, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onBack, onBrowse, onAddress, onRateIssue, initialProfile, clearInitialProfile, focusIssueId, clearFocusIssue }) {
+    function Results({ county, counties, setCounty, onCountyDetected, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onBack, onBrowse, onAddress, onRateIssue, initialProfile, clearInitialProfile, focusIssueId, clearFocusIssue }) {
       const countyData = counties[county];
       const [profileData, setProfileData] = React.useState(null); // { candidate, race }
       // Reopen the candidate profile after returning from a single-issue "rate this" quiz.
@@ -3321,7 +3321,7 @@
           </header>
           {showAddr && (
             <AddressModal county={county} accentColor="#3b82f6" accentColorDark="#1d4ed8"
-              onCountyDetected={handleCountyDetected}
+              onCountyDetected={onCountyDetected}
               onClose={() => { setShowAddr(false); setPendingBallot(false); }}
               onContinue={(districts) => { setUserDistricts(districts); setShowAddr(false); if (pendingBallot) { setPendingBallot(false); onBallot(); } }}
               onShowAll={pendingBallot ? undefined : () => setShowAddr(false)} />
@@ -4188,7 +4188,7 @@
       );
     }
 
-    function Browse({ county, counties, setCounty, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onHome, onBack = onHome, backLabel = '← Home', onRateIssue, initialProfile, clearInitialProfile, focusIssueId, clearFocusIssue }) {
+    function Browse({ county, counties, setCounty, onCountyDetected, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onHome, onBack = onHome, backLabel = '← Home', onRateIssue, initialProfile, clearInitialProfile, focusIssueId, clearFocusIssue }) {
       const countyData = counties[county];
       const [activeTab, setActiveTab] = useState('federal');
       const [showFilterModal, setShowFilterModal] = useState(false);
@@ -4259,7 +4259,7 @@
           </header>
           {showAddr && (
             <AddressModal county={county} accentColor="#3b82f6" accentColorDark="#1d4ed8"
-              onCountyDetected={handleCountyDetected}
+              onCountyDetected={onCountyDetected}
               onClose={() => { setShowAddr(false); setPendingBallot(false); }}
               onContinue={(districts) => { setUserDistricts(districts); setShowAddr(false); if (pendingBallot) { setPendingBallot(false); onBallot(); } }}
               onShowAll={pendingBallot ? undefined : () => setShowAddr(false)} />
@@ -5816,6 +5816,7 @@
             county={county}
             counties={counties}
             setCounty={setCounty}
+            onCountyDetected={handleCountyDetected}
             issues={issues}
             answers={answers}
             ranks={ranks}
@@ -5859,6 +5860,7 @@
             county={county}
             counties={counties}
             setCounty={setCounty}
+            onCountyDetected={handleCountyDetected}
             issues={issues}
             answers={answers}
             ranks={ranks}
