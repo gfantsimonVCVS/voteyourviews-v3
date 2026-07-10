@@ -54,6 +54,10 @@
       background-size: 220% 100%;
       animation: chipShimmer 3.2s ease-in-out infinite, chipNudge 2.4s ease-in-out infinite; }
     @keyframes chipShimmer { 0% { background-position: 110% 0; } 55%, 100% { background-position: -120% 0; } }
+    .callout-drop { animation: calloutDrop .45s cubic-bezier(.22,1,.36,1); }
+    @keyframes calloutDrop { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: translateY(0); } }
+    .soon-pulse { animation: soonPulse 1.8s ease-in-out infinite; }
+    @keyframes soonPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(251,191,36,0); background: transparent; } 50% { box-shadow: 0 0 0 3px rgba(251,191,36,0.35); background: rgba(251,191,36,0.10); } }
     .chip-flip { animation: chipFlip .7s cubic-bezier(.2,.8,.3,1); }
     @keyframes chipFlip { 0% { transform: rotateY(0) scale(1); } 50% { transform: rotateY(180deg) scale(1.3); } 100% { transform: rotateY(360deg) scale(1); } }
     .row-celebrate { animation: rowFlash 1.4s ease-out; }
@@ -452,6 +456,16 @@
     let PHOTO_MANIFEST = new Set();
     const photoSlug = n => n.normalize('NFKD').replace(/[̀-ͯ]/g,'')
       .replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase();
+    // "Home" nav label: house icon (the button jumps to the landing page — it isn't a back-step,
+    // so no arrow). Reused anywhere a header offers Home.
+    const HOME_LABEL = (
+      <span className="inline-flex items-center" title="Home" aria-label="Home">
+        <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/>
+        </svg>
+      </span>
+    );
+
     // Full party names by sheet code. Unknown/blank codes read as Independent.
     const PARTY_NAME = { D: 'Democrat', R: 'Republican', I: 'Independent', L: 'Libertarian', G: 'Green' };
     const partyName = (p) => PARTY_NAME[(p || '').toUpperCase()] || 'Independent';
@@ -1124,20 +1138,6 @@
       return 'B';
     }
 
-    function matchedIssues(candidate, answers, checkedStatements, issues) {
-      return issues.map(issue => {
-        const userChoice = deriveVoterPos(issue.id, answers, checkedStatements);
-        return {
-          ...issue,
-          answered: issue.id in answers && answers[issue.id] !== 'D',
-          matched: userChoice === candidate.positions[issue.id],
-          partial: userChoice === 'B',
-          userChoice,
-          candidateChoice: candidate.positions[issue.id]
-        };
-      }).filter(i => i.answered);
-    }
-
     // Office descriptions use **text** to render that phrase in bold caps
     function formatDescription(text) {
       return text.split(/\*\*(.+?)\*\*/g).map((part, i) =>
@@ -1169,65 +1169,9 @@
       return lines;
     }
 
-    function getInitials(name) {
-      return name.split(' ').filter(w => /^[A-Z]/.test(w)).map(w => w[0]).join('').slice(0, 2);
-    }
-
     // ─────────────────────────────────────────────
     // COMPONENTS
     // ─────────────────────────────────────────────
-
-    function PartyBadge({ party }) {
-      const isD = party === 'D';
-      return (
-        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold tracking-wide ${isD ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'}`}>
-          {isD ? 'Democrat' : 'Republican'}
-        </span>
-      );
-    }
-
-    function AvatarSilhouette({ size, border, hidden }) {
-      const sizes = { sm: 'w-20 h-20', md: 'w-32 h-32', lg: 'w-40 h-40' };
-      return (
-        <div className={`${sizes[size]} rounded-full ${border} bg-slate-200 flex items-center justify-center overflow-hidden`}
-          style={{flexShrink:0, display: hidden ? 'none' : 'flex'}}>
-          <img src="/icons/candidate-undefined.png" alt="No photo"
-            className="w-full h-full object-contain object-bottom" style={{opacity:0.5}} />
-        </div>
-      );
-    }
-
-    function Avatar({ name, photo, party, size = 'md' }) {
-      const sizes = { sm: 'w-20 h-20', md: 'w-32 h-32', lg: 'w-40 h-40' };
-      const border = party === 'D' ? 'border-4 border-blue-500' : party === 'R' ? 'border-4 border-red-500' : 'border-2 border-slate-100';
-      if (photo) {
-        return (
-          <React.Fragment>
-            <img src={photo} alt={name}
-              className={`${sizes[size]} rounded-full object-cover object-top ${border}`}
-              style={{flexShrink:0}}
-              onError={e => { e.target.style.display='none'; e.target.nextElementSibling.style.display='flex'; }} />
-            <AvatarSilhouette size={size} border={border} hidden={true} />
-          </React.Fragment>
-        );
-      }
-      return <AvatarSilhouette size={size} border={border} hidden={false} />;
-    }
-
-    function MatchBar({ score, party }) {
-      const color = party === 'D' ? 'bg-blue-500' : 'bg-red-500';
-      return (
-        <div className="w-full">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-xs text-slate-500 font-medium">Belief match</span>
-            <span className="text-sm font-bold text-slate-800">{score}%</span>
-          </div>
-          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-            <div className={`h-full ${color} rounded-full transition-all duration-700`} style={{ width: `${score}%` }} />
-          </div>
-        </div>
-      );
-    }
 
     // ─── ADDRESS LOOKUP ───
     // Bounds an OPTIONAL lookup so a hanging/slow endpoint can't freeze the address flow.
@@ -1457,14 +1401,8 @@
       const [isSearching, setIsSearching] = useState(false);
       const [error, setError] = useState(null);
       const [districts, setDistricts] = useState(null);
-      const [outOfArea, setOutOfArea] = useState(null);   // county name when unsupported
-      const [matchedAddress, setMatchedAddress] = useState(null); // formatted address Geocodio matched, shown so a bad match is visible
-      const [statewideOffer, setStatewideOffer] = useState(null); // {countyName, districts} — statewide-ballot handoff for uncovered counties
-      const [signupEmail, setSignupEmail] = useState('');
-      const [signupStatus, setSignupStatus] = useState(null); // null|invalid|sending|sent
       // Return from the Wrong County Modal to the main address screen
       function resetToMain() {
-        setOutOfArea(null); setMatchedAddress(null); setStatewideOffer(null); setSignupStatus(null); setSignupEmail('');
         if (inputRef.current) { inputRef.current.value = ''; inputRef.current.style.fontStyle = 'normal'; }
       }
       const inputRef = useRef(null);
@@ -1508,35 +1446,6 @@
         </div>
       ) : null;
 
-      async function handleNotify() {
-        const email = signupEmail.trim();
-        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { setSignupStatus('invalid'); return; }
-        setSignupStatus('sending');
-        try {
-          if (MAILING_LIST_URL) {
-            // Don't let a slow/dead endpoint strand the user on "Adding you…" —
-            // give the request 4s, then move on (no-cors hides the response anyway).
-            await Promise.race([
-              fetch(MAILING_LIST_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({
-                  email,
-                  county: outOfArea || '',
-                  address: (inputRef.current && inputRef.current.value) || '',
-                  source: 'voteyourviews-beta',
-                  ts: new Date().toISOString()
-                })
-              }),
-              new Promise(resolve => setTimeout(resolve, 4000))
-            ]);
-          }
-        } catch (e) { /* no-cors hides the response; treat as sent */ }
-        // Confirm on the button itself, then return to the address screen
-        setSignupStatus('sent');
-        setTimeout(resetToMain, 1800);
-      }
 
       useEffect(() => {
         const GOOGLE_API_KEY = 'AIzaSyCwBv8O4lWqSoZZxH4npofqAeU2C86ejkI';
@@ -1611,23 +1520,27 @@
         }
         const detectedCounty2 = (components.county || '').toLowerCase().replace(' county', '').trim();
         const matchedCounty2 = ['hays', 'travis'].find(k => detectedCounty2.includes(k));
+        if ((components.state || 'TX') !== 'TX') {
+          setError("This guide covers Texas elections — that address looks like it's outside Texas.");
+          setIsSearching(false); return;
+        }
         if (!matchedCounty2) {
-          // County not covered yet — still offer the statewide ballot (the 18 races on every TX
-          // ballot), keyed to the 'texas' pseudo-county, with their real county name on the pill.
+          // County not covered yet — go straight to the ballot anyway ('texas' pseudo-county:
+          // statewide + district races). The results page shows a one-time callout naming the
+          // matched address (bad-geocode safety net) + county-waitlist email signup.
           const f2 = result.fields || {};
           const cd2 = f2.congressional_districts && f2.congressional_districts[0];
           const sl2 = f2.state_legislative_districts || {};
-          setOutOfArea(components.county || 'your area');
-          setMatchedAddress(result.formatted_address || null);
-          setStatewideOffer({
-            countyName: components.county || null,
-            districts: {
-              congressionalDistrict: cd2 ? String(cd2.district_number) : null,
-              stateSenate: sl2.senate && sl2.senate[0] ? String(sl2.senate[0].district_number) : null,
-              stateHouse: sl2.house && sl2.house[0] ? String(sl2.house[0].district_number) : null,
-              commissionerPrecinct: null,
-              jpPrecinct: null
-            }
+          if (onCountyDetected) onCountyDetected('texas', components.county || 'Texas', {
+            countyName: components.county || 'your county',
+            address: result.formatted_address || ''
+          });
+          onContinue({
+            congressionalDistrict: cd2 ? String(cd2.district_number) : null,
+            stateSenate: sl2.senate && sl2.senate[0] ? String(sl2.senate[0].district_number) : null,
+            stateHouse: sl2.house && sl2.house[0] ? String(sl2.house[0].district_number) : null,
+            commissionerPrecinct: null,
+            jpPrecinct: null
           });
           setIsSearching(false); return;
         }
@@ -1681,24 +1594,13 @@
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 pb-4" onClick={onClose}>
           <div className="absolute inset-0" style={{background:'rgba(0,0,0,0.92)'}} />
           <div className="relative w-full max-w-md rounded-2xl overflow-hidden shadow-2xl"
-               style={outOfArea
-                 ? {background:'linear-gradient(160deg,#3b2606,#0f172a 55%)', border:'1.5px solid rgba(251,191,36,0.6)'}
-                 : {background:'linear-gradient(160deg,#1e1b4b,#0f172a)', border:`1.5px solid ${btnColor}66`}}
+               style={{background:'linear-gradient(160deg,#1e1b4b,#0f172a)', border:`1.5px solid ${btnColor}66`}}
                onClick={e => e.stopPropagation()}>
 
             <div className="relative px-6 pt-5 pb-2">
-              <button onClick={outOfArea ? resetToMain : onClose}
+              <button onClick={onClose}
                 className="absolute top-1.5 right-1.5 w-10 h-10 flex items-center justify-center rounded-full text-white text-xl leading-none font-black transition-all hover:brightness-125 active:scale-95"
                 style={{background:'rgba(255,255,255,0.15)', border:'1px solid rgba(255,255,255,0.3)'}}>✕</button>
-              {outOfArea ? (
-                <div className="flex flex-col items-center text-center pt-1">
-                  <img src="/icons/VoteYourViews_Logo_White.png" alt="VoteYourViews.org" className="mb-4" style={{height:'70px', width:'auto'}} />
-                  <h2 className="text-white font-black text-2xl sm:text-3xl leading-tight">
-                    Not available in<br/>
-                    <span className="whitespace-nowrap" style={{color: '#fcd34d'}}>{outOfArea}</span> — <span style={{color: '#ef4444'}}>yet!</span>
-                  </h2>
-                </div>
-              ) : (
                 <div className="flex flex-col items-center text-center pt-1">
                   <img src="/icons/VoteYourViews_Logo_White.png" alt="VoteYourViews.org" className="mb-4" style={{height:'70px', width:'auto'}} />
                   <h2 className="text-white font-black text-3xl leading-tight">
@@ -1706,60 +1608,10 @@
                   </h2>
                   <p className="text-slate-200 text-base mt-2 leading-snug">Enter your address — we'll show you<br/>only the candidates you can vote for.</p>
                 </div>
-              )}
             </div>
 
             <div className="px-6 py-4">
-              {outOfArea ? (
-                  /* Wrong County Modal — address resolved to a county we don't cover yet */
-                  <>
-                    {matchedAddress && (
-                      <p className="text-slate-400 text-sm leading-snug text-center mb-4">
-                        We matched your address to:<br/>
-                        <span className="text-slate-200 font-semibold">{matchedAddress}</span><br/>
-                        Not you? <button onClick={resetToMain} className="underline text-slate-300 hover:text-white">Try a different address</button>
-                      </p>
-                    )}
-                    {statewideOffer && (
-                      <>
-                        <button onClick={() => { if (onCountyDetected) onCountyDetected('texas', statewideOffer.countyName); onContinue(statewideOffer.districts); }}
-                          className="w-full py-3.5 text-white font-black rounded-full text-base mb-2 transition-all uppercase tracking-widest hover:brightness-110 active:scale-[0.98]"
-                          style={{background:'linear-gradient(90deg,#1d4ed8,#2563eb)', letterSpacing:'0.12em', boxShadow:'0 6px 18px rgba(37,99,235,0.4)'}}>
-                          See My Statewide Ballot →
-                        </button>
-                        <p className="text-xs text-slate-400 text-center mb-4">U.S. Senate, Governor &amp; every statewide race — the same on every Texas ballot. Your local {outOfArea} races are coming.</p>
-                      </>
-                    )}
-                    <p className="text-slate-200 text-base leading-relaxed text-center mb-4">
-                      If you want to know when <strong className="text-white">{outOfArea}</strong> is available… 👇
-                    </p>
-                    <input
-                      key="signup-email"
-                      type="email"
-                      value={signupEmail}
-                      onChange={e => { setSignupEmail(e.target.value); if (signupStatus === 'invalid') setSignupStatus(null); }}
-                      placeholder="Enter your email address"
-                      className="w-full px-4 py-3.5 rounded-xl text-base focus:outline-none border-2 mb-4 transition-colors"
-                      style={{background:'#f8fafc', color:'#0f172a', borderColor: signupStatus === 'invalid' ? '#f87171' : 'transparent', boxShadow:'inset 0 1px 3px rgba(0,0,0,0.15)'}}
-                      onFocus={e => { if (signupStatus !== 'invalid') e.currentTarget.style.borderColor = btnColor; }}
-                      onBlur={e => { if (signupStatus !== 'invalid') e.currentTarget.style.borderColor = 'transparent'; }}
-                      onKeyDown={e => e.key === 'Enter' && handleNotify()}
-                    />
-                    {signupStatus === 'invalid' && <p className="text-sm text-red-400 mb-2">Please enter a valid email address.</p>}
-                    <button onClick={handleNotify} disabled={signupStatus === 'sending' || signupStatus === 'sent'}
-                      className="w-full py-3.5 font-black rounded-full text-base mb-2 transition-all uppercase tracking-widest hover:brightness-110 active:scale-[0.98]"
-                      style={signupStatus === 'sent'
-                        ? {background:'linear-gradient(90deg,#059669,#10b981)', color:'#fff', letterSpacing:'0.12em'}
-                        : {background:'linear-gradient(135deg,#fbbf24,#d97706)', color:'#0f172a', letterSpacing:'0.12em', boxShadow:'0 6px 18px rgba(217,119,6,0.4)', opacity: signupStatus === 'sending' ? 0.6 : 1}}>
-                      {signupStatus === 'sent' ? "✓ You're on the list!" : signupStatus === 'sending' ? 'Adding you…' : 'Keep Me Posted →'}
-                    </button>
-                    <p className="text-xs text-slate-500 text-center mb-1">We'll only email you about this guide. No spam, ever.</p>
-                    <button onClick={resetToMain}
-                      className="w-full py-2 text-slate-400 hover:text-white text-sm font-medium transition-colors">
-                      ← Try a different address
-                    </button>
-                  </>
-              ) : !districts ? (
+              {!districts ? (
                 <>
                   <input
                     key="address-search"
@@ -1854,7 +1706,6 @@
       const [confirmReset, setConfirmReset] = useState(false);
       const [hoveredIssue, setHoveredIssue] = useState(null);
       const [showBrowseModal, setShowBrowseModal] = useState(false);
-      const [showBrowseDrop, setShowBrowseDrop] = useState(false);
       const answeredCount = Object.keys(answers).length;
       const issueList = issues.length ? issues : ISSUES;
 
@@ -2611,7 +2462,7 @@
           {/* Header */}
           <div className="border-b border-slate-800 px-4 py-3">
             <div className="max-w-5xl mx-auto flex items-center justify-between">
-              <button onClick={onHome} className="text-sm text-slate-400 hover:text-white font-medium transition-colors">← Home</button>
+              <button onClick={onHome} className="text-sm text-slate-400 hover:text-white font-medium transition-colors">{HOME_LABEL}</button>
               <div className="text-sm font-bold text-white tracking-wide uppercase" style={{fontFamily:"'Barlow Condensed',sans-serif",letterSpacing:'0.1em'}}>Your Views</div>
               <button onClick={onStartOver} className="text-xs text-slate-500 hover:text-red-400 font-medium transition-colors">Start Over</button>
             </div>
@@ -3054,13 +2905,14 @@
           {tabs.map(tab => {
             const isActive = tab.key === activeTab;
             if (tab.comingSoon) return (
-              <div key={tab.key} title={`${tab.label} races for your county are coming soon`}
-                className={`flex items-center justify-center rounded-lg font-black uppercase min-w-0 cursor-default ${isMobile ? 'flex-1 gap-1 py-2 px-0.5 text-[10px] tracking-tight' : 'gap-1.5 px-2.5 lg:px-5 py-2 text-[12px] lg:text-sm tracking-wide lg:tracking-widest'}`}
-                style={{ background: 'transparent', color: '#64748b' }}>
+              <button key={tab.key} title={`${tab.label} races for your county are coming soon — tap for details`}
+                onClick={() => tab.onComingSoon && tab.onComingSoon()}
+                className={`flex items-center justify-center rounded-lg font-black uppercase min-w-0 transition-all ${tab.pulse ? 'soon-pulse' : 'hover:bg-white/5'} ${isMobile ? 'flex-1 gap-1 py-2 px-0.5 text-[10px] tracking-tight' : 'gap-1.5 px-2.5 lg:px-5 py-2 text-[12px] lg:text-sm tracking-wide lg:tracking-widest'}`}
+                style={{ background: 'transparent', color: '#94a3b8' }}>
                 {!isMobile && CATEGORY_ICON[tab.key] && CATEGORY_ICON[tab.key]('w-4 h-4 shrink-0 hidden lg:block')}
                 <span className="truncate">{tab.label}</span>
                 <span className="shrink-0 normal-case font-bold" style={{ color: '#fbbf24', fontSize: isMobile ? '8px' : '10px' }}>Soon</span>
-              </div>
+              </button>
             );
             return (
               <button key={tab.key} onClick={() => setActiveTab(tab.key)}
@@ -3078,144 +2930,85 @@
       );
     }
 
-    // County switcher — replaces the static "{County} Beta V2" label. Switching clears
-    // any address-narrowed districts (they belong to the prior county) and shows the new
-    // county's full slate — also lets "Keep Exploring" users flip counties freely.
-    // The prominent "{County} Candidates" banner IS the county switcher (replaces the old corner pulldown).
-    // Works in both explore mode and address ("Showing your candidates") mode. Dropdown drops below the banner.
-    function CountyBanner({ county, counties, setCounty, userDistricts, setUserDistricts, onMyCandidates, compact = false }) {
-      const [open, setOpen] = useState(false);
-      const ref = useRef(null);
-      useEffect(() => {
-        if (!open) return;
-        const h = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
-        document.addEventListener('mousedown', h);
-        return () => document.removeEventListener('mousedown', h);
-      }, [open]);
-
-      // 'texas' (the statewide-only pseudo-county) is reachable via address lookup, not the browse list
-      const entries = Object.keys(counties).filter(key => key !== 'texas').map(key => {
-        const c = counties[key] || {};
-        const hasRaces = ['federal', 'state', 'county', 'judicial'].some(s => (c[s] || []).length > 0);
-        return { key, name: c.name || key, hasRaces };
-      }).sort((a, b) => (b.hasRaces - a.hasRaces) || a.name.localeCompare(b.name));
-
-      function pick(key) {
-        if (key !== county) { setCounty(key); if (setUserDistricts) setUserDistricts(null); }
-        setOpen(false);
+    // One-time callout shown ON the ballot page when the voter's county has no local data
+    // yet: confirms the matched address (bad-geocode safety net), points at the County "Soon"
+    // tab, and takes a waitlist email — the ballot itself is never gated behind it.
+    function UncoveredCountyCallout({ notice, onDismiss, onChangeAddress }) {
+      const [email, setEmail] = useState('');
+      const [status, setStatus] = useState(null); // null|invalid|sending|sent
+      async function submit() {
+        const v = email.trim();
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { setStatus('invalid'); return; }
+        setStatus('sending');
+        try {
+          if (MAILING_LIST_URL) await Promise.race([
+            fetch(MAILING_LIST_URL, { method: 'POST', mode: 'no-cors',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify({ email: v, county: notice.countyName, address: notice.address, source: 'voteyourviews-beta', ts: new Date().toISOString() }) }),
+            new Promise(r => setTimeout(r, 4000))
+          ]);
+        } catch (e) {}
+        setStatus('sent');
+        setTimeout(onDismiss, 1600);
       }
-
-      const name = (counties[county] && counties[county].name) || 'County';
-      const chevron = <svg className={`w-4 h-4 shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth={2.6} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/></svg>;
-
-      if (compact) {
-        // Quiet one-line context chip: "📍 Hays County · Change" — same dropdown below
-        return (
-          <div ref={ref} className="relative inline-block">
-            <button onClick={() => setOpen(o => !o)} title={userDistricts ? 'Showing your ballot — tap to change' : 'Tap to change county'}
-              className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all hover:bg-white/10 whitespace-nowrap"
-              style={{color:'#94a3b8', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.12)'}}>
-              <svg className="w-4 h-4 shrink-0" style={{color: county === 'texas' ? '#f87171' : userDistricts ? '#4ade80' : '#60a5fa'}} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
-              <span className="text-white">{name}</span>
-              {chevron}
-            </button>
-            {open && (
-              <div className="absolute left-0 mt-2 z-50 w-64 rounded-xl overflow-hidden"
-                style={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.14)', boxShadow: '0 12px 30px rgba(0,0,0,0.5)' }}>
-                {onMyCandidates && (
-                  <button onClick={() => { onMyCandidates(); setOpen(false); }}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-left transition-all hover:brightness-110"
-                    style={{ color: '#fff', background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)', borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-sm font-black leading-tight">Enter your address</div>
-                      <div className="text-[11px] font-medium leading-tight mt-0.5" style={{ color: 'rgba(255,255,255,0.8)' }}>See only the candidates you can vote for</div>
-                    </div>
-                  </button>
-                )}
-                {userDistricts && (
-                  <button onClick={() => { setUserDistricts(null); setOpen(false); onMyCandidates && onMyCandidates(); }}
-                    className="w-full px-4 py-2.5 text-left text-xs font-black uppercase tracking-widest transition-colors hover:bg-white/5"
-                    style={{ color: '#f87171' }}>
-                    ✕ Clear my address filter
-                  </button>
-                )}
-                <div className="px-4 pt-3 pb-1 text-[9px] font-bold uppercase tracking-wider" style={{ color: '#64748b' }}>Or browse a county</div>
-                {entries.map(e => e.hasRaces ? (
-                  <button key={e.key} onClick={() => pick(e.key)}
-                    className="w-full flex items-center justify-between gap-3 px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-colors text-left hover:bg-white/5"
-                    style={{ color: e.key === county ? '#fff' : '#cbd5e1' }}>
-                    <span>{e.name}</span>
-                    {e.key === county && <svg className="w-4 h-4 shrink-0" style={{ color: '#4ade80' }} fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>}
-                  </button>
-                ) : (
-                  <div key={e.key} className="flex items-center justify-between gap-3 px-4 py-2.5 text-xs font-black uppercase tracking-widest"
-                    style={{ color: '#475569' }}>
-                    <span>{e.name}</span>
-                    <span className="text-[9px] font-bold tracking-wider" style={{ color: '#64748b' }}>Soon</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        );
-      }
-
       return (
-        <div ref={ref} className="relative flex-1">
-          {userDistricts ? (
-            <div onClick={() => setOpen(o => !o)}
-              className="h-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 cursor-pointer hover:-translate-y-0.5"
-              style={{background:'linear-gradient(135deg, rgba(22,163,74,0.30), rgba(20,83,45,0.18))', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', border:'1px solid rgba(134,239,172,0.35)', boxShadow:'0 8px 22px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.18)', color:'#fff'}}>
-              <svg className="w-5 h-5 shrink-0" style={{color: county === 'texas' ? '#f87171' : '#4ade80'}} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
-              <div className="min-w-0">
-                <div className="text-[10px] font-bold uppercase tracking-widest" style={{color:'rgba(255,255,255,0.7)'}}>Showing your candidates</div>
-                <div className="text-sm font-black uppercase tracking-wide truncate">{name}</div>
-              </div>
-              {chevron}
-              <button onClick={(e) => { e.stopPropagation(); setUserDistricts(null); onMyCandidates && onMyCandidates(); }} className="ml-auto text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shrink-0" style={{background:'rgba(255,255,255,0.18)', color:'#fff'}}>✕ Clear</button>
+        <div className="relative z-30 flex justify-center px-3 mt-3">
+          <div className="callout-drop w-full max-w-md rounded-2xl px-7 py-6 relative"
+            style={{background:'linear-gradient(160deg,#3b2606 0%,#1e293b 45%,#0f172a 100%)', border:'1.5px solid rgba(251,191,36,0.65)', boxShadow:'0 14px 44px rgba(0,0,0,0.65), 0 0 24px rgba(251,191,36,0.12)'}}>
+            <button onClick={onDismiss} aria-label="Dismiss"
+              className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center rounded-full text-white text-base font-black hover:brightness-125 active:scale-95"
+              style={{background:'rgba(255,255,255,0.12)', border:'1px solid rgba(255,255,255,0.25)'}}>✕</button>
+            <p className="text-[11px] text-slate-400 leading-relaxed mb-3.5 pr-8">
+              Ballot for <span className="text-slate-200 font-semibold">{notice.address}</span> — not you?{' '}
+              <button onClick={onChangeAddress} className="underline text-slate-300 hover:text-white">Change address</button>
+            </p>
+            <p className="text-white text-base font-bold leading-relaxed mb-1.5">
+              <span className="inline-block animate-bounce mr-2 text-3xl align-middle">☝</span>
+              All candidates are here except your local races.
+            </p>
+            <p className="text-lg font-black leading-relaxed mb-2.5">
+              <span style={{color:'#fbbf24'}}>{(notice.countyName || '').toUpperCase()}</span>
+              <span className="text-white"> is coming soon.</span>
+            </p>
+            <p className="text-slate-300 text-sm leading-relaxed mb-4">Want an email the day they land?</p>
+            <div className="flex gap-2">
+              <input type="email" value={email} placeholder="your email"
+                onChange={e => { setEmail(e.target.value); if (status === 'invalid') setStatus(null); }}
+                onKeyDown={e => e.key === 'Enter' && submit()}
+                className="flex-1 min-w-0 px-3 py-2 rounded-lg text-sm focus:outline-none border-2"
+                style={{background:'#f8fafc', color:'#0f172a', borderColor: status === 'invalid' ? '#f87171' : 'transparent'}} />
+              <button onClick={submit} disabled={status === 'sending' || status === 'sent'}
+                className="shrink-0 px-3.5 py-2 font-black rounded-lg text-xs uppercase tracking-wider transition-all hover:brightness-110 active:scale-95"
+                style={status === 'sent'
+                  ? {background:'linear-gradient(90deg,#059669,#10b981)', color:'#fff'}
+                  : {background:'linear-gradient(135deg,#fbbf24,#d97706)', color:'#0f172a', opacity: status === 'sending' ? 0.6 : 1}}>
+                {status === 'sent' ? "✓ On the list!" : status === 'sending' ? '…' : 'Keep me posted'}
+              </button>
             </div>
-          ) : (
-            <button onClick={() => setOpen(o => !o)}
-              className="w-full h-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99] text-left"
-              style={{background:'linear-gradient(135deg, rgba(37,99,235,0.22), rgba(30,58,138,0.12))', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', border:'1px solid rgba(147,197,253,0.28)', boxShadow:'0 8px 22px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.18)', color:'#fff'}}>
-              <svg className="w-5 h-5 shrink-0" style={{color: county === 'texas' ? '#f87171' : '#60a5fa'}} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
-              <div className="text-sm font-black uppercase tracking-wide truncate">{name} Candidates</div>
-              <span className="ml-auto">{chevron}</span>
-            </button>
-          )}
-          {open && (
-            <div className="absolute left-0 mt-2 z-50 w-full min-w-[240px] rounded-xl overflow-hidden"
-              style={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.14)', boxShadow: '0 12px 30px rgba(0,0,0,0.5)' }}>
-              {onMyCandidates && (
-                <button onClick={() => { onMyCandidates(); setOpen(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-all hover:brightness-110"
-                  style={{ color: '#fff', background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)', borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
-                  <svg className="w-5 h-5 shrink-0" style={{ color: '#fff' }} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-sm font-black leading-tight">Enter your address</div>
-                    <div className="text-[11px] font-medium leading-tight mt-0.5" style={{ color: 'rgba(255,255,255,0.8)' }}>See only the candidates you can vote for</div>
-                  </div>
-                  <svg className="w-4 h-4 shrink-0" style={{ color: 'rgba(255,255,255,0.9)' }} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
-                </button>
-              )}
-              <div className="px-4 pt-3 pb-1 text-[9px] font-bold uppercase tracking-wider" style={{ color: '#64748b' }}>Or browse a county</div>
-              {entries.map(e => e.hasRaces ? (
-                <button key={e.key} onClick={() => pick(e.key)}
-                  className="w-full flex items-center justify-between gap-3 px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-colors text-left hover:bg-white/5"
-                  style={{ color: e.key === county ? '#fff' : '#cbd5e1' }}>
-                  <span>{e.name}</span>
-                  {e.key === county && <svg className="w-4 h-4 shrink-0" style={{ color: '#4ade80' }} fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>}
-                </button>
-              ) : (
-                <div key={e.key} className="flex items-center justify-between gap-3 px-4 py-2.5 text-xs font-black uppercase tracking-widest"
-                  style={{ color: '#475569' }}>
-                  <span>{e.name}</span>
-                  <span className="text-[9px] font-bold tracking-wider" style={{ color: '#64748b' }}>Soon</span>
-                </div>
-              ))}
-            </div>
-          )}
+            {status === 'invalid' && <p className="text-[11px] text-red-400 mt-1">Please enter a valid email address.</p>}
+          </div>
         </div>
+      );
+    }
+
+    // County reader — shows WHERE the voter's ballot is from; not a picker. Green pin =
+    // county fully covered; amber pin = partial coverage (statewide races only, locals coming).
+    // The only action is opening the address modal; county changes flow from there.
+    function CountyBanner({ county, counties, onMyCandidates }) {
+      const name = (counties[county] && counties[county].name) || 'County';
+      const partial = county === 'texas';
+      const pinColor = partial ? '#fbbf24' : '#4ade80';
+      return (
+        <button onClick={() => onMyCandidates && onMyCandidates()}
+          title={partial
+            ? `${name}: statewide races now — local races coming soon. Tap to change your address.`
+            : `Your ballot is for ${name}. Tap to change your address.`}
+          className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all hover:bg-white/10 whitespace-nowrap"
+          style={{color:'#94a3b8', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.12)'}}>
+          <svg className="w-4 h-4 shrink-0" style={{color: pinColor}} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
+          <span className="text-white truncate max-w-[120px] lg:max-w-[170px]">{name}</span>
+          <span className="text-[9px] font-black uppercase tracking-wider shrink-0" style={{color:'#64748b'}}>change</span>
+        </button>
       );
     }
 
@@ -3254,7 +3047,7 @@
 
 
 
-    function Results({ county, counties, setCounty, onCountyDetected, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onBack, onBrowse, onAddress, onRateIssue, initialProfile, clearInitialProfile, focusIssueId, clearFocusIssue }) {
+    function Results({ county, counties, setCounty, onCountyDetected, uncoveredNotice, onDismissNotice, onReopenNotice, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onBack, onBrowse, onAddress, onRateIssue, initialProfile, clearInitialProfile, focusIssueId, clearFocusIssue }) {
       const countyData = counties[county];
       const [profileData, setProfileData] = React.useState(null); // { candidate, race }
       // Reopen the candidate profile after returning from a single-issue "rate this" quiz.
@@ -3286,7 +3079,9 @@
         { key: 'state',    label: 'State' },
         { key: 'county',   label: 'County' },
         { key: 'judicial', label: 'Judicial' },
-      ].map(t => ({ ...t, count: filterRacesByDistrict(countyData[t.key] || [], userDistricts).length, comingSoon: county === 'texas' && t.key === 'county' }));
+      ].map(t => ({ ...t, count: filterRacesByDistrict(countyData[t.key] || [], userDistricts).length, comingSoon: county === 'texas' && t.key === 'county',
+        pulse: county === 'texas' && t.key === 'county' && uncoveredNotice && !uncoveredNotice.dismissed,
+        onComingSoon: onReopenNotice }));
 
       return (
         <React.Fragment>
@@ -3298,7 +3093,7 @@
             <div className="lg:hidden px-4 py-3">
               <div className="flex items-center justify-between gap-2">
                 <button onClick={onBack} className="text-sm font-medium flex items-center gap-1 shrink-0" style={{color:'#94a3b8'}}>← Back</button>
-                <CountyBanner compact county={county} counties={counties} setCounty={setCounty} userDistricts={userDistricts} setUserDistricts={setUserDistricts} onMyCandidates={() => setShowAddr(true)} />
+                <CountyBanner county={county} counties={counties} onMyCandidates={() => setShowAddr(true)} />
                 <BetaChip />
               </div>
               <div className="mt-3">
@@ -3315,10 +3110,14 @@
                 <CategoryTabs tabs={TABS} activeTab={activeTab} setActiveTab={setActiveTab} size="desktop" />
               </div>
               <div className="absolute right-8">
-                <CountyBanner compact county={county} counties={counties} setCounty={setCounty} userDistricts={userDistricts} setUserDistricts={setUserDistricts} onMyCandidates={() => setShowAddr(true)} />
+                <CountyBanner county={county} counties={counties} onMyCandidates={() => setShowAddr(true)} />
               </div>
             </div>
           </header>
+          {county === 'texas' && uncoveredNotice && !uncoveredNotice.dismissed && !showAddr && (
+            <UncoveredCountyCallout notice={uncoveredNotice} onDismiss={onDismissNotice}
+              onChangeAddress={() => setShowAddr(true)} />
+          )}
           {showAddr && (
             <AddressModal county={county} accentColor="#3b82f6" accentColorDark="#1d4ed8"
               onCountyDetected={onCountyDetected}
@@ -3549,113 +3348,7 @@
       );
     }
 
-    function RaceResultCard({ race, answers, ranks, checkedStatements, issues, selected, onSelect, expanded, onToggle }) {
-      const candidates = race.candidates.filter(Boolean);
-      // Best match across ALL candidates (races can have 3+: D/R plus independents or third parties)
-      const scored = candidates.map(c => ({ c, s: calcMatch(c, answers, checkedStatements, ranks) })).filter(x => x.s !== null);
-      const recommended = scored.length >= 2 ? scored.reduce((a, b) => (b.s > a.s ? b : a)).c.name : null;
-      const currentSelected = selected[race.office];
-
-      return (
-        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-          {/* Race header */}
-          <button
-            onClick={onToggle}
-            className="w-full px-5 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors text-left"
-          >
-            <div>
-              <div className="font-bold text-slate-900 text-sm">{race.office}</div>
-              {currentSelected && (
-                <div className="text-xs text-slate-500 mt-0.5 flex items-center gap-1">
-                  <span className="text-emerald-600">✓</span> {currentSelected}
-                </div>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              {currentSelected && (
-                <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">Selected</span>
-              )}
-              <svg className={`w-4 h-4 text-slate-400 transition-transform ${expanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </button>
-
-          {/* Candidates side by side */}
-          {expanded && (
-            <div className="border-t border-slate-100 p-4 fade-in">
-              <p className="text-xs text-slate-500 mb-4">{formatDescription(race.description)}</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {candidates.map(candidate => {
-                  const score = calcMatch(candidate, answers, checkedStatements, ranks);
-                  const isSelected = currentSelected === candidate.name;
-                  const isRecommended = recommended === candidate.name;
-                  const matched = matchedIssues(candidate, answers, checkedStatements, issues);
-                  return (
-                    <button
-                      key={candidate.name}
-                      onClick={() => onSelect(race.office, candidate.name)}
-                      className={`text-left p-4 rounded-xl border-2 transition-all ${
-                        isSelected
-                          ? 'border-slate-900 bg-slate-50'
-                          : 'border-slate-200 hover:border-slate-300'
-                      }`}
-                    >
-                      {isRecommended && (
-                        <div className="text-xs font-bold text-emerald-700 mb-2 flex items-center gap-1">
-                          ✦ Best match
-                        </div>
-                      )}
-                      <div className="flex items-center gap-2 mb-2">
-                        <Avatar name={candidate.name} photo={candidate.photo} party={candidate.party} size="sm" />
-                        <div>
-                          <div className="font-bold text-slate-900 text-xs leading-tight">{candidate.name}</div>
-                          <PartyBadge party={candidate.party} />
-                        </div>
-                      </div>
-                      {score !== null && <MatchBar score={score} party={candidate.party} />}
-                      <p className="text-xs text-slate-500 mt-3 leading-relaxed">{candidate.summary}</p>
-                      {!candidate.confirmed && (
-                        <p className="text-xs text-amber-600 mt-2 font-medium">⚠ Nominee pending confirmation</p>
-                      )}
-                      {/* Issue breakdown — matches first, then mismatches */}
-                      <div className="mt-3 space-y-1">
-                        {[...matched].sort((a,b) => (b.matched ? 2 : b.userChoice==='B' ? 1 : 0) - (a.matched ? 2 : a.userChoice==='B' ? 1 : 0)).slice(0, 4).map(issue => (
-                          <div key={issue.id} className="flex items-center gap-1.5 text-xs">
-                            <span className={issue.matched ? 'text-emerald-500' : issue.userChoice==='B' ? 'text-amber-500' : 'text-red-400'}>
-                              {issue.matched ? '✓' : issue.userChoice==='B' ? '~' : '✗'}
-                            </span>
-                            <span className={issue.matched ? 'text-slate-700' : issue.userChoice==='B' ? 'text-slate-600' : 'text-slate-400'}>{issue.topic}</span>
-                          </div>
-                        ))}
-                        {matched.length > 4 && (
-                          <div className="text-xs text-slate-400">+{matched.length - 4} more issues</div>
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-      );
-    }
-
     // ─── BROWSE ───
-    const SECTION_META = {
-      federal:  { img: '/icons/Federal.png', accent: 'from-[#0f172a] to-[#1e3a5f]' },
-      state:    { img: '/icons/State.png',   accent: 'from-[#1a1a2e] to-[#16213e]' },
-      county:   { img: '/icons/County.png',   accent: 'from-[#1a1a2e] to-[#0f3460]' },
-      judicial: { img: '/icons/Judicial.png', accent: 'from-[#1a1a2e] to-[#2d1b69]' },
-    };
-
-    // Office definitions — educational context shown in the race header
-    const POS_COLOR  = { A:'text-blue-700',    B:'text-purple-700',    C:'text-red-700',    D:'text-slate-400' };
-    const POS_BG     = { A:'bg-blue-50 border-blue-200',  B:'bg-purple-50 border-purple-200', C:'bg-red-50 border-red-200', D:'bg-slate-50 border-slate-200' };
-    const POS_DOT    = { A:'bg-blue-500',  B:'bg-purple-500',  C:'bg-red-500',  D:'bg-slate-300' };
-    const POS_LABEL  = { A:'Liberal', B:'Moderate', C:'Conservative', D:'N/A' };
-
     // ── Candidate quote/profile sheet ──────────────────────────────────────
     function SourcesModal({ onClose }) {
       return (
@@ -4188,7 +3881,7 @@
       );
     }
 
-    function Browse({ county, counties, setCounty, onCountyDetected, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onHome, onBack = onHome, backLabel = '← Home', onRateIssue, initialProfile, clearInitialProfile, focusIssueId, clearFocusIssue }) {
+    function Browse({ county, counties, setCounty, onCountyDetected, uncoveredNotice, onDismissNotice, onReopenNotice, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onHome, onBack = onHome, backLabel = 'home', onRateIssue, initialProfile, clearInitialProfile, focusIssueId, clearFocusIssue }) {
       const countyData = counties[county];
       const [activeTab, setActiveTab] = useState('federal');
       const [showFilterModal, setShowFilterModal] = useState(false);
@@ -4223,9 +3916,10 @@
             : { grad: 'linear-gradient(90deg,#7e22ce,#9333ea)', border: '#c084fc', glow: 'rgba(147,51,234,0.45)' };
       const tabsWithCounts = TABS.map(tab => {
         const tabRaces = filterRacesByDistrict(countyData[tab.key] || [], userDistricts);
-        return { ...tab, count: tabRaces.length, comingSoon: county === 'texas' && tab.key === 'county' };
+        return { ...tab, count: tabRaces.length, comingSoon: county === 'texas' && tab.key === 'county',
+          pulse: county === 'texas' && tab.key === 'county' && uncoveredNotice && !uncoveredNotice.dismissed,
+          onComingSoon: onReopenNotice };
       });
-      const [showHeaderDrop, setShowHeaderDrop] = useState(false);
 
       return (
         <div className="min-h-screen" style={{background:'linear-gradient(160deg,#1e1b4b 0%,#0f172a 60%,#0c1a2e 100%)'}}>
@@ -4234,8 +3928,8 @@
             {/* Mobile: stacked layout */}
             <div className="md:hidden px-4 py-3">
               <div className="flex items-center justify-between gap-2">
-                <button onClick={onBack} className="text-sm text-slate-400 hover:text-white font-medium flex items-center gap-1 transition-colors shrink-0">{backLabel}</button>
-                <CountyBanner compact county={county} counties={counties} setCounty={setCounty} userDistricts={userDistricts} setUserDistricts={setUserDistricts} onMyCandidates={() => setShowAddr(true)} />
+                <button onClick={onBack} className="text-sm text-slate-400 hover:text-white font-medium flex items-center gap-1 transition-colors shrink-0">{backLabel === 'home' ? HOME_LABEL : backLabel}</button>
+                <CountyBanner county={county} counties={counties} onMyCandidates={() => setShowAddr(true)} />
                 <BetaChip />
               </div>
               <div className="mt-3">
@@ -4246,17 +3940,21 @@
             {/* Desktop: single dark row */}
             <div className="hidden md:flex items-center h-16 px-4 lg:px-8 gap-3">
               <div className="flex items-center gap-2.5 shrink-0">
-                <button onClick={onBack} className="text-sm text-slate-400 hover:text-white font-semibold flex items-center gap-1.5 transition-colors">{backLabel}</button>
+                <button onClick={onBack} className="text-sm text-slate-400 hover:text-white font-semibold flex items-center gap-1.5 transition-colors">{backLabel === 'home' ? HOME_LABEL : backLabel}</button>
                 <BetaChip />
               </div>
               <div className="flex-1 flex justify-center min-w-0">
                 <CategoryTabs tabs={tabsWithCounts} activeTab={activeTab} setActiveTab={setActiveTab} size="desktop" />
               </div>
               <div className="shrink-0">
-                <CountyBanner compact county={county} counties={counties} setCounty={setCounty} userDistricts={userDistricts} setUserDistricts={setUserDistricts} onMyCandidates={() => setShowAddr(true)} />
+                <CountyBanner county={county} counties={counties} onMyCandidates={() => setShowAddr(true)} />
               </div>
             </div>
           </header>
+          {county === 'texas' && uncoveredNotice && !uncoveredNotice.dismissed && !showAddr && (
+            <UncoveredCountyCallout notice={uncoveredNotice} onDismiss={onDismissNotice}
+              onChangeAddress={() => setShowAddr(true)} />
+          )}
           {showAddr && (
             <AddressModal county={county} accentColor="#3b82f6" accentColorDark="#1d4ed8"
               onCountyDetected={onCountyDetected}
@@ -5478,9 +5176,14 @@
       React.useEffect(() => { try { store.setItem('vyv_county', county); } catch(e) {} }, [county]);
       // County detected from an address lookup. For counties we don't cover yet the modal hands
       // us 'texas' (the statewide block) plus the voter's real county name for the header pill.
-      function handleCountyDetected(key, label) {
+      const [uncoveredNotice, setUncoveredNotice] = useState(null); // {countyName, address} — callout on ballot pages
+      function handleCountyDetected(key, label, notice) {
         setCounty(key);
         if (key === 'texas' && label) setCounties(prev => prev.texas ? { ...prev, texas: { ...prev.texas, name: label } } : prev);
+        setUncoveredNotice(key === 'texas' && notice ? { ...notice, dismissed: false } : null);
+        // Keep the voter's real county name on the pill across reloads (the 'texas'
+        // pseudo-county otherwise falls back to its generic label).
+        try { key === 'texas' && label ? store.setItem('vyv_texas_label', label) : store.removeItem('vyv_texas_label'); } catch (e) {}
       }
       React.useEffect(() => { try { userDistricts ? store.setItem('vyv_districts', JSON.stringify(userDistricts)) : store.removeItem('vyv_districts'); } catch(e) {} }, [userDistricts]);
       const [pendingScreen, setPendingScreen] = useState('quiz');
@@ -5594,7 +5297,8 @@
           }
           // "texas" pseudo-county — voters in counties we don't cover yet: all statewide races
           // plus every district race (the voter's address districts narrow them to theirs).
-          builtCounties.texas = { name: 'Texas — Statewide Races', available: true, statewide: [], local: [], ...buildCountyRaces([...statewideRaces, ...districtRaces], []) };
+          const texasLabel = (() => { try { return store.getItem('vyv_texas_label'); } catch (e) { return null; } })();
+          builtCounties.texas = { name: texasLabel || 'Texas', available: true, statewide: [], local: [], ...buildCountyRaces([...statewideRaces, ...districtRaces], []) };
 
           setIssues(builtIssues);
           setCounties(builtCounties);
@@ -5817,6 +5521,9 @@
             counties={counties}
             setCounty={setCounty}
             onCountyDetected={handleCountyDetected}
+            uncoveredNotice={uncoveredNotice}
+            onDismissNotice={() => setUncoveredNotice(n => n && ({ ...n, dismissed: true }))}
+            onReopenNotice={() => setUncoveredNotice(n => n && ({ ...n, dismissed: false }))}
             issues={issues}
             answers={answers}
             ranks={ranks}
@@ -5861,6 +5568,9 @@
             counties={counties}
             setCounty={setCounty}
             onCountyDetected={handleCountyDetected}
+            uncoveredNotice={uncoveredNotice}
+            onDismissNotice={() => setUncoveredNotice(n => n && ({ ...n, dismissed: true }))}
+            onReopenNotice={() => setUncoveredNotice(n => n && ({ ...n, dismissed: false }))}
             issues={issues}
             answers={answers}
             ranks={ranks}
@@ -5872,7 +5582,7 @@
             onBallot={() => { setBallotReturn('browse'); setScreen('ballot'); }}
             onHome={() => setScreen('landing')}
             onBack={() => setScreen(browseReturn)}
-            backLabel={browseReturn === 'landing' ? '← Home' : '← Back'}
+            backLabel={browseReturn === 'landing' ? 'home' : '← Back'}
             onRateIssue={(id, profile) => rateIssueReturn(id, 'browse', profile)}
             initialProfile={reopenProfile}
             clearInitialProfile={() => setReopenProfile(null)}

@@ -37,6 +37,7 @@
         <label class="block text-xs font-semibold text-slate-500 mb-1">County</label>
         <select id="county" class="border border-slate-300 rounded-lg px-3 py-2 text-sm">
           <option value="statewide">★ Statewide (shared by all counties)</option>
+          <option value="districts">★ Districts (U.S. House & TX legislature)</option>
           <option value="hays">Hays</option>
           <option value="travis">Travis</option>
         </select>
@@ -47,7 +48,9 @@
           <option value="">All</option>
           <option value="D">Democrats</option>
           <option value="R">Republicans</option>
+          <option value="L">Libertarian</option>
           <option value="G">Green</option>
+          <option value="I">Independent</option>
         </select>
       </div>
       <div>
@@ -386,12 +389,17 @@ async function ensureManifest(){
 // photos live in per-party folders: images/candidates/<county>/<PARTY>/<slug>.png; statewide/<party>/ is shared
 async function existingProcessed(slug, party){
   const county=$('#county').value;
-  const dirs=[]; const p=(party||'').toUpperCase();
-  if(p){ dirs.push(`${county}/${p}`); dirs.push(`statewide/${p}`); }  // county-local first, then shared statewide
-  dirs.push(county);                                   // legacy/flat fallback
+  const p=(party||'').toUpperCase();
   const m = PHOTO_MANIFEST || new Set();
-  for(const d of dirs){
-    const rel=`${d}/${slug}.png`;
+  const rels=[];
+  if(p){ rels.push(`${county}/${p}/${slug}.png`); rels.push(`statewide/${p}/${slug}.png`); }  // county-local first, then shared
+  rels.push(`${county}/${slug}.png`);                  // legacy/flat fallback
+  // Shared tabs (statewide/districts): the photo may live in ANY county folder
+  // (pre-migration district candidates were photographed per county) — scan the whole manifest.
+  if(county==='statewide'||county==='districts'){
+    for(const rel of m) if(rel.endsWith(`/${p}/${slug}.png`) && !rels.includes(rel)) rels.push(rel);
+  }
+  for(const rel of rels){
     if(!m.has(rel)) continue;                           // not in manifest → skip (no network call)
     try{
       const r=await fetch(`images/candidates/${rel}?t=${Date.now()}`);  // only fetch ones that exist
@@ -456,11 +464,10 @@ const SHEET_ID='1V1oaEy6ToV3LZt0et9bIWEJQbPrYZg73tDxGelhiFn8';
 const tabFor=c=>c[0].toUpperCase()+c.slice(1)+'County';
 function gdrive(u){const m=u.match(/\/d\/([\w-]+)/)||u.match(/[?&]id=([\w-]+)/);return m?`https://drive.google.com/uc?export=download&id=${m[1]}`:u;}
 
-const STATEWIDE_BLOCK = 36;   // first 36 candidate rows (sheet rows 2-37) = the 18 shared statewide races
 async function loadSheet(){
   const county=$('#county').value, party=$('#party').value;
-  const statewideMode = county==='statewide';
-  const tab = statewideMode ? 'HaysCounty' : tabFor(county);   // statewide block lives in the Hays master
+  // Three-tab architecture (Jul 2026): Statewide + Districts are shared tabs; county tabs hold local races only.
+  const tab = county==='statewide' ? 'Statewide' : county==='districts' ? 'Districts' : tabFor(county);
   setStatus('Loading '+tab+'…');
   await ensureManifest();   // know instantly which photos already exist
   const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${tab}`;
@@ -469,8 +476,6 @@ async function loadSheet(){
   const hdr=rows[0].map(h=>h.trim().toLowerCase());
   const iN=hdr.indexOf('name'),iP=hdr.indexOf('party'),iO=hdr.indexOf('office'),iPh=hdr.indexOf('photo');
   let allRows=rows.slice(1).filter(r=>r[iN]&&r[iN].trim());     // candidate rows, in sheet order
-  // statewide mode = just the shared block; a county = everything BELOW the block (skip the 36 statewide)
-  allRows = statewideMode ? allRows.slice(0, STATEWIDE_BLOCK) : allRows.slice(STATEWIDE_BLOCK);
   candidates=allRows
     .map(r=>({name:r[iN].trim(),party:(r[iP]||'').trim(),office:(r[iO]||'').trim(),photo:(r[iPh]||'').trim()}))
     .filter(c=>!party||c.party.toUpperCase()===party)
