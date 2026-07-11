@@ -179,6 +179,16 @@
   "office": "15th Court of Appeals \u2014 Place 3",
   "party": "R"
  },
+ "caitlinrourk": {
+  "name": "Caitlin Rourk",
+  "office": "U.S. House \u2014 District 10",
+  "party": "D"
+ },
+ "chrisgober": {
+  "name": "Chris Gober",
+  "office": "U.S. House \u2014 District 10",
+  "party": "R"
+ },
  "kristinhook": {
   "name": "Kristin Hook",
   "office": "U.S. House \u2014 District 21",
@@ -199,24 +209,24 @@
   "office": "U.S. House \u2014 District 27",
   "party": "R"
  },
- "allisonbush": {
-  "name": "Allison Bush",
-  "office": "State Board of Education, District 5",
+ "johnnygarcia": {
+  "name": "Johnny Garcia",
+  "office": "U.S. House \u2014 District 35",
   "party": "D"
  },
- "micaarellano": {
-  "name": "Mica Arellano",
-  "office": "State Board of Education, District 5",
+ "carlosdelacruz": {
+  "name": "Carlos De La Cruz",
+  "office": "U.S. House \u2014 District 35",
   "party": "R"
  },
- "judithzaffarini": {
-  "name": "Judith Zaffarini",
-  "office": "TX State Senate \u2014 District 21",
+ "gregcasar": {
+  "name": "Greg Casar",
+  "office": "U.S. House \u2014 District 37",
   "party": "D"
  },
- "juliedahlberg": {
-  "name": "Julie Dahlberg",
-  "office": "TX State Senate \u2014 District 21",
+ "laurenpea": {
+  "name": "Lauren Pe\u00f1a",
+  "office": "U.S. House \u2014 District 37",
   "party": "R"
  },
  "erinzwiener": {
@@ -229,6 +239,61 @@
   "office": "TX State House \u2014 District 45",
   "party": "R"
  },
+ "sherylcole": {
+  "name": "Sheryl Cole",
+  "office": "TX State House \u2014 District 46",
+  "party": "D"
+ },
+ "poojasethi": {
+  "name": "Pooja Sethi",
+  "office": "TX State House \u2014 District 47",
+  "party": "D"
+ },
+ "jennifermushtaler": {
+  "name": "Jennifer Mushtaler",
+  "office": "TX State House \u2014 District 47",
+  "party": "R"
+ },
+ "donnahoward": {
+  "name": "Donna Howard",
+  "office": "TX State House \u2014 District 48",
+  "party": "D"
+ },
+ "anthonygupta": {
+  "name": "Anthony Gupta",
+  "office": "TX State House \u2014 District 48",
+  "party": "R"
+ },
+ "montserratgaribay": {
+  "name": "Montserrat Garibay",
+  "office": "TX State House \u2014 District 49",
+  "party": "D"
+ },
+ "arshiapapari": {
+  "name": "Arshia Papari",
+  "office": "TX State House \u2014 District 49",
+  "party": "G"
+ },
+ "samanthalopezresendez": {
+  "name": "Samantha Lopez-Resendez",
+  "office": "TX State House \u2014 District 50",
+  "party": "D"
+ },
+ "howardolseniv": {
+  "name": "Howard Olsen IV",
+  "office": "TX State House \u2014 District 50",
+  "party": "R"
+ },
+ "marialuisaflores": {
+  "name": "Maria Luisa Flores",
+  "office": "TX State House \u2014 District 51",
+  "party": "D"
+ },
+ "jessicamartinez": {
+  "name": "Jessica Martinez",
+  "office": "TX State House \u2014 District 51",
+  "party": "R"
+ },
  "merriefox": {
   "name": "Merrie Fox",
   "office": "TX State House \u2014 District 73",
@@ -237,6 +302,976 @@
  "carrieisaac": {
   "name": "Carrie Isaac",
   "office": "TX State House \u2014 District 73",
+  "party": "R"
+ },
+ "judithzaffirini": {
+  "name": "Judith Zaffirini",
+  "office": "TX State Senate \u2014 District 21",
+  "party": "D"
+ },
+ "juliedahlberg": {
+  "name": "Julie Dahlberg",
+  "office": "TX State Senate \u2014 District 21",
+  "party": "R"
+ },
+ "travismcqueen": {
+  "name": "Travis McQueen",
+  "office": "U.S. House \u2014 District 27",
+  "party": "I"
+ },
+ "nathanielmoran": {
+  "name": "Nathaniel Moran",
+  "office": "U.S. House \u2014 District 1",
+  "party": "R"
+ },
+ "yolandaprince": {
+  "name": "Yolanda Prince",
+  "office": "U.S. House \u2014 District 1",
+  "party": "D"
+ },
+ "shaunfinnie": {
+  "name": "Shaun Finnie",
+  "office": "U.S. House \u2014 District 2",
+  "party": "D"
+ },
+ "stevetoth": {
+  "name": "Steve Toth",
+  "office": "U.S. House \u2014 District 2",
+  "party": "R"
+ },
+ "keithself": {
+  "name": "Keith Self",
+  "office": "U.S. House \u2014 District 3",
+  "party": "R"
+ },
+ "evanhunt": {
+  "name": "Evan Hunt",
+  "office": "U.S. House \u2014 District 3",
+  "party": "D"
+ },
+ "patfallon": {
+  "name": "Pat Fallon",
+  "office": "U.S. House \u2014 District 4",
+  "party": "R"
+ },
+ "jasonpearce": {
+  "name": "Jason Pearce",
+  "office": "U.S. House \u2014 District 4",
+  "party": "D"
+ },
+ "lancegooden": {
+  "name": "Lance Gooden",
+  "office": "U.S. House \u2014 District 5",
+  "party": "R"
+ },
+ "chelseyhockett": {
+  "name": "Chelsey Hockett",
+  "office": "U.S. House \u2014 District 5",
+  "party": "D"
+ },
+ "jakeellzey": {
+  "name": "Jake Ellzey",
+  "office": "U.S. House \u2014 District 6",
+  "party": "R"
+ },
+ "dannyminton": {
+  "name": "Danny Minton",
+  "office": "U.S. House \u2014 District 6",
+  "party": "D"
+ },
+ "lizziepannillfletcher": {
+  "name": "Lizzie Pannill Fletcher",
+  "office": "U.S. House \u2014 District 7",
+  "party": "D"
+ },
+ "alexanderhale": {
+  "name": "Alexander Hale",
+  "office": "U.S. House \u2014 District 7",
+  "party": "R"
+ },
+ "espoirngabo": {
+  "name": "Espoir Ngabo",
+  "office": "U.S. House \u2014 District 7",
+  "party": "G"
+ },
+ "laurajones": {
+  "name": "Laura Jones",
+  "office": "U.S. House \u2014 District 8",
+  "party": "D"
+ },
+ "jessicasteinmann": {
+  "name": "Jessica Steinmann",
+  "office": "U.S. House \u2014 District 8",
+  "party": "R"
+ },
+ "leticiagutierrez": {
+  "name": "Leticia Gutierrez",
+  "office": "U.S. House \u2014 District 9",
+  "party": "D"
+ },
+ "alexmealer": {
+  "name": "Alex Mealer",
+  "office": "U.S. House \u2014 District 9",
+  "party": "R"
+ },
+ "augustpfluger": {
+  "name": "August Pfluger",
+  "office": "U.S. House \u2014 District 11",
+  "party": "R"
+ },
+ "clairereynolds": {
+  "name": "Claire Reynolds",
+  "office": "U.S. House \u2014 District 11",
+  "party": "D"
+ },
+ "craiggoldman": {
+  "name": "Craig Goldman",
+  "office": "U.S. House \u2014 District 12",
+  "party": "R"
+ },
+ "helirodriguezprilliman": {
+  "name": "Heli Rodriguez Prilliman",
+  "office": "U.S. House \u2014 District 12",
+  "party": "D"
+ },
+ "ronnyljackson": {
+  "name": "Ronny L. Jackson",
+  "office": "U.S. House \u2014 District 13",
+  "party": "R"
+ },
+ "marknair": {
+  "name": "Mark Nair",
+  "office": "U.S. House \u2014 District 13",
+  "party": "D"
+ },
+ "randyweber": {
+  "name": "Randy Weber",
+  "office": "U.S. House \u2014 District 14",
+  "party": "R"
+ },
+ "thurmanbillbartie": {
+  "name": "Thurman Bill Bartie",
+  "office": "U.S. House \u2014 District 14",
+  "party": "D"
+ },
+ "monicadelacruz": {
+  "name": "Monica De La Cruz",
+  "office": "U.S. House \u2014 District 15",
+  "party": "R"
+ },
+ "bobbypulido": {
+  "name": "Bobby Pulido",
+  "office": "U.S. House \u2014 District 15",
+  "party": "D"
+ },
+ "veronicaescobar": {
+  "name": "Veronica Escobar",
+  "office": "U.S. House \u2014 District 16",
+  "party": "D"
+ },
+ "adambauman": {
+  "name": "Adam Bauman",
+  "office": "U.S. House \u2014 District 16",
+  "party": "R"
+ },
+ "petesessions": {
+  "name": "Pete Sessions",
+  "office": "U.S. House \u2014 District 17",
+  "party": "R"
+ },
+ "caseyshepard": {
+  "name": "Casey Shepard",
+  "office": "U.S. House \u2014 District 17",
+  "party": "D"
+ },
+ "christianmenefee": {
+  "name": "Christian Menefee",
+  "office": "U.S. House \u2014 District 18",
+  "party": "D"
+ },
+ "ronaldwhitfield": {
+  "name": "Ronald Whitfield",
+  "office": "U.S. House \u2014 District 18",
+  "party": "R"
+ },
+ "kylerable": {
+  "name": "Kyle Rable",
+  "office": "U.S. House \u2014 District 19",
+  "party": "D"
+ },
+ "tomsell": {
+  "name": "Tom Sell",
+  "office": "U.S. House \u2014 District 19",
+  "party": "R"
+ },
+ "joaquincastro": {
+  "name": "Joaquin Castro",
+  "office": "U.S. House \u2014 District 20",
+  "party": "D"
+ },
+ "edgardobaez": {
+  "name": "Edgardo Baez",
+  "office": "U.S. House \u2014 District 20",
+  "party": "R"
+ },
+ "marquettegreenescott": {
+  "name": "Marquette Greene-Scott",
+  "office": "U.S. House \u2014 District 22",
+  "party": "D"
+ },
+ "trevernehls": {
+  "name": "Trever Nehls",
+  "office": "U.S. House \u2014 District 22",
+  "party": "R"
+ },
+ "katypadillastout": {
+  "name": "Katy Padilla Stout",
+  "office": "U.S. House \u2014 District 23",
+  "party": "D"
+ },
+ "brandonherrera": {
+  "name": "Brandon Herrera",
+  "office": "U.S. House \u2014 District 23",
+  "party": "R"
+ },
+ "bethvanduyne": {
+  "name": "Beth Van Duyne",
+  "office": "U.S. House \u2014 District 24",
+  "party": "R"
+ },
+ "kevinburge": {
+  "name": "Kevin Burge",
+  "office": "U.S. House \u2014 District 24",
+  "party": "D"
+ },
+ "rogerwilliams": {
+  "name": "Roger Williams",
+  "office": "U.S. House \u2014 District 25",
+  "party": "R"
+ },
+ "dionesims": {
+  "name": "Dione Sims",
+  "office": "U.S. House \u2014 District 25",
+  "party": "D"
+ },
+ "brandongill": {
+  "name": "Brandon Gill",
+  "office": "U.S. House \u2014 District 26",
+  "party": "R"
+ },
+ "stevenshook": {
+  "name": "Steven Shook",
+  "office": "U.S. House \u2014 District 26",
+  "party": "D"
+ },
+ "philgray": {
+  "name": "Phil Gray",
+  "office": "U.S. House \u2014 District 26",
+  "party": "L"
+ },
+ "henrycuellar": {
+  "name": "Henry Cuellar",
+  "office": "U.S. House \u2014 District 28",
+  "party": "D"
+ },
+ "tanotijerina": {
+  "name": "Tano Tijerina",
+  "office": "U.S. House \u2014 District 28",
+  "party": "R"
+ },
+ "marlonduran": {
+  "name": "Marlon Duran",
+  "office": "U.S. House \u2014 District 28",
+  "party": "G"
+ },
+ "sylviagarcia": {
+  "name": "Sylvia Garcia",
+  "office": "U.S. House \u2014 District 29",
+  "party": "D"
+ },
+ "marthafierro": {
+  "name": "Martha Fierro",
+  "office": "U.S. House \u2014 District 29",
+  "party": "R"
+ },
+ "frederickhaynes": {
+  "name": "Frederick Haynes",
+  "office": "U.S. House \u2014 District 30",
+  "party": "D"
+ },
+ "everettjackson": {
+  "name": "Everett Jackson",
+  "office": "U.S. House \u2014 District 30",
+  "party": "R"
+ },
+ "johncarter": {
+  "name": "John Carter",
+  "office": "U.S. House \u2014 District 31",
+  "party": "R"
+ },
+ "justinearly": {
+  "name": "Justin Early",
+  "office": "U.S. House \u2014 District 31",
+  "party": "D"
+ },
+ "gregstoker": {
+  "name": "Greg Stoker",
+  "office": "U.S. House \u2014 District 31",
+  "party": "G"
+ },
+ "danbarrios": {
+  "name": "Dan Barrios",
+  "office": "U.S. House \u2014 District 32",
+  "party": "D"
+ },
+ "jaceyarbrough": {
+  "name": "Jace Yarbrough",
+  "office": "U.S. House \u2014 District 32",
+  "party": "R"
+ },
+ "colinallred": {
+  "name": "Colin Allred",
+  "office": "U.S. House \u2014 District 33",
+  "party": "D"
+ },
+ "patrickgillespie": {
+  "name": "Patrick Gillespie",
+  "office": "U.S. House \u2014 District 33",
+  "party": "R"
+ },
+ "vicentegonzalezjr": {
+  "name": "Vicente Gonzalez Jr.",
+  "office": "U.S. House \u2014 District 34",
+  "party": "D"
+ },
+ "ericflores": {
+  "name": "Eric Flores",
+  "office": "U.S. House \u2014 District 34",
+  "party": "R"
+ },
+ "eddieespinoza": {
+  "name": "Eddie Espinoza",
+  "office": "U.S. House \u2014 District 34",
+  "party": "G"
+ },
+ "chrisroyal": {
+  "name": "Chris Royal",
+  "office": "U.S. House \u2014 District 34",
+  "party": "L"
+ },
+ "brianbabin": {
+  "name": "Brian Babin",
+  "office": "U.S. House \u2014 District 36",
+  "party": "R"
+ },
+ "rhondahart": {
+  "name": "Rhonda Hart",
+  "office": "U.S. House \u2014 District 36",
+  "party": "D"
+ },
+ "melissamcdonough": {
+  "name": "Melissa McDonough",
+  "office": "U.S. House \u2014 District 38",
+  "party": "D"
+ },
+ "jonbonck": {
+  "name": "Jon Bonck",
+  "office": "U.S. House \u2014 District 38",
+  "party": "R"
+ },
+ "alexmcmenemy": {
+  "name": "Alex McMenemy",
+  "office": "U.S. House \u2014 District 38",
+  "party": "G"
+ },
+ "bryanhughes": {
+  "name": "Bryan Hughes",
+  "office": "TX State Senate \u2014 District 1",
+  "party": "R"
+ },
+ "laticiaambroz": {
+  "name": "Laticia Ambroz",
+  "office": "TX State Senate \u2014 District 1",
+  "party": "D"
+ },
+ "bobbytillman": {
+  "name": "Bobby Tillman",
+  "office": "TX State Senate \u2014 District 3",
+  "party": "D"
+ },
+ "trentashby": {
+  "name": "Trent Ashby",
+  "office": "TX State Senate \u2014 District 3",
+  "party": "R"
+ },
+ "charlesschwertner": {
+  "name": "Charles Schwertner",
+  "office": "TX State Senate \u2014 District 5",
+  "party": "R"
+ },
+ "paulthomasson": {
+  "name": "Paul Thomasson",
+  "office": "TX State Senate \u2014 District 5",
+  "party": "D"
+ },
+ "taylorrehmet": {
+  "name": "Taylor Rehmet",
+  "office": "TX State Senate \u2014 District 9",
+  "party": "D"
+ },
+ "leighwambsganss": {
+  "name": "Leigh Wambsganss",
+  "office": "TX State Senate \u2014 District 9",
+  "party": "R"
+ },
+ "shannondicely": {
+  "name": "Shannon Dicely",
+  "office": "TX State Senate \u2014 District 11",
+  "party": "D"
+ },
+ "dennispaul": {
+  "name": "Dennis Paul",
+  "office": "TX State Senate \u2014 District 11",
+  "party": "R"
+ },
+ "borrismiles": {
+  "name": "Borris Miles",
+  "office": "TX State Senate \u2014 District 13",
+  "party": "D"
+ },
+ "loiskolkhorst": {
+  "name": "Lois Kolkhorst",
+  "office": "TX State Senate \u2014 District 18",
+  "party": "R"
+ },
+ "ericagillum": {
+  "name": "Erica Gillum",
+  "office": "TX State Senate \u2014 District 18",
+  "party": "D"
+ },
+ "peterpflores": {
+  "name": "Peter P. Flores",
+  "office": "TX State Senate \u2014 District 24",
+  "party": "R"
+ },
+ "joepherrera": {
+  "name": "Joe P. Herrera",
+  "office": "TX State Senate \u2014 District 24",
+  "party": "D"
+ },
+ "josmenndez": {
+  "name": "Jos\u00e9 Men\u00e9ndez",
+  "office": "TX State Senate \u2014 District 26",
+  "party": "D"
+ },
+ "julianvillarreal": {
+  "name": "Julian Villarreal",
+  "office": "TX State Senate \u2014 District 26",
+  "party": "G"
+ },
+ "charlesperry": {
+  "name": "Charles Perry",
+  "office": "TX State Senate \u2014 District 28",
+  "party": "R"
+ },
+ "rileyrodriquez": {
+  "name": "Riley Rodriquez",
+  "office": "TX State Senate \u2014 District 28",
+  "party": "D"
+ },
+ "kevinsparks": {
+  "name": "Kevin Sparks",
+  "office": "TX State Senate \u2014 District 31",
+  "party": "R"
+ },
+ "johnbetancourt": {
+  "name": "John Betancourt",
+  "office": "TX State Senate \u2014 District 31",
+  "party": "D"
+ },
+ "seanhuffman": {
+  "name": "Sean Huffman",
+  "office": "TX State House \u2014 District 1",
+  "party": "D"
+ },
+ "chrisspencer": {
+  "name": "Chris Spencer",
+  "office": "TX State House \u2014 District 1",
+  "party": "R"
+ },
+ "colehefner": {
+  "name": "Cole Hefner",
+  "office": "TX State House \u2014 District 5",
+  "party": "R"
+ },
+ "hectorgarza": {
+  "name": "Hector Garza",
+  "office": "TX State House \u2014 District 5",
+  "party": "D"
+ },
+ "treywharton": {
+  "name": "Trey Wharton",
+  "office": "TX State House \u2014 District 12",
+  "party": "R"
+ },
+ "andieho": {
+  "name": "Andie Ho",
+  "office": "TX State House \u2014 District 12",
+  "party": "D"
+ },
+ "pauldyson": {
+  "name": "Paul Dyson",
+  "office": "TX State House \u2014 District 14",
+  "party": "R"
+ },
+ "janetdudding": {
+  "name": "Janet Dudding",
+  "office": "TX State House \u2014 District 14",
+  "party": "D"
+ },
+ "jeffmiller": {
+  "name": "Jeff Miller",
+  "office": "TX State House \u2014 District 14",
+  "party": "L"
+ },
+ "janisholt": {
+  "name": "Janis Holt",
+  "office": "TX State House \u2014 District 18",
+  "party": "R"
+ },
+ "valoriebarton": {
+  "name": "Valorie Barton",
+  "office": "TX State House \u2014 District 18",
+  "party": "D"
+ },
+ "terrywilson": {
+  "name": "Terry Wilson",
+  "office": "TX State House \u2014 District 20",
+  "party": "R"
+ },
+ "matthiasjonahearly": {
+  "name": "Matthias-Jonah Early",
+  "office": "TX State House \u2014 District 20",
+  "party": "D"
+ },
+ "gregbonnen": {
+  "name": "Greg Bonnen",
+  "office": "TX State House \u2014 District 24",
+  "party": "R"
+ },
+ "frankcarr": {
+  "name": "Frank Carr",
+  "office": "TX State House \u2014 District 24",
+  "party": "D"
+ },
+ "oscarlongoria": {
+  "name": "Oscar Longoria",
+  "office": "TX State House \u2014 District 35",
+  "party": "D"
+ },
+ "oscarrosa": {
+  "name": "Oscar Rosa",
+  "office": "TX State House \u2014 District 35",
+  "party": "R"
+ },
+ "armandomartinez": {
+  "name": "Armando Martinez",
+  "office": "TX State House \u2014 District 39",
+  "party": "D"
+ },
+ "alanschoolcraft": {
+  "name": "Alan Schoolcraft",
+  "office": "TX State House \u2014 District 44",
+  "party": "R"
+ },
+ "ericnorman": {
+  "name": "Eric Norman",
+  "office": "TX State House \u2014 District 44",
+  "party": "D"
+ },
+ "carolineharris": {
+  "name": "Caroline Harris",
+  "office": "TX State House \u2014 District 52",
+  "party": "R"
+ },
+ "chrisjimenez": {
+  "name": "Chris Jimenez",
+  "office": "TX State House \u2014 District 52",
+  "party": "D"
+ },
+ "wesleyvirdell": {
+  "name": "Wesley Virdell",
+  "office": "TX State House \u2014 District 53",
+  "party": "R"
+ },
+ "kathrynhartmann": {
+  "name": "Kathryn Hartmann",
+  "office": "TX State House \u2014 District 53",
+  "party": "D"
+ },
+ "helenkerwin": {
+  "name": "Helen Kerwin",
+  "office": "TX State House \u2014 District 58",
+  "party": "R"
+ },
+ "chrisoldham": {
+  "name": "Chris Oldham",
+  "office": "TX State House \u2014 District 58",
+  "party": "D"
+ },
+ "shelleyluther": {
+  "name": "Shelley Luther",
+  "office": "TX State House \u2014 District 62",
+  "party": "R"
+ },
+ "catherinethorne": {
+  "name": "Catherine Thorne",
+  "office": "TX State House \u2014 District 62",
+  "party": "D"
+ },
+ "mitchlittle": {
+  "name": "Mitch Little",
+  "office": "TX State House \u2014 District 65",
+  "party": "R"
+ },
+ "detrickdeburr": {
+  "name": "Detrick Deburr",
+  "office": "TX State House \u2014 District 65",
+  "party": "D"
+ },
+ "dianaluna": {
+  "name": "Diana Luna",
+  "office": "TX State House \u2014 District 71",
+  "party": "D"
+ },
+ "jayhardaway": {
+  "name": "Jay Hardaway",
+  "office": "TX State House \u2014 District 71",
+  "party": "R"
+ },
+ "sulemanlalani": {
+  "name": "Suleman Lalani",
+  "office": "TX State House \u2014 District 76",
+  "party": "D"
+ },
+ "lindahowell": {
+  "name": "Linda Howell",
+  "office": "TX State House \u2014 District 76",
+  "party": "R"
+ },
+ "vincentperez": {
+  "name": "Vincent Perez",
+  "office": "TX State House \u2014 District 77",
+  "party": "D"
+ },
+ "humbertoperez": {
+  "name": "Humberto Perez",
+  "office": "TX State House \u2014 District 77",
+  "party": "R"
+ },
+ "donmclaughlin": {
+  "name": "Don McLaughlin",
+  "office": "TX State House \u2014 District 80",
+  "party": "R"
+ },
+ "ceciliacastellano": {
+  "name": "Cecilia Castellano",
+  "office": "TX State House \u2014 District 80",
+  "party": "D"
+ },
+ "carolinefairly": {
+  "name": "Caroline Fairly",
+  "office": "TX State House \u2014 District 87",
+  "party": "R"
+ },
+ "dianaloya": {
+  "name": "Diana Loya",
+  "office": "TX State House \u2014 District 87",
+  "party": "D"
+ },
+ "candynoble": {
+  "name": "Candy Noble",
+  "office": "TX State House \u2014 District 89",
+  "party": "R"
+ },
+ "angiecarraway": {
+  "name": "Angie Carraway",
+  "office": "TX State House \u2014 District 89",
+  "party": "D"
+ },
+ "nicolecollier": {
+  "name": "Nicole Collier",
+  "office": "TX State House \u2014 District 95",
+  "party": "D"
+ },
+ "catebrennan": {
+  "name": "Cate Brennan",
+  "office": "TX State House \u2014 District 98",
+  "party": "D"
+ },
+ "arminmizani": {
+  "name": "Armin Mizani",
+  "office": "TX State House \u2014 District 98",
+  "party": "R"
+ },
+ "juniorezeonu": {
+  "name": "Junior Ezeonu",
+  "office": "TX State House \u2014 District 101",
+  "party": "D"
+ },
+ "rafaelanchia": {
+  "name": "Rafael Anchia",
+  "office": "TX State House \u2014 District 103",
+  "party": "D"
+ },
+ "yvonnedavis": {
+  "name": "Yvonne Davis",
+  "office": "TX State House \u2014 District 111",
+  "party": "D"
+ },
+ "rhettaandrewsbowers": {
+  "name": "Rhetta Andrews Bowers",
+  "office": "TX State House \u2014 District 113",
+  "party": "D"
+ },
+ "stephenstanley": {
+  "name": "Stephen Stanley",
+  "office": "TX State House \u2014 District 113",
+  "party": "R"
+ },
+ "diegobernal": {
+  "name": "Diego Bernal",
+  "office": "TX State House \u2014 District 123",
+  "party": "D"
+ },
+ "charlescunningham": {
+  "name": "Charles Cunningham",
+  "office": "TX State House \u2014 District 127",
+  "party": "R"
+ },
+ "michellewilliams": {
+  "name": "Michelle Williams",
+  "office": "TX State House \u2014 District 127",
+  "party": "D"
+ },
+ "tomoliverson": {
+  "name": "Tom Oliverson",
+  "office": "TX State House \u2014 District 130",
+  "party": "R"
+ },
+ "brettrobinson": {
+  "name": "Brett Robinson",
+  "office": "TX State House \u2014 District 130",
+  "party": "D"
+ },
+ "annjohnson": {
+  "name": "Ann Johnson",
+  "office": "TX State House \u2014 District 134",
+  "party": "D"
+ },
+ "mikemichna": {
+  "name": "Mike Michna",
+  "office": "TX State House \u2014 District 134",
+  "party": "R"
+ },
+ "armandowalle": {
+  "name": "Armando Walle",
+  "office": "TX State House \u2014 District 140",
+  "party": "D"
+ },
+ "lauragarciadeleon": {
+  "name": "Laura Garcia DeLeon",
+  "office": "TX State House \u2014 District 140",
+  "party": "R"
+ },
+ "maryannperez": {
+  "name": "Mary Ann Perez",
+  "office": "TX State House \u2014 District 144",
+  "party": "D"
+ },
+ "davidflores": {
+  "name": "David Flores",
+  "office": "TX State House \u2014 District 144",
+  "party": "R"
+ },
+ "christinamorales": {
+  "name": "Christina Morales",
+  "office": "TX State House \u2014 District 145",
+  "party": "D"
+ },
+ "inocensiamoreno": {
+  "name": "Inocensia Moreno",
+  "office": "TX State House \u2014 District 145",
+  "party": "R"
+ },
+ "veronicarivasmolloy": {
+  "name": "Veronica Rivas-Molloy",
+  "office": "1st Court of Appeals \u2014 Place 3",
+  "party": "D"
+ },
+ "toddfrankfort": {
+  "name": "Todd Frankfort",
+  "office": "1st Court of Appeals \u2014 Place 3",
+  "party": "R"
+ },
+ "davidgunn": {
+  "name": "David Gunn",
+  "office": "1st Court of Appeals \u2014 Place 4",
+  "party": "R"
+ },
+ "juliecountiss": {
+  "name": "Julie Countiss",
+  "office": "1st Court of Appeals \u2014 Place 4",
+  "party": "D"
+ },
+ "amparoguerra": {
+  "name": "Amparo Guerra",
+  "office": "1st Court of Appeals \u2014 Place 5",
+  "party": "D"
+ },
+ "jessicacaird": {
+  "name": "Jessica Caird",
+  "office": "1st Court of Appeals \u2014 Place 5",
+  "party": "R"
+ },
+ "christaylor": {
+  "name": "Chris Taylor",
+  "office": "2nd Court of Appeals \u2014 Place 2",
+  "party": "R"
+ },
+ "brianwalker": {
+  "name": "Brian Walker",
+  "office": "2nd Court of Appeals \u2014 Place 7",
+  "party": "R"
+ },
+ "darlenebyrne": {
+  "name": "Darlene Byrne",
+  "office": "3rd Court of Appeals \u2014 Chief Justice",
+  "party": "D"
+ },
+ "coryliu": {
+  "name": "Cory Liu",
+  "office": "3rd Court of Appeals \u2014 Chief Justice",
+  "party": "R"
+ },
+ "antoniaarteaga": {
+  "name": "Antonia Arteaga",
+  "office": "4th Court of Appeals \u2014 Chief Justice",
+  "party": "D"
+ },
+ "bertrichardson": {
+  "name": "Bert Richardson",
+  "office": "4th Court of Appeals \u2014 Chief Justice",
+  "party": "R"
+ },
+ "amandareichek": {
+  "name": "Amanda Reichek",
+  "office": "5th Court of Appeals \u2014 Place 3",
+  "party": "D"
+ },
+ "matthewkolodoski": {
+  "name": "Matthew Kolodoski",
+  "office": "5th Court of Appeals \u2014 Place 3",
+  "party": "R"
+ },
+ "monicapurdy": {
+  "name": "Monica Purdy",
+  "office": "5th Court of Appeals \u2014 Place 6",
+  "party": "D"
+ },
+ "benjaminnsmith": {
+  "name": "Benjamin N. Smith",
+  "office": "5th Court of Appeals \u2014 Place 6",
+  "party": "R"
+ },
+ "andreaplumlee": {
+  "name": "Andrea Plumlee",
+  "office": "5th Court of Appeals \u2014 Place 8",
+  "party": "D"
+ },
+ "ashleywysocki": {
+  "name": "Ashley Wysocki",
+  "office": "5th Court of Appeals \u2014 Place 8",
+  "party": "R"
+ },
+ "lcharlesvancleef": {
+  "name": "L. Charles van Cleef",
+  "office": "6th Court of Appeals \u2014 Place 3",
+  "party": "R"
+ },
+ "judyparker": {
+  "name": "Judy Parker",
+  "office": "7th Court of Appeals \u2014 Chief Justice",
+  "party": "R"
+ },
+ "mariasalasmendoza": {
+  "name": "Maria Salas-Mendoza",
+  "office": "8th Court of Appeals \u2014 Chief Justice",
+  "party": "D"
+ },
+ "scottgolemon": {
+  "name": "Scott Golemon",
+  "office": "9th Court of Appeals \u2014 Chief Justice",
+  "party": "R"
+ },
+ "leeharris": {
+  "name": "Lee Harris",
+  "office": "10th Court of Appeals \u2014 Place 2",
+  "party": "R"
+ },
+ "brucewilliams": {
+  "name": "Bruce Williams",
+  "office": "11th Court of Appeals \u2014 Place 2",
+  "party": "R"
+ },
+ "brianhoyle": {
+  "name": "Brian Hoyle",
+  "office": "12th Court of Appeals \u2014 Chief Justice",
+  "party": "R"
+ },
+ "michaeldavis": {
+  "name": "Michael Davis",
+  "office": "12th Court of Appeals \u2014 Place 3",
+  "party": "R"
+ },
+ "clarissasilva": {
+  "name": "Clarissa Silva",
+  "office": "13th Court of Appeals \u2014 Place 6",
+  "party": "R"
+ },
+ "johnball": {
+  "name": "John Ball",
+  "office": "13th Court of Appeals \u2014 Place 6",
+  "party": "D"
+ },
+ "sarahbethlandau": {
+  "name": "Sarah Beth Landau",
+  "office": "14th Court of Appeals \u2014 Chief Justice",
+  "party": "D"
+ },
+ "kevinjewell": {
+  "name": "Kevin Jewell",
+  "office": "14th Court of Appeals \u2014 Chief Justice",
+  "party": "R"
+ },
+ "kenwise": {
+  "name": "Ken Wise",
+  "office": "14th Court of Appeals \u2014 Place 7",
+  "party": "R"
+ },
+ "williamdemond": {
+  "name": "William Demond",
+  "office": "14th Court of Appeals \u2014 Place 7",
+  "party": "D"
+ },
+ "allisonbush": {
+  "name": "Allison Bush",
+  "office": "State Board of Education, District 5",
+  "party": "D"
+ },
+ "micaarellano": {
+  "name": "Mica Arellano",
+  "office": "State Board of Education, District 5",
   "party": "R"
  },
  "michellegutierrezcohen": {
@@ -304,16 +1339,6 @@
   "office": "Hays County Justice of the Peace \u2014 Precinct 5",
   "party": "D"
  },
- "darlenebyrne": {
-  "name": "Darlene Byrne",
-  "office": "3rd Court of Appeals \u2014 Chief Justice",
-  "party": "D"
- },
- "coryliu": {
-  "name": "Cory Liu",
-  "office": "3rd Court of Appeals \u2014 Chief Justice",
-  "party": "R"
- },
  "cassiebenoisttempleton": {
   "name": "Cassie Benoist-Templeton",
   "office": "Hays County District Court \u2014 428th",
@@ -348,46 +1373,6 @@
   "name": "Liz \"Sumter\" Gajdos",
   "office": "Hays County Judge",
   "party": "I"
- },
- "gregcasar": {
-  "name": "Greg Casar",
-  "office": "U.S. House \u2014 District 37",
-  "party": "D"
- },
- "laurenpea": {
-  "name": "Lauren Pe\u00f1a",
-  "office": "U.S. House \u2014 District 37",
-  "party": "R"
- },
- "caitlinrourk": {
-  "name": "Caitlin Rourk",
-  "office": "U.S. House \u2014 District 10",
-  "party": "D"
- },
- "chrisgober": {
-  "name": "Chris Gober",
-  "office": "U.S. House \u2014 District 10",
-  "party": "R"
- },
- "johnnygarcia": {
-  "name": "Johnny Garcia",
-  "office": "U.S. House \u2014 District 35",
-  "party": "D"
- },
- "carlosdelacruz": {
-  "name": "Carlos De La Cruz",
-  "office": "U.S. House \u2014 District 35",
-  "party": "R"
- },
- "montserratgaribay": {
-  "name": "Montserrat Garibay",
-  "office": "TX State House \u2014 District 49",
-  "party": "D"
- },
- "arshiapapari": {
-  "name": "Arshia Papari",
-  "office": "TX State House \u2014 District 49",
-  "party": "G"
  },
  "andybrown": {
   "name": "Andy Brown",
@@ -454,60 +1439,10 @@
   "office": "Travis County Probate Court No. 1",
   "party": "D"
  },
- "judithzaffirini": {
-  "name": "Judith Zaffirini",
-  "office": "TX State Senate \u2014 District 21",
-  "party": "D"
- },
- "sherylcole": {
-  "name": "Sheryl Cole",
-  "office": "TX State House \u2014 District 46",
-  "party": "D"
- },
- "marialuisaflores": {
-  "name": "Maria Luisa Flores",
-  "office": "TX State House \u2014 District 51",
-  "party": "D"
- },
- "jessicamartinez": {
-  "name": "Jessica Martinez",
-  "office": "TX State House \u2014 District 51",
-  "party": "R"
- },
  "brigidshea": {
   "name": "Brigid Shea",
   "office": "Travis County Commissioner \u2014 Precinct 2",
   "party": "D"
- },
- "poojasethi": {
-  "name": "Pooja Sethi",
-  "office": "TX State House \u2014 District 47",
-  "party": "D"
- },
- "jennifermushtaler": {
-  "name": "Jennifer Mushtaler",
-  "office": "TX State House \u2014 District 47",
-  "party": "R"
- },
- "donnahoward": {
-  "name": "Donna Howard",
-  "office": "TX State House \u2014 District 48",
-  "party": "D"
- },
- "anthonygupta": {
-  "name": "Anthony Gupta",
-  "office": "TX State House \u2014 District 48",
-  "party": "R"
- },
- "samanthalopezresendez": {
-  "name": "Samantha Lopez-Resendez",
-  "office": "TX State House \u2014 District 50",
-  "party": "D"
- },
- "howardolseniv": {
-  "name": "Howard Olsen IV",
-  "office": "TX State House \u2014 District 50",
-  "party": "R"
  },
  "georgemoralesiii": {
   "name": "George Morales III",
@@ -588,5 +1523,60 @@
   "name": "Cliff Brown",
   "office": "Travis County District Court \u2014 147th",
   "party": "D"
+ },
+ "tedbrown": {
+  "name": "Ted Brown",
+  "office": "U.S. Senate",
+  "party": "L"
+ },
+ "patdixon": {
+  "name": "Pat Dixon",
+  "office": "Governor of Texas",
+  "party": "L"
+ },
+ "kevinmccormick": {
+  "name": "Kevin McCormick",
+  "office": "Lieutenant Governor",
+  "party": "G"
+ },
+ "tomoxford": {
+  "name": "Tom Oxford",
+  "office": "Attorney General",
+  "party": "L"
+ },
+ "valonzoechavarriagarza": {
+  "name": "V. Alonzo Echavarria-Garza",
+  "office": "Comptroller of Public Accounts",
+  "party": "L"
+ },
+ "shehlafaizi": {
+  "name": "Shehla Faizi",
+  "office": "Comptroller of Public Accounts",
+  "party": "G"
+ },
+ "neillsnider": {
+  "name": "Neill Snider",
+  "office": "Commissioner of General Land Office",
+  "party": "L"
+ },
+ "austinrkelly": {
+  "name": "Austin R. Kelly",
+  "office": "Commissioner of Agriculture",
+  "party": "L"
+ },
+ "alfredmolison": {
+  "name": "Alfred Molison",
+  "office": "Commissioner of Agriculture",
+  "party": "G"
+ },
+ "arthurdibianca": {
+  "name": "Arthur DiBianca",
+  "office": "Railroad Commissioner",
+  "party": "L"
+ },
+ "markash": {
+  "name": "Mark Ash",
+  "office": "Court of Criminal Appeals \u2014 Place 3",
+  "party": "L"
  }
 }

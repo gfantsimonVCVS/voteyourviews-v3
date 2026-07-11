@@ -444,7 +444,7 @@ async function runCard(card, src, isReplace){
   if(isReplace) el.querySelector('.orig').src=src;
   try{
     const {png, faces} = await processSource(src);
-    card.png=png; card.faces=faces; card.state='ready';
+    card.png=png; card.faces=faces; card.state='ready'; card.fromRepo=false;
     el.querySelector('.cut').src=png;
     setFlagByFaces(card, faces, '');
     // auto-save any user-provided photo (paste / replace / dropped file) so a reload can't lose it
@@ -531,7 +531,9 @@ document.body.addEventListener('drop',e=>e.preventDefault());
 $('#approveAll').onclick=()=>{ for(const c of cards){ if(c.png && c.state!=='rejected') setState(c,'approved'); } };
 
 // ---------- export ----------
-const approvedList=()=>cards.filter(c=>c.state==='approved'&&c.png).map(c=>({
+// Approved AND not already shipped: photos loaded from the repo are in git by definition —
+// re-saving them is noise. Replacing a repo photo clears fromRepo, so replacements DO save.
+const approvedList=()=>cards.filter(c=>c.state==='approved'&&c.png&&!c.fromRepo).map(c=>({
   party:((c.candidate&&c.candidate.party)||'NA').toUpperCase(),
   slug:slugify(c.candidate?c.candidate.name:c.name), png:c.png }));
 
@@ -548,7 +550,8 @@ $('#saveFolder').onclick=async()=>{
     await w.write(await (await fetch(it.png)).blob());
     await w.close(); n++;
   }
-  setStatus(`✅ Saved ${n} photos into ${dir.name}/<party>/ — done, no unzip needed.`);
+  const shipped = cards.filter(c=>c.state==='approved'&&c.png&&c.fromRepo).length;
+  setStatus(`✅ Saved ${n} NEW photos into ${dir.name}/<party>/ (${shipped} already in the repo — skipped).`);
 };
 
 // Fallback: zip (also organized into <party>/ folders so it extracts the same way)
