@@ -12,3 +12,7 @@ images/travis-photos.zip
 
 # Local Netlify folder
 .netlify
+
+# Local design-tool snapshots + safety backups (never commit)
+.impeccable/
+Backups/

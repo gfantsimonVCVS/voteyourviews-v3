@@ -93,6 +93,12 @@
     }
     .issue-enter { animation: issueEnter 0.45s cubic-bezier(0.22,1,0.36,1); }
     @keyframes issueEnter { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); } }
+    /* Landing grid cascade: each issue button pops into place as its icon finishes
+       loading, staggered left-to-right. fill-mode backwards keeps a tile hidden
+       through its stagger delay, then releases to normal classes after landing so
+       hover dimming still works. */
+    .tile-cascade { animation: tileIn 0.5s cubic-bezier(0.34,1.45,0.64,1) backwards; }
+    @keyframes tileIn { from { opacity: 0; transform: scale(0.7) translateY(12px); } to { opacity: 1; transform: scale(1) translateY(0); } }
     /* Lightbulb "turns on" when the Facts tab opens: yellow bulb fades in + glows */
     .bulb-on { animation: bulbLight 1.4s cubic-bezier(0.22,1,0.36,1) both; }
     @keyframes bulbLight {
@@ -593,12 +599,79 @@
     // Subsection label within a level tab (null = no grouping needed, e.g. Federal).
     function raceSubgroup(race) {
       if (race.level === 'state') {
-        if (race.districtType === 'stateSenate' || race.districtType === 'stateHouse') return 'Your Texas Legislators';
-        if (race.category === 'judicial') return 'Courts';
+        if (race.districtType === 'stateSenate' || race.districtType === 'stateHouse') return 'State House & Senate';
+        if (race.category === 'judicial') return 'State Courts';
         return 'State Offices';
       }
       if (race.level === 'county') return race.category === 'judicial' ? 'Local Judges & Courts' : 'County Offices';
       return null;
+    }
+    // Collapsible race sections shared by Compare (Browse) and Pre-Ballot (Results).
+    // Groups races via raceSubgroup, renders each group behind a closed-by-default
+    // header with an office preview; renderRace draws each race row.
+    function RaceGroupSections({ races, collapsedGroups, setCollapsedGroups, renderRace }) {
+      const groups = [];
+      races.forEach(r => {
+        const label = raceSubgroup(r);
+        const g = groups.find(x => x.label === label);
+        if (g) g.races.push(r); else groups.push({ label, races: [r] });
+      });
+      // Fixed section order: statewide offices, then the voter's own legislators, then courts.
+      const GROUP_ORDER = ['State Offices', 'State House & Senate', 'State Courts', 'County Offices', 'Local Judges & Courts'];
+      groups.sort((a, b) => {
+        const ai = GROUP_ORDER.indexOf(a.label), bi = GROUP_ORDER.indexOf(b.label);
+        return (ai === -1 ? GROUP_ORDER.length : ai) - (bi === -1 ? GROUP_ORDER.length : bi);
+      });
+      const grouped = groups.length > 1;
+      return (<>
+      {groups.map((g, gi) => {
+        const isCollapsed = grouped && g.label && (g.label in collapsedGroups ? collapsedGroups[g.label] : true);
+        return (
+        <React.Fragment key={g.label || 'all'}>
+          {grouped && g.label && (
+            <button onClick={e => {
+                const btn = e.currentTarget;
+                setCollapsedGroups(prev => ({ ...prev, [g.label]: !(g.label in prev ? prev[g.label] : true) }));
+                if (!isCollapsed) setTimeout(() => btn.scrollIntoView({block:'nearest'}), 0);
+              }}
+              className="w-full flex items-center justify-between px-4 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[13px] transition-all hover:bg-white/10"
+              style={{background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.16)', color:'#cbd5e1', marginTop: gi > 0 ? '16px' : undefined}}>
+              <span className="text-left">
+                {g.label} <span className="normal-case tracking-normal font-bold" style={{color:'#34d399', marginLeft:'4px'}}>{g.races.length} race{g.races.length !== 1 ? 's' : ''}</span>
+                {isCollapsed && (
+                  <span className="block normal-case tracking-normal font-medium text-[12px] mt-1" style={{color:'#8494ab'}}>
+                    {(() => {
+                      // Court groups: name each court once (no Place/seat suffixes) to keep the preview short.
+                      // Senate & House group: "State Senate: District N", Senate first.
+                      const names = /courts/i.test(g.label)
+                        ? [...new Set(g.races.map(r => r.office.split(/\s*[—–]\s*/)[0].trim().replace(/^TX /,'Texas ').replace(/^\d+(?:st|nd|rd|th)\s+(Court of Appeals)/i,'$1')))]
+                        : g.label === 'State House & Senate'
+                        ? [...g.races].sort(a => a.districtType === 'stateHouse' ? -1 : 1).map(r => r.office.replace(/^TX\s+/,'').replace(/\s*[—–]\s*/, ': '))
+                        : g.races.map(r => r.office.replace(/ of Texas$/i,''));
+                      const shown = names.length <= 4 ? names.length : 3;
+                      const Dot = () => <span style={{fontSize:'2em', lineHeight:0, verticalAlign:'-0.13em', margin:'0 3px'}}>·</span>;
+                      return (<>
+                        {names.slice(0,shown).map((n, i) => (<React.Fragment key={n}>{i > 0 && <> <Dot/> </>}<span style={{whiteSpace:'nowrap'}}>{n}</span></React.Fragment>))}
+                        {names.length > shown && <> <Dot/> <span style={{whiteSpace:'nowrap'}}>+{names.length-shown} more</span></>}
+                      </>);
+                    })()}
+                  </span>
+                )}
+              </span>
+              <span className="flex items-center gap-1.5 shrink-0" style={{color:'#94a3b8'}}>
+                <span className="text-[11px] font-bold normal-case tracking-normal">{isCollapsed ? 'Show' : 'Hide'}</span>
+                <svg className={`w-4 h-4 transition-transform ${isCollapsed ? '' : 'rotate-180'}`} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </button>
+          )}
+          {(!grouped || !g.label || !isCollapsed) && g.races.map(renderRace)}
+        </React.Fragment>
+        );
+      })}
+      {grouped && (
+        <p className="text-center text-[12px] pt-4" style={{color:'#64748b'}}>Tap a section to show or hide its candidates</p>
+      )}
+      </>);
     }
     function raceLevel(race, isLocal) {
       if (race.category === 'federal') return 'federal';
@@ -1748,6 +1821,21 @@
       const answeredCount = Object.keys(answers).length;
       const issueList = issues.length ? issues : ISSUES;
 
+      // Icon-grid entrance cascade: tiles stay hidden until their icon image
+      // loads, then pop in staggered. Plays once per page load — returning to
+      // the landing screen mid-session skips it (cascadeSkip).
+      const cascadeSkip = useRef(window.__gridCascadePlayed === true).current;
+      const [iconsReady, setIconsReady] = useState(() => new Set());
+      const markIconReady = (id) => setIconsReady(prev => { if (prev.has(id)) return prev; const s = new Set(prev); s.add(id); return s; });
+      useEffect(() => {
+        if (cascadeSkip) return;
+        // Safety net: if an onLoad never fires (cache edge cases, blocked image),
+        // force-reveal everything so no tile is stranded invisible.
+        const reveal = setTimeout(() => setIconsReady(new Set(issueList.map(i => i.id))), 2500);
+        const played = setTimeout(() => { window.__gridCascadePlayed = true; }, 1600);
+        return () => { clearTimeout(reveal); clearTimeout(played); };
+      }, []);
+
       // Mobile hero banner: cycle the pitch (tour line shows 4s per pass),
       // loop a couple of times, then rest on the tour line for good.
       const [heroBeat, setHeroBeat] = useState(0);
@@ -1771,7 +1859,7 @@
           {/* Header — picker mode: no logo, just the animated no-pressure pitch */}
           {picker ? (
           <header className="relative pt-12 lg:pt-14 pb-1 px-6">
-            <button onClick={onLogo} className="absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full hover:opacity-80 transition-all" style={{background:'rgba(255,255,255,0.1)'}} title="Back to home">
+            <button onClick={onLogo} className="absolute top-3 left-3 w-9 h-9 flex items-center justify-center rounded-full hover:opacity-80 transition-all" style={{background:'rgba(255,255,255,0.1)'}} title="Back to home">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/>
                 <path d="M9 21V12h6v9"/>
@@ -1919,13 +2007,14 @@
             {/* ── Right col (desktop) / Bottom (mobile): Icon grid + mobile CTAs ── */}
             <div className="w-full max-w-xs md:max-w-[440px] lg:max-w-sm relative z-20">
               <div className="grid grid-cols-3 gap-1.5 md:gap-2.5 lg:gap-3 mb-3 lg:mb-0" onMouseLeave={() => setHoveredIssue(null)}>
-                {issueList.map(issue => (
+                {issueList.map((issue, idx) => (
                   <button
                     key={issue.id}
                     onClick={available ? () => onQuiz(issue.id) : undefined}
                     disabled={!available}
                     onMouseEnter={() => setHoveredIssue(issue.id)}
-                    className={`group relative flex flex-col items-center gap-1 disabled:opacity-40 transition-opacity duration-200 ${hoveredIssue && hoveredIssue !== issue.id ? 'lg:opacity-50' : 'opacity-100'}`}
+                    style={!cascadeSkip && iconsReady.has(issue.id) ? { animationDelay: `${idx * 70}ms` } : undefined}
+                    className={`group relative flex flex-col items-center gap-1 disabled:opacity-40 ${cascadeSkip ? '' : iconsReady.has(issue.id) ? 'tile-cascade' : 'opacity-0'} transition-opacity duration-200 ${hoveredIssue && hoveredIssue !== issue.id ? 'lg:opacity-50' : 'opacity-100'}`}
                   >
                     <div className="relative w-full aspect-square rounded-2xl overflow-hidden ring-1 ring-white/10 group-hover:ring-white/30 group-active:scale-95 transition-all duration-150 shadow-lg">
                       {/* Fallback layer (revealed if the icon fails to load) */}
@@ -1937,7 +2026,8 @@
                         src={`/icons/${issue.icon || issue.id}.png`}
                         alt={issue.topic}
                         className="relative w-full h-full object-cover"
-                        onError={e => { e.target.style.display='none'; }}
+                        onLoad={() => markIconReady(issue.id)}
+                        onError={e => { e.target.style.display='none'; markIconReady(issue.id); }}
                       />
                       {answers[issue.id] && answers[issue.id] !== 'D' && (() => {
                         // Color the checkmark by the matched party lean (computed from the
@@ -2961,7 +3051,14 @@
                   : { background: 'transparent', color: '#cbd5e1' }}>
                 {!isMobile && CATEGORY_ICON[tab.key] && CATEGORY_ICON[tab.key]('w-4 h-4 shrink-0 hidden lg:block')}
                 <span className="truncate">{tab.label}</span>
-                {tab.count > 0 && <span className="shrink-0" style={{ color: isActive ? '#059669' : '#34d399', fontSize: isMobile ? '9px' : undefined }}>·{tab.count}</span>}
+                {tab.count > 0 && (
+                  <span className="shrink-0 rounded-full font-bold leading-none"
+                    style={isActive
+                      ? { background: 'rgba(5,150,105,0.15)', color: '#047857', fontSize: isMobile ? '9px' : '11px', padding: isMobile ? '2px 5px' : '3px 7px' }
+                      : { background: 'rgba(52,211,153,0.16)', color: '#34d399', fontSize: isMobile ? '9px' : '11px', padding: isMobile ? '2px 5px' : '3px 7px' }}>
+                    {tab.count}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -3051,12 +3148,12 @@
       );
     }
 
-    // Small "Beta V2" pill — moved out of the county label so the corner is a clean switcher.
+    // Small "Beta V3" pill — moved out of the county label so the corner is a clean switcher.
     function BetaChip() {
       return (
         <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0"
           style={{ background: 'rgba(217,119,6,0.16)', color: '#f59e0b', border: '1px solid rgba(217,119,6,0.35)' }}>
-          Beta V2
+          Beta V3
         </span>
       );
     }
@@ -3099,6 +3196,7 @@
       const [activeTab, setActiveTab] = React.useState('federal');
       const [showAddr, setShowAddr] = React.useState(false);
       const [pendingBallot, setPendingBallot] = React.useState(false);
+      const [collapsedGroups, setCollapsedGroups] = React.useState({});
 
       const answeredCount = Object.keys(answers).filter(id => answers[id] !== 'D').length;
 
@@ -3180,21 +3278,28 @@
           {/* Section header — solid banner naming the active section. Opaque + above the
               sticky race-row headers so they don't bleed through while scrolling under it. */}
           <div className="relative z-30" style={{background:'#1b2136', borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
-            <div className="max-w-5xl mx-auto w-full px-4 py-2.5 flex items-center gap-2">
-              <p className="text-white font-black uppercase tracking-wide text-[17px] leading-none" style={{fontFamily:"'Barlow Condensed',sans-serif", letterSpacing:'0.06em'}}>
-                Your {TABS.find(t => t.key === activeTab)?.label} Candidates
+            <div className="max-w-5xl mx-auto w-full px-4 py-2.5">
+              <div className="flex items-center gap-2">
+                <p className="text-white font-black uppercase tracking-wide text-[17px] leading-none" style={{fontFamily:"'Barlow Condensed',sans-serif", letterSpacing:'0.06em'}}>
+                  Your {TABS.find(t => t.key === activeTab)?.label} Candidates
+                </p>
+                <span className="text-[11px] font-bold" style={{color:'#34d399'}}>
+                  {TABS.find(t => t.key === activeTab)?.count || 0} races
+                </span>
+              </div>
+              <p className="text-[12px] mt-1" style={{color:'#a7b2c5'}}>
+                We checked your answers against every candidate and pre-checked your closest match — tap a candidate to learn more, or change any pick.
+                {answeredCount > 0 && <span style={{color:'#8494ab'}}> % = how closely they match your views, based on your {answeredCount} answered issue{answeredCount !== 1 ? 's' : ''}.</span>}
               </p>
-              <span className="text-[11px] font-bold" style={{color:'#34d399'}}>
-                {TABS.find(t => t.key === activeTab)?.count || 0} races
-              </span>
             </div>
           </div>
 
-          <div className="flex-1 max-w-5xl mx-auto w-full px-4 py-4">
+          <div className="flex-1 max-w-5xl mx-auto w-full px-4 py-4 space-y-2">
 
             {(() => {
               const sectionRaces = filterRacesByDistrict(countyData[activeTab] || [], userDistricts);
-              return sectionRaces.map(race => {
+              return <RaceGroupSections races={sectionRaces} collapsedGroups={collapsedGroups} setCollapsedGroups={setCollapsedGroups}
+                renderRace={race => {
                 const onOpen = race => {
                     const cands = race.candidates.filter(Boolean);
                     const scores = cands.map(c => ({ c, s: calcMatch(c, answers, checkedStatements, ranks) }));
@@ -3205,15 +3310,19 @@
                     const isOverridden = selected[race.office] && selected[race.office] !== cand.name;
                     const displayCand = isOverridden ? cands.find(c => c.name === selected[race.office]) : cand;
                     const displayScore = displayCand ? calcMatch(displayCand, answers, checkedStatements, ranks) : match;
-                    const partyColor = displayCand?.party === 'R' ? '#ef4444' : displayCand?.party === 'D' ? '#3b82f6' : '#a855f7';
+                    const partyColor = displayCand?.party === 'R' ? '#ef4444' : displayCand?.party === 'D' ? '#3b82f6' : displayCand?.party === 'G' ? '#22c55e' : '#94a3b8';
                     const ISSUE_KEYS = ['reproductiveRights','immigration','gunPolicy','education','healthcare','climate','electionIntegrity','socialSecurity','affordability'];
                     const isJudicialRace = race.category === 'judicial' || (displayCand && !ISSUE_KEYS.some(k => displayCand.positions?.[k] && displayCand.positions[k] !== 'D'));
 
                     const isOnBallot = selected[race.office] === displayCand?.name || (!selected[race.office] && !isOverridden && !!cand);
                     const scoreColor = displayScore >= 70 ? '#22c55e' : displayScore >= 40 ? '#f59e0b' : '#ef4444';
+                    // Best-scoring opponent, so the card shows a choice exists.
+                    const rival = cands.filter(c => c !== displayCand)
+                      .map(c => ({ c, s: calcMatch(c, answers, checkedStatements, ranks) }))
+                      .sort((a, b) => (b.s ?? -1) - (a.s ?? -1))[0] || null;
 
                     return (
-                      <div key={race.office} className="rounded-2xl overflow-hidden" style={{background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)'}}>
+                      <div key={race.office} className="rounded-2xl overflow-hidden" style={{background:'rgba(255,255,255,0.11)', border:'1px solid rgba(255,255,255,0.14)'}}>
 
                         {/* ── MOBILE layout (phones only, <768px) ── */}
                         <div className="md:hidden p-3 flex items-center gap-3">
@@ -3234,18 +3343,37 @@
                               </div>
                             )}
                           </div>
-                          {/* Office + name + party */}
-                          <button onClick={() => setProfileData({ candidate: displayCand, race, isBest: !isOverridden })}
-                            className="flex-1 min-w-0 text-left transition-all active:scale-[0.99]">
+                          {/* Office + name + party (div, not button — the ballot toggle nests inside) */}
+                          <div onClick={() => setProfileData({ candidate: displayCand, race, isBest: !isOverridden })}
+                            className="flex-1 min-w-0 text-left cursor-pointer transition-all active:scale-[0.99]">
                             <p className="text-[10px] font-black uppercase tracking-widest mb-1 leading-tight" style={{color:'rgba(255,255,255,0.4)'}}>
                               {formatOfficeLines(race.office).map((line, i) => <span key={i} className="block">{line}</span>)}
                             </p>
                             <p className="text-white font-black text-lg leading-tight mb-1.5">{displayCand?.name}</p>
-                            <span className="inline-block text-[10px] font-black uppercase tracking-wide px-2.5 py-0.5 rounded-full"
-                              style={{background: partyColor + '28', color: partyColor, border: `1px solid ${partyColor}55`}}>
-                              {partyName(displayCand?.party)}
-                            </span>
-                          </button>
+                            <div className="flex items-center flex-wrap gap-1.5">
+                              <span className="inline-block text-[10px] font-black uppercase tracking-wide px-2.5 py-0.5 rounded-full"
+                                style={{background: partyColor + '28', color: partyColor, border: `1px solid ${partyColor}55`}}>
+                                {partyName(displayCand?.party)}
+                              </span>
+                              <button onClick={e => {
+                                  e.stopPropagation();
+                                  const office = race.office;
+                                  const name = displayCand?.name;
+                                  setSelected(prev => prev[office] === name ? Object.fromEntries(Object.entries(prev).filter(([k]) => k !== office)) : {...prev, [office]: name});
+                                }}
+                                className="text-[10px] font-black uppercase tracking-wide px-2.5 py-1 rounded-lg whitespace-nowrap"
+                                style={isOnBallot
+                                  ? {background:'rgba(34,197,94,0.2)', color:'#22c55e', border:'1px solid rgba(34,197,94,0.5)'}
+                                  : {background:'rgba(255,255,255,0.08)', color:'rgba(255,255,255,0.9)', border:'1px solid rgba(255,255,255,0.35)'}}>
+                                {isOnBallot ? '✓ On Ballot' : '+ Add to Ballot'}
+                              </button>
+                            </div>
+                            {rival && (
+                              <p className="text-[11px] mt-1.5" style={{color:'rgba(255,255,255,0.55)'}}>
+                                vs. {rival.c.name} ({rival.c.party}){!isJudicialRace && rival.s !== null ? ` · ${rival.s}%` : ''}
+                              </p>
+                            )}
+                          </div>
                           {/* Get the Facts — compact, to the right */}
                           <button onClick={() => setProfileData({ candidate: displayCand, race, isBest: !isOverridden })}
                             className="shrink-0 flex flex-col items-center justify-center gap-1 px-2 py-3 rounded-xl transition-all active:scale-[0.96]"
@@ -3271,6 +3399,11 @@
                             {race.description && <p className="text-[13px] leading-relaxed mb-3" style={{color:'rgba(255,255,255,0.7)'}}>{formatDescription(race.description)}</p>}
                             {displayCand && (
                               <p className="text-[12px] font-black uppercase tracking-widest" style={{color:'#22c55e'}}>✓ {displayCand.name}</p>
+                            )}
+                            {rival && (
+                              <p className="text-[12px] mt-1.5" style={{color:'rgba(255,255,255,0.55)'}}>
+                                vs. {rival.c.name} ({rival.c.party}){!isJudicialRace && rival.s !== null ? ` · ${rival.s}%` : ''}
+                              </p>
                             )}
                           </div>
 
@@ -3323,7 +3456,7 @@
                                   className="text-[10px] font-black uppercase tracking-wide px-2.5 py-1.5 rounded-lg whitespace-nowrap transition-all hover:brightness-125"
                                   style={{...(isOnBallot
                                     ? {background:'rgba(34,197,94,0.2)', color:'#22c55e', border:'1px solid rgba(34,197,94,0.5)'}
-                                    : {background:'rgba(255,255,255,0.08)', color:'rgba(255,255,255,0.5)', border:'1px solid rgba(255,255,255,0.2)'}), letterSpacing:'0.04em'}}>
+                                    : {background:'rgba(255,255,255,0.08)', color:'rgba(255,255,255,0.9)', border:'1px solid rgba(255,255,255,0.35)'}), letterSpacing:'0.04em'}}>
                                   {isOnBallot ? '✓ On Ballot' : '+ Add to Ballot'}
                                 </button>
                               </div>
@@ -3335,7 +3468,7 @@
                     );
                   };
                 return onOpen(race);
-              });
+              }} />;
             })()}
 
 
@@ -3441,14 +3574,14 @@
       const setTab = (id, tab) => setIssueTab(o => ({ ...o, [id]: o[id] === tab ? undefined : tab }));
       const [showSources, setShowSources] = useState(false);
       const [hookCollapsed, setHookCollapsed] = useState(() => !!focusIssueId && window.matchMedia('(max-width: 767px)').matches); // mobile only: returning from a quiz keeps bio collapsed for room (desktop has a separate column)
-      const border = candidate.party === 'D' ? 'border-blue-500' : candidate.party === 'R' ? 'border-red-500' : 'border-slate-300';
-      const accentBg = candidate.party === 'D' ? 'bg-blue-800' : candidate.party === 'R' ? 'bg-red-800' : 'bg-slate-800';
+      const border = candidate.party === 'D' ? 'border-blue-500' : candidate.party === 'R' ? 'border-red-500' : candidate.party === 'G' ? 'border-green-500' : 'border-slate-300';
+      const accentBg = candidate.party === 'D' ? 'bg-blue-800' : candidate.party === 'R' ? 'bg-red-800' : candidate.party === 'G' ? 'bg-green-900' : 'bg-slate-800';
       // Identity panel shares the app's dark-indigo gradient; party shows as ACCENTS
       // (photo ring, party label, match pill) instead of a full-color slab, so the
       // profile reads as one cohesive surface with the issue list below it.
       const accentGrad = 'linear-gradient(165deg,#1e1b4b 0%,#0f172a 100%)';
-      const partyTint = candidate.party === 'D' ? '#60a5fa' : candidate.party === 'R' ? '#f87171' : '#94a3b8';
-      const partyPillBg = candidate.party === 'D' ? '#2563eb' : candidate.party === 'R' ? '#dc2626' : '#475569';
+      const partyTint = candidate.party === 'D' ? '#60a5fa' : candidate.party === 'R' ? '#f87171' : candidate.party === 'G' ? '#4ade80' : '#94a3b8';
+      const partyPillBg = candidate.party === 'D' ? '#2563eb' : candidate.party === 'R' ? '#dc2626' : candidate.party === 'G' ? '#16a34a' : '#475569';
       const matchScore = hasAnswers ? calcMatch(candidate, answers, _cs, ranks || {}) : null;
       const _ISSUE_KEYS = ['reproductiveRights','immigration','gunPolicy','education','healthcare','climate','electionIntegrity','socialSecurity','affordability'];
       // Judicial = the race's category only. (Don't infer it from having no positions — county
@@ -3500,6 +3633,12 @@
       const testedCount = meterDots.filter(m => m.state !== 'untested').length;
       const matchCount = meterDots.filter(m => m.state === 'match').length;
       const allTested = meterDots.length > 0 && testedCount === meterDots.length;
+      // Escape always closes the sheet — without this, mobile users can get trapped.
+      React.useEffect(() => {
+        const onKey = e => { if (e.key === 'Escape') onClose(); };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+      }, [onClose]);
       const shareResult = () => {
         const text = `${candidate.name} and I agree on ${matchCount} of ${meterDots.length} issues on VoteYourViews.org. See if YOUR views match:`;
         const shareUrl = `https://voteyourviews.org/${candidateSlug(candidate.name)}`;
@@ -3514,7 +3653,7 @@
         <React.Fragment>
         <div className="fixed inset-0 z-50 flex flex-col bg-black/85 md:items-center md:justify-center md:p-6">
           <div className="flex flex-col bg-white md:rounded-2xl md:shadow-2xl md:ring-1 md:ring-white/15 md:max-w-6xl w-full md:max-h-[92vh] overflow-hidden relative">
-            <button onClick={onClose} aria-label="Close" className="absolute top-3 right-3 z-20 w-9 h-9 bg-white text-slate-900 rounded-full flex items-center justify-center font-bold text-base shadow-lg ring-1 ring-black/10 hover:bg-slate-200">✕</button>
+            <button onClick={onClose} aria-label="Close" className="absolute top-3 right-3 z-30 w-9 h-9 bg-white text-slate-900 rounded-full flex items-center justify-center font-bold text-base shadow-lg ring-1 ring-black/10 hover:bg-slate-200">✕</button>
             {/* Full-panel match celebration */}
             {celebrateMatch && (() => {
               const colors = ['#fbbf24','#34d399','#60a5fa','#f87171','#ffffff'];
@@ -3537,7 +3676,7 @@
           <div className={`${accentBg} md:w-[300px] lg:w-[380px] md:flex-shrink-0 md:overflow-y-auto relative flex-shrink-0 px-5 pt-8 pb-5 lg:pt-10`} style={{ background: accentGrad, boxShadow: '6px 0 24px rgba(0,0,0,0.35)' }}>
 
             {/* Top row: photo + identity — the only sticky piece on mobile; bio below scrolls away */}
-            <div className="flex items-center gap-4 sticky md:static top-0 z-20 -mx-5 px-5 -mt-8 pt-6 pb-3 md:mx-0 md:px-0 md:mt-0 md:pt-0 md:pb-0"
+            <div className="flex items-center gap-4 sticky md:static top-0 z-20 -mx-5 px-5 pr-14 -mt-8 pt-6 pb-3 md:mx-0 md:px-0 md:mt-0 md:pt-0 md:pb-0"
                  style={{ background: accentGrad }}>
               {/* Photo — larger on desktop */}
               <div className="flex-shrink-0">
@@ -3545,10 +3684,10 @@
                   <button onClick={() => { setShowBadgeTip(false); onSelect(); }}
                     onMouseEnter={() => setShowBadgeTip(true)} onMouseLeave={() => setShowBadgeTip(false)}
                     className="relative active:scale-95 hover:scale-105 transition-transform" title={isSelected ? 'Remove from ballot' : 'Add to ballot'}>
-                    <div className={`w-[84px] h-[84px] lg:w-[125px] lg:h-[125px] rounded-full border-4 overflow-hidden bg-white/20 transition-colors ${candidate.party === 'D' ? 'border-blue-400' : candidate.party === 'R' ? 'border-red-500' : 'border-slate-400'}`}>
+                    <div className={`w-[84px] h-[84px] lg:w-[125px] lg:h-[125px] rounded-full border-4 overflow-hidden bg-white/20 transition-colors ${candidate.party === 'D' ? 'border-blue-400' : candidate.party === 'R' ? 'border-red-500' : candidate.party === 'G' ? 'border-green-500' : 'border-slate-400'}`}>
                       <img src={candidate.photo || '/icons/candidate-undefined.png'} alt={candidate.name} className="w-full h-full object-cover object-top" onError={e => { e.target.src='/icons/candidate-undefined.png'; e.target.className='w-full h-full object-contain object-bottom'; e.target.style.opacity='0.6'; }} />
                     </div>
-                    <span className={`absolute bottom-1 right-1 w-7 h-7 rounded-full flex items-center justify-center text-base font-black border-2 border-white shadow-md transition-colors ${isSelected ? (candidate.party === 'D' ? 'bg-blue-500 text-white' : candidate.party === 'R' ? 'bg-red-500 text-white' : 'bg-slate-500 text-white') : 'bg-white text-slate-900'}`}>
+                    <span className={`absolute bottom-1 right-1 w-7 h-7 rounded-full flex items-center justify-center text-base font-black border-2 border-white shadow-md transition-colors ${isSelected ? (candidate.party === 'D' ? 'bg-blue-500 text-white' : candidate.party === 'R' ? 'bg-red-500 text-white' : candidate.party === 'G' ? 'bg-green-600 text-white' : 'bg-slate-500 text-white') : 'bg-white text-slate-900'}`}>
                       {isSelected ? '✓' : '+'}
                     </span>
                     {showBadgeTip && (
@@ -3558,7 +3697,7 @@
                     )}
                   </button>
                 ) : (
-                  <div className={`w-[84px] h-[84px] lg:w-[125px] lg:h-[125px] rounded-full border-4 overflow-hidden bg-white/20 ${candidate.party === 'D' ? 'border-blue-400' : candidate.party === 'R' ? 'border-red-500' : 'border-slate-400'}`}>
+                  <div className={`w-[84px] h-[84px] lg:w-[125px] lg:h-[125px] rounded-full border-4 overflow-hidden bg-white/20 ${candidate.party === 'D' ? 'border-blue-400' : candidate.party === 'R' ? 'border-red-500' : candidate.party === 'G' ? 'border-green-500' : 'border-slate-400'}`}>
                     <img src={candidate.photo || '/icons/candidate-undefined.png'} alt={candidate.name} className="w-full h-full object-cover object-top" onError={e => { e.target.src='/icons/candidate-undefined.png'; e.target.className='w-full h-full object-contain object-bottom'; e.target.style.opacity='0.6'; }} />
                   </div>
                 )}
@@ -3606,8 +3745,8 @@
                         <span className={`md:hidden text-[13px] font-black px-3 py-1 rounded-full text-white${allTested ? ' match-final' : ''}`} style={{background: partyPillBg, border: `1px solid ${partyTint}66`}}>{matchScore}% match</span>
                       ) : null}
                       {(onCompareTo || onCompare) && others.map(opp => {
-                        const targetTint = opp.party === 'D' ? '#60a5fa' : opp.party === 'R' ? '#f87171' : '#94a3b8';
-                        const targetBg = opp.party === 'D' ? '#2563eb' : opp.party === 'R' ? '#dc2626' : '#475569';
+                        const targetTint = opp.party === 'D' ? '#60a5fa' : opp.party === 'R' ? '#f87171' : opp.party === 'G' ? '#4ade80' : '#94a3b8';
+                        const targetBg = opp.party === 'D' ? '#2563eb' : opp.party === 'R' ? '#dc2626' : opp.party === 'G' ? '#16a34a' : '#475569';
                         return (
                           <button key={opp.name} onClick={() => jump(opp)}
                             className="text-[11px] font-black uppercase tracking-wide px-3 py-1 rounded-full text-white hover:brightness-125 transition-all whitespace-nowrap"
@@ -3803,7 +3942,7 @@
                 // Colors derive from the candidate's party so the card connects to the (party-colored) profile header above it.
                 const tintFor = (p) => p === 'D' ? '#1d2b63' : p === 'R' ? '#59101c' : '#23304d';   // content panel
                 // Collapsed-card header gets a subtle vertical gradient so each row reads as a distinct embossed tile (like the landing tiles)
-                const cardHeaderGrad = candidate.party === 'D' ? 'linear-gradient(180deg,#1b2c6b 0%,#0d1740 100%)' : candidate.party === 'R' ? 'linear-gradient(180deg,#48202c 0%,#1f0a10 100%)' : 'linear-gradient(180deg,#1e293b 0%,#0b1220 100%)';
+                const cardHeaderGrad = candidate.party === 'D' ? 'linear-gradient(180deg,#1b2c6b 0%,#0d1740 100%)' : candidate.party === 'R' ? 'linear-gradient(180deg,#48202c 0%,#1f0a10 100%)' : candidate.party === 'G' ? 'linear-gradient(180deg,#1b3d28 0%,#0a1c10 100%)' : 'linear-gradient(180deg,#1e293b 0%,#0b1220 100%)';
                 const isFactsTab = tab === 'facts';
                 const contentBg = isFactsTab ? '#eef2f7' : (tab === 'opp' ? tintFor(opponent?.party) : tintFor(candidate.party));
                 const headCls = isFactsTab ? 'text-slate-900' : 'text-white';
@@ -4013,6 +4152,9 @@
                 Compare {TABS.find(t => t.key === activeTab)?.label} Candidates
               </p>
               <span className="text-[11px] font-bold" style={{color:'#34d399'}}>{races.length} {races.length === 1 ? 'race' : 'races'}</span>
+              {answers && Object.keys(answers).length > 0 && (
+                <span className="ml-auto text-[11px] font-semibold" style={{color:'#cbd5e1'}}>% = how closely they match your views</span>
+              )}
             </div>
           </div>
 
@@ -4021,26 +4163,8 @@
             {races.length === 0 && (
               <div className="text-center py-16 text-slate-400 text-sm">No races in this category for your district.</div>
             )}
-            {(() => {
-              // Group the tab's races into subsections, preserving order of first appearance.
-              const groups = [];
-              races.forEach(r => {
-                const label = raceSubgroup(r);
-                const g = groups.find(x => x.label === label);
-                if (g) g.races.push(r); else groups.push({ label, races: [r] });
-              });
-              const grouped = groups.length > 1;
-              return groups.map(g => (
-                <React.Fragment key={g.label || 'all'}>
-                  {grouped && g.label && (
-                    <button onClick={() => setCollapsedGroups(prev => ({ ...prev, [g.label]: !(g.label in prev ? prev[g.label] : g.races.length > 20) }))}
-                      className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl font-black uppercase tracking-widest text-[13px] transition-all hover:bg-white/10"
-                      style={{background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.12)', color:'#cbd5e1'}}>
-                      <span>{g.label} <span style={{color:'#34d399'}}>·{g.races.length}</span></span>
-                      <svg className={`w-4 h-4 transition-transform ${(g.label in collapsedGroups ? collapsedGroups[g.label] : g.races.length > 20) ? '' : 'rotate-180'}`} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                    </button>
-                  )}
-                  {(!grouped || !g.label || !(g.label in collapsedGroups ? collapsedGroups[g.label] : g.races.length > 20)) && g.races.map(race => {
+            <RaceGroupSections races={races} collapsedGroups={collapsedGroups} setCollapsedGroups={setCollapsedGroups}
+              renderRace={race => {
               const isSelected = !!selected[race.office];
               const score = answers && Object.keys(answers).length > 0
                 ? Math.max(...race.candidates.filter(Boolean).map(c => calcMatch(c, answers, checkedStatements, ranks) || 0))
@@ -4077,9 +4201,9 @@
                     <div className="w-full md:w-1/2 flex relative">
                       {/* Compare button removed */}
                       {race.candidates.filter(Boolean).map(c => {
-                        const accent = c.party==='D'?'#3b82f6':c.party==='R'?'#ef4444':'#94a3b8';
+                        const accent = c.party==='D'?'#3b82f6':c.party==='R'?'#ef4444':c.party==='G'?'#22c55e':'#94a3b8';
                         const partyLabel = partyName(c.party);
-                        const partyColor = c.party==='D'?'text-blue-400':c.party==='R'?'text-red-400':'text-slate-400';
+                        const partyColor = c.party==='D'?'text-blue-400':c.party==='R'?'text-red-400':c.party==='G'?'text-green-400':'text-slate-400';
                         const candMatch = answers && Object.keys(answers).length > 0 ? calcMatch(c, answers, checkedStatements, ranks) : null;
                         const ringSize = 72;
                         const border = 4;
@@ -4088,10 +4212,10 @@
                         const crowded = race.candidates.filter(Boolean).length > 2;
                         const sp = c.name.lastIndexOf(' ');
                         return (
-                          <button key={c.name}
+                          <div key={c.name}
                             onClick={() => setBrowseProfile({candidate: c, race})}
                             className="flex-1 flex flex-col items-center justify-center py-4 md:py-5 gap-2 border-r border-white/10 cursor-pointer active:bg-white/10 transition-colors"
-                            style={{background:'rgba(255,255,255,0.05)', margin:'8px', borderRadius:'14px', border:`1.5px solid #d97706`}}>
+                            style={{background:'rgba(255,255,255,0.11)', margin:'8px', borderRadius:'14px', border:'1px solid rgba(255,255,255,0.14)'}}>
                             <p className="text-[12px] font-black text-slate-200 uppercase tracking-widest text-center leading-tight">
                               {crowded && sp > 0 ? (<>{c.name.slice(0, sp)}<br/>{c.name.slice(sp + 1)}</>) : c.name}
                             </p>
@@ -4109,7 +4233,8 @@
                               )}
                             </div>
                             <span className={`text-[10px] font-bold uppercase tracking-wide ${partyColor}`}>{partyLabel}</span>
-                            <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full" style={{background:'rgba(217,119,6,0.2)', color:'#f59e0b', border:'1px solid rgba(217,119,6,0.5)'}}><svg viewBox="0 0 24 24" fill="currentColor" style={{width:'11px',height:'11px'}}><path d="M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-4.4 0-8 2.7-8 6v1h16v-1c0-3.3-3.6-6-8-6z"/></svg>About {c.name.split(' ')[0]}</span>
+                            <button onClick={e => { e.stopPropagation(); setBrowseProfile({candidate: c, race}); }}
+                              className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wide px-2.5 py-1.5 rounded-lg whitespace-nowrap" style={{background:'rgba(217,119,6,0.2)', color:'#f59e0b', border:'1px solid rgba(217,119,6,0.5)'}}><svg viewBox="0 0 24 24" fill="currentColor" style={{width:'11px',height:'11px'}}><path d="M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-4.4 0-8 2.7-8 6v1h16v-1c0-3.3-3.6-6-8-6z"/></svg>About {c.name.split(' ')[0]}</button>
                             {(() => {
                               const isCandSelected = selected[race.office] === c.name;
                               return (
@@ -4120,15 +4245,15 @@
                                       ? Object.fromEntries(Object.entries(prev).filter(([k]) => k !== race.office))
                                       : {...prev, [race.office]: c.name});
                                   }}
-                                  className="mt-1 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest transition-all active:scale-95"
+                                  className="mt-1 px-2.5 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wide transition-all active:scale-95"
                                   style={isCandSelected
-                                    ? {background:'#10b981', color:'#fff'}
-                                    : {background:'rgba(255,255,255,0.1)', color:'rgba(255,255,255,0.6)', border:'1px solid rgba(255,255,255,0.2)'}}>
+                                    ? {background:'#10b981', color:'#fff', whiteSpace:'nowrap'}
+                                    : {background:'rgba(255,255,255,0.1)', color:'rgba(255,255,255,0.9)', border:'1px solid rgba(255,255,255,0.35)', whiteSpace:'nowrap'}}>
                                   {isCandSelected ? '✓ On Ballot' : '+ Add to Ballot'}
                                 </button>
                               );
                             })()}
-                          </button>
+                          </div>
                         );
                       })}
                       {/* Placeholder opponent for uncontested races */}
@@ -4158,10 +4283,7 @@
 
                 </div>
               );
-            })}
-                </React.Fragment>
-              ));
-            })()}
+            }} />
 
             {/* Spacer so the last race card can scroll clear of the fixed bar */}
             <div style={{height:'84px'}} />
@@ -4506,7 +4628,7 @@
                   </div>
                   <div className={sec.key === 'county' ? 'ballot-picks ballot-picks-3' : 'ballot-picks'}>
                     {sectionCandidates.map(({ race, candidate }) => {
-                      const partyColor = candidate.party === 'D' ? '#2563eb' : candidate.party === 'R' ? '#dc2626' : '#64748b';
+                      const partyColor = candidate.party === 'D' ? '#2563eb' : candidate.party === 'R' ? '#dc2626' : candidate.party === 'G' ? '#16a34a' : '#64748b';
                       const partyLabel = partyName(candidate.party);
                       return (
                         <div key={race.office} className="ballot-pick-row" style={{padding:'2px 0 5px'}}>
@@ -4897,7 +5019,7 @@
       }
 
       const partyLabel = candidate.party === 'D' ? 'Democrat' : candidate.party === 'R' ? 'Republican' : 'Candidate';
-      const partyBar = candidate.party === 'D' ? '#2563eb' : candidate.party === 'R' ? '#dc2626' : '#475569';
+      const partyBar = candidate.party === 'D' ? '#2563eb' : candidate.party === 'R' ? '#dc2626' : candidate.party === 'G' ? '#16a34a' : '#475569';
       const profileUrl = (window.location.pathname.replace(/\/edit\/?$/i, '') || '/');
       // Display/copy the pretty PascalCase form (JamesTalarico) — routing is case-insensitive.
       const fullProfileUrl = `${window.location.origin}/${(candidate.name || '').replace(/[^a-zA-Z0-9]/g, '')}`;
