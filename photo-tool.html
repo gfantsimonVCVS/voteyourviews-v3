@@ -390,6 +390,13 @@ async function ensureManifest(){
   return PHOTO_MANIFEST;
 }
 // photos live in per-party folders: images/candidates/<county>/<PARTY>/<slug>.png; statewide/<party>/ is shared
+// Already shipped? — the photo exists in the repo manifest under any folder.
+function shippedInRepo(slug, party){
+  const m = PHOTO_MANIFEST || new Set(); const p=(party||'').toUpperCase();
+  if(m.has(`statewide/${p}/${slug}.png`)) return true;
+  for(const rel of m) if(rel.endsWith(`/${p}/${slug}.png`) || rel.endsWith(`/${slug}.png`)) return true;
+  return false;
+}
 async function existingProcessed(slug, party){
   const county=$('#county').value;
   const p=(party||'').toUpperCase();
@@ -434,7 +441,7 @@ async function runCard(card, src, isReplace){
   const restore=()=>{ if(rec && rec.state) setState(card, rec.state, false); };
   if(!isReplace){
     // 0) a manual fix you made earlier — survives reload / tab close (highest priority)
-    if(rec && rec.png){ el.querySelector('.orig').src=rec.png; await applyResult(card, rec.png, el, false); flag(card,'✅ your saved fix','text-emerald-600'); restore(); return; }
+    if(rec && rec.png){ el.querySelector('.orig').src=rec.png; const shipped = shippedInRepo(slug, card.candidate?card.candidate.party:''); await applyResult(card, rec.png, el, shipped); flag(card, shipped ? '✅ your saved fix (already in repo)' : '✅ your saved fix — not saved to repo yet','text-emerald-600'); restore(); return; }
     // 1) an already-processed PNG in the repo — no CORS, no recompute
     const ex=await existingProcessed(slug, card.candidate?card.candidate.party:'');
     if(ex){ await applyResult(card, ex, el, true); restore(); return; }
