@@ -232,8 +232,11 @@ async function getMissing(){
   btn.disabled=false;
 }
 function applyFilter(){
+  // "Only missing" = needs YOUR attention: no photo yet OR a freshly-found photo you haven't
+  // approved/rejected. (Hiding any card with a png made auto-found photos vanish unreviewed.)
   const only = $('#onlyMissing') && $('#onlyMissing').checked;
-  for(const c of cards){ const el=document.getElementById(c.id); if(el) el.style.display = (only && c.png) ? 'none' : ''; }
+  const handled = c => c.png && (c.state === 'approved' || c.state === 'rejected' || c.fromRepo);
+  for(const c of cards){ const el=document.getElementById(c.id); if(el) el.style.display = (only && handled(c)) ? 'none' : ''; }
 }
 
 // fuzzy-ish name match: compare slugs, allow subset/startswith
@@ -418,7 +421,7 @@ async function applyResult(card, dataUrl, el, fromRepo){
   // already-finished photo (repo or saved fix) — show it on BOTH sides, not the stale sheet URL on the left
   card.png=dataUrl; el.querySelector('.cut').src=dataUrl; el.querySelector('.orig').src=dataUrl;
   const faces = await countFaces(await loadImg(dataUrl));   // still face-check repo images (catches Bo French's family)
-  card.faces=faces; card.state='ready';
+  card.faces=faces; card.state='ready'; card.fromRepo = !!fromRepo;
   setFlagByFaces(card, faces, fromRepo?' (from repo)':'');
   updateCounts();
 }
