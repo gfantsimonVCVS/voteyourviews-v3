@@ -609,7 +609,9 @@
     // Collapsible race sections shared by Compare (Browse) and Pre-Ballot (Results).
     // Groups races via raceSubgroup, renders each group behind a closed-by-default
     // header with an office preview; renderRace draws each race row.
-    function RaceGroupSections({ races, collapsedGroups, setCollapsedGroups, renderRace }) {
+    // groupAppendix: optional { [groupLabel]: node } rendered after that group's races —
+    // e.g. the "your senator isn't up this cycle" card under State House & Senate.
+    function RaceGroupSections({ races, collapsedGroups, setCollapsedGroups, renderRace, groupAppendix }) {
       const groups = [];
       races.forEach(r => {
         const label = raceSubgroup(r);
@@ -665,9 +667,14 @@
             </button>
           )}
           {(!grouped || !g.label || !isCollapsed) && g.races.map(renderRace)}
+          {(!grouped || !g.label || !isCollapsed) && groupAppendix && g.label && groupAppendix[g.label]}
         </React.Fragment>
         );
       })}
+      {/* Appendix nodes whose group has no races this ballot (e.g. senator not up AND no house race in our data) still render, at the end. */}
+      {groupAppendix && Object.entries(groupAppendix).filter(([label]) => !groups.some(g => g.label === label)).map(([label, node]) => (
+        <React.Fragment key={label}>{node}</React.Fragment>
+      ))}
       {grouped && (
         <p className="text-center text-[12px] pt-4" style={{color:'#64748b'}}>Tap a section to show or hide its candidates</p>
       )}
@@ -1882,7 +1889,7 @@
             {/* Mobile: full logo, scaled to width, never cropped. height:auto shows the
                 WHOLE wordmark (incl .org); maxWidth caps it so it can't get giant. Breakpoint
                 is lg so landscape phones (<1024px) keep this and don't pick up the desktop header. */}
-            <button onClick={onLogo} className="block lg:hidden mx-auto w-full max-w-[440px] md:max-w-[600px]">
+            <button onClick={onLogo} className="block lg:hidden mx-auto w-full max-w-[440px] md:max-w-[500px]">
               <img src="/icons/VoteYourViews_ThinHeader1.png" alt="VoteYourViews.org"
                 style={{width:'100%', height:'auto'}} />
             </button>
@@ -1917,7 +1924,7 @@
           )}
 
           {/* Main — two-column on desktop, stacked on mobile */}
-          <main className="relative flex flex-col lg:flex-row items-center justify-center px-4 lg:px-16 xl:px-28 pt-1 pb-4 lg:pt-[50px] lg:pb-16 gap-3 lg:gap-20 fade-in">
+          <main className="relative flex flex-col lg:flex-row items-center justify-center px-4 lg:px-16 xl:px-28 pt-1 md:pt-4 pb-4 lg:pt-[50px] lg:pb-16 gap-3 lg:gap-20 fade-in">
 
             {/* ── Left col (desktop) / Top (mobile): Headline + description + CTAs ── */}
             {!picker && (
@@ -1927,21 +1934,21 @@
                 <span className="hero-in inline-block text-blue-400" style={{animationDelay:'0.6s'}}>Elect Who Agrees.</span>
               </h1>
               {/* Mobile: animated hero banner — one fixed-height stage cycling the pitch, resting on the tour */}
-              <div className="lg:hidden relative w-full h-[104px] md:h-[144px] flex items-center justify-center text-center">
+              <div className="lg:hidden relative w-full h-[104px] md:h-[116px] flex items-center justify-center text-center">
                 {heroBeat === 0 && (
-                  <h1 className="font-black text-white leading-tight tracking-tight uppercase text-[22px] md:text-[30px]">
+                  <h1 className="font-black text-white leading-tight tracking-tight uppercase text-[22px] md:text-[26px]">
                     <span className="hero-beat inline-block">Rank Your Beliefs.</span><br/>
                     <span className="hero-beat-late text-blue-400">Elect Who Agrees.</span>
                   </h1>
                 )}
                 {heroBeat === 1 && (
-                  <p className="text-white font-black text-[24px] md:text-[33px] uppercase leading-tight tracking-wide" style={{fontFamily:"'Barlow Condensed', sans-serif"}}>
+                  <p className="text-white font-black text-[24px] md:text-[28px] uppercase leading-tight tracking-wide" style={{fontFamily:"'Barlow Condensed', sans-serif"}}>
                     <span className="hero-beat inline-block"><span className="text-red-400">STOP</span> voting parties.</span><br/>
                     <span className="hero-beat-late"><span className="text-blue-400">START</span> voting your views.</span>
                   </p>
                 )}
                 {heroBeat === 2 && (
-                  <button onClick={openTour} className="hero-tour-line font-black text-[23px] md:text-[31px] uppercase leading-tight tracking-wider"
+                  <button onClick={openTour} className="hero-tour-line font-black text-[23px] md:text-[27px] uppercase leading-tight tracking-wider"
                     style={{fontFamily:"'Barlow Condensed', sans-serif", border:'none'}}>
                     ★ Take the 1 Minute Tour →
                   </button>
@@ -2005,7 +2012,7 @@
             )}
 
             {/* ── Right col (desktop) / Bottom (mobile): Icon grid + mobile CTAs ── */}
-            <div className="w-full max-w-xs md:max-w-[440px] lg:max-w-sm relative z-20">
+            <div className="w-full max-w-xs md:max-w-[480px] lg:max-w-sm relative z-20">
               <div className="grid grid-cols-3 gap-1.5 md:gap-2.5 lg:gap-3 mb-3 lg:mb-0" onMouseLeave={() => setHoveredIssue(null)}>
                 {issueList.map((issue, idx) => (
                   <button
@@ -2051,7 +2058,7 @@
                         </div>
                       )}
                     </div>
-                    <span className="text-slate-400 text-[12px] lg:text-[15px] font-semibold text-center leading-tight group-hover:text-white group-hover:font-black transition-all duration-150 px-0.5" style={{fontFamily:"'Barlow Condensed', sans-serif", letterSpacing:'0.03em'}}>
+                    <span className="text-slate-400 text-[12px] md:text-[14px] lg:text-[15px] font-semibold text-center leading-tight group-hover:text-white group-hover:font-black transition-all duration-150 px-0.5" style={{fontFamily:"'Barlow Condensed', sans-serif", letterSpacing:'0.03em'}}>
                       {issue.topic}
                     </span>
                   </button>
@@ -2141,6 +2148,11 @@
     }
 
     // ─── ISSUE STATEMENTS (hardcoded, wired to sheet later) ───
+    // Senate seats NOT on the 2026 ballot (staggered 4-year terms) — districtNumber → row
+    // from the SenatorsNotUp tab, so the results screen can explain the absence instead of
+    // silently omitting the race.
+    let SENATORS_NOT_UP = {};
+
     let ISSUE_STATEMENTS = {
       'Reproductive Rights': [
         "Forcing anyone, at any age — including victims of rape or incest — to give birth should NOT be Texas law.",
@@ -3185,6 +3197,89 @@
 
 
 
+    // Shown in place of the State Senate race when the voter's district isn't up this cycle —
+    // names the sitting senator and explains the staggered terms, so the gap reads as civic
+    // fact rather than missing data. Fed by the SenatorsNotUp sheet tab.
+    function SenateNotUpCard({ district, senator }) {
+      const partyColor = senator.party === 'R' ? '#ef4444' : senator.party === 'D' ? '#3b82f6' : '#94a3b8';
+      // Photo: sheet URL first, then a self-hosted PNG saved via the photo tool's
+      // "Not On Ballot" group (images/candidates/notonballot/<PARTY>/<slug>.png).
+      const photo = senator.photo || resolveLocalPhoto('notonballot', senator.party, senator.name);
+      const nextUp = senator.termEnd || '2028';
+      const hook = `Senator ${senator.name} has been the state senator for District ${district}${senator.sinceYear ? ` since ${senator.sinceYear}` : ''}.`;
+      const nextUpLine = `${senator.pronoun || 'They'} will not be up for election again until ${nextUp}.`;
+      const description = 'Texas has 31 state senators and senate districts. Only half are up for election every 4 years.';
+      const Photo = ({ size }) => (
+        <div className={`${size} rounded-full overflow-hidden flex`} style={{border:`3px solid ${partyColor}`, background: partyColor + '33'}}>
+          {photo &&
+            <img src={photo} alt={senator.name} className="w-full h-full object-cover" style={{objectPosition:'center 5%'}} onError={e => { e.target.style.display='none'; const s=e.target.nextElementSibling; if(s) s.style.display='flex'; }} />
+          }
+          <div className="w-full h-full items-center justify-center" style={{background:'#e2e8f0', display: photo ? 'none' : 'flex'}}>
+            <img src="/icons/candidate-undefined.png" alt="No photo" className="w-full h-full object-contain object-bottom" style={{opacity:0.5}} />
+          </div>
+        </div>
+      );
+      const partyPill = (
+        <span className="text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full"
+          style={{background: partyColor + '28', color: partyColor, border:`1px solid ${partyColor}55`}}>
+          {partyName(senator.party)}
+        </span>
+      );
+      return (
+        <div className="rounded-2xl overflow-hidden" style={{background:'rgba(255,255,255,0.11)', border:'1px solid rgba(255,255,255,0.14)'}}>
+
+          {/* ── MOBILE layout (phones only, <768px) ── */}
+          <div className="md:hidden p-3 flex items-center gap-3">
+            <div className="shrink-0"><Photo size="w-[72px] h-[72px]" /></div>
+            <div className="flex-1 min-w-0 text-left">
+              <p className="text-[10px] font-black uppercase tracking-widest mb-1 leading-tight" style={{color:'rgba(255,255,255,0.4)'}}>
+                TX State Senate<span className="block">District {district}</span>
+              </p>
+              <p className="text-white font-black text-lg leading-tight mb-1.5">{senator.name}</p>
+              <div className="flex items-center flex-wrap gap-1.5 mb-1.5">{partyPill}</div>
+              <p className="text-[11px] font-black uppercase tracking-widest" style={{color:'#f87171'}}>Not up for election in 2026</p>
+            </div>
+          </div>
+
+          {/* ── DESKTOP/TABLET layout: 3 columns, col 3 double-wide (≥768px) ── */}
+          <div className="hidden md:grid" style={{gridTemplateColumns:'1fr 1.6fr 2fr', minHeight:'160px'}}>
+
+            {/* Col 1: Race name */}
+            <div className="flex flex-col items-center justify-center gap-2 px-6 py-6 border-r border-white/10 text-center">
+              <p className="font-black uppercase leading-tight" style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'22px', letterSpacing:'0.04em', color:'#fff'}}>
+                <span className="block">TX State Senate</span>
+                <span className="block">District {district}</span>
+              </p>
+            </div>
+
+            {/* Col 2: Office description + not-up notice */}
+            <div className="flex flex-col justify-center px-6 py-6 border-r border-white/10">
+              <p className="text-[13px] leading-relaxed mb-3" style={{color:'rgba(255,255,255,0.7)'}}>{description}</p>
+              <p className="text-[12px] font-black uppercase tracking-widest" style={{color:'#f87171'}}>Not up for election in 2026</p>
+            </div>
+
+            {/* Col 3 (double-wide): Photo + name + party + hook — no action buttons */}
+            <div className="flex items-center gap-6 px-8 py-6" style={{background:'rgba(255,255,255,0.03)'}}>
+              <div className="flex flex-col items-center gap-2 shrink-0">
+                <Photo size="w-24 h-24" />
+                <span className="mt-2">{partyPill}</span>
+              </div>
+              <div className="flex flex-col gap-3 flex-1">
+                <p className="text-[13px] font-black uppercase tracking-widest" style={{color:'rgba(255,255,255,0.75)'}}>{senator.name}</p>
+                <p className="font-black leading-snug" style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'15px', color:'rgba(255,255,255,0.9)', letterSpacing:'0.02em'}}>
+                  {hook}
+                </p>
+                <p className="font-black leading-snug" style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'19px', color:'#fff', letterSpacing:'0.02em'}}>
+                  {nextUpLine}
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      );
+    }
+
     function Results({ county, counties, setCounty, onCountyDetected, uncoveredNotice, onDismissNotice, onReopenNotice, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onBack, onBrowse, onAddress, onRateIssue, initialProfile, clearInitialProfile, focusIssueId, clearFocusIssue }) {
       const countyData = counties[county];
       const [profileData, setProfileData] = React.useState(null); // { candidate, race }
@@ -3239,7 +3334,7 @@
               </div>
             </div>
             {/* Desktop */}
-            <div className="hidden lg:flex items-center h-16 px-8 relative">
+            <div className="hidden lg:flex items-center h-16 px-8 relative max-w-6xl mx-auto">
               <div className="absolute left-8 flex items-center gap-2.5">
                 <button onClick={onBack} className="text-sm font-semibold flex items-center gap-1.5 transition-colors" style={{color:'#94a3b8'}}>← Back</button>
                 <BetaChip />
@@ -3298,7 +3393,12 @@
 
             {(() => {
               const sectionRaces = filterRacesByDistrict(countyData[activeTab] || [], userDistricts);
-              return <RaceGroupSections races={sectionRaces} collapsedGroups={collapsedGroups} setCollapsedGroups={setCollapsedGroups}
+              const senNotUp = activeTab === 'state' && userDistricts?.stateSenate
+                && !sectionRaces.some(r => r.districtType === 'stateSenate')
+                && SENATORS_NOT_UP[userDistricts.stateSenate];
+              return <React.Fragment>
+                <RaceGroupSections races={sectionRaces} collapsedGroups={collapsedGroups} setCollapsedGroups={setCollapsedGroups}
+                groupAppendix={senNotUp ? { 'State House & Senate': <SenateNotUpCard district={userDistricts.stateSenate} senator={senNotUp} /> } : undefined}
                 renderRace={race => {
                 const onOpen = race => {
                     const cands = race.candidates.filter(Boolean);
@@ -3468,7 +3568,8 @@
                     );
                   };
                 return onOpen(race);
-              }} />;
+              }} />
+              </React.Fragment>;
             })()}
 
 
@@ -4119,7 +4220,7 @@
             </div>
 
             {/* Desktop: single dark row */}
-            <div className="hidden md:flex items-center h-16 px-4 lg:px-8 gap-3">
+            <div className="hidden md:flex items-center h-16 px-4 lg:px-8 gap-3 max-w-6xl mx-auto">
               <div className="flex items-center gap-2.5 shrink-0">
                 <button onClick={onBack} className="text-sm text-slate-400 hover:text-white font-semibold flex items-center gap-1.5 transition-colors">{backLabel === 'home' ? HOME_LABEL : backLabel}</button>
                 <BetaChip />
@@ -4184,9 +4285,12 @@
                           style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'20px', letterSpacing:'0.04em'}}>
                           {(() => {
                             const o = race.office.replace(/ of Texas$/i,'').replace(/ of the State of Texas$/i,'');
-                            return /^.+? County\s/.test(o)
-                              ? formatOfficeLines(race.office).map((line, i) => <span key={i} className="block">{line}</span>)
-                              : o.replace(/\s*[—–]\s*/g,' • ');
+                            if (/^.+? County\s/.test(o))
+                              return formatOfficeLines(race.office).map((line, i) => <span key={i} className="block">{line}</span>);
+                            // Break only at the bullets, never inside a segment ("Chief Justice" stays whole).
+                            return o.split(/\s*[—–]\s*/).map((seg, i) => (
+                              <React.Fragment key={i}>{i > 0 && ' • '}<span style={{whiteSpace:'nowrap'}}>{seg}</span></React.Fragment>
+                            ));
                           })()}
                         </h2>
                       </div>
@@ -5457,10 +5561,12 @@
           // Shared tabs: `Statewide` (the 18 races on every TX ballot — single master) and
           // `Districts` (district-based races, each tagged with the counties it touches).
           // Each county's ballot = Statewide + its Districts + its county-local races.
-          const [statewideRows, districtRows] = await Promise.all([
+          const [statewideRows, districtRows, notUpRows] = await Promise.all([
             fetchSheet(SHEETS.master, 'Statewide'),
             fetchSheet(SHEETS.master, 'Districts').catch(() => []),
+            fetchSheet(SHEETS.master, 'SenatorsNotUp').catch(() => []),
           ]);
+          notUpRows.forEach(r => { const n = String(r.districtNumber || '').trim(); if (n) SENATORS_NOT_UP[n] = r; });
           const statewideRaces = buildRaces(statewideRows, 'statewide');
           const districtRaces = buildRaces(districtRows, 'statewide');
           // Transition guard: county tabs still carry mirrored statewide + district rows until

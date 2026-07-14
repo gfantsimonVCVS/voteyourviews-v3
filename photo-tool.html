@@ -38,6 +38,7 @@
         <select id="county" class="border border-slate-300 rounded-lg px-3 py-2 text-sm">
           <option value="statewide">★ Statewide (shared by all counties)</option>
           <option value="districts">★ Districts (U.S. House & TX legislature)</option>
+          <option value="notonballot">★ Not On Ballot (sitting TX senators)</option>
           <option value="hays">Hays</option>
           <option value="travis">Travis</option>
         </select>
@@ -133,6 +134,12 @@ document.addEventListener('paste', e=>{
       e.preventDefault(); return;
     }
   }
+  // Clipboard had no image — say so instead of failing silently (the #1 cause: right-click
+  // "Copy image address" puts a URL on the clipboard, not the image itself).
+  const txt = e.clipboardData.getData('text');
+  flag(pasteTarget, txt && /^https?:\/\//.test(txt.trim())
+    ? '✗ That was an image ADDRESS. Right-click the photo → "Copy image", then ⌘V again.'
+    : '✗ No image on the clipboard. Right-click the photo → "Copy image", then ⌘V again.', 'text-rose-600');
 });
 
 // ---------- helpers ----------
@@ -477,7 +484,7 @@ function gdrive(u){const m=u.match(/\/d\/([\w-]+)/)||u.match(/[?&]id=([\w-]+)/);
 async function loadSheet(){
   const county=$('#county').value, party=$('#party').value;
   // Three-tab architecture (Jul 2026): Statewide + Districts are shared tabs; county tabs hold local races only.
-  const tab = county==='statewide' ? 'Statewide' : county==='districts' ? 'Districts' : tabFor(county);
+  const tab = county==='statewide' ? 'Statewide' : county==='districts' ? 'Districts' : county==='notonballot' ? 'SenatorsNotUp' : tabFor(county);
   setStatus('Loading '+tab+'…');
   await ensureManifest();   // know instantly which photos already exist
   const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${tab}`;
@@ -485,9 +492,12 @@ async function loadSheet(){
   const rows=parseCSV(txt);
   const hdr=rows[0].map(h=>h.trim().toLowerCase());
   const iN=hdr.indexOf('name'),iP=hdr.indexOf('party'),iO=hdr.indexOf('office'),iPh=hdr.indexOf('photo');
+  const iD=hdr.indexOf('districtnumber');   // SenatorsNotUp tab: no office column — synthesize from district
   let allRows=rows.slice(1).filter(r=>r[iN]&&r[iN].trim());     // candidate rows, in sheet order
   candidates=allRows
-    .map(r=>({name:r[iN].trim(),party:(r[iP]||'').trim(),office:(r[iO]||'').trim(),photo:(r[iPh]||'').trim()}))
+    .map(r=>({name:r[iN].trim(),party:(r[iP]||'').trim(),
+      office:(iO>=0?(r[iO]||'').trim():'')||(iD>=0&&r[iD]?`TX State Senate — District ${r[iD].trim()} (not up in 2026)`:''),
+      photo:(iPh>=0?(r[iPh]||'').trim():'')}))
     .filter(c=>!party||c.party.toUpperCase()===party)
     .filter(c=>!/\btbd\b/i.test(c.name));   // skip "TBD — …Nominee" placeholders (not real candidates)
   setStatus(`Loaded ${candidates.length} candidates from ${tab}. Building cards…`);
