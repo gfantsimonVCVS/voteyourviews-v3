@@ -1958,7 +1958,7 @@
                   </p>
                 )}
                 {heroBeat === 2 && (
-                  <button onClick={openTour} className="hero-tour-line font-black text-[23px] md:text-[27px] uppercase leading-tight tracking-wider"
+                  <button onClick={openTour} className="hero-tour-line font-black text-[26px] md:text-[30px] uppercase leading-tight tracking-wider"
                     style={{fontFamily:"'Barlow Condensed', sans-serif", border:'none'}}>
                     ★ Take the 1 Minute Tour →
                   </button>
@@ -1971,7 +1971,7 @@
                   <span className="hero-in inline-block" style={{animationDelay:'1.2s'}}><span className="text-red-400">STOP</span> voting parties.</span><br/>
                   <span className="hero-in inline-block" style={{animationDelay:'1.8s'}}><span className="text-blue-400">START</span> voting your views.</span>
                 </p>
-                <button onClick={openTour} className="hero-tour-line font-black text-[26px] uppercase tracking-wider mt-7"
+                <button onClick={openTour} className="hero-tour-line font-black text-[29px] uppercase tracking-wider mt-7"
                   style={{fontFamily:"'Barlow Condensed', sans-serif", border:'none', animationDelay:'2.6s, 3.5s'}}>
                   ★ Take the 1 Minute Tour →
                 </button>
@@ -2013,7 +2013,7 @@
                   <button onClick={() => onBrowse()} disabled={!available}
                     className="flex-1 py-2.5 md:py-3.5 font-bold text-xs md:text-sm uppercase tracking-widest text-white rounded-xl transition-all duration-150 hover:opacity-90 active:scale-[0.97] disabled:opacity-40"
                     style={{letterSpacing:'0.12em', background:'#b91c1c', border:'1px solid #ef4444'}}>
-                    Compare Candidates
+                    All Candidates
                   </button>
                   <div className="shrink-0 w-11 h-11" />
                 </div>
@@ -2022,7 +2022,7 @@
             )}
 
             {/* ── Right col (desktop) / Bottom (mobile): Icon grid + mobile CTAs ── */}
-            <div className="w-full max-w-xs md:max-w-[480px] lg:max-w-sm relative z-20">
+            <div className="w-full max-w-xs md:max-w-[432px] lg:max-w-sm relative z-20">
               <div className="grid grid-cols-3 gap-1.5 md:gap-2.5 lg:gap-3 mb-3 lg:mb-0" onMouseLeave={() => setHoveredIssue(null)}>
                 {issueList.map((issue, idx) => (
                   <button
@@ -2128,7 +2128,7 @@
                   <button onClick={available ? onBrowse : undefined} disabled={!available}
                     className="flex-1 py-2.5 md:py-3.5 font-bold text-xs md:text-sm uppercase tracking-widest text-white rounded-xl transition-all duration-150 disabled:opacity-40 hover:opacity-90 active:scale-[0.97]"
                     style={{letterSpacing:'0.12em', background:'#b91c1c', border:'1px solid #ef4444'}}>
-                    Compare Candidates
+                    All Candidates
                   </button>
                   <div className="shrink-0 w-11 h-11" />
                 </div>
@@ -2162,6 +2162,10 @@
     // from the SenatorsNotUp tab, so the results screen can explain the absence instead of
     // silently omitting the race.
     let SENATORS_NOT_UP = {};
+
+    // Every district race from the Districts tab, unfiltered — the source of truth
+    // for "the voter's own races" once their districts are known (see loadFromSheets).
+    let ALL_DISTRICT_RACES = [];
 
     let ISSUE_STATEMENTS = {
       'Reproductive Rights': [
@@ -2732,7 +2736,7 @@
                         <button onClick={() => { setShowDrop(false); setCompareMode(true); setShowAddressModal(true); }}
                           className="w-full px-5 py-3 text-left text-xs font-black uppercase tracking-widest text-white hover:bg-white/10 transition-colors border-b border-white/10"
                           style={{letterSpacing:'0.1em'}}>
-                          Compare Candidates
+                          All Candidates
                         </button>
                         <button onClick={() => { setShowDrop(false); setShowAddressModal(true); }}
                           className="w-full px-5 py-3 text-left text-xs font-black uppercase tracking-widest text-white hover:bg-white/10 transition-colors"
@@ -4178,7 +4182,7 @@
       );
     }
 
-    function Browse({ county, counties, setCounty, onCountyDetected, uncoveredNotice, onDismissNotice, onReopenNotice, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onHome, onBack = onHome, backLabel = 'home', onRateIssue, initialProfile, clearInitialProfile, focusIssueId, clearFocusIssue }) {
+    function Browse({ county, counties, setCounty, onCountyDetected, uncoveredNotice, onDismissNotice, onReopenNotice, issues, answers, ranks, checkedStatements, selected, setSelected, userDistricts, setUserDistricts, onBallot, onHome, onBack = onHome, backLabel = 'home', onQuiz, onRateIssue, initialProfile, clearInitialProfile, focusIssueId, clearFocusIssue }) {
       const countyData = counties[county];
       const [activeTab, setActiveTab] = useState('federal');
       const [showFilterModal, setShowFilterModal] = useState(false);
@@ -4267,12 +4271,15 @@
           <div className="relative z-30" style={{background:'#1b2136', borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
             <div className="max-w-5xl mx-auto w-full px-4 py-2.5 flex items-center gap-2">
               <p className="text-white font-black uppercase tracking-wide text-[17px] leading-none" style={{fontFamily:"'Barlow Condensed',sans-serif", letterSpacing:'0.06em'}}>
-                Compare {TABS.find(t => t.key === activeTab)?.label} Candidates
+                All {TABS.find(t => t.key === activeTab)?.label} Candidates
               </p>
               <span className="text-[11px] font-bold" style={{color:'#34d399'}}>{races.length} {races.length === 1 ? 'race' : 'races'}</span>
-              {answers && Object.keys(answers).length > 0 && (
-                <span className="ml-auto text-[11px] font-semibold" style={{color:'#cbd5e1'}}>% = how closely they match your views</span>
-              )}
+              {answers && Object.keys(answers).length > 0
+                ? <span className="ml-auto text-[11px] font-semibold text-right" style={{color:'#cbd5e1'}}>% = how closely they match your views</span>
+                : <button onClick={onQuiz} className="ml-auto text-[11px] font-black uppercase tracking-wide px-2.5 py-1.5 rounded-lg whitespace-nowrap transition-all hover:brightness-125"
+                    style={{background:'rgba(245,158,11,0.16)', color:'#f59e0b', border:'1px solid rgba(245,158,11,0.45)', letterSpacing:'0.04em'}}>
+                    Vote Your Views → see who matches
+                  </button>}
             </div>
           </div>
 
@@ -4386,15 +4393,9 @@
                           <div className="flex-1 flex flex-col items-center justify-center py-4 md:py-5 gap-2"
                             style={{margin:'8px', borderRadius:'14px', border:'1.5px dashed rgba(255,255,255,0.18)', background:'rgba(255,255,255,0.02)'}}>
                             <p className="text-[12px] font-black uppercase tracking-widest text-center leading-tight" style={{color:'rgba(255,255,255,0.45)'}}>No {missing}<br/>Candidate</p>
-                            <div className="relative" style={{width:75, height:75}}>
-                              <div className="absolute rounded-full overflow-hidden" style={{inset:0, background:'#1e293b', border:'4px solid #334155'}}>
-                                <img src="/icons/candidate-undefined.png" alt="" className="w-full h-full object-cover object-top" style={{opacity:0.3}} />
-                              </div>
-                              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" aria-hidden="true">
-                                <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(148,163,184,0.6)" strokeWidth="5"/>
-                                <line x1="22" y1="78" x2="78" y2="22" stroke="rgba(148,163,184,0.6)" strokeWidth="5"/>
-                              </svg>
-                            </div>
+                            <img src={missing === 'Democratic' ? '/images/candidates/No_Dem.png' : '/images/candidates/No_Rep.png'}
+                              alt={`No ${missing} candidate`} style={{width:75, height:75}} />
+
                             <span className="text-[9px] font-bold uppercase tracking-wide text-slate-400 border border-slate-600 rounded px-1.5 py-0.5">Uncontested</span>
                           </div>
                         );
@@ -4654,23 +4655,24 @@
         return () => { document.title = 'Vote Your Views — Stop voting Parties. Start voting your views.'; };
       }, []);
 
-      // For each race: get chosen candidate OR best match OR first candidate
-      function getBestCandidate(race) {
-        const chosen = race.candidates.find(c => c.name === selected[race.office]);
-        if (chosen) return { candidate: chosen, isChosen: true };
+      // A checkmark means the voter chose it or their views matched it — never anything else.
+      // Race → row kind: 'pick' (explicit choice or view-match, checked) ·
+      // 'unopposed' (sole candidate — information, never checked) ·
+      // 'open' (contested but unresearched — the voter's call, both names listed).
+      function ballotRow(race) {
+        const reals = race.candidates.filter(Boolean).filter(c => !/^TBD/i.test(c.name || ''));
+        if (!reals.length) return null;
+        const chosen = reals.find(c => c.name === selected[race.office]);
+        if (chosen) return { kind: 'pick', race, candidate: chosen };
+        if (reals.length === 1) return { kind: 'unopposed', race, candidate: reals[0] };
         if (hasAnswers) {
-          const scored = race.candidates.filter(Boolean).map(c => ({ candidate: c, score: calcMatch(c, answers, checkedStatements, ranks) })).filter(s => s.score !== null).sort((a,b) => b.score - a.score);
-          if (scored.length > 0) return { candidate: scored[0].candidate, isChosen: false };
+          const scored = reals.map(c => ({ candidate: c, score: calcMatch(c, answers, checkedStatements, ranks) })).filter(s => s.score !== null).sort((a,b) => b.score - a.score);
+          if (scored.length > 0) return { kind: 'pick', race, candidate: scored[0].candidate };
         }
-        return { candidate: race.candidates.filter(Boolean)[0], isChosen: false };
+        // Two honest reasons for an open race: the voter hasn't answered anything yet,
+        // or we have answers but no candidate research to match against.
+        return { kind: 'open', race, candidates: reals, reason: hasAnswers ? 'unresearched' : 'noAnswers' };
       }
-
-      const allRaces = RACE_SECTIONS.flatMap(sec => filterRacesByDistrict(countyData[sec.key] || [], userDistricts));
-      const ballotCandidates = allRaces.map(race => {
-        const { candidate } = getBestCandidate(race);
-        if (!candidate) return null;
-        return { race, candidate };
-      }).filter(Boolean);
 
       return (
         <div className="min-h-screen" style={{background:'#e2e8f0'}}>
@@ -4715,7 +4717,7 @@
             </a>
             <div style={{textAlign:'center', marginTop:'10px'}}>
               <div className="ballot-title font-black uppercase" style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'26px', color:'#0f172a', letterSpacing:'0.02em', lineHeight:1.04}}>
-                Everything You Need to Vote in <span style={{color:'#1d3a8a'}}>2026 Texas Midterm</span>
+                Everything You Need for the <span style={{color:'#1d3a8a'}}>2026 Texas Midterm</span>
               </div>
               <div style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'12px', marginTop:'5px'}}>
                 <span style={{color:'#dc2626', fontSize:'14px', lineHeight:1}}>★</span>
@@ -4737,27 +4739,54 @@
 
             {RACE_SECTIONS.map(sec => {
               const sectionRaces = filterRacesByDistrict(countyData[sec.key] || [], userDistricts);
-              const sectionCandidates = sectionRaces.map(race => {
-                const { candidate } = getBestCandidate(race);
-                return candidate ? { race, candidate } : null;
-              }).filter(Boolean);
-              if (!sectionCandidates.length) return null;
+              const sectionRows = sectionRaces.map(ballotRow).filter(Boolean);
+              if (!sectionRows.length) return null;
+              const pColor = (p) => p === 'D' ? '#2563eb' : p === 'R' ? '#dc2626' : p === 'G' ? '#16a34a' : '#64748b';
               return (
                 <div key={sec.key} data-sec={sec.key} className="mb-4" style={{}}>
                   <div className="ballot-band" style={{background:'#0f172a', borderRadius:'8px', textAlign:'center', padding:'7px 12px 8px', marginBottom:'8px', fontFamily:"'Barlow Condensed',sans-serif", fontSize:'16px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.12em', color:'#fff', lineHeight:1.1}}>
                     {sec.label}
                   </div>
                   <div className={sec.key === 'county' ? 'ballot-picks ballot-picks-3' : 'ballot-picks'}>
-                    {sectionCandidates.map(({ race, candidate }) => {
-                      const partyColor = candidate.party === 'D' ? '#2563eb' : candidate.party === 'R' ? '#dc2626' : candidate.party === 'G' ? '#16a34a' : '#64748b';
-                      const partyLabel = partyName(candidate.party);
+                    {sectionRows.map((row) => {
+                      const { race } = row;
+                      if (row.kind === 'unopposed') {
+                        const missing = row.candidate.party === 'D' ? 'Republican' : row.candidate.party === 'R' ? 'Democrat' : 'opposing';
+                        return (
+                          <div key={race.office} className="ballot-pick-row" style={{padding:'2px 0 5px'}}>
+                            <div style={{fontSize:'9px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.05em', color:'#94a3b8', lineHeight:1.2}}>{race.office}</div>
+                            <div style={{fontSize:'13px', fontWeight:800, color:'#64748b', lineHeight:1.3, marginTop:'1px'}}>
+                              {row.candidate.name}
+                              <span style={{color:pColor(row.candidate.party), opacity:0.65, fontWeight:900, fontSize:'10px', marginLeft:'6px'}}>· {partyName(row.candidate.party)}</span>
+                            </div>
+                            <div style={{fontSize:'9px', fontWeight:700, color:'#94a3b8', lineHeight:1.3}}>Unopposed — no {missing} filed in this race</div>
+                          </div>
+                        );
+                      }
+                      if (row.kind === 'open') {
+                        return (
+                          <div key={race.office} className="ballot-pick-row" style={{padding:'2px 0 5px'}}>
+                            <div style={{fontSize:'9px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.05em', color:'#64748b', lineHeight:1.2}}>{race.office}</div>
+                            <div style={{fontSize:'12px', fontWeight:800, color:'#0f172a', lineHeight:1.35, marginTop:'1px'}}>
+                              {row.candidates.map((c, i) => (
+                                <React.Fragment key={c.name}>
+                                  {i > 0 && <span style={{color:'#94a3b8', fontWeight:700}}> or </span>}
+                                  {c.name}<span style={{color:pColor(c.party), fontWeight:900, fontSize:'10px'}}> ({c.party || 'I'})</span>
+                                </React.Fragment>
+                              ))}
+                            </div>
+                            <div style={{fontSize:'9px', fontWeight:700, color:'#94a3b8', lineHeight:1.3}}>{row.race.category === 'judicial' ? 'Your choice • judicial races are neutral regarding policy' : row.reason === 'unresearched' ? 'Your choice • no stated positions to match yet' : 'Your choice • Vote Your Views to match or choose from All Candidates'}</div>
+                          </div>
+                        );
+                      }
+                      const { candidate } = row;
                       return (
                         <div key={race.office} className="ballot-pick-row" style={{padding:'2px 0 5px'}}>
                           <div style={{fontSize:'9px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.05em', color:'#64748b', lineHeight:1.2}}>{race.office}</div>
                           <div style={{fontSize:'13px', fontWeight:900, color:'#0f172a', lineHeight:1.3, marginTop:'1px'}}>
+                            <span style={{color:'#16a34a', fontWeight:900, marginRight:'4px'}}>✓</span>
                             {candidate.name}
-                            <span style={{color:partyColor, fontWeight:900, fontSize:'10px', marginLeft:'6px'}}>· {partyLabel}</span>
-                            {candidate.uncontested && <span style={{color:'#94a3b8', fontWeight:700, fontSize:'9px', marginLeft:'5px', textTransform:'uppercase', letterSpacing:'0.04em'}}>· Uncontested</span>}
+                            <span style={{color:pColor(candidate.party), fontWeight:900, fontSize:'10px', marginLeft:'6px'}}>· {partyName(candidate.party)}</span>
                           </div>
                         </div>
                       );
@@ -5499,6 +5528,29 @@
           return { congressionalDistrict:'21', stateSenate:'25', stateHouse:'73', commissionerPrecinct:'4', jpPrecinct:'4' };
         try { return JSON.parse(store.getItem('vyv_districts') || 'null'); } catch(e) { return null; }
       });
+      // District-first race lookup: once the voter's districts are known, make sure THEIR
+      // congressional / TX House / TX Senate races are in the county's race pool even when
+      // the sheet's county tag misses that district (e.g. a Travis voter in CD-21).
+      const countiesEffective = useMemo(() => {
+        if (!userDistricts || !ALL_DISTRICT_RACES.length) return counties;
+        const wanted = (r) =>
+          (r.districtType === 'congressional' && userDistricts.congressionalDistrict && String(r.districtNumber) === String(userDistricts.congressionalDistrict)) ||
+          (r.districtType === 'stateSenate' && userDistricts.stateSenate && String(r.districtNumber) === String(userDistricts.stateSenate)) ||
+          (r.districtType === 'stateHouse' && userDistricts.stateHouse && String(r.districtNumber) === String(userDistricts.stateHouse));
+        const out = {};
+        Object.entries(counties).forEach(([key, data]) => {
+          if (!data || !Array.isArray(data.federal)) { out[key] = data; return; }
+          const have = new Set([...data.federal, ...data.state].map(r => r.office));
+          const extras = ALL_DISTRICT_RACES.filter(r => wanted(r) && !have.has(r.office))
+            .map(r => ({ ...r, level: raceLevel(r, false) }));
+          out[key] = extras.length ? {
+            ...data,
+            federal: [...data.federal, ...extras.filter(r => r.level === 'federal')],
+            state:   [...data.state,   ...extras.filter(r => r.level === 'state')],
+          } : data;
+        });
+        return out;
+      }, [counties, userDistricts]);
       // Persist county + looked-up districts so a returning voter isn't re-asked for their address
       React.useEffect(() => { try { store.setItem('vyv_county', county); } catch(e) {} }, [county]);
       // County detected from an address lookup. For counties we don't cover yet the modal hands
@@ -5607,6 +5659,10 @@
           notUpRows.forEach(r => { const n = String(r.districtNumber || '').trim(); if (n) SENATORS_NOT_UP[n] = r; });
           const statewideRaces = buildRaces(statewideRows, 'statewide');
           const districtRaces = buildRaces(districtRows, 'statewide');
+          // Full district-race set, kept for district-first lookup: a voter's own races
+          // come from here by district NUMBER, so an incomplete county tag can never
+          // silently drop their U.S. House / TX House / TX Senate race.
+          ALL_DISTRICT_RACES = districtRaces;
           // Transition guard: county tabs still carry mirrored statewide + district rows until
           // they're retired — skip any county-tab office the shared tabs already provide.
           const sharedOffices = new Set([...statewideRaces, ...districtRaces].map(r => r.office));
@@ -5849,7 +5905,7 @@
         return (
           <Results
             county={county}
-            counties={counties}
+            counties={countiesEffective}
             setCounty={setCounty}
             onCountyDetected={handleCountyDetected}
             uncoveredNotice={uncoveredNotice}
@@ -5896,7 +5952,7 @@
         return (
           <Browse
             county={county}
-            counties={counties}
+            counties={countiesEffective}
             setCounty={setCounty}
             onCountyDetected={handleCountyDetected}
             uncoveredNotice={uncoveredNotice}
@@ -5910,6 +5966,7 @@
             setSelected={setSelected}
             userDistricts={userDistricts}
             setUserDistricts={setUserDistricts}
+            onQuiz={() => { const startId = issues[0] && issues[0].id; setStartIssueId(startId); setQuizEntryIssueId(startId); setPendingScreen('browse'); setScreen('quiz'); }}
             onBallot={() => { setBallotReturn('browse'); setScreen('ballot'); }}
             onHome={() => setScreen('landing')}
             onBack={() => setScreen(browseReturn)}
@@ -5924,10 +5981,27 @@
       }
 
       if (screen === 'ballot') {
+        // The printed ballot is address-specific — without the voter's districts it
+        // would list every district race in the county. No address, no ballot.
+        if (!userDistricts) {
+          return (
+            <div className="min-h-screen" style={{background:'linear-gradient(160deg,#1e1b4b 0%,#0f172a 60%,#0c1a2e 100%)'}}>
+              <AddressModal
+                county={county}
+                accentColor="#3b82f6"
+                accentColorDark="#1d4ed8"
+                onCountyDetected={handleCountyDetected}
+                onClose={() => setScreen(ballotReturn)}
+                onContinue={(districts) => setUserDistricts(districts)}
+                onShowAll={() => setScreen(ballotReturn)}
+              />
+            </div>
+          );
+        }
         return (
           <Ballot
             county={county}
-            counties={counties}
+            counties={countiesEffective}
             selected={selected}
             answers={answers}
             ranks={ranks}
