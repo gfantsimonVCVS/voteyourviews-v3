@@ -36,25 +36,27 @@ async function googleToken() {
   return cachedToken.token;
 }
 
-async function sheetsFetch(path, options = {}) {
+// sheetId defaults to the private contacts sheet; pass one explicitly to hit the
+// public master sheet (e.g. the Statement Submissions matrix).
+async function sheetsFetch(path, options = {}, sheetId = process.env.PRIVATE_SHEET_ID) {
   const token = await googleToken();
   const res = await fetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${process.env.PRIVATE_SHEET_ID}${path}`,
+    `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}${path}`,
     { ...options, headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers } },
   );
   if (!res.ok) throw new Error(`Sheets API ${path} failed: ${res.status} ${await res.text()}`);
   return res.json();
 }
 
-const readRange = (range) => sheetsFetch(`/values/${encodeURIComponent(range)}`).then((d) => d.values || []);
+const readRange = (range, sheetId) => sheetsFetch(`/values/${encodeURIComponent(range)}`, {}, sheetId).then((d) => d.values || []);
 
-const appendRow = (tab, row) => sheetsFetch(`/values/${encodeURIComponent(tab)}:append?valueInputOption=RAW`, {
+const appendRow = (tab, row, sheetId) => sheetsFetch(`/values/${encodeURIComponent(tab)}:append?valueInputOption=RAW`, {
   method: 'POST', body: JSON.stringify({ values: [row] }),
-});
+}, sheetId);
 
-const updateRange = (range, values) => sheetsFetch(`/values/${encodeURIComponent(range)}?valueInputOption=RAW`, {
+const updateRange = (range, values, sheetId) => sheetsFetch(`/values/${encodeURIComponent(range)}?valueInputOption=RAW`, {
   method: 'PUT', body: JSON.stringify({ values }),
-});
+}, sheetId);
 
 // --- magic-link tokens: HMAC over "id.exp" ---
 const signToken = (id, exp) => b64url(crypto.createHmac('sha256', process.env.EDIT_LINK_SECRET).update(`${id}.${exp}`).digest());
@@ -84,4 +86,4 @@ async function sendEmail(to, subject, html) {
 // Same slug rule as the app (index.html candidateSlug) and the OG edge function.
 const candidateSlug = (name) => (name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 
-module.exports = { readRange, appendRow, updateRange, signToken, verifyToken, sendEmail, candidateSlug };
+module.exports = { readRange, appendRow, updateRange, sheetsFetch, signToken, verifyToken, sendEmail, candidateSlug };

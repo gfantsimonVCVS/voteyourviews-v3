@@ -39,13 +39,11 @@
     .stmt-card { background: #ffffff; border: 1.5px solid #e2e8f0; box-shadow: 0 2px 8px rgba(15,23,42,0.06); transition: border-color .2s, background .2s; }
     .stmt-card p { color: #0f172a !important; }
     .stmt-card .stmt-num { background: rgba(245,158,11,0.14) !important; color: #b45309 !important; border: 1.5px solid #f59e0b; }
-    .stmt-card[data-state="okay"] .stmt-num { background: rgba(16,185,129,0.14) !important; color: #047857 !important; border-color: #10b981; }
-    .stmt-card[data-state="okay"] { border-color: #10b981; background: #ecfdf5; }
+    .stmt-card[data-state="submitted"] .stmt-num { background: rgba(16,185,129,0.14) !important; color: #047857 !important; border-color: #10b981; }
+    .stmt-card[data-state="submitted"] { border-color: #10b981; background: #ecfdf5; }
     .stmt-card[data-state="edit"] { border-color: #f59e0b; background: #fffbeb; }
     .seg-btn { transition: all .15s; }
-    .okay-btn { background:#fff !important; border:1.5px solid #10b981 !important; color:#047857 !important; }
     .edit-btn { background:#fff !important; border:1.5px solid #d97706 !important; color:#b45309 !important; }
-    .seg-btn.active-okay { background:#059669 !important; border-color:#059669 !important; color:#fff !important; box-shadow:0 4px 14px rgba(5,150,105,0.4); }
     .seg-btn.active-edit { background:#d97706 !important; border-color:#d97706 !important; color:#fff !important; box-shadow:0 4px 14px rgba(217,119,6,0.4); }
     .edit-panel textarea { background:#fff !important; border:1.5px solid #cbd5e1 !important; color:#0f172a !important; }
     .edit-panel textarea::placeholder { color:#94a3b8 !important; }
@@ -80,19 +78,19 @@
   <!-- Header -->
   <div class="sticky top-0 z-40 border-b border-white/10 px-4 sm:px-6 py-3" style="background:rgba(10,20,36,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)">
     <div class="max-w-3xl mx-auto flex items-center gap-4 py-1 relative">
-      <div class="min-w-0">
-        <h1 class="text-[24px] sm:text-4xl font-black uppercase text-white leading-none whitespace-nowrap" style="letter-spacing:0.03em">Statement <span style="color:#f59e0b">Review</span></h1>
-        <p class="text-slate-400 text-[9px] sm:text-[11px] mt-1 font-black uppercase whitespace-nowrap tracking-[0.18em] sm:tracking-[0.28em]">VoteYourViews.org<span class="hidden sm:inline"> · Internal Tool</span></p>
-      </div>
-      <a href="/" title="Back to VoteYourViews.org" class="flex ml-auto sm:mx-auto w-10 h-10 sm:w-11 sm:h-11 shrink-0 items-center justify-center rounded-full transition-all hover:opacity-80 active:scale-95" style="background:rgba(255,255,255,0.1)">
+      <a href="/" title="Back to VoteYourViews.org" class="flex w-10 h-10 sm:w-11 sm:h-11 shrink-0 items-center justify-center rounded-full transition-all hover:opacity-80 active:scale-95" style="background:rgba(255,255,255,0.1)">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/>
           <path d="M9 21V12h6v9"/>
         </svg>
       </a>
+      <div class="min-w-0 flex-1 text-center">
+        <h1 class="text-[24px] sm:text-4xl font-black uppercase text-white leading-none whitespace-nowrap" style="letter-spacing:0.03em">Statement <span style="color:#f59e0b">Review</span></h1>
+        <p class="text-slate-400 text-[9px] sm:text-[11px] mt-1 font-black uppercase whitespace-nowrap tracking-[0.18em] sm:tracking-[0.28em]">VoteYourViews.org<span class="hidden sm:inline"> · Internal Tool</span></p>
+      </div>
       <div class="shrink-0 text-center px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl" style="background:rgba(245,158,11,0.10);border:1.5px solid rgba(245,158,11,0.45);box-shadow:0 4px 16px rgba(245,158,11,0.15)">
-        <div id="overall-badge" class="text-sm sm:text-lg font-black leading-none" style="color:#f59e0b;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.06em">0 / 9</div>
-        <div class="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.14em] sm:tracking-[0.22em] text-slate-400 mt-0.5"><span class="hidden sm:inline">Issues </span>Done</div>
+        <div id="overall-badge" class="text-sm sm:text-lg font-black leading-none" style="color:#f59e0b;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.06em">0 / 27</div>
+        <div class="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.14em] sm:tracking-[0.22em] text-slate-400 mt-0.5"><span class="hidden sm:inline">Edits </span>Submitted</div>
       </div>
     </div>
     <div class="max-w-3xl mx-auto mt-3 h-1.5 rounded-full overflow-hidden" style="background:rgba(255,255,255,0.08)">
@@ -122,16 +120,17 @@
       <div class="rounded-2xl p-5 sm:p-6" style="background:linear-gradient(160deg,#141f3a 0%,#0e182c 100%);box-shadow:0 18px 44px rgba(0,0,0,0.5)">
         <div class="min-w-0">
           <div class="text-[10px] font-black uppercase tracking-[0.3em] mb-1.5" style="color:#f59e0b">★ Review the 9 Issues</div>
-          <h2 class="text-2xl sm:text-[26px] font-black uppercase text-white leading-none mb-2.5" style="letter-spacing:0.03em">Suggest an Edit</h2>
-          <p class="text-slate-300 text-sm leading-relaxed">
-            We welcome input and edit suggestions for the 9 issues and their accompanying statements. Click below.
+          <div class="flex items-center justify-between gap-3 flex-wrap mb-2.5">
+            <h2 class="text-2xl sm:text-[26px] font-black uppercase text-white leading-none" style="letter-spacing:0.03em">Suggest an Edit</h2>
+            <button onclick="VYVTutorial.open()" class="hero-tour-line font-black text-[19px] uppercase leading-tight tracking-wider pr-2"
+              style="font-family:'Barlow Condensed',sans-serif;border:none" title="Take the 1 minute tour">
+              ★ Take the 1 Minute Tour →
+            </button>
+          </div>
+          <p class="text-slate-200 text-[17px] sm:text-[19px] leading-snug font-medium" style="letter-spacing:0.01em">
+            We welcome <span class="font-black" style="color:#fbbf24">input and edit suggestions</span> for the
+            <span class="font-black text-white">9 issues</span> and their accompanying statements.
           </p>
-        </div>
-        <div class="text-center mt-5">
-          <button onclick="VYVTutorial.open()" class="hero-tour-line font-black text-[23px] uppercase leading-tight tracking-wider"
-            style="font-family:'Barlow Condensed',sans-serif;border:none" title="Take the 1 minute tour">
-            ★ Take the 1 Minute Tour →
-          </button>
         </div>
       </div>
     </div>
@@ -189,7 +188,6 @@
   <script src="/tutorial.js"></script>
   <script>
     const SHEET_ID = '1V1oaEy6ToV3LZt0et9bIWEJQbPrYZg73tDxGelhiFn8';
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyq0l2PJfmQW6LbR_j-R4ooOyHP5Zvrr-RfexaTr9ugVo-F8oAFHSbI9xyQPrlhCmA/exec';
 
     // Issue symbol lookup — keyed on keywords in the topic name (white glyphs from the quiz screen)
     const SYMBOL_KEYS = [
@@ -302,19 +300,19 @@
     document.getElementById('identity-cancel').addEventListener('click', () => { pendingSubmit = null; closeIdentityModal(); });
     identityModal.addEventListener('click', e => { if (e.target === identityModal) { pendingSubmit = null; closeIdentityModal(); } });
 
-    // State: reactions[topic][idx] = { status: 'okay' | 'edit', suggestion, reason }
+    // State: reactions[topic][idx] = { status: 'edit' | 'submitted', suggestion, reason, submitted }
     // Persisted so a reviewer can leave and come back to edit or finish.
     let reactions = {};
-    let submittedAt = {}; // topic -> human-readable date/time of last submission
     try {
       reactions = JSON.parse(localStorage.getItem('vyv_reactions')) || {};
-      submittedAt = JSON.parse(localStorage.getItem('vyv_submitted')) || {};
-    } catch (_) { reactions = {}; submittedAt = {}; }
-    const submittedTopics = new Set(Object.keys(submittedAt));
+    } catch (_) { reactions = {}; }
+    // drop pre-July-14 entries (old page had an Okay state with no per-statement submit)
+    Object.keys(reactions).forEach(t => Object.keys(reactions[t]).forEach(i => {
+      if (!['edit','submitted'].includes(reactions[t][i]?.status)) delete reactions[t][i];
+    }));
     function saveState() {
       try {
         localStorage.setItem('vyv_reactions', JSON.stringify(reactions));
-        localStorage.setItem('vyv_submitted', JSON.stringify(submittedAt));
       } catch (_) {}
     }
 
@@ -345,7 +343,7 @@
         const details = document.createElement('details');
         details.className = 'glass mb-3.5 rounded-2xl overflow-hidden';
         details.dataset.topic = topic;
-        if (topicIdx === 0 && !submittedTopics.has(topic)) details.open = true;
+        if (topicIdx === 0) details.open = true;
 
         // Summary (collapsed header)
         const summary = document.createElement('summary');
@@ -380,11 +378,6 @@
               <p class="text-white text-[14px] font-bold leading-relaxed flex-1">${escapeHtml(text)}</p>
             </div>
             <div class="flex gap-2 mt-3.5 ml-0 sm:ml-9 stmt-actions">
-              <button type="button" data-action="okay"
-                class="okay-btn seg-btn flex-1 sm:flex-initial whitespace-nowrap px-2 sm:px-4 py-2.5 sm:py-2 rounded-full text-[11px] font-black uppercase tracking-wider sm:tracking-widest text-emerald-300"
-                style="background:rgba(5,150,105,0.14);border:1px solid rgba(52,211,153,0.4)">
-                ✓ Okay
-              </button>
               <button type="button" data-action="edit"
                 class="edit-btn seg-btn flex-1 sm:flex-initial whitespace-nowrap px-2 sm:px-4 py-2.5 sm:py-2 rounded-full text-[11px] font-black uppercase tracking-wider sm:tracking-widest text-amber-300"
                 style="background:rgba(217,119,6,0.14);border:1px solid rgba(251,191,36,0.4)">
@@ -400,89 +393,75 @@
                 class="w-full rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500"
                 style="background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.14)"
                 placeholder="Other feedback (optional)"></textarea>
+              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                <button type="button" class="stmt-submit w-full sm:w-auto text-white text-[11px] font-black uppercase tracking-widest px-5 py-2.5 rounded-full transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+                  style="background:linear-gradient(135deg,#2563eb,#1d4ed8);box-shadow:0 4px 14px rgba(37,99,235,0.4)" disabled>
+                  Submit edit →
+                </button>
+                <span class="stmt-hint text-[11px] font-semibold text-slate-500"></span>
+              </div>
             </div>
           `;
 
           // Wire buttons
-          const okayBtn = card.querySelector('.okay-btn');
           const editBtn = card.querySelector('.edit-btn');
           const editPanel = card.querySelector('.edit-panel');
           const suggestion = card.querySelector('textarea[name="suggestion"]');
           const reason = card.querySelector('textarea[name="reason"]');
+          const submitBtn = card.querySelector('.stmt-submit');
+          const hint = card.querySelector('.stmt-hint');
 
           function paint(state) {
-            okayBtn.classList.toggle('active-okay', state === 'okay');
             editBtn.classList.toggle('active-edit', state === 'edit');
-            editPanel.classList.toggle('open', state === 'edit');
+            editPanel.classList.toggle('open', state === 'edit' || state === 'submitted');
             card.dataset.state = state || '';
           }
+          function refreshSubmit() {
+            const r = reactions[topic][idx] || {};
+            submitBtn.disabled = !(suggestion.value.trim() || reason.value.trim());
+            if (r.status === 'submitted') {
+              submitBtn.textContent = 'Re-submit edit';
+              submitBtn.style.background = 'linear-gradient(135deg,#059669,#10b981)';
+              submitBtn.style.boxShadow = '0 4px 14px rgba(5,150,105,0.4)';
+              hint.textContent = `Submitted ${r.submitted} — edit and re-submit to update.`;
+            }
+          }
 
-          okayBtn.addEventListener('click', () => {
-            reactions[topic][idx] = { status: 'okay', original: text };
-            paint('okay');
-            saveState();
-            updateProgress(topic);
-          });
           editBtn.addEventListener('click', () => {
             const prev = reactions[topic][idx] || {};
-            reactions[topic][idx] = { status: 'edit', original: text, suggestion: prev.suggestion || '', reason: prev.reason || '' };
-            paint('edit');
-            suggestion.value = reactions[topic][idx].suggestion;
-            reason.value = reactions[topic][idx].reason;
-            setTimeout(() => suggestion.focus(), 300);
+            const nowOpen = card.dataset.state !== 'edit' && card.dataset.state !== 'submitted';
+            reactions[topic][idx] = { status: prev.status === 'submitted' ? 'submitted' : 'edit', original: text, suggestion: prev.suggestion || '', reason: prev.reason || '', submitted: prev.submitted };
+            paint(nowOpen ? (reactions[topic][idx].status === 'submitted' ? 'submitted' : 'edit') : '');
+            if (!nowOpen && reactions[topic][idx].status !== 'submitted') { delete reactions[topic][idx]; }
+            suggestion.value = (reactions[topic][idx] || {}).suggestion || '';
+            reason.value = (reactions[topic][idx] || {}).reason || '';
+            if (nowOpen) setTimeout(() => suggestion.focus(), 300);
             saveState();
             updateProgress(topic);
+            refreshSubmit();
           });
           suggestion.addEventListener('input', () => {
-            if (reactions[topic][idx]) { reactions[topic][idx].suggestion = suggestion.value; saveState(); }
+            if (reactions[topic][idx]) { reactions[topic][idx].suggestion = suggestion.value; saveState(); refreshSubmit(); }
           });
           reason.addEventListener('input', () => {
-            if (reactions[topic][idx]) { reactions[topic][idx].reason = reason.value; saveState(); }
+            if (reactions[topic][idx]) { reactions[topic][idx].reason = reason.value; saveState(); refreshSubmit(); }
           });
+          submitBtn.addEventListener('click', () => submitStatement(topic, idx, text, { card, submitBtn, hint, paint, refreshSubmit }));
 
           // Rehydrate if user re-opens
           const existing = reactions[topic][idx];
           if (existing) {
             if (existing.suggestion) suggestion.value = existing.suggestion;
             if (existing.reason) reason.value = existing.reason;
-            paint(existing.status);
+            paint(existing.status === 'submitted' ? 'submitted' : 'edit');
+            refreshSubmit();
           }
 
           body.appendChild(card);
         });
 
-        // Submit row at bottom of issue — reviewer info comes from the top of the page
-        const submitBlock = document.createElement('div');
-        submitBlock.className = 'mt-4 pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 border-t border-slate-300';
-        submitBlock.innerHTML = `
-          <button type="button" class="submit-issue-btn w-full sm:w-auto text-white text-xs font-black uppercase tracking-widest px-6 py-3 rounded-full transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
-            style="background:linear-gradient(135deg,#2563eb,#1d4ed8);box-shadow:0 6px 18px rgba(37,99,235,0.4)" disabled>
-            Submit review →
-          </button>
-          <span class="submit-hint text-[11px] font-semibold text-slate-500 text-center sm:text-left">Review at least one statement to enable.</span>
-        `;
-        body.appendChild(submitBlock);
-
-        const submitBtn = submitBlock.querySelector('.submit-issue-btn');
-        const submitHint = submitBlock.querySelector('.submit-hint');
-        submitBtn.addEventListener('click', () => submitIssue(topic, stmts, submitBtn, submitHint));
-
         details.appendChild(body);
         container.appendChild(details);
-
-        // Restore submitted state from a previous visit
-        if (submittedTopics.has(topic)) {
-          details.dataset.submitted = 'true';
-          const badge = details.querySelector('.progress-badge');
-          badge.textContent = '✓ Submitted';
-          badge.classList.remove('text-slate-400');
-          badge.classList.add('text-emerald-400');
-          submitBtn.textContent = 'Re-submit review';
-          submitBtn.style.background = 'linear-gradient(135deg,#059669,#10b981)';
-          submitBtn.style.boxShadow = '0 6px 18px rgba(5,150,105,0.4)';
-          submitHint.textContent = `Submitted ${submittedAt[topic]} — edit any response and re-submit to update.`;
-        }
-
         updateProgress(topic);
       });
       updateOverall();
@@ -490,98 +469,68 @@
 
     function updateProgress(topic) {
       const stmts = window.ISSUE_STATEMENTS[topic] || [];
-      const done = Object.keys(reactions[topic] || {}).length;
+      const entries = reactions[topic] || {};
+      const done = Object.values(entries).filter(r => r.status === 'submitted').length;
       const total = stmts.length;
       const details = document.querySelector(`details[data-topic="${CSS.escape(topic)}"]`);
       if (!details) return;
       const badge = details.querySelector('.progress-badge');
-      if (badge && !submittedTopics.has(topic)) {
-        badge.textContent = `${done} / ${total}`;
-        badge.classList.toggle('text-emerald-400', done === total);
-        badge.classList.toggle('text-slate-400', done !== total);
-      }
-      const btn = details.querySelector('.submit-issue-btn');
-      const hint = details.querySelector('.submit-hint');
-      if (btn) {
-        const ready = done > 0;
-        btn.disabled = !ready;
-        if (hint && !submittedTopics.has(topic)) hint.textContent = !ready ? `Review at least one statement to enable.`
-          : done === total ? 'Ready to submit.' : `${done} of ${total} reviewed — you can submit now or keep going.`;
+      if (badge) {
+        badge.textContent = done > 0 ? `${done} / ${total} submitted` : `0 / ${total}`;
+        badge.classList.toggle('text-emerald-400', done > 0);
+        badge.classList.toggle('text-slate-400', done === 0);
       }
     }
 
     function updateOverall() {
-      const topics = Object.keys(window.ISSUE_STATEMENTS || {});
+      const topics = Object.entries(window.ISSUE_STATEMENTS || {});
       const badge = document.getElementById('overall-badge');
       const fill = document.getElementById('progress-fill');
       if (!topics.length) return;
-      const done = submittedTopics.size;
-      badge.textContent = `${done} / ${topics.length}`;
-      fill.style.width = `${Math.round((done / topics.length) * 100)}%`;
-      if (done === topics.length) badge.style.color = '#34d399';
+      const total = topics.reduce((n, [, s]) => n + s.length, 0);
+      const done = topics.reduce((n, [t]) => n + Object.values(reactions[t] || {}).filter(r => r.status === 'submitted').length, 0);
+      badge.textContent = `${done} / ${total}`;
+      fill.style.width = `${Math.round((done / total) * 100)}%`;
+      if (done === total) badge.style.color = '#34d399';
     }
 
-    function submitIssue(topic, stmts, btn, hint) {
+    // One statement per submit — writes into the "Statement Submissions" matrix
+    // (reviewer column pair) via the Netlify function, plus the raw log tab.
+    function submitStatement(topic, idx, text, ui) {
       const name  = nameEl.value.trim();
       const email = emailEl.value.trim();
       if (!name || !email) {
-        openIdentityModal(() => submitIssue(topic, stmts, btn, hint));
+        openIdentityModal(() => submitStatement(topic, idx, text, ui));
         return;
       }
-      const entries = reactions[topic] || {};
-      btn.disabled = true;
-      btn.textContent = 'Submitting…';
-
+      const r = reactions[topic][idx] || {};
       const submitted = formatDateTime(new Date());
-      const tasks = stmts.map((text, idx) => {
-        const r = entries[idx] || {};
-        const params = new URLSearchParams({
-          issue: topic,
-          stmtNum: `Statement ${idx + 1}`,
-          currentText: text,
-          status: r.status || 'unreviewed',
-          suggestion: r.suggestion || 'No Edits',
-          reason: r.reason || 'No Notes',
-          name,
-          email,
-          submitted,
-        });
-        // no-cors hides the response anyway — don't let a slow endpoint strand the UI
-        return Promise.race([
-          fetch(`${APPS_SCRIPT_URL}?${params.toString()}`, { mode: 'no-cors' }).catch(() => {}),
-          new Promise(resolve => setTimeout(resolve, 5000)),
-        ]);
-      });
+      ui.submitBtn.disabled = true;
+      ui.submitBtn.textContent = 'Submitting…';
 
-      Promise.all(tasks).finally(() => {
-        submittedTopics.add(topic);
-        submittedAt[topic] = submitted;
+      fetch('/.netlify/functions/submit-statement', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          issue: topic, stmtNum: String(idx + 1), currentText: text,
+          suggestion: r.suggestion || '', reason: r.reason || '',
+          name, email, submitted,
+        }),
+      }).then(res => {
+        if (!res.ok) throw new Error('submit failed');
+        reactions[topic][idx] = { ...r, status: 'submitted', submitted };
         saveState();
-        const details = document.querySelector(`details[data-topic="${CSS.escape(topic)}"]`);
-        if (details) {
-          details.dataset.submitted = 'true';
-          const badge = details.querySelector('.progress-badge');
-          if (badge) {
-            badge.textContent = '✓ Submitted';
-            badge.classList.remove('text-slate-400');
-            badge.classList.add('text-emerald-400');
-          }
-          details.open = false;
-          const next = details.nextElementSibling;
-          if (next && next.tagName === 'DETAILS') {
-            next.open = true;
-            requestAnimationFrame(() => next.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-          } else {
-            requestAnimationFrame(() => details.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-          }
-        }
-        btn.disabled = false;
-        btn.textContent = 'Re-submit review';
-        btn.style.background = 'linear-gradient(135deg,#059669,#10b981)';
-        btn.style.boxShadow = '0 6px 18px rgba(5,150,105,0.4)';
-        if (hint) hint.textContent = 'Submitted — edit any response and re-submit to update.';
+        ui.paint('submitted');
+        ui.submitBtn.textContent = 'Re-submit edit';
+        updateProgress(topic);
         updateOverall();
         showToast();
+      }).catch(() => {
+        ui.hint.textContent = "Couldn't submit — check your connection and try again.";
+        ui.submitBtn.textContent = 'Submit edit →';
+      }).finally(() => {
+        ui.submitBtn.disabled = false;
+        ui.refreshSubmit();
       });
     }
 
