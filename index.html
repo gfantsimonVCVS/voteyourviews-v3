@@ -18,6 +18,16 @@
   <link rel="icon" href="/icons/Favicon.jpg" type="image/jpeg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+  <!-- Google tag (gtag.js) — GA4 property "VoteYourViews", measurement G-LGM37W4CYE -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LGM37W4CYE"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LGM37W4CYE');
+    // App-wide event helper — no-ops silently when GA is blocked (ad blockers etc.)
+    function vyvTrack(name, params) { try { gtag('event', name, params || {}); } catch (_) {} }
+  </script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -2233,6 +2243,8 @@
 
       function react(dir) {
         const i = cardIndex;
+        // Analytics: the statement-level signal — which statements users agree/disagree with
+        vyvTrack('statement_response', { issue: (issue || {}).topic || (issue || {}).id || '', statement: String(i + 1), response: dir === 'up' ? 'agree' : 'disagree' });
         setFlash(dir);
         setTimeout(() => {
           setFlash(null);
@@ -2243,6 +2255,7 @@
       }
 
       function skipCard() {
+        vyvTrack('statement_response', { issue: (issue || {}).topic || (issue || {}).id || '', statement: String(cardIndex + 1), response: 'skip' });
         // Clear any prior Agree/Disagree so changing an answer to "No Opinion" actually sticks
         setReactions(prev => { const n = {...prev}; delete n[cardIndex]; return n; });
         setSkippedSet(prev => ({ ...prev, [cardIndex]: true }));
@@ -3648,6 +3661,10 @@
     function CandidateProfile({ candidate, opponent, opponents, onCompareTo, issues, answers, checkedStatements, ranks, onClose, onSelect, isSelected, raceName, raceCategory, onCompare, isOpponent, onRateIssue, focusIssueId, clearFocusIssue }) {
       const _cs = checkedStatements || {};
       const hasAnswers = answers && Object.keys(answers).length > 0;
+      // Analytics: profile opens are the "candidate popularity" signal
+      useEffect(() => {
+        if (candidate?.name) vyvTrack('candidate_profile_view', { candidate: candidate.name, party: candidate.party || '', office: raceName || '' });
+      }, [candidate?.name]);
       // Per-issue active tab: undefined = collapsed, else 'their' | 'opp' | 'facts'
       // When returning from a "Do you match?" quiz, open the rated issue straight to the candidate's view (where the ✓/✗ verdict lives).
       const [issueTab, setIssueTab] = useState(() => focusIssueId ? { [focusIssueId]: 'their' } : {});
@@ -4676,7 +4693,7 @@
                 <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                 {downloading ? 'Saving…' : 'Save PDF'}
               </button>
-              <button onClick={() => window.print()} className="flex items-center gap-1.5 text-[13px] sm:text-sm font-black uppercase tracking-wide px-3 sm:px-4 py-2.5 rounded-xl text-white whitespace-nowrap active:scale-95 transition-transform"
+              <button onClick={() => { vyvTrack('ballot_print'); window.print(); }} className="flex items-center gap-1.5 text-[13px] sm:text-sm font-black uppercase tracking-wide px-3 sm:px-4 py-2.5 rounded-xl text-white whitespace-nowrap active:scale-95 transition-transform"
                 style={{background:'#2563eb', letterSpacing:'0.04em', boxShadow:'0 2px 8px rgba(0,0,0,0.35)'}}>
                 <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                 Print
@@ -5428,6 +5445,14 @@
         if (window.history.state && window.history.state.vyvScreen === screen) return; // popstate restore — don't re-push
         window.history.pushState({ vyvScreen: screen }, '');
       }, [screen]);
+      // Analytics: each screen is a step in the user journey (landing → quiz → results → ballot…)
+      useEffect(() => { if (screen !== 'loading') vyvTrack('screen_change', { screen }); }, [screen]);
+      // Analytics: fires once when the voter has answered all 9 issues
+      const _quizDone = useRef(false);
+      useEffect(() => {
+        const n = Object.keys(answers).filter(k => answers[k] && answers[k] !== 'D').length;
+        if (n >= 9 && !_quizDone.current) { _quizDone.current = true; vyvTrack('quiz_complete', { answered: n }); }
+      }, [answers]);
       // ?persist=1 in URL uses localStorage (for testing); otherwise sessionStorage (clears on new visit)
       const store = new URLSearchParams(window.location.search).get('persist') === '1' ? localStorage : sessionStorage;
       const [county, setCounty] = useState(() => store.getItem('vyv_county') || 'hays');
@@ -5452,7 +5477,19 @@
       });
       const [ranks, setRanks] = useState(() => { try { return JSON.parse(store.getItem('vyv_ranks') || '{}'); } catch(e) { return {}; } });
       const [checkedStatements, setCheckedStatements] = useState(() => { try { return JSON.parse(store.getItem('vyv_stmts') || '{}'); } catch(e) { return {}; } });
-      const [selected, setSelected] = useState({});
+      const [selected, _setSelected] = useState({});
+      // Ballot picks are toggled from six call sites — diffing prev→next here catches
+      // every add/remove for analytics without touching any of them.
+      const setSelected = React.useCallback((updater) => {
+        _setSelected(prev => {
+          const next = typeof updater === 'function' ? updater(prev) : updater;
+          try {
+            Object.keys(next).forEach(o => { if (next[o] !== prev[o]) vyvTrack('add_to_ballot', { candidate: next[o], office: o }); });
+            Object.keys(prev).forEach(o => { if (!(o in next)) vyvTrack('remove_from_ballot', { candidate: prev[o], office: o }); });
+          } catch (_) {}
+          return next;
+        });
+      }, []);
       const [issues, setIssues] = useState(ISSUES);
       const [counties, setCounties] = useState(() => normalizeFallbackCounties(COUNTIES));
       const [loadError, setLoadError] = useState(null);
@@ -5468,6 +5505,7 @@
       // us 'texas' (the statewide block) plus the voter's real county name for the header pill.
       const [uncoveredNotice, setUncoveredNotice] = useState(null); // {countyName, address} — callout on ballot pages
       function handleCountyDetected(key, label, notice) {
+        vyvTrack('address_lookup', { county: label || key });
         setCounty(key);
         if (key === 'texas' && label) setCounties(prev => prev.texas ? { ...prev, texas: { ...prev.texas, name: label } } : prev);
         setUncoveredNotice(key === 'texas' && notice ? { ...notice, dismissed: false } : null);
@@ -5507,7 +5545,7 @@
         });
         const lastAutoPicks = autoPickRef.current; // snapshot BEFORE updating the ref — the updater below may run later
         autoPickRef.current = autoSelected;
-        setSelected(prev => {
+        _setSelected(prev => {   // _setSelected: auto-picks are not user intent — keep them out of add_to_ballot analytics
           const next = { ...prev };
           Object.entries(autoSelected).forEach(([office, name]) => {
             if (prev[office] === undefined || prev[office] === lastAutoPicks[office]) next[office] = name;
@@ -5704,6 +5742,7 @@
             initialReactions={(checkedStatements[issue?.id] || {}).reactions || null}
             onSave={(answer, rank, stmtData) => {
               if (answer !== null) {
+                vyvTrack('issue_answered', { issue: issue.id, choice: answer, rank: rank || 0 });
                 setAnswers(prev => { const n = { ...prev, [issue.id]: answer }; try { store.setItem('vyv_answers', JSON.stringify(n)); } catch(e) {} return n; });
                 setRanks(prev => { const n = { ...prev, [issue.id]: rank }; try { store.setItem('vyv_ranks', JSON.stringify(n)); } catch(e) {} return n; });
                 if (stmtData) setCheckedStatements(prev => { const n = { ...prev, [issue.id]: stmtData }; try { store.setItem('vyv_stmts', JSON.stringify(n)); } catch(e) {} return n; });

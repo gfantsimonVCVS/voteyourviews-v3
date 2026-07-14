@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics — VoteYourViews.org</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --surface: #16213c;          /* card surface (validated dark) */
+      --bg-grad: radial-gradient(1200px 600px at 50% -100px, #46538c 0%, #2e3a63 55%, #273254 100%);
+      --text-1: #ffffff;
+      --text-2: #a7b2c5;
+      --text-3: #64748b;
+      --line: rgba(255,255,255,0.10);
+      --series-1: #3987e5;         /* blue — primary sequential/line */
+      --agree: #1baf7a;            /* aqua-green */
+      --disagree: #e66767;         /* red */
+      --skip: #94a3b8;             /* neutral (not a category — always direct-labeled) */
+      --gold: #f59e0b;
+      --party-D: #3987e5; --party-R: #e66767; --party-L: #c98500; --party-G: #199e70; --party-I: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; }
+    body { font-family: 'Inter', sans-serif; color: var(--text-1); background: var(--bg-grad) fixed #273254; min-height: 100vh; }
+    h1, h2 { font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 20px 20px 60px; }
+    .card { background: linear-gradient(135deg,#16213c 0%,#1d2a4a 100%); border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 18px; padding: 20px 22px; box-shadow: 0 14px 34px rgba(0,0,0,0.4); }
+    .grid { display: grid; gap: 14px; }
+    .tiles { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+    .tile .n { font-family: 'Barlow Condensed', sans-serif; font-size: 40px; font-weight: 900; line-height: 1; color: var(--gold); }
+    .tile .l { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.16em; color: var(--text-2); margin-top: 6px; }
+    .sec-title { font-size: 21px; font-weight: 900; letter-spacing: 0.05em; margin-bottom: 2px; }
+    .sec-sub { font-size: 12px; color: var(--text-2); margin-bottom: 14px; }
+    .row { display: flex; align-items: center; gap: 10px; }
+    .barlabel { font-size: 12.5px; font-weight: 600; color: var(--text-1); width: 180px; flex-shrink: 0;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bartrack { flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .bar { height: 16px; border-radius: 0 4px 4px 0; min-width: 2px; transition: width .4s ease; }
+    .barval { font-size: 12px; font-weight: 700; color: var(--text-2); flex-shrink: 0; }
+    .stack { flex: 1; display: flex; height: 18px; border-radius: 4px; overflow: hidden; gap: 2px; background: transparent; min-width: 0; }
+    .seg { min-width: 0; }
+    .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
+    .legend .k { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-2); }
+    .swatch { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+    .pills { display: flex; gap: 8px; }
+    .pill { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 7px 14px;
+      border-radius: 999px; cursor: pointer; border: 1px solid var(--line); background: rgba(255,255,255,0.06); color: var(--text-2); }
+    .pill.on { background: #fff; color: #0f172a; border-color: #fff; }
+    .empty { font-size: 13px; color: var(--text-3); padding: 18px 4px; font-style: italic; }
+    .issue-block { margin-bottom: 16px; }
+    .issue-name { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 7px; }
+    .stmt-row { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+    .stmt-num { font-size: 11px; font-weight: 800; color: var(--text-2); width: 64px; flex-shrink: 0; }
+    #tooltip { position: fixed; pointer-events: none; background: #0b1226; border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 8px; padding: 7px 10px; font-size: 12px; font-weight: 600; color: #fff; display: none; z-index: 50;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5); white-space: nowrap; }
+    #tooltip .sub { color: var(--text-2); font-weight: 500; }
+    a.home { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 999px;
+      background: rgba(255,255,255,0.1); flex-shrink: 0; }
+  </style>
+</head>
+<body>
+  <div id="tooltip"></div>
+  <div class="wrap">
+
+    <div style="display:flex; align-items:center; gap:16px; padding:10px 0 20px;">
+      <a class="home" href="/" title="Back to VoteYourViews.org">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+      </a>
+      <div style="flex:1; min-width:0;">
+        <h1 style="font-size:32px; font-weight:900; letter-spacing:0.03em; line-height:1;">VoteYourViews <span style="color:var(--gold)">Analytics</span></h1>
+        <p style="font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.22em; color:var(--text-2); margin-top:5px;">Internal dashboard · data via Google Analytics</p>
+      </div>
+      <div class="pills" id="range-pills">
+        <button class="pill" data-days="7">7 days</button>
+        <button class="pill on" data-days="28">28 days</button>
+        <button class="pill" data-days="90">90 days</button>
+      </div>
+    </div>
+
+    <!-- Headline numbers -->
+    <div class="grid tiles" id="tiles" style="margin-bottom:14px;">
+      <div class="card tile"><div class="n" data-tile="users">—</div><div class="l">Active users</div></div>
+      <div class="card tile"><div class="n" data-tile="quiz_complete">—</div><div class="l">Quizzes completed</div></div>
+      <div class="card tile"><div class="n" data-tile="candidate_profile_view">—</div><div class="l">Profile views</div></div>
+      <div class="card tile"><div class="n" data-tile="add_to_ballot">—</div><div class="l">Ballot picks</div></div>
+      <div class="card tile"><div class="n" data-tile="ballot_print">—</div><div class="l">Ballots printed</div></div>
+    </div>
+
+    <!-- Daily users line -->
+    <div class="card" style="margin-bottom:14px;">
+      <h2 class="sec-title">Visitors over time</h2>
+      <p class="sec-sub">Daily active users</p>
+      <div id="traffic-chart"><p class="empty">Loading…</p></div>
+    </div>
+
+    <div class="grid" style="grid-template-columns: 1fr; gap:14px;">
+
+      <!-- Statement responses -->
+      <div class="card">
+        <h2 class="sec-title">Statement responses</h2>
+        <p class="sec-sub">How voters react to each of the 27 statements in the quiz</p>
+        <div class="legend">
+          <span class="k"><span class="swatch" style="background:var(--agree)"></span>Agree</span>
+          <span class="k"><span class="swatch" style="background:var(--disagree)"></span>Disagree</span>
+          <span class="k"><span class="swatch" style="background:var(--skip)"></span>No opinion</span>
+        </div>
+        <div id="statements-chart"><p class="empty">Loading…</p></div>
+      </div>
+
+      <!-- Candidates -->
+      <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+        <div class="card">
+          <h2 class="sec-title">Most-viewed candidates</h2>
+          <p class="sec-sub">Profile opens (bar color = party)</p>
+          <div id="candidates-chart"><p class="empty">Loading…</p></div>
+        </div>
+        <div class="card">
+          <h2 class="sec-title">Most-picked candidates</h2>
+          <p class="sec-sub">Added to voters' ballots</p>
+          <div id="ballot-chart"><p class="empty">Loading…</p></div>
+        </div>
+      </div>
+
+      <!-- Journey + counties -->
+      <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+        <div class="card">
+          <h2 class="sec-title">How far users get</h2>
+          <p class="sec-sub">Users reaching each screen — the drop-off funnel</p>
+          <div id="screens-chart"><p class="empty">Loading…</p></div>
+        </div>
+        <div class="card">
+          <h2 class="sec-title">Where voters are</h2>
+          <p class="sec-sub">Counties from address lookups</p>
+          <div id="counties-chart"><p class="empty">Loading…</p></div>
+        </div>
+      </div>
+
+    </div>
+
+    <p style="font-size:11px; color:var(--text-3); margin-top:18px;">
+      Events appear here within ~24h of happening on the live site (Google Analytics processing lag). Numbers reflect the selected date range.
+    </p>
+  </div>
+
+  <script>
+    const FN = '/.netlify/functions/analytics-data';
+    let DAYS = 28;
+    const $ = (s) => document.querySelector(s);
+    const esc = (s) => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const fmt = (n) => n >= 1000 ? (n/1000).toFixed(1).replace(/\.0$/,'') + 'k' : String(n);
+
+    async function report(name) {
+      const r = await fetch(`${FN}?report=${name}&days=${DAYS}`);
+      if (!r.ok) throw new Error('fetch failed');
+      return (await r.json()).rows || [];
+    }
+    const EMPTY = '<p class="empty">No data yet for this range — check back once visitors have used the site.</p>';
+
+    // ── tooltip helpers ──
+    const tip = $('#tooltip');
+    function showTip(html, x, y) { tip.innerHTML = html; tip.style.display = 'block'; moveTip(x, y); }
+    function moveTip(x, y) { tip.style.left = Math.min(x + 14, window.innerWidth - 180) + 'px'; tip.style.top = (y - 14) + 'px'; }
+    function hideTip() { tip.style.display = 'none'; }
+
+    // ── headline tiles ──
+    async function renderTiles() {
+      try {
+        const [traffic, miles] = await Promise.all([report('traffic'), report('milestones')]);
+        const users = traffic.reduce((n, r) => n + r.m[0], 0); // sum of dailies ≈ user-days; use max-day? show total activeUsers via milestones? keep simple: sum sessions
+        // activeUsers summed over days overcounts; show peak-day + note instead? Use total sessions as proxy.
+        const totalSessions = traffic.reduce((n, r) => n + (r.m[2] || 0), 0);
+        $('[data-tile="users"]').textContent = fmt(totalSessions);
+        $('[data-tile="users"]').nextElementSibling.textContent = 'Sessions';
+        const byEvent = Object.fromEntries(miles.map(r => [r.d[0], r.m[0]]));
+        for (const k of ['quiz_complete','candidate_profile_view','add_to_ballot','ballot_print']) {
+          $(`[data-tile="${k}"]`).textContent = fmt(byEvent[k] || 0);
+        }
+      } catch (e) { /* tiles stay em-dash */ }
+    }
+
+    // ── daily users line (plain SVG + crosshair tooltip) ──
+    async function renderTraffic() {
+      const el = $('#traffic-chart');
+      try {
+        const rows = await report('traffic');
+        if (!rows.length) { el.innerHTML = EMPTY; return; }
+        const pts = rows.map(r => ({ date: r.d[0], users: r.m[0] }));
+        const W = 940, H = 180, P = { l: 34, r: 10, t: 10, b: 22 };
+        const max = Math.max(...pts.map(p => p.users), 1);
+        const x = (i) => P.l + (i / Math.max(pts.length - 1, 1)) * (W - P.l - P.r);
+        const y = (v) => P.t + (1 - v / max) * (H - P.t - P.b);
+        const path = pts.map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(p.users).toFixed(1)}`).join(' ');
+        const gridY = [0, Math.round(max / 2), max];
+        el.innerHTML = `
+          <svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; display:block;" id="traffic-svg">
+            ${gridY.map(v => `<line x1="${P.l}" x2="${W - P.r}" y1="${y(v)}" y2="${y(v)}" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+              <text x="${P.l - 6}" y="${y(v) + 4}" text-anchor="end" font-size="10" fill="#64748b" font-family="Inter">${fmt(v)}</text>`).join('')}
+            <path d="${path}" fill="none" stroke="var(--series-1)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+            ${pts.length === 1 ? `<circle cx="${x(0)}" cy="${y(pts[0].users)}" r="4" fill="var(--series-1)"/>` : ''}
+            <line id="crosshair" y1="${P.t}" y2="${H - P.b}" stroke="rgba(255,255,255,0.35)" stroke-width="1" style="display:none"/>
+            <circle id="hoverdot" r="4.5" fill="var(--series-1)" stroke="#0b1226" stroke-width="2" style="display:none"/>
+            <text x="${P.l}" y="${H - 6}" font-size="10" fill="#64748b" font-family="Inter">${esc(pts[0].date.replace(/(\d{4})(\d{2})(\d{2})/, '$2/$3'))}</text>
+            <text x="${W - P.r}" y="${H - 6}" text-anchor="end" font-size="10" fill="#64748b" font-family="Inter">${esc(pts[pts.length-1].date.replace(/(\d{4})(\d{2})(\d{2})/, '$2/$3'))}</text>
+          </svg>`;
+        const svg = $('#traffic-svg');
+        svg.addEventListener('mousemove', (ev) => {
+          const rect = svg.getBoundingClientRect();
+          const relX = (ev.clientX - rect.left) / rect.width * W;
+          const i = Math.round((relX - P.l) / ((W - P.l - P.r) / Math.max(pts.length - 1, 1)));
+          if (i < 0 || i >= pts.length) { hideTip(); return; }
+          const p = pts[i];
+          const ch = svg.querySelector('#crosshair'), dot = svg.querySelector('#hoverdot');
+          ch.setAttribute('x1', x(i)); ch.setAttribute('x2', x(i)); ch.style.display = '';
+          dot.setAttribute('cx', x(i)); dot.setAttribute('cy', y(p.users)); dot.style.display = '';
+          showTip(`${p.users} user${p.users === 1 ? '' : 's'}<br><span class="sub">${p.date.replace(/(\d{4})(\d{2})(\d{2})/, '$2/$3/$1')}</span>`, ev.clientX, ev.clientY);
+        });
+        svg.addEventListener('mouseleave', () => { hideTip(); svg.querySelector('#crosshair').style.display = 'none'; svg.querySelector('#hoverdot').style.display = 'none'; });
+      } catch (e) { el.innerHTML = EMPTY; }
+    }
+
+    // ── statement responses: per issue, one stacked bar per statement ──
+    const ISSUE_ORDER = ['Reproductive Rights','Immigration & Border','Housing & Affordability','Public Education','Election Integrity','Healthcare','Social Security & Medicare','Gun Policy','Climate & Energy'];
+    async function renderStatements() {
+      const el = $('#statements-chart');
+      try {
+        const rows = await report('statements');
+        if (!rows.length) { el.innerHTML = EMPTY; return; }
+        // rows: [issue, statement, response] -> count
+        const data = {};
+        rows.forEach(r => {
+          const [issue, stmt, resp] = r.d;
+          if (!issue || issue === '(not set)') return;
+          (data[issue] = data[issue] || {});
+          (data[issue][stmt] = data[issue][stmt] || { agree: 0, disagree: 0, skip: 0 });
+          data[issue][stmt][resp] = (data[issue][stmt][resp] || 0) + r.m[0];
+        });
+        const issues = Object.keys(data).sort((a, b) => {
+          const ai = ISSUE_ORDER.indexOf(a), bi = ISSUE_ORDER.indexOf(b);
+          return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+        });
+        if (!issues.length) { el.innerHTML = EMPTY; return; }
+        const COLORS = { agree: 'var(--agree)', disagree: 'var(--disagree)', skip: 'var(--skip)' };
+        el.innerHTML = issues.map(issue => {
+          const stmts = Object.keys(data[issue]).sort();
+          return `<div class="issue-block">
+            <div class="issue-name">${esc(issue)}</div>
+            ${stmts.map(sn => {
+              const d = data[issue][sn];
+              const total = d.agree + d.disagree + d.skip;
+              if (!total) return '';
+              const seg = (k) => d[k] ? `<div class="seg" data-tip="${esc(issue)} · #${esc(sn)} — ${k === 'skip' ? 'No opinion' : k}: ${d[k]} (${Math.round(d[k]/total*100)}%)" style="background:${COLORS[k]}; width:${(d[k]/total*100).toFixed(1)}%"></div>` : '';
+              return `<div class="stmt-row">
+                <span class="stmt-num">Stmt ${esc(sn)}</span>
+                <div class="stack">${seg('agree')}${seg('disagree')}${seg('skip')}</div>
+                <span class="barval">${total}</span>
+              </div>`;
+            }).join('')}
+          </div>`;
+        }).join('');
+      } catch (e) { el.innerHTML = EMPTY; }
+    }
+
+    // ── horizontal bar lists ──
+    function barList(el, rows, { color = () => 'var(--series-1)', label = (r) => r.d[0], value = (r) => r.m[0], tipText } = {}) {
+      const items = rows.filter(r => label(r) && label(r) !== '(not set)');
+      if (!items.length) { el.innerHTML = EMPTY; return; }
+      const max = Math.max(...items.map(value), 1);
+      el.innerHTML = items.map(r => `
+        <div class="row" style="margin-bottom:6px;">
+          <span class="barlabel" title="${esc(label(r))}">${esc(label(r))}</span>
+          <div class="bartrack">
+            <div class="bar" data-tip="${esc(tipText ? tipText(r) : `${label(r)}: ${value(r)}`)}" style="width:${(value(r)/max*100).toFixed(1)}%; background:${color(r)}"></div>
+            <span class="barval">${fmt(value(r))}</span>
+          </div>
+        </div>`).join('');
+    }
+    const partyColor = (p) => ({ D: 'var(--party-D)', R: 'var(--party-R)', L: 'var(--party-L)', G: 'var(--party-G)' })[p] || 'var(--party-I)';
+
+    async function renderCandidates() {
+      try { barList($('#candidates-chart'), await report('candidates'), {
+        color: (r) => partyColor(r.d[1]), tipText: (r) => `${r.d[0]} (${r.d[1] || 'I'}): ${r.m[0]} views` });
+      } catch (e) { $('#candidates-chart').innerHTML = EMPTY; }
+    }
+    async function renderBallot() {
+      try { barList($('#ballot-chart'), await report('ballotPicks'), { color: () => 'var(--gold)' }); }
+      catch (e) { $('#ballot-chart').innerHTML = EMPTY; }
+    }
+    const SCREEN_ORDER = ['landing','quiz','summary','constellation','address','results','browse','ballot'];
+    async function renderScreens() {
+      try {
+        const rows = await report('screens');
+        rows.sort((a, b) => {
+          const ai = SCREEN_ORDER.indexOf(a.d[0]), bi = SCREEN_ORDER.indexOf(b.d[0]);
+          return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+        });
+        barList($('#screens-chart'), rows, { tipText: (r) => `${r.d[0]}: ${r.m[0]} users reached` });
+      } catch (e) { $('#screens-chart').innerHTML = EMPTY; }
+    }
+    async function renderCounties() {
+      try { barList($('#counties-chart'), await report('counties'), { color: () => 'var(--agree)' }); }
+      catch (e) { $('#counties-chart').innerHTML = EMPTY; }
+    }
+
+    // shared hover tooltip for any [data-tip] mark
+    document.addEventListener('mousemove', (ev) => {
+      const t = ev.target.closest && ev.target.closest('[data-tip]');
+      if (t) showTip(esc(t.dataset.tip), ev.clientX, ev.clientY);
+      else if (!ev.target.closest('#traffic-svg')) hideTip();
+    });
+
+    function renderAll() {
+      renderTiles(); renderTraffic(); renderStatements();
+      renderCandidates(); renderBallot(); renderScreens(); renderCounties();
+    }
+    document.querySelectorAll('#range-pills .pill').forEach(btn => btn.addEventListener('click', () => {
+      document.querySelectorAll('#range-pills .pill').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+      DAYS = parseInt(btn.dataset.days, 10);
+      renderAll();
+    }));
+    renderAll();
+  </script>
+</body>
+</html>

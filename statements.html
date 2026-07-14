@@ -16,6 +16,15 @@
   <meta name="twitter:title" content="Suggest an Edit — Review the 9 Issues" />
   <meta name="twitter:description" content="Help us make VoteYourViews better — review the 9 issues and suggest an edit." />
   <meta name="twitter:image" content="https://voteyourviews.org/icons/og-statements.png" />
+  <!-- Google tag (gtag.js) — GA4 property "VoteYourViews", measurement G-LGM37W4CYE -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LGM37W4CYE"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LGM37W4CYE');
+    function vyvTrack(name, params) { try { gtag('event', name, params || {}); } catch (_) {} }
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -519,6 +528,7 @@
       }).then(res => {
         if (!res.ok) throw new Error('submit failed');
         reactions[topic][idx] = { ...r, status: 'submitted', submitted };
+        vyvTrack('statement_edit_submitted', { issue: topic });
         saveState();
         ui.paint('submitted');
         ui.submitBtn.textContent = 'Re-submit edit';
