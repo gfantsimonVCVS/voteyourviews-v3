@@ -1593,5 +1593,25 @@
   "name": "Drew Darby",
   "office": "TX State House \u2014 District 72",
   "party": "R"
+ },
+ "shilohsalazar": {
+  "name": "Shiloh Salazar",
+  "office": "TX State House \u2014 District 72",
+  "party": "D"
+ },
+ "amymartinezsalas": {
+  "name": "Amy Martinez-Salas",
+  "office": "TX State Senate \u2014 District 22",
+  "party": "D"
+ },
+ "davidcook": {
+  "name": "David Cook",
+  "office": "TX State Senate \u2014 District 22",
+  "party": "R"
+ },
+ "melaniemedleythomas": {
+  "name": "Melanie Medley-Thomas",
+  "office": "TX State House \u2014 District 103",
+  "party": "R"
  }
 }
