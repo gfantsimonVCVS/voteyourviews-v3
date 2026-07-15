@@ -14,9 +14,11 @@ export default async (request, context) => {
   const url = new URL(request.url);
   // Only bare candidate paths (or their /edit page). Anything with a dot, or a known
   // app path, falls straight through to normal serving.
-  const m = url.pathname.match(/^\/([A-Za-z0-9]+)(\/edit)?\/?$/);  // trailing slash allowed on both forms
+  const m = url.pathname.match(/^\/([A-Za-z0-9-]+)(\/edit)?\/?$/);  // trailing slash allowed on both forms
   if (!m) return context.next();
-  const slug = m[1].toLowerCase();
+  // Canonical slugs have no dashes (/DrewDarby), but voters type /drew-darby too —
+  // normalize so every variant serves the right share card.
+  const slug = m[1].toLowerCase().replace(/[^a-z0-9]/g, '');
 
   const now = Date.now();
   if (!manifestCache || now - manifestFetchedAt > MANIFEST_TTL_MS) {

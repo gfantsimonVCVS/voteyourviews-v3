@@ -480,6 +480,45 @@
     // Full party names by sheet code. Unknown/blank codes read as Independent.
     const PARTY_NAME = { D: 'Democrat', R: 'Republican', I: 'Independent', L: 'Libertarian', G: 'Green' };
     const partyName = (p) => PARTY_NAME[(p || '').toUpperCase()] || 'Independent';
+
+    // Incumbent ⓘ badge — party-tinted, tap/click pops a plain-language bubble (hover
+    // tooltips don't exist on touch, so the popover is the one pattern for both).
+    // Only incumbents get a badge; challengers get nothing.
+    function IncumbentBadge({ party, size = 15, showWord = false }) {
+      const [pos, setPos] = useState(null); // {top,left} viewport coords when open
+      const btnRef = useRef(null);
+      useEffect(() => { if (!pos) return; const t = setTimeout(() => setPos(null), 4000); return () => clearTimeout(t); }, [pos]);
+      const icon = (party || '').toUpperCase() === 'R' ? '/icons/Red_i.png' : '/icons/Blue_i.png';
+      const W = 200;
+      // Popover renders in a portal on <body> — profile cards use overflow-hidden
+      // wrappers that would clip an in-flow absolute bubble.
+      return (
+        <span className="relative inline-flex items-center" style={{ verticalAlign: 'middle' }}>
+          <button ref={btnRef} onClick={e => {
+              e.stopPropagation();
+              if (pos) { setPos(null); return; }
+              const r = btnRef.current.getBoundingClientRect();
+              setPos({ top: r.top, bottom: r.bottom, below: r.top < 110,   // not enough room above → open downward
+                left: Math.min(Math.max(r.left + r.width / 2, W / 2 + 12), window.innerWidth - W / 2 - 12) });
+            }}
+            aria-label="Incumbent — currently holds this seat"
+            className="inline-flex items-center gap-1 active:scale-95 transition-transform" style={{ lineHeight: 0 }}>
+            <img src={icon} alt="" style={{ width: size, height: size }} />
+            {showWord && <span className="text-[10px] font-black uppercase tracking-wide text-white/60">Incumbent</span>}
+          </button>
+          {pos && ReactDOM.createPortal(
+            <span className="px-3.5 py-2.5 rounded-xl text-[12px] font-semibold leading-snug text-left"
+              style={{ position: 'fixed', zIndex: 9999, width: W, left: pos.left, transform: 'translateX(-50%)',
+                ...(pos.below ? { top: pos.bottom + 8 } : { bottom: window.innerHeight - pos.top + 8 }),
+                background: '#0f172a', color: '#e2e8f0', border: '1.5px solid rgba(251,191,36,0.55)', boxShadow: '0 8px 24px rgba(0,0,0,0.6)' }}>
+              <span className="block font-black uppercase tracking-wide text-[10px] mb-0.5" style={{ color: '#fbbf24' }}>Incumbent</span>
+              Currently holds this seat and is running to keep it.
+            </span>,
+            document.body
+          )}
+        </span>
+      );
+    }
     function resolveLocalPhoto(county, party, name) {
       const p = (party || 'NA').toUpperCase(), slug = photoSlug(name);
       for (const dir of [`${county}/${p}`, `statewide/${p}`]) {
@@ -545,6 +584,7 @@
           party: row.party,
           confirmed: ['true','yes','TRUE','Yes'].includes(row.confirmed),
           uncontested: ['true','yes','TRUE','Yes'].includes(row.uncontested),
+          incumbent: ['true','yes','TRUE','Yes'].includes(row.incumbent),
           website: row.website || null,
           photo: resolveLocalPhoto(county, row.party, row.name) || row.photo || PHOTO_FALLBACK[row.name] || null,
           summary: row.hook2 || HOOK2_FALLBACK[row.name] || row.summary || '',
@@ -3464,9 +3504,9 @@
                             </p>
                             <p className="text-white font-black text-lg leading-tight mb-1.5">{displayCand?.name}</p>
                             <div className="flex items-center flex-wrap gap-1.5">
-                              <span className="inline-block text-[10px] font-black uppercase tracking-wide px-2.5 py-0.5 rounded-full"
+                              <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wide px-2.5 py-0.5 rounded-full"
                                 style={{background: partyColor + '28', color: partyColor, border: `1px solid ${partyColor}55`}}>
-                                {partyName(displayCand?.party)}
+                                {partyName(displayCand?.party)}{displayCand?.incumbent && <IncumbentBadge party={displayCand?.party} size={13} />}
                               </span>
                               <button onClick={e => {
                                   e.stopPropagation();
@@ -3540,9 +3580,9 @@
                                   </div>
                                 )}
                               </div>
-                              <span className="mt-2 text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full"
+                              <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full"
                                 style={{background: partyColor + '28', color: partyColor, border:`1px solid ${partyColor}55`}}>
-                                {partyName(displayCand?.party)}
+                                {partyName(displayCand?.party)}{displayCand?.incumbent && <IncumbentBadge party={displayCand?.party} size={13} />}
                               </span>
                             </button>
 
@@ -3832,11 +3872,10 @@
                 )}
                 <h2 className="text-white font-black text-xl lg:text-2xl leading-tight mb-1">{candidate.name}</h2>
                 <div className="flex items-center gap-2 mb-1.5">
-                  <p className="text-[14px] font-bold uppercase tracking-normal" style={{color: partyTint}}>{partyName(candidate.party)}</p>
+                  <p className="inline-flex items-center gap-1.5 text-[14px] font-bold uppercase tracking-normal" style={{color: partyTint}}>{partyName(candidate.party)}{candidate.incumbent && <IncumbentBadge party={candidate.party} size={16} />}</p>
                   {candidate.website ? (
                     <a href={candidate.website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-white/85 hover:text-white transition-colors shrink-0" title="Visit website">
                       <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                      <span className="text-[10px] font-bold uppercase tracking-wide">Website</span>
                     </a>
                   ) : (
                     <span className="inline-flex items-center gap-1 shrink-0 text-white/55" title="No website on file">
@@ -3845,7 +3884,6 @@
                         <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
                         <line x1="3.5" y1="20.5" x2="20.5" y2="3.5" stroke="#fca5a5" strokeWidth={2.5}/>
                       </svg>
-                      <span className="text-[10px] font-bold uppercase tracking-wide">No website</span>
                     </span>
                   )}
                 </div>
@@ -4359,7 +4397,7 @@
                                 </div>
                               )}
                             </div>
-                            <span className={`text-[10px] font-bold uppercase tracking-wide ${partyColor}`}>{partyLabel}</span>
+                            <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide ${partyColor}`}>{partyLabel}{c.incumbent && <IncumbentBadge party={c.party} size={14} />}</span>
                             <button onClick={e => { e.stopPropagation(); setBrowseProfile({candidate: c, race}); }}
                               className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wide px-2.5 py-1.5 rounded-lg whitespace-nowrap" style={{background:'rgba(217,119,6,0.2)', color:'#f59e0b', border:'1px solid rgba(217,119,6,0.5)'}}><svg viewBox="0 0 24 24" fill="currentColor" style={{width:'11px',height:'11px'}}><path d="M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-4.4 0-8 2.7-8 6v1h16v-1c0-3.3-3.6-6-8-6z"/></svg>About {c.name.split(' ')[0]}</button>
                             {(() => {
