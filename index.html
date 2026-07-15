@@ -4048,7 +4048,10 @@
                 const issueFact = issue.issueFact || '';
                 const tab = issueTab[issue.id];   // undefined (collapsed) | 'their' | 'opp' | 'facts'
                 const isOpen = !!tab;
-                const defaultTab = expandable ? 'their' : (oppHasInfo ? 'opp' : 'facts');
+                // Always open on the profiled candidate's own tab — even with no stated
+                // position it explains why ("hasn't detailed a specific position…");
+                // defaulting to the opponent reads as showing the wrong candidate.
+                const defaultTab = 'their';
                 const oppLastName = opponent?.name ? opponent.name.split(' ').filter(Boolean).pop() : '';
                 // Active tab takes its content panel's exact color so it visually MERGES into the content below (a folder-tab "owning" its panel); inactive tabs recede to dark.
                 const segActiveColor = (kind, party) => kind === 'facts' ? '#eef2f7' : (kind === 'opp' ? tintFor(opponent?.party) : tintFor(candidate.party));
