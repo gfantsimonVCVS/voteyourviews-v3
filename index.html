@@ -736,9 +736,15 @@
         ...sharedRaces.map(r => ({ ...r, level: raceLevel(r, false) })),
         ...localRaces.map(r => ({ ...r, level: raceLevel(r, true) })),
       ];
+      // Real Texas ballot order within the state section: executive offices,
+      // then the Legislature (Senate before House), then the courts.
+      const stateRank = (r) => /court|justice/i.test(r.office) ? 4
+        : /state house/i.test(r.office) ? 3
+        : /state senate/i.test(r.office) ? 2
+        : 1;
       return {
         federal: all.filter(r => r.level === 'federal'),
-        state:   all.filter(r => r.level === 'state'),
+        state:   all.filter(r => r.level === 'state').sort((a, b) => stateRank(a) - stateRank(b)),
         county:  all.filter(r => r.level === 'county'),
       };
     }
@@ -3726,7 +3732,7 @@
               <p><span className="font-bold text-slate-800">Judicial candidates</span> — Judicial ethics rules prohibit judges from taking public positions on policy issues. These candidates have filed under a party affiliation.</p>
               <p><span className="font-bold text-slate-800">Administrative offices</span> — County clerks, treasurers, and similar administrative officials do not set policy on the issues listed. Position data is not applicable for these roles.</p>
               <p><span className="font-bold text-slate-800">Additional sources</span> — <a href="https://ballotpedia.org" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Ballotpedia</a> was used for biographical information and election data. Candidate websites were used for platform statements.</p>
-              <p className="text-slate-400 text-xs pt-1 border-t border-slate-100">VoteYourViews.org is a nonpartisan voter education project. We do not endorse any candidate or party. If you find an error, email <a href="mailto:gina@fantsimon.com" className="text-blue-600 underline">gina@fantsimon.com</a>.</p>
+              <p className="text-slate-400 text-xs pt-1 border-t border-slate-100">VoteYourViews.org is a nonpartisan voter education project. We do not endorse any candidate or party. If you find an error, email <a href="mailto:hello@voteyourviews.org" className="text-blue-600 underline">hello@voteyourviews.org</a>.</p>
             </div>
           </div>
         </div>
@@ -4529,6 +4535,8 @@
                 let ballotCand = null;
                 if (answers && Object.keys(answers).length > 0) {
                   const scored = cands.map(c => ({ c, s: calcMatch(c, answers, checkedStatements, ranks) })).filter(x => x.s !== null).sort((a, b) => b.s - a.s);
+                  // Dead heat → the ballot shows both, so neither reads "✓ On Ballot" here.
+                  if (scored.length > 1 && scored[0].s === scored[1].s) return false;
                   if (scored.length) ballotCand = scored[0].c;
                 }
                 if (!ballotCand) ballotCand = cands[0];
@@ -4739,6 +4747,11 @@
         if (reals.length === 1) return { kind: 'unopposed', race, candidate: reals[0] };
         if (hasAnswers) {
           const scored = reals.map(c => ({ candidate: c, score: calcMatch(c, answers, checkedStatements, ranks) })).filter(s => s.score !== null).sort((a,b) => b.score - a.score);
+          // Dead heat — more than one candidate matches the voter's views equally.
+          // Never break the tie for them: show every tied name and say why.
+          if (scored.length > 1 && scored[0].score === scored[1].score) {
+            return { kind: 'tie', race, candidates: scored.filter(s => s.score === scored[0].score).map(s => s.candidate) };
+          }
           if (scored.length > 0) return { kind: 'pick', race, candidate: scored[0].candidate };
         }
         // Two honest reasons for an open race: the voter hasn't answered anything yet,
@@ -4817,6 +4830,17 @@
             {RACE_SECTIONS.map(sec => {
               const sectionRaces = filterRacesByDistrict(countyData[sec.key] || [], userDistricts);
               const sectionRows = sectionRaces.map(ballotRow).filter(Boolean);
+              // The voter's senate seat isn't up this cycle (staggered 4-year terms):
+              // say so in the slot where the race would sit, instead of a silent gap.
+              if (sec.key === 'state' && userDistricts && userDistricts.stateSenate
+                  && SENATORS_NOT_UP[userDistricts.stateSenate]
+                  && !sectionRaces.some(r => r.districtType === 'stateSenate')) {
+                const info = { kind: 'senateInfo', senator: SENATORS_NOT_UP[userDistricts.stateSenate],
+                  race: { office: `TX State Senate — District ${userDistricts.stateSenate}` } };
+                let at = sectionRows.findIndex(r => /state house/i.test(r.race.office));
+                if (at < 0) at = sectionRows.findIndex(r => /court|justice/i.test(r.race.office));
+                sectionRows.splice(at < 0 ? sectionRows.length : at, 0, info);
+              }
               if (!sectionRows.length) return null;
               const pColor = (p) => p === 'D' ? '#2563eb' : p === 'R' ? '#dc2626' : p === 'G' ? '#16a34a' : '#64748b';
               return (
@@ -4853,6 +4877,42 @@
                               ))}
                             </div>
                             <div style={{fontSize:'9px', fontWeight:700, color:'#94a3b8', lineHeight:1.3}}>{row.race.category === 'judicial' ? 'Your choice • judicial races are neutral regarding policy' : row.reason === 'unresearched' ? 'Your choice • no stated positions to match yet' : 'Your choice • Vote Your Views to match or choose from All Candidates'}</div>
+                          </div>
+                        );
+                      }
+                      if (row.kind === 'senateInfo') {
+                        const sen = row.senator;
+                        return (
+                          <div key={row.race.office} className="ballot-pick-row" style={{padding:'4px 0 10px'}}>
+                            <div style={{fontSize:'10px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.05em', color:'#94a3b8', lineHeight:1.2}}>{row.race.office}</div>
+                            <div style={{fontSize:'13px', fontWeight:800, color:'#64748b', lineHeight:1.3, marginTop:'1px'}}>
+                              {sen.name}
+                              <span style={{color:pColor(sen.party), opacity:0.65, fontWeight:900, fontSize:'10px', marginLeft:'6px'}}>· {partyName(sen.party)}</span>
+                            </div>
+                            <div style={{fontSize:'9px', fontWeight:700, color:'#94a3b8', lineHeight:1.3}}>
+                              Not on this ballot — your senator's seat isn't up until {sen.termEnd || '2028'}
+                              <span style={{display:'block'}}>(senators serve staggered 4-year terms)</span>
+                            </div>
+                          </div>
+                        );
+                      }
+                      if (row.kind === 'tie') {
+                        return (
+                          <div key={race.office} className="ballot-pick-row" style={{padding:'4px 0 10px'}}>
+                            <div style={{fontSize:'10px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.05em', color:'#64748b', lineHeight:1.2}}>{race.office}</div>
+                            <div style={{fontSize:'13px', fontWeight:900, color:'#0f172a', lineHeight:1.4, marginTop:'1px'}}>
+                              {row.candidates.map((c, i) => (
+                                <React.Fragment key={c.name}>
+                                  {i > 0 && <span style={{color:'#94a3b8', fontWeight:700, fontSize:'12px'}}> or </span>}
+                                  <span style={{whiteSpace:'nowrap'}}>
+                                    <span style={{color:'#16a34a', fontWeight:900, marginRight:'3px'}}>✓</span>
+                                    {c.name}
+                                    <span style={{color:pColor(c.party), fontWeight:900, fontSize:'10px', marginLeft:'4px'}}>· {partyName(c.party)}</span>
+                                  </span>
+                                </React.Fragment>
+                              ))}
+                            </div>
+                            <div style={{fontSize:'9px', fontWeight:700, color:'#16a34a', lineHeight:1.3}}>Both match the Issue(s) you chose for this ballot</div>
                           </div>
                         );
                       }
@@ -5671,7 +5731,10 @@
             .map(c => ({ c, s: calcMatch(c, answers, checkedStatements, ranks) }))
             .filter(x => x.s !== null);
           if (scored.length) {
-            autoSelected[race.office] = scored.reduce((a, b) => (b.s > a.s ? b : a)).c.name;
+            const best = Math.max(...scored.map(x => x.s));
+            const top = scored.filter(x => x.s === best);
+            // Dead heat → no auto-pick: the ballot lists every tied candidate and says so.
+            if (top.length === 1) autoSelected[race.office] = top[0].c.name;
           }
         });
         const lastAutoPicks = autoPickRef.current; // snapshot BEFORE updating the ref — the updater below may run later
@@ -5680,6 +5743,11 @@
           const next = { ...prev };
           Object.entries(autoSelected).forEach(([office, name]) => {
             if (prev[office] === undefined || prev[office] === lastAutoPicks[office]) next[office] = name;
+          });
+          // An earlier auto-pick that has since become a tie (or lost its data) is not user
+          // intent either — withdraw it so the tie can show both names.
+          Object.entries(lastAutoPicks).forEach(([office, name]) => {
+            if (!(office in autoSelected) && next[office] === name) delete next[office];
           });
           return next;
         });
