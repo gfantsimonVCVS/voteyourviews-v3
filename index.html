@@ -3192,6 +3192,41 @@
       );
     }
 
+    // Printable-ballot version of the county waitlist: shown in the County Races slot when
+    // the voter's county has no local data yet ('texas' pseudo-county). The section PRINTS
+    // (this page's whole job is being printed): on screen the CTA is a mailto button; on
+    // paper it reads as a plain email-us line, so the printed ballot can still reach us.
+    function BallotCountySignup({ countyName }) {
+      const display = /county/i.test(countyName || '') ? countyName : (countyName || 'your') + ' County';
+      // hello@ forwards to Gina (ImprovMX on the Hostinger DNS) — swap here if the address changes.
+      const CONTACT_EMAIL = 'hello@voteyourviews.org';
+      const mailto = 'mailto:' + CONTACT_EMAIL
+        + '?subject=' + encodeURIComponent('Remind me when ' + display + ' is on VoteYourViews')
+        + '&body=' + encodeURIComponent('Hello VoteYourViews,\n\nPlease let me know when ' + display + "'s local races are available on voteyourviews.org.\n\nThank you!");
+      return (
+        <div data-sec="county" className="mb-4">
+          <div className="ballot-band" style={{background:'#0f172a', borderRadius:'8px', textAlign:'center', padding:'7px 12px 8px', marginBottom:'8px', fontFamily:"'Barlow Condensed',sans-serif", fontSize:'16px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.12em', color:'#fff', lineHeight:1.1}}>
+            County Races
+          </div>
+          <div style={{border:'2px dashed #cbd5e1', borderRadius:'10px', padding:'14px 16px', background:'#f8fafc'}}>
+            <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'18px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.06em', color:'#0f172a', lineHeight:1.15}}>
+              We don't have <span style={{color:'#d97706'}}>{display}</span> yet
+            </div>
+            <p style={{fontSize:'13px', color:'#475569', margin:'4px 0 10px', lineHeight:1.45}}>
+              <span style={{color:'#d97706', fontWeight:800}}>{display}</span>'s local races are coming soon — everything above is still your full ballot for the state and federal races. Want an email the day your local races land?
+            </p>
+            <a href={mailto} className="no-print inline-block px-3.5 py-2 font-black rounded-lg text-xs uppercase tracking-wider transition-all hover:brightness-110 active:scale-95"
+              style={{background:'linear-gradient(135deg,#fbbf24,#d97706)', color:'#0f172a', textDecoration:'none'}}>
+              ✉ Remind me please
+            </a>
+            <p style={{fontSize:'12px', fontWeight:700, color:'#475569', marginTop:'8px', lineHeight:1.4}}>
+              Click the button above or email us at <span style={{color:'#0f172a'}}>{CONTACT_EMAIL}</span> and we'll let you know when <span style={{color:'#d97706', fontWeight:800}}>{display}</span> is complete.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
     // County reader — shows WHERE the voter's ballot is from; not a picker. Green pin =
     // county fully covered; amber pin = partial coverage (statewide races only, locals coming).
     // The only action is opening the address modal; county changes flow from there.
@@ -4837,6 +4872,8 @@
                 </div>
               );
             })}
+
+            {county === 'texas' && <BallotCountySignup countyName={countyData.name} />}
 
             {/* Key Dates & Times */}
             <div data-sec="dates" style={{marginTop:'14px', borderTop:'2px solid #0f172a', paddingTop:'12px'}}>

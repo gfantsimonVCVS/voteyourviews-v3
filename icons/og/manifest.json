@@ -179,6 +179,61 @@
   "office": "15th Court of Appeals \u2014 Place 3",
   "party": "R"
  },
+ "tedbrown": {
+  "name": "Ted Brown",
+  "office": "U.S. Senate",
+  "party": "L"
+ },
+ "patdixon": {
+  "name": "Pat Dixon",
+  "office": "Governor of Texas",
+  "party": "L"
+ },
+ "kevinmccormick": {
+  "name": "Kevin McCormick",
+  "office": "Lieutenant Governor",
+  "party": "G"
+ },
+ "tomoxford": {
+  "name": "Tom Oxford",
+  "office": "Attorney General",
+  "party": "L"
+ },
+ "valonzoechavarriagarza": {
+  "name": "V. Alonzo Echavarria-Garza",
+  "office": "Comptroller of Public Accounts",
+  "party": "L"
+ },
+ "shehlafaizi": {
+  "name": "Shehla Faizi",
+  "office": "Comptroller of Public Accounts",
+  "party": "G"
+ },
+ "neillsnider": {
+  "name": "Neill Snider",
+  "office": "Commissioner of General Land Office",
+  "party": "L"
+ },
+ "austinrkelly": {
+  "name": "Austin R. Kelly",
+  "office": "Commissioner of Agriculture",
+  "party": "L"
+ },
+ "alfredmolison": {
+  "name": "Alfred Molison",
+  "office": "Commissioner of Agriculture",
+  "party": "G"
+ },
+ "arthurdibianca": {
+  "name": "Arthur DiBianca",
+  "office": "Railroad Commissioner",
+  "party": "L"
+ },
+ "markash": {
+  "name": "Mark Ash",
+  "office": "Court of Criminal Appeals \u2014 Place 3",
+  "party": "L"
+ },
  "caitlinrourk": {
   "name": "Caitlin Rourk",
   "office": "U.S. House \u2014 District 10",
@@ -313,11 +368,6 @@
   "name": "Julie Dahlberg",
   "office": "TX State Senate \u2014 District 21",
   "party": "R"
- },
- "travismcqueen": {
-  "name": "Travis McQueen",
-  "office": "U.S. House \u2014 District 27",
-  "party": "I"
  },
  "nathanielmoran": {
   "name": "Nathaniel Moran",
@@ -1024,6 +1074,11 @@
   "office": "TX State House \u2014 District 103",
   "party": "D"
  },
+ "melaniemedleythomas": {
+  "name": "Melanie Medley-Thomas",
+  "office": "TX State House \u2014 District 103",
+  "party": "R"
+ },
  "yvonnedavis": {
   "name": "Yvonne Davis",
   "office": "TX State House \u2014 District 111",
@@ -1262,6 +1317,36 @@
  "williamdemond": {
   "name": "William Demond",
   "office": "14th Court of Appeals \u2014 Place 7",
+  "party": "D"
+ },
+ "laceyhull": {
+  "name": "Lacey Hull",
+  "office": "TX State House \u2014 District 138",
+  "party": "R"
+ },
+ "tylersmith": {
+  "name": "Tyler Smith",
+  "office": "TX State House \u2014 District 138",
+  "party": "D"
+ },
+ "davidcook": {
+  "name": "David Cook",
+  "office": "TX State Senate \u2014 District 22",
+  "party": "R"
+ },
+ "amymartinezsalas": {
+  "name": "Amy Martinez-Salas",
+  "office": "TX State Senate \u2014 District 22",
+  "party": "D"
+ },
+ "drewdarby": {
+  "name": "Drew Darby",
+  "office": "TX State House \u2014 District 72",
+  "party": "R"
+ },
+ "shilohsalazar": {
+  "name": "Shiloh Salazar",
+  "office": "TX State House \u2014 District 72",
   "party": "D"
  },
  "allisonbush": {
@@ -1523,95 +1608,5 @@
   "name": "Cliff Brown",
   "office": "Travis County District Court \u2014 147th",
   "party": "D"
- },
- "tedbrown": {
-  "name": "Ted Brown",
-  "office": "U.S. Senate",
-  "party": "L"
- },
- "patdixon": {
-  "name": "Pat Dixon",
-  "office": "Governor of Texas",
-  "party": "L"
- },
- "kevinmccormick": {
-  "name": "Kevin McCormick",
-  "office": "Lieutenant Governor",
-  "party": "G"
- },
- "tomoxford": {
-  "name": "Tom Oxford",
-  "office": "Attorney General",
-  "party": "L"
- },
- "valonzoechavarriagarza": {
-  "name": "V. Alonzo Echavarria-Garza",
-  "office": "Comptroller of Public Accounts",
-  "party": "L"
- },
- "shehlafaizi": {
-  "name": "Shehla Faizi",
-  "office": "Comptroller of Public Accounts",
-  "party": "G"
- },
- "neillsnider": {
-  "name": "Neill Snider",
-  "office": "Commissioner of General Land Office",
-  "party": "L"
- },
- "austinrkelly": {
-  "name": "Austin R. Kelly",
-  "office": "Commissioner of Agriculture",
-  "party": "L"
- },
- "alfredmolison": {
-  "name": "Alfred Molison",
-  "office": "Commissioner of Agriculture",
-  "party": "G"
- },
- "arthurdibianca": {
-  "name": "Arthur DiBianca",
-  "office": "Railroad Commissioner",
-  "party": "L"
- },
- "markash": {
-  "name": "Mark Ash",
-  "office": "Court of Criminal Appeals \u2014 Place 3",
-  "party": "L"
- },
- "laceyhull": {
-  "name": "Lacey Hull",
-  "office": "TX State House \u2014 District 138",
-  "party": "R"
- },
- "tylersmith": {
-  "name": "Tyler Smith",
-  "office": "TX State House \u2014 District 138",
-  "party": "D"
- },
- "drewdarby": {
-  "name": "Drew Darby",
-  "office": "TX State House \u2014 District 72",
-  "party": "R"
- },
- "shilohsalazar": {
-  "name": "Shiloh Salazar",
-  "office": "TX State House \u2014 District 72",
-  "party": "D"
- },
- "amymartinezsalas": {
-  "name": "Amy Martinez-Salas",
-  "office": "TX State Senate \u2014 District 22",
-  "party": "D"
- },
- "davidcook": {
-  "name": "David Cook",
-  "office": "TX State Senate \u2014 District 22",
-  "party": "R"
- },
- "melaniemedleythomas": {
-  "name": "Melanie Medley-Thomas",
-  "office": "TX State House \u2014 District 103",
-  "party": "R"
  }
 }

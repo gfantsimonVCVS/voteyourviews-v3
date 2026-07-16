@@ -116,6 +116,7 @@ def build_html(cand, photo_b64, plate_b64):
     office_size = 35 if max(len(office_line1), len(office_line2)) <= 26 else 29
     office_html = f'{office_line1}<br/>{office_line2}' if office_line2 else office_line1
     name_html = '<br/>'.join(lines)
+    name_color = {'R': '#B3202B', 'D': '#0A2870'}.get((cand['party'] or '').upper(), '#334155')
     return f"""<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet"/>
 <style>
@@ -127,7 +128,7 @@ body {{ width:1200px; height:630px; overflow:hidden; position:relative; }}
 .col {{ position:absolute; left:56px; top:92px; width:400px; z-index:3;
   display:flex; flex-direction:column; gap:24px; text-align:center; align-items:center; }}
 .name {{ font-family:'Anton',sans-serif; font-size:{name_size}px; line-height:1.04; text-transform:uppercase;
-  letter-spacing:0.015em; color:#0A2870; }}
+  letter-spacing:0.015em; color:{name_color}; }}
 .office {{ font-family:'Anton',sans-serif; font-size:{office_size}px; line-height:1.2; letter-spacing:0.05em;
   text-transform:uppercase; width:360px; color:#3968A1; }}
 </style></head><body>
