@@ -25,11 +25,26 @@ def _get(url, headers=None, timeout=25):
     if headers: h.update(headers)
     return urllib.request.urlopen(urllib.request.Request(url, headers=h), timeout=timeout).read()
 
-def searlo_image_links(name):
-    q = f"{name} Texas candidate"
+def searlo_image_links(name, site=""):
+    # Gina's proven manual query: just "<name> Texas" — the extra word "candidate"
+    # drags in race coverage and opponents.
+    q = f"{name} Texas"
     url = "https://api.searlo.tech/api/v1/search/images?" + urllib.parse.urlencode({"q": q, "limit": 10, "safe": "active"})
     data = json.loads(_get(url, headers={"x-api-key": SEARLO_KEY, "Accept": "application/json"}))
-    return [im["imageUrl"] for im in data.get("images", []) if im.get("imageUrl")]
+    imgs = [im for im in data.get("images", []) if im.get("imageUrl")]
+    # Rank like a human: results that NAME the candidate or come from their own
+    # site / Ballotpedia beat whatever happens to be first.
+    name_tokens = [t for t in name.lower().split() if len(t) > 2]
+    site_dom = site.lower().replace("https://", "").replace("http://", "").replace("www.", "").split("/")[0]
+    TRUSTED = ["ballotpedia.org", "votesmart.org", "wikipedia.org", "lwv.org"]
+    def score(im):
+        meta = " ".join(str(im.get(k, "")) for k in ("title", "source", "sourceUrl", "pageUrl", "link")).lower()
+        s = sum(2 for t in name_tokens if t in meta)          # candidate actually named
+        if site_dom and site_dom in meta: s += 5              # their own campaign site
+        if any(d in meta for d in TRUSTED): s += 3            # neutral reference sites
+        return s
+    imgs.sort(key=score, reverse=True)
+    return [im["imageUrl"] for im in imgs]
 
 _cascade = None
 def one_face(raw):
@@ -70,10 +85,12 @@ class H(BaseHTTPRequestHandler):
             return self._send(200, "application/json", b'{"ok":true}')
         if u.path != "/find":
             return self._send(404, "text/plain", b"not found")
-        name = (urllib.parse.parse_qs(u.query).get("name", [""])[0]).strip()
+        qs = urllib.parse.parse_qs(u.query)
+        name = (qs.get("name", [""])[0]).strip()
+        site = (qs.get("site", [""])[0]).strip()
         try:
             tried = 0
-            for link in searlo_image_links(name):
+            for link in searlo_image_links(name, site):
                 if tried >= 8: break
                 tried += 1
                 try:

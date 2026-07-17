@@ -210,8 +210,9 @@ function guidedNext(){
 async function proxyUp(){ try{ const r=await fetch('http://localhost:8770/health'); return r.ok; }catch(e){ return false; } }
 async function tryProxy(card){
   const name = card.candidate ? card.candidate.name : card.name;
+  const site = (card.candidate && card.candidate.website) ? card.candidate.website : '';
   try{
-    const r = await fetch(`http://localhost:8770/find?name=${encodeURIComponent(name)}`);
+    const r = await fetch(`http://localhost:8770/find?name=${encodeURIComponent(name)}&site=${encodeURIComponent(site)}`);
     if(r.ok && (r.headers.get('content-type')||'').includes('png')){
       const dataUrl = await blobToDataURL(await r.blob());
       const el = document.getElementById(card.id);
@@ -492,12 +493,14 @@ async function loadSheet(){
   const rows=parseCSV(txt);
   const hdr=rows[0].map(h=>h.trim().toLowerCase());
   const iN=hdr.indexOf('name'),iP=hdr.indexOf('party'),iO=hdr.indexOf('office'),iPh=hdr.indexOf('photo');
+  const iW=hdr.indexOf('website');          // campaign site — boosts the right face in auto photo search
   const iD=hdr.indexOf('districtnumber');   // SenatorsNotUp tab: no office column — synthesize from district
   let allRows=rows.slice(1).filter(r=>r[iN]&&r[iN].trim());     // candidate rows, in sheet order
   candidates=allRows
     .map(r=>({name:r[iN].trim(),party:(r[iP]||'').trim(),
       office:(iO>=0?(r[iO]||'').trim():'')||(iD>=0&&r[iD]?`TX State Senate — District ${r[iD].trim()} (not up in 2026)`:''),
-      photo:(iPh>=0?(r[iPh]||'').trim():'')}))
+      photo:(iPh>=0?(r[iPh]||'').trim():''),
+      website:(iW>=0?(r[iW]||'').trim():'')}))
     .filter(c=>!party||c.party.toUpperCase()===party)
     .filter(c=>!/\btbd\b/i.test(c.name));   // skip "TBD — …Nominee" placeholders (not real candidates)
   setStatus(`Loaded ${candidates.length} candidates from ${tab}. Building cards…`);
