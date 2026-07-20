@@ -47,7 +47,7 @@ Candidate tab columns (HaysCounty / TravisCounty), A→AF:
 - **`HaysCounty` is the MASTER for the 18 statewide races (rows 2–37).** Edit a statewide candidate ONLY in HaysCounty; every other county inherits it.
 - **Every other county's statewide block (rows 2–37) MUST be the array formula `={HaysCounty!A2:AF37}` in cell A2** — a single spilling formula, NOT pasted/static values. If a county's A2 holds a literal office name instead of a formula, it's been flattened to values and statewide edits will NOT propagate — reconvert it to the formula.
 - County-specific district + local races go in **row 38 and below only**. Never write rows 2–37 of any county tab except the single master cells in HaysCounty.
-- Service account for sheet writes: `voteyourviews-db39fac73eed.json` (see API Keys below).
+- Service account for sheet writes: `/Users/ginafant-simon/Documents/Blue World AV/Political Files/2026/2026 Voter Guide/Vote Texas Values/voteyourviews-66ea7a2a2f10.json` (see API Keys below).
 
 Position values (candidate cells): full words — `Agree`, `Disagree`, `Unknown` (no moderate/middle option). Older A/B/C/D coding is retired.
 
@@ -105,7 +105,7 @@ Position values (candidate cells): full words — `Agree`, `Disagree`, `Unknown`
   - Working curl: `curl "https://api.democracy.works/v2/elections?addressStreet=14360+Falcon+Head+Blvd&addressCity=Bee+Cave&addressStateCode=TX&addressZip=78738&startDate=2026-06-01&includeBallotData=true" --header "x-api-key: 7ya5QclfLmVay7rTfmyD9BntG0ZSvEb4ZII3q3f5"`
   - Returns: `data.elections[].contests[].candidates[]` with `fullName`, `partyAffiliation[]`, `contact.campaign.website`, `ballotpediaUrl`
 - **Geocodio API**: `59cc9999fb36698b393c3f1c3861cab815fb35c`
-- **Google Sheets Service Account**: `/Users/ginafant-simon/Downloads/State Over Party V3/voteyourviews-db39fac73eed.json`
+- **Google Sheets Service Account**: `/Users/ginafant-simon/Documents/Blue World AV/Political Files/2026/2026 Voter Guide/Vote Texas Values/voteyourviews-66ea7a2a2f10.json`
 - **Sheet ID**: `1V1oaEy6ToV3LZt0et9bIWEJQbPrYZg73tDxGelhiFn8`
 
 ## Engineering Standards (REQUIRED)
