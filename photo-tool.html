@@ -229,9 +229,9 @@ async function tryProxy(card){
 async function getMissing(){
   const btn=$('#getMissing'); btn.disabled=true;
   const useProxy = await proxyUp();
+  if(!useProxy && !confirm('⚠️ GOOGLE PHOTO SEARCH IS OFF — the local photo proxy is not running, so this run would use Wikidata only (finds almost nothing for local candidates).\n\nTo get Google: open Terminal and run\n  python3 tools/photo-proxy.py\nthen click "Get missing photos" again.\n\nContinue with Wikidata anyway?')){ btn.disabled=false; setStatus('Cancelled — start tools/photo-proxy.py, then try again.'); return; }
   const fetcher = useProxy ? tryProxy : tryWikidata;
   const label = useProxy ? 'Google' : 'Wikidata';
-  if(!useProxy) setStatus('Photo proxy not running → using Wikidata (thin). Start tools/photo-proxy.py for Google. Continuing…');
   const miss = missingCards();
   let found=0;
   for(let i=0;i<miss.length;i++){ setStatus(`Stage 1 · ${label} ${i+1}/${miss.length}… (${found} found)`); if(await fetcher(miss[i])) found++; }
@@ -310,7 +310,8 @@ async function squareCutout(cutBlob){
   const octx=out.getContext('2d');
   const scale=OUT/side;
   const dw=bw*scale, dh=bh*scale;
-  octx.drawImage(c, minX,minY,bw,bh, (OUT-dw)/2,(OUT-dh)/2, dw,dh);
+  // Bottom-anchor: headroom lives ABOVE the figure only — no float below (Gina, Jul 17)
+  octx.drawImage(c, minX,minY,bw,bh, (OUT-dw)/2, OUT-dh, dw,dh);
   return out.toDataURL('image/png');
 }
 
