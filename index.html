@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Vote Your Views — Stop voting Parties. Start voting your views.</title>
-  <meta name="description" content="Find Texas candidates who match your values — not just your party. Build a belief-based ballot or manually choose your candidates for November 2026.">
+  <title>Vote Your Views — Texas Midterm Candidates & Ballot Guide, November 2026</title>
+  <meta name="description" content="Compare every Texas midterm candidate on the ballot, answer 9 quick questions to see who shares your views, and print your November 2026 ballot. Free and nonpartisan.">
+  <link rel="canonical" href="https://voteyourviews.org/">
   <meta property="og:title" content="Print out your ballot today!">
   <meta property="og:description" content="Answer 9 quick questions, see which Texas candidates share your views, and print a ballot to take to the polls.">
   <meta property="og:type" content="website">
@@ -1458,6 +1459,8 @@
             commissionerPrecinct: commPrecinct,
             jpPrecinct: jpPrecinct,
             coa: ['3'],   // Hays + Travis are both in the 3rd Court of Appeals region
+            lat: loc?.lat ?? null,   // voter coordinates — used for nearest-vote-center lookup on the ballot
+            lng: loc?.lng ?? null,
           });
           setIsSearching(false);
         } catch(err) {
@@ -1748,7 +1751,9 @@
           stateHouse: house ? String(house.district_number) : null,
           commissionerPrecinct: commPrecinct,
           jpPrecinct: jpPrecinct,
-          coa: ['3']   // Hays + Travis are both in the 3rd Court of Appeals region
+          coa: ['3'],   // Hays + Travis are both in the 3rd Court of Appeals region
+          lat: loc.lat ?? null,   // voter coordinates — used for nearest-vote-center lookup on the ballot
+          lng: loc.lng ?? null
         });
         setIsSearching(false);
       }
@@ -1955,7 +1960,7 @@
                 <p className="flex items-center gap-3 mt-2">
                   <span className="text-red-400 font-bold text-base tracking-wide">Early Voting October 19 – 30</span>
                   <span className="text-slate-600 text-base">·</span>
-                  <span className="text-slate-400 text-base">Election Day: November 4, 2026</span>
+                  <span className="text-slate-400 text-base">Election Day: November 3, 2026</span>
                 </p>
               </div>
             </div>
@@ -1970,7 +1975,7 @@
             <span className="text-slate-600 text-[15px]">·</span>
             <span className="text-red-400 text-[15px] font-semibold">Early Voting Oct 19–30</span>
             <span className="text-slate-600 text-[15px]">·</span>
-            <span className="text-slate-400 text-[15px]">Nov 4, 2026</span>
+            <span className="text-slate-400 text-[15px]">Nov 3, 2026</span>
           </div>
           )}
 
@@ -3270,6 +3275,228 @@
       { key: 'state',   label: 'State Races' },
       { key: 'county',  label: 'County Races' },
     ];
+
+    // Hays County vote centers (countywide — any Hays voter may use any center; `early: true`
+    // sites also host early voting). This is the March 2026 primary list, geocoded via Geocodio.
+    // REPLACE with the November list when the Elections Office posts its locations PDF (~1 week out).
+    const HAYS_VOTE_CENTERS = [
+      { name: 'Broadway Polling Location', addr: '401 Broadway St. #A, San Marcos', lat: 29.86159, lng: -97.94296, early: true },
+      { name: 'Brookdale San Marcos North', addr: '1720 Old Ranch Road 12, San Marcos', lat: 29.89735, lng: -97.96561, early: false },
+      { name: 'Centro Cultural Hispano de San Marcos', addr: '211 Lee St., San Marcos', lat: 29.87488, lng: -97.93812, early: false },
+      { name: 'Dunbar Center', addr: '801 W. Martin Luther King Drive, San Marcos', lat: 29.87636, lng: -97.94688, early: false },
+      { name: 'First Baptist Church San Marcos', addr: '325 W. McCarty Lane, San Marcos', lat: 29.84785, lng: -97.98442, early: false },
+      { name: 'Hays County Elections Office', addr: '120 Stagecoach Trail, San Marcos', lat: 29.86482, lng: -97.96538, early: true },
+      { name: 'La Cima Amenity Center', addr: '301A Central Park Loop, San Marcos', lat: 29.88991, lng: -98.00719, early: false },
+      { name: 'LBJ Student Center, Texas State University', addr: '301 Student Center Drive, San Marcos', lat: 29.8895, lng: -97.94451, early: true },
+      { name: 'Promiseland Church', addr: '1650 Lime Kiln Road, San Marcos', lat: 29.91809, lng: -97.9329, early: false },
+      { name: 'San Marcos Fire Department Station 5', addr: '100 Carlson Circle, San Marcos', lat: 29.90562, lng: -97.90447, early: false },
+      { name: 'San Marcos Housing Authority/C.M. Allen Homes', addr: '820 Sturgeon Drive, San Marcos', lat: 29.87408, lng: -97.92262, early: false },
+      { name: 'San Marcos Public Library', addr: '625 E. Hopkins St., San Marcos', lat: 29.88547, lng: -97.93133, early: false },
+      { name: 'Sinai Pentecostal Church', addr: '208 Laredo St., San Marcos', lat: 29.86478, lng: -97.93674, early: false },
+      { name: 'South Hays Fire Department Station 12', addr: '8301 Ranch Road 12, San Marcos', lat: 29.93482, lng: -98.07958, early: false },
+      { name: 'Austin Community College–Hays Campus', addr: '1200 Kohlers Crossing, Kyle', lat: 30.02697, lng: -97.87054, early: false },
+      { name: 'Gemstone Palace', addr: '1101 Bunton Creek Road, Kyle', lat: 30.00384, lng: -97.85434, early: false },
+      { name: 'HCISD Academic Support Center', addr: '21003 I-35 Frontage Road, Kyle', lat: 30.00845, lng: -97.86254, early: true },
+      { name: 'Kyle City Hall', addr: '100 W. Center St., Kyle', lat: 29.98875, lng: -97.87574, early: true },
+      { name: 'HCISD Transportation Department', addr: '2385 High Road, Uhland', lat: 29.9705, lng: -97.77683, early: true },
+      { name: 'Hays County Precinct 2 Office', addr: '5458 FM 2770, Kyle', lat: 30.01882, lng: -97.88953, early: false },
+      { name: 'Hays County Transportation Dept–Yarrington', addr: '2171 Yarrington Road, Kyle', lat: 29.93505, lng: -97.87126, early: true },
+      { name: 'Buda City Hall and Library', addr: '405 E. Loop St., Buda', lat: 30.08662, lng: -97.83744, early: true },
+      { name: 'HCISD Child Nutrition Support Services', addr: '5750 Dacy Lane, Buda', lat: 30.0551, lng: -97.82786, early: false },
+      { name: 'Hays Hills Baptist Church', addr: '1401 N. FM 1626, Buda', lat: 30.11768, lng: -97.87364, early: false },
+      { name: 'Southern Hills Church of Christ', addr: '3740 FM 967, Buda', lat: 30.09604, lng: -97.88345, early: false },
+      { name: 'Sunfield Station', addr: '2610 Main St., Buda', lat: 30.08972, lng: -97.80818, early: true },
+      { name: 'Historic Buda Elementary School', addr: '300 N. San Marcos St., Buda', lat: 30.08394, lng: -97.84505, early: false },
+      { name: 'Texan Academy at Scudder', addr: '400 Green Acres Drive, Wimberley', lat: 30.00251, lng: -98.11082, early: true },
+      { name: 'VFW Post 6441', addr: '401 Jacobs Well Road, Wimberley', lat: 30.0424, lng: -98.10835, early: false },
+      { name: 'Wimberley Community Center', addr: '14068 Ranch Road 12, Wimberley', lat: 29.99897, lng: -98.10063, early: true },
+      { name: 'Belterra Centre', addr: '151 Trinity Hills Drive, Austin', lat: 30.19354, lng: -97.98911, early: false },
+      { name: 'Dripping Springs Ranch Park', addr: '1042 Event Center Drive, Dripping Springs', lat: 30.22055, lng: -98.09038, early: false },
+      { name: 'North Hays County Fire Rescue Station 3', addr: '7520 Creek Road, Dripping Springs', lat: 30.18854, lng: -98.21254, early: false },
+      { name: "Patriots' Hall of Dripping Springs", addr: "231 Patriots' Hall Blvd, Dripping Springs", lat: 30.19329, lng: -98.02851, early: true },
+      { name: 'Hays County Precinct 4 Office', addr: '195 Roger Hanks Parkway, Dripping Springs', lat: 30.19567, lng: -98.10606, early: true },
+    ];
+
+    // Travis County vote centers (countywide — any Travis voter may use any center; `early: true`
+    // sites also host early voting). May 2026 primary-runoff list from the county's Notice of
+    // Election, geocoded via Geocodio. REPLACE with the November list when votetravis.gov posts it.
+    const TRAVIS_VOTE_CENTERS = [
+      { name: 'Affinity at Wells Branch', addr: '14508 Owen Tech Blvd, Austin', lat: 30.43741, lng: -97.67136, early: false },
+      { name: 'All Nations Church', addr: '16804 Radholme Ct, Round Rock', lat: 30.46856, lng: -97.65942, early: false },
+      { name: 'Austin Achieve Northeast Campus', addr: '7424 E Hwy 290, Austin', lat: 30.32349, lng: -97.67793, early: false },
+      { name: 'Austin City Hall', addr: '301 W 2nd St, Austin', lat: 30.26488, lng: -97.747, early: true },
+      { name: 'Austin Energy Headquarters', addr: '4815 Mueller Blvd, Austin', lat: 30.30199, lng: -97.70444, early: true },
+      { name: 'Austin Fire Station No 41', addr: '11205 Harris Branch Pkwy, Austin', lat: 30.34705, lng: -97.61323, early: false },
+      { name: 'Austin Oaks Church', addr: '4220 Monterey Oaks Blvd, Austin', lat: 30.22999, lng: -97.83249, early: true },
+      { name: 'Austin Permitting and Development Center', addr: '6310 Wilhelmina Delco Dr, Austin', lat: 30.32523, lng: -97.70986, early: true },
+      { name: 'Austin Recreation Center', addr: '1301 Shoal Creek Blvd, Austin', lat: 30.27805, lng: -97.74923, early: true },
+      { name: 'Baker Center', addr: '3908 Avenue B, Austin', lat: 30.30407, lng: -97.73571, early: false },
+      { name: 'Balcones Bingo', addr: '13096 US-183, Austin', lat: 30.43919, lng: -97.78048, early: true },
+      { name: 'Balcones Woods Shopping Center', addr: '11150 Research Blvd, Austin', lat: 30.40396, lng: -97.7461, early: true },
+      { name: 'Bear Creek Elementary School', addr: '12801 Escarpment Blvd, Austin', lat: 30.1703, lng: -97.90975, early: false },
+      { name: 'Bee Cave City Hall', addr: '4000 Galleria Pkwy, Bee Cave', lat: 30.3085, lng: -97.93991, early: true },
+      { name: 'Ben Hur Shrine Center', addr: '7811 Rockwood Ln, Austin', lat: 30.35815, lng: -97.73835, early: true },
+      { name: 'Bible Baptist Church of Pflugerville', addr: '14400 Immanuel Rd, Pflugerville', lat: 30.41199, lng: -97.62496, early: false },
+      { name: 'Blazier Intermediate', addr: '8801 Vertex Blvd, Austin', lat: 30.15255, lng: -97.7526, early: false },
+      { name: 'Boulder Ridge Clubhouse', addr: '3300 Killingsworth Ln, Pflugerville', lat: 30.41297, lng: -97.60562, early: false },
+      { name: 'Briarcliff POA Community Center', addr: '22801 Briarcliff Dr, Spicewood', lat: 30.40651, lng: -98.05764, early: false },
+      { name: 'Cambridge Villas', addr: '15711 Dessau Rd, Pflugerville', lat: 30.43099, lng: -97.62161, early: false },
+      { name: 'Cantu Pan Am Recreation Center', addr: '2100 E 3rd St, Austin', lat: 30.258, lng: -97.7207, early: false },
+      { name: 'Carver Branch Library', addr: '1161 Angelina St, Austin', lat: 30.26956, lng: -97.72419, early: true },
+      { name: 'Ce Bar Fire Department', addr: '353 Commons Ford Rd, Austin', lat: 30.3233, lng: -97.87351, early: false },
+      { name: 'Central City Austin', addr: '9023 Old Lampasas Tr, Austin', lat: 30.42027, lng: -97.79876, early: false },
+      { name: 'Cepeda Branch Library', addr: '651 N Pleasant Valley Rd, Austin', lat: 30.25909, lng: -97.70891, early: true },
+      { name: 'Christ Episcopal Church', addr: '3520 Whitestone Blvd, Cedar Park', lat: 30.53765, lng: -97.77661, early: true },
+      { name: 'Christ Our Savior Lutheran Church', addr: '21900 Farm To Market Rd 1431, Lago Vista', lat: 30.499, lng: -97.98174, early: true },
+      { name: 'Church at Highland Park', addr: '5206 Balcones Dr, Austin', lat: 30.33518, lng: -97.75998, early: false },
+      { name: 'Church on Congress Avenue', addr: '1511 S Congress Ave, Austin', lat: 30.24827, lng: -97.74962, early: false },
+      { name: 'Circle C Community Center', addr: '7817 La Crosse Ave, Austin', lat: 30.19362, lng: -97.90862, early: true },
+      { name: 'Community Center at Del Valle', addr: '3518 S FM 973, Del Valle', lat: 30.19894, lng: -97.64283, early: true },
+      { name: 'Community Center at Jonestown', addr: '18649 FM 1431 Ste 6a, Jonestown', lat: 30.49284, lng: -97.92338, early: false },
+      { name: 'Community Center at Oak Hill', addr: '8656 State Hwy 71, Austin', lat: 30.25001, lng: -97.89416, early: true },
+      { name: 'Community First! Village', addr: '9301 Hog Eye Rd, Austin', lat: 30.28219, lng: -97.62331, early: false },
+      { name: 'Congregation Beth Israel', addr: '3901 Shoal Creek Blvd, Austin', lat: 30.30825, lng: -97.74757, early: false },
+      { name: 'Conley Guerrero Senior Activity Center', addr: '808 Nile St, Austin', lat: 30.26587, lng: -97.71101, early: false },
+      { name: 'Connally High School', addr: '13212 N Lamar Blvd, Austin', lat: 30.41766, lng: -97.67595, early: false },
+      { name: 'Covenant Church', addr: '4410 Duval Rd, Austin', lat: 30.41318, lng: -97.73246, early: false },
+      { name: 'Creedmoor Community Center', addr: '12511 FM 1625, Creedmoor', lat: 30.08696, lng: -97.73477, early: false },
+      { name: 'Dan Ruiz Branch Library', addr: '1600 Grove Blvd, Austin', lat: 30.23028, lng: -97.70686, early: true },
+      { name: 'Del Valle ISD Admin Building', addr: '5301 Ross Rd, Del Valle', lat: 30.176, lng: -97.6134, early: false },
+      { name: 'Disability Rights Texas', addr: '2222 W Braker Ln, Austin', lat: 30.39283, lng: -97.71291, early: false },
+      { name: 'Dittmar Recreation Center', addr: '1009 W Dittmar Rd, Austin', lat: 30.18443, lng: -97.80179, early: false },
+      { name: 'Eanes ISD The Learning Center (TLC)', addr: '601 Camp Craft Rd, Austin', lat: 30.27687, lng: -97.81548, early: false },
+      { name: 'East Nineteenth St Baptist Church', addr: '3401 Rogge Ln, Austin', lat: 30.30159, lng: -97.67664, early: false },
+      { name: 'Elroy Community Library', addr: '13512 FM 812, Del Valle', lat: 30.1239, lng: -97.63878, early: false },
+      { name: 'Eternal Faith Baptist Church', addr: '12720 FM 973, Manor', lat: 30.34434, lng: -97.54204, early: false },
+      { name: 'General Marshall Middle School', addr: '4401 Tilley St, Austin', lat: 30.29616, lng: -97.69452, early: false },
+      { name: 'Genesis Presbyterian Church', addr: '1507 Wilshire Blvd, Austin', lat: 30.29587, lng: -97.71099, early: false },
+      { name: 'George Morales Dove Springs Recreation Center', addr: '5801 Ainez Dr, Austin', lat: 30.18684, lng: -97.73822, early: true },
+      { name: 'Good Shepherd on the Hill', addr: '1700 Woodland Ave, Austin', lat: 30.23974, lng: -97.73496, early: false },
+      { name: 'Grace + Peace Austin', addr: '6301 Woodrow Ave, Austin', lat: 30.33451, lng: -97.72957, early: false },
+      { name: 'Grant Worship Center', addr: '1701 Kramer Ln, Austin', lat: 30.38524, lng: -97.70403, early: false },
+      { name: 'Greater Mt Zion Baptist Church', addr: '4301 Tannehill Ln, Austin', lat: 30.28086, lng: -97.67198, early: false },
+      { name: 'Gus Garcia Recreation Center', addr: '1201 E Rundberg Ln, Austin', lat: 30.35383, lng: -97.68166, early: true },
+      { name: 'Harris Elementary School', addr: '6105 Berkman Dr, Austin', lat: 30.31518, lng: -97.69155, early: false },
+      { name: 'Hendrickson High School', addr: '19201 Colorado Sand Dr, Pflugerville', lat: 30.46478, lng: -97.58812, early: false },
+      { name: 'Hope Lutheran Church', addr: '6414 N Hampton Dr, Austin', lat: 30.31432, lng: -97.68172, early: false },
+      { name: 'Huston Tillotson University', addr: '900 Chicon St, Austin', lat: 30.26467, lng: -97.72137, early: false },
+      { name: 'John Gillum Branch Library', addr: '2505 Steck Ave, Austin', lat: 30.36234, lng: -97.73077, early: false },
+      { name: 'Junior League of Austin', addr: '5330 Bluffstone Ln, Austin', lat: 30.38742, lng: -97.76684, early: false },
+      { name: 'Lago Vista Public LIbrary', addr: '5803 Thunderbird St, Lago Vista', lat: 30.45301, lng: -97.98743, early: false },
+      { name: 'Lake Travis ISD Educational Development Center', addr: '607 Ranch Road 620 N, Austin', lat: 30.37046, lng: -97.94857, early: true },
+      { name: 'Lake Travis ISD Transportation Center', addr: '16101 State Hwy 71 Bldg A, Austin', lat: 30.31641, lng: -97.99607, early: false },
+      { name: 'Lakeway Activity Center', addr: '105 Cross Creek, Lakeway', lat: 30.36272, lng: -97.98081, early: true },
+      { name: 'Lakewood HOA', addr: '7317 Lakewood Dr, Austin', lat: 30.37513, lng: -97.78911, early: false },
+      { name: 'Lamar Senior Activity Center', addr: '2874 Shoal Crest Ave, Austin', lat: 30.29771, lng: -97.74797, early: false },
+      { name: 'Laura Bush Community Library', addr: '9411 Bee Caves Rd, Austin', lat: 30.26033, lng: -97.90308, early: false },
+      { name: 'LBJ Early College High School', addr: '7309 Lazy Creek Dr, Austin', lat: 30.31359, lng: -97.65657, early: false },
+      { name: 'LBJ School of Public Affairs', addr: '2315 Red River St, Austin', lat: 30.28476, lng: -97.7273, early: true },
+      { name: 'Lost Creek Limited District', addr: '1305 Quaker Ridge Dr, Austin', lat: 30.28374, lng: -97.8335, early: false },
+      { name: 'Manchaca United Methodist Church', addr: '1011 W FM 626 Rd, Manchaca', lat: 29.99586, lng: -97.74714, early: false },
+      { name: 'Manor ISD Admin Building', addr: '10335 Hwy 290, Manor', lat: 30.2252, lng: -97.9483, early: true },
+      { name: 'Mary Lee Foundation', addr: '1339 Lamar Square Dr, Austin', lat: 30.25474, lng: -97.76421, early: false },
+      { name: 'Menchaca Road Branch Public Library', addr: '5500 Menchaca Rd, Austin', lat: 30.21661, lng: -97.79731, early: false },
+      { name: 'Milwood Branch Library', addr: '12500 Amherst Dr, Austin', lat: 30.42232, lng: -97.71586, early: false },
+      { name: 'Ministerios Filadelfia Iglesia Cristiana', addr: '13704 County Line Rd, Elgin', lat: 30.36135, lng: -97.40652, early: false },
+      { name: 'Montopolis Recreation Center', addr: '1200 Montopolis Dr, Austin', lat: 30.23214, lng: -97.69935, early: false },
+      { name: 'Mt Olive Lutheran Church', addr: '10408 US-290, Austin', lat: 30.22619, lng: -97.94944, early: false },
+      { name: 'Mt Zion Baptist Church', addr: '2938 E 13th St, Austin', lat: 30.27744, lng: -97.70567, early: false },
+      { name: 'New Hope Missionary Baptist Church', addr: '9300 Decker Ln, Austin', lat: 30.3196, lng: -97.61029, early: false },
+      { name: 'New Life Baptist Church', addr: '19715 Hodde Ln, Pflugerville', lat: 30.46078, lng: -97.55238, early: false },
+      { name: 'New Sweden Lutheran Church', addr: '12809 New Sweden Church Rd, Manor', lat: 30.40585, lng: -97.48662, early: false },
+      { name: 'North Austin Muslim Community Center', addr: '11900 N Lamar Blvd, Austin', lat: 30.39006, lng: -97.6836, early: false },
+      { name: 'Northtown MUD', addr: '700 E Wells Branch Pkwy, Pflugerville', lat: 30.42932, lng: -97.64212, early: false },
+      { name: 'Northwest Hills United Methodist Church Youth Center', addr: '7027 Hart Ln, Austin', lat: 30.35366, lng: -97.75769, early: false },
+      { name: 'Northwest Recreation Center', addr: '2913 Northland Dr, Austin', lat: 30.33448, lng: -97.75171, early: true },
+      { name: 'Oak Hill Fire Dept No 301', addr: '9211 Circle Dr, Austin', lat: 30.23891, lng: -97.91956, early: false },
+      { name: 'Oak Hill Fire Dept No 302', addr: '4111 Barton Creek Blvd, Austin', lat: 30.27888, lng: -97.88325, early: false },
+      { name: 'Our Savior Lutheran Church', addr: '1513 E Yager Ln, Austin', lat: 30.38705, lng: -97.65202, early: false },
+      { name: 'Peace Lutheran Church', addr: '10625 N FM 620, Austin', lat: 30.44576, lng: -97.83133, early: false },
+      { name: 'PfISD Rock Gym', addr: '702 W Pecan St, Pflugerville', lat: 30.44277, lng: -97.62738, early: true },
+      { name: 'Pflugerville Fire Station No 6', addr: '17401 Weiss Ln B, Pflugerville', lat: 30.43287, lng: -97.56915, early: false },
+      { name: 'Pflugerville Lions Club', addr: '500 N Railroad Ave, Pflugerville', lat: 30.44321, lng: -97.6192, early: false },
+      { name: 'Pflugerville Public Library', addr: '1008 W Pfluger St, Pflugerville', lat: 30.44259, lng: -97.62904, early: false },
+      { name: 'Pleasant Hill Branch Library', addr: '211 E William Cannon Dr, Austin', lat: 30.19226, lng: -97.77715, early: true },
+      { name: 'Primera Iglesia Bautista de Austin', addr: '2100 E Ben White Blvd, Austin', lat: 30.21523, lng: -97.7357, early: false },
+      { name: 'Randalls Brodie', addr: '9911 Brodie Ln, Austin', lat: 30.18453, lng: -97.84859, early: true },
+      { name: 'Randalls Flagship West Lake Hills', addr: '3300 Bee Caves Rd, Austin', lat: 30.27574, lng: -97.80017, early: true },
+      { name: 'Randalls Steiner Ranch', addr: '5145 N Fm 620, Austin', lat: 30.38918, lng: -97.88358, early: true },
+      { name: 'Region 13 Education Service Center', addr: '5701 Springdale Rd, Austin', lat: 30.30001, lng: -97.67133, early: false },
+      { name: 'Riverbend Centre', addr: '4214 N Capital Of Texas Hwy, Austin', lat: 30.34027, lng: -97.80271, early: true },
+      { name: 'Rosedale School', addr: '7505 Silvercrest Dr, Austin', lat: 30.35284, lng: -97.73679, early: false },
+      { name: 'Round Mountain Baptist Church', addr: '14500 Round Mountain Rd, Leander', lat: 30.57483, lng: -97.94933, early: false },
+      { name: 'RRISD Hartfield Performing Arts Center', addr: '5800 Mcneil Dr, Austin', lat: 30.44767, lng: -97.73599, early: true },
+      { name: 'Sage Park Austin (formerly Juniper Village)', addr: '4401 Spicewood Springs Rd, Austin', lat: 30.37215, lng: -97.75889, early: false },
+      { name: 'Sam Houston Building', addr: '201 E 14th St, Austin', lat: 30.27532, lng: -97.73843, early: false },
+      { name: 'Santa Barbara Catholic Church', addr: '13713 FM 969, Austin', lat: 30.24944, lng: -97.58848, early: false },
+      { name: 'Sawyer Hall Event Center', addr: '1320 E 51st St, Austin', lat: 30.30717, lng: -97.70456, early: false },
+      { name: 'Shepherd of the Hills Presbyterian Church', addr: '5226 W William Cannon Dr, Austin', lat: 30.225, lng: -97.853, early: false },
+      { name: 'South Austin Recreation Center', addr: '1100 Cumberland Rd, Austin', lat: 30.24141, lng: -97.76868, early: true },
+      { name: 'South Austin Senior Activity Center', addr: '3911 Menchaca Rd, Austin', lat: 30.23341, lng: -97.78458, early: false },
+      { name: 'Southwest Family Fellowship', addr: '8203 State Hwy 71, Austin', lat: 30.24531, lng: -97.88735, early: false },
+      { name: 'St Albans Episcopal Church', addr: '11819 IH 35 S, Austin', lat: 30.13408, lng: -97.79819, early: false },
+      { name: 'St Edwards University', addr: '3001 S Congress Ave, Austin', lat: 30.2321, lng: -97.75713, early: false },
+      { name: 'St John San Juan Lutheran Church', addr: '409 W Ben White Blvd, Austin', lat: 30.22593, lng: -97.76955, early: false },
+      { name: 'St Johns United Methodist Church', addr: '2140 Allandale Rd, Austin', lat: 30.33535, lng: -97.74143, early: false },
+      { name: 'St Mark United Methodist Church', addr: '601 W Braker Ln, Austin', lat: 30.38003, lng: -97.6854, early: false },
+      { name: 'St Marks Episcopal Church', addr: '2128 Barton Hills Dr #4651, Austin', lat: 30.25342, lng: -97.78566, early: false },
+      { name: 'St Matthews Episcopal Church', addr: '8134 Mesa Dr, Austin', lat: 30.37397, lng: -97.75647, early: false },
+      { name: 'Steiner Ranch HOA', addr: '12550 Country Trails Ln, Austin', lat: 30.36454, lng: -97.89946, early: false },
+      { name: 'Stone Hill Apartments', addr: '17900 Pfluger Farm Ln, Pflugerville', lat: 30.46108, lng: -97.60995, early: false },
+      { name: 'Sunset Valley City Hall', addr: '3205 Jones Rd, Austin', lat: 30.22832, lng: -97.81073, early: false },
+      { name: 'TA Brown Elementary School', addr: '7801 Guadalupe St, Austin', lat: 30.34471, lng: -97.70939, early: false },
+      { name: 'Terrazas Branch Library', addr: '1105 E Cesar Chavez St, Austin', lat: 30.25989, lng: -97.7333, early: false },
+      { name: 'The Union at Easton Park', addr: '7604 Solari Dr, Austin', lat: 30.15556, lng: -97.71924, early: false },
+      { name: 'Travis County Civil and Family Courts Facility', addr: '1700 Guadalupe St, Austin', lat: 30.2801, lng: -97.74254, early: true },
+      { name: 'Travis County Clerk', addr: '5501 Airport Blvd, Austin', lat: 30.31638, lng: -97.71277, early: true },
+      { name: 'Travis County Correctional Complex', addr: '3614 Bill Price Rd, Del Valle', lat: 30.19659, lng: -97.64709, early: false },
+      { name: 'Travis County Services for the Deaf and Hard of Hearing', addr: '2201 Post Rd, Austin', lat: 30.24082, lng: -97.75131, early: false },
+      { name: 'Travis County Sheriff East Command', addr: '7811 Burleson Manor rd, Manor', lat: 30.26595, lng: -97.52225, early: false },
+      { name: 'Travis County Sheriff West Command', addr: '3800 Hudson Bend Rd, Austin', lat: 30.39856, lng: -97.92945, early: false },
+      { name: 'Trinity Baptist Church', addr: '2305 Forbes Dr, Austin', lat: 30.33346, lng: -97.67195, early: false },
+      { name: 'Turner Roberts Recreation Center', addr: '7201 Colony Loop Dr, Austin', lat: 30.3004, lng: -97.63604, early: false },
+      { name: 'Twin Oaks Branch Library', addr: '1800 S 5th St, Austin', lat: 30.24898, lng: -97.76192, early: false },
+      { name: 'upRising Austin', addr: '8601 S 1st St, Austin', lat: 30.17642, lng: -97.79775, early: false },
+      { name: 'UT Texas Union', addr: '2308 Whitis Ave, Austin', lat: 30.28641, lng: -97.74118, early: true },
+      { name: 'Villages of Shady Hollow Amenity Center', addr: '12006 Gatling Gun Ln, Austin', lat: 30.15412, lng: -97.85417, early: false },
+      { name: 'Volente Fire Department', addr: '15406 Fm 2769, Volente', lat: 30.4357, lng: -97.90399, early: false },
+      { name: 'Wells Branch Community Center', addr: '2106 Klattenhoff Dr, Austin', lat: 30.44234, lng: -97.67965, early: false },
+      { name: 'Wells Branch MUD Recreation Center', addr: '3000 Shoreline Dr, Austin', lat: 30.45478, lng: -97.68315, early: false },
+      { name: 'Western Hills Church of Christ', addr: '211 Parkwood Dr, Austin', lat: 30.23787, lng: -97.85557, early: false },
+      { name: 'Westlake United Methodist Church', addr: '1460 Redbud Tr, Austin', lat: 30.29506, lng: -97.82095, early: false },
+      { name: 'Westminster Presbyterian Church', addr: '3208 Exposition Blvd, Austin', lat: 30.30847, lng: -97.76367, early: true },
+      { name: 'Westoak Woods Baptist Church', addr: '2900 W Slaughter Ln, Austin', lat: 30.17868, lng: -97.83904, early: true },
+      { name: 'Wheatsville Food Coop South Lamar', addr: '4001 S Lamar Blvd, Austin', lat: 30.23641, lng: -97.79202, early: true },
+      { name: 'Whisper Valley Discovery and Amenity Center', addr: '9400 Petrichor Blvd, Manor', lat: 30.29269, lng: -97.55373, early: false },
+      { name: 'Will Hampton Branch Library', addr: '5125 Convict Hill Rd, Austin', lat: 30.2176, lng: -97.85498, early: false },
+      { name: 'Windsor Park Branch Library', addr: '5833 Westminster Dr, Austin', lat: 30.31128, lng: -97.69021, early: false },
+      { name: 'Winters Building', addr: '701 W 51st St, Austin', lat: 30.31615, lng: -97.7307, early: false },
+      { name: 'Woodway Village', addr: '4600 Nuckols Crossing Rd, Austin', lat: 30.19964, lng: -97.73521, early: false },
+      { name: 'Yarborough Branch Library', addr: '2200 Hancock Dr, Austin', lat: 30.32355, lng: -97.74063, early: false },
+      { name: 'YMCA East Communities Y', addr: '5315 Ed Bluestein Blvd, Austin', lat: 30.2911, lng: -97.66422, early: false },
+      { name: 'YMCA North Austin', addr: '1000 W Rundberg Ln, Austin', lat: 30.36476, lng: -97.69986, early: false },
+    ];
+
+    // Nearest vote centers to the voter's geocoded address (straight-line miles). Returns the
+    // closest `count`, always including at least one early-voting site; null when we have no
+    // coordinates or no center data for the county.
+    const VOTE_CENTERS_BY_COUNTY = { hays: HAYS_VOTE_CENTERS, travis: TRAVIS_VOTE_CENTERS };
+    function nearestVoteCenters(county, userDistricts, count = 4) {
+      const centers = VOTE_CENTERS_BY_COUNTY[county];
+      if (!centers || userDistricts?.lat == null || userDistricts?.lng == null) return null;
+      const toRad = d => d * Math.PI / 180;
+      const ranked = centers.map(c => {
+        const dLat = toRad(c.lat - userDistricts.lat), dLng = toRad(c.lng - userDistricts.lng);
+        const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(userDistricts.lat)) * Math.cos(toRad(c.lat)) * Math.sin(dLng / 2) ** 2;
+        return { ...c, miles: 3958.8 * 2 * Math.asin(Math.sqrt(a)) };
+      }).sort((a, b) => a.miles - b.miles);
+      const picks = ranked.slice(0, count);
+      if (!picks.some(c => c.early)) {
+        const nearestEarly = ranked.find(c => c.early);
+        if (nearestEarly) picks[picks.length - 1] = nearestEarly;
+      }
+      return picks;
+    }
 
     function filterRacesByDistrict(races, userDistricts) {
       if (!userDistricts) return races;
@@ -4948,7 +5175,7 @@
                 {[
                   {label:'Register by', value:'Oct 5', sub:'2026', color:'#d97706'},
                   {label:'Early voting', value:'Oct 19–30', sub:'2026', color:'#16a34a'},
-                  {label:'Election Day', value:'Nov 4', sub:'2026', color:'#dc2626'},
+                  {label:'Election Day', value:'Nov 3', sub:'2026', color:'#dc2626'},
                   {label:'Poll hours', value:'7 AM – 7 PM', sub:'every voting day', color:'#2563eb'},
                 ].map((d, i) => (
                   <div key={i} style={{border:'1.5px solid #e2e8f0', borderTop:`4px solid ${d.color}`, borderRadius:'10px', padding:'7px 8px 6px', textAlign:'center', background:'#f8fafc'}}>
@@ -4993,29 +5220,40 @@
                   </div>
                 </div>
               </div>
-              {/* Locations — 2-column grid */}
+              {/* Locations — 2-column grid. Real nearest vote centers when we have the voter's
+                  coordinates (Hays countywide vote centers: any center works on Election Day;
+                  `early` sites also host early voting). TBA placeholders otherwise. Each real box
+                  is a Google Maps link — the PDF generator keeps maps links tappable. */}
               <div className="ballot-locs" style={{display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:'12px'}}>
-                {[
-                  {name:'Closest Polling Location #1', addr:'Address TBA', when:'both'},
-                  {name:'Closest Polling Location #2', addr:'Address TBA', when:'both'},
-                  {name:'Closest Polling Location #3', addr:'Address TBA', when:'early'},
-                  {name:'Closest Polling Location #4', addr:'Address TBA', when:'early'},
-                ].map((loc, i) => (
-                  <div key={i} className="ballot-loc-box" style={{display:'flex', alignItems:'center', gap:'12px', background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:'10px', padding:'9px 14px'}}>
+                {(nearestVoteCenters(county, userDistricts) || [
+                  {name:'Closest Polling Location #1', addr:'Address TBA', early:true},
+                  {name:'Closest Polling Location #2', addr:'Address TBA', early:true},
+                  {name:'Closest Polling Location #3', addr:'Address TBA', early:false},
+                  {name:'Closest Polling Location #4', addr:'Address TBA', early:false},
+                ]).map((loc, i) => {
+                  const box = (
+                  <div className="ballot-loc-box" style={{display:'flex', alignItems:'center', gap:'12px', background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:'10px', padding:'9px 14px'}}>
                     <div style={{flexShrink:0, width:'30px', height:'30px', borderRadius:'50%', background:'#2563eb', display:'flex', alignItems:'center', justifyContent:'center'}}>
                       <svg style={{width:'16px', height:'16px', color:'#fff'}} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
                     </div>
                     <div style={{minWidth:0, flex:1}}>
                       <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'8px'}}>
-                        <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'15px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.04em', color:'#0f172a', lineHeight:1.1}}>{loc.name}</div>
-                        <span className="ballot-badge" style={{flexShrink:0, display:'inline-block', padding:'5px 12px 6px', borderRadius:'999px', fontSize:'10px', lineHeight:'11px', fontWeight:800, textTransform:'uppercase', background: loc.when === 'both' ? '#16a34a' : '#d97706', color:'#fff', whiteSpace:'nowrap'}}>
-                          {loc.when === 'both' ? 'Early + Election Day' : 'Early Voting Only'}
+                        <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontSize:'15px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.04em', color: loc.miles != null ? '#2563eb' : '#0f172a', textDecoration: loc.miles != null ? 'underline' : 'none', textUnderlineOffset:'3px', lineHeight:1.1}}>{loc.name}</div>
+                        <span className="ballot-badge" style={{flexShrink:0, display:'inline-block', padding:'5px 12px 6px', borderRadius:'999px', fontSize:'10px', lineHeight:'11px', fontWeight:800, textTransform:'uppercase', background: loc.early ? '#16a34a' : '#d97706', color:'#fff', whiteSpace:'nowrap'}}>
+                          {loc.early ? 'Early + Election Day' : 'Election Day Only'}
                         </span>
                       </div>
-                      <div style={{fontSize:'11.5px', color:'#64748b', marginTop:'3px', lineHeight:1.25}}>{loc.addr}</div>
+                      <div style={{fontSize:'11.5px', color:'#64748b', marginTop:'3px', lineHeight:1.25}}>
+                        {loc.addr}{loc.miles != null ? ` · ${loc.miles.toFixed(1)} mi away` : ''}
+                        {loc.miles != null && <span style={{color:'#2563eb', fontWeight:700, whiteSpace:'nowrap'}}> · Map&nbsp;→</span>}
+                      </div>
                     </div>
                   </div>
-                ))}
+                  );
+                  return loc.miles != null ? (
+                    <a key={i} href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc.addr)}`} target="_blank" rel="noopener noreferrer" style={{textDecoration:'none', color:'inherit'}}>{box}</a>
+                  ) : <React.Fragment key={i}>{box}</React.Fragment>;
+                })}
               </div>
             </div>
 
@@ -5591,6 +5829,17 @@
     // ─────────────────────────────────────────────
     function App() {
       const _params = new URLSearchParams(window.location.search);
+      // County-branded domains (HaysVotes.org / TravisVotes.org) boot the guide pre-scoped to
+      // their county: county locked in, All Candidates opens with no address gate (address is
+      // only needed for district filtering / the ballot). ?county=hays|travis simulates it locally.
+      const HOST_COUNTY = (() => {
+        const q = (_params.get('county') || '').toLowerCase();
+        if (q === 'hays' || q === 'travis') return q;
+        const h = window.location.hostname.toLowerCase();
+        if (h.includes('haysvotes')) return 'hays';
+        if (h.includes('travisvotes')) return 'travis';
+        return null;
+      })();
       // Clean per-candidate URL slug (voteyourviews.org/JamesTalarico), or null for the app's own pages.
       // Parse the path: a bare slug opens the candidate's profile; a trailing /edit opens the editable submission page for that candidate.
       const _rawPath = decodeURIComponent((window.location.pathname || '').replace(/^\/+|\/+$/g, ''));
@@ -5623,7 +5872,7 @@
       }, [answers]);
       // ?persist=1 in URL uses localStorage (for testing); otherwise sessionStorage (clears on new visit)
       const store = new URLSearchParams(window.location.search).get('persist') === '1' ? localStorage : sessionStorage;
-      const [county, setCounty] = useState(() => store.getItem('vyv_county') || 'hays');
+      const [county, setCounty] = useState(() => HOST_COUNTY || store.getItem('vyv_county') || 'hays');
       const [answers, setAnswers] = useState(() => {
         try {
           const a = JSON.parse(store.getItem('vyv_answers') || '{}');
@@ -5896,7 +6145,7 @@
             onQuiz={(id) => { const startId = id || (issues[0] && issues[0].id); setStartIssueId(startId); setQuizEntryIssueId(startId); setPendingScreen('landing'); setScreen('quiz'); }}
             onSummary={() => { setResultsReturn('landing'); userDistricts ? setScreen('results') : setAddrModal('results'); }}
             onStartOver={() => { setAnswers({}); setRanks({}); setCheckedStatements({}); setSelected({}); setStartIssueId(null); setLandingPicker(false); store.removeItem('vyv_answers'); store.removeItem('vyv_ranks'); store.removeItem('vyv_stmts'); }}
-            onBrowse={() => { setBrowseReturn('landing'); userDistricts ? setScreen('browse') : setAddrModal('browse'); }}
+            onBrowse={() => { setBrowseReturn('landing'); (userDistricts || HOST_COUNTY) ? setScreen('browse') : setAddrModal('browse'); }}
           />
           {addrModal && (
             <AddressModal
