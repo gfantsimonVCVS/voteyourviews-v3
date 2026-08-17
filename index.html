@@ -3276,45 +3276,43 @@
       { key: 'county',  label: 'County Races' },
     ];
 
-    // Hays County vote centers (countywide — any Hays voter may use any center; `early: true`
-    // sites also host early voting). This is the March 2026 primary list, geocoded via Geocodio.
-    // REPLACE with the November list when the Elections Office posts its locations PDF (~1 week out).
+    // Hays County vote centers — NOVEMBER 3, 2026 general (source: Hays County Elections Office PDF, as_of 2026-08-15).
+    // Countywide voting: any Hays voter may use any center.
     const HAYS_VOTE_CENTERS = [
-      { name: 'Broadway Polling Location', addr: '401 Broadway St. #A, San Marcos', lat: 29.86159, lng: -97.94296, early: true },
-      { name: 'Brookdale San Marcos North', addr: '1720 Old Ranch Road 12, San Marcos', lat: 29.89735, lng: -97.96561, early: false },
-      { name: 'Centro Cultural Hispano de San Marcos', addr: '211 Lee St., San Marcos', lat: 29.87488, lng: -97.93812, early: false },
-      { name: 'Dunbar Center', addr: '801 W. Martin Luther King Drive, San Marcos', lat: 29.87636, lng: -97.94688, early: false },
-      { name: 'First Baptist Church San Marcos', addr: '325 W. McCarty Lane, San Marcos', lat: 29.84785, lng: -97.98442, early: false },
-      { name: 'Hays County Elections Office', addr: '120 Stagecoach Trail, San Marcos', lat: 29.86482, lng: -97.96538, early: true },
-      { name: 'La Cima Amenity Center', addr: '301A Central Park Loop, San Marcos', lat: 29.88991, lng: -98.00719, early: false },
-      { name: 'LBJ Student Center, Texas State University', addr: '301 Student Center Drive, San Marcos', lat: 29.8895, lng: -97.94451, early: true },
-      { name: 'Promiseland Church', addr: '1650 Lime Kiln Road, San Marcos', lat: 29.91809, lng: -97.9329, early: false },
-      { name: 'San Marcos Fire Department Station 5', addr: '100 Carlson Circle, San Marcos', lat: 29.90562, lng: -97.90447, early: false },
-      { name: 'San Marcos Housing Authority/C.M. Allen Homes', addr: '820 Sturgeon Drive, San Marcos', lat: 29.87408, lng: -97.92262, early: false },
-      { name: 'San Marcos Public Library', addr: '625 E. Hopkins St., San Marcos', lat: 29.88547, lng: -97.93133, early: false },
-      { name: 'Sinai Pentecostal Church', addr: '208 Laredo St., San Marcos', lat: 29.86478, lng: -97.93674, early: false },
-      { name: 'South Hays Fire Department Station 12', addr: '8301 Ranch Road 12, San Marcos', lat: 29.93482, lng: -98.07958, early: false },
-      { name: 'Austin Community College–Hays Campus', addr: '1200 Kohlers Crossing, Kyle', lat: 30.02697, lng: -97.87054, early: false },
-      { name: 'Gemstone Palace', addr: '1101 Bunton Creek Road, Kyle', lat: 30.00384, lng: -97.85434, early: false },
-      { name: 'HCISD Academic Support Center', addr: '21003 I-35 Frontage Road, Kyle', lat: 30.00845, lng: -97.86254, early: true },
-      { name: 'Kyle City Hall', addr: '100 W. Center St., Kyle', lat: 29.98875, lng: -97.87574, early: true },
-      { name: 'HCISD Transportation Department', addr: '2385 High Road, Uhland', lat: 29.9705, lng: -97.77683, early: true },
-      { name: 'Hays County Precinct 2 Office', addr: '5458 FM 2770, Kyle', lat: 30.01882, lng: -97.88953, early: false },
-      { name: 'Hays County Transportation Dept–Yarrington', addr: '2171 Yarrington Road, Kyle', lat: 29.93505, lng: -97.87126, early: true },
-      { name: 'Buda City Hall and Library', addr: '405 E. Loop St., Buda', lat: 30.08662, lng: -97.83744, early: true },
-      { name: 'HCISD Child Nutrition Support Services', addr: '5750 Dacy Lane, Buda', lat: 30.0551, lng: -97.82786, early: false },
-      { name: 'Hays Hills Baptist Church', addr: '1401 N. FM 1626, Buda', lat: 30.11768, lng: -97.87364, early: false },
-      { name: 'Southern Hills Church of Christ', addr: '3740 FM 967, Buda', lat: 30.09604, lng: -97.88345, early: false },
-      { name: 'Sunfield Station', addr: '2610 Main St., Buda', lat: 30.08972, lng: -97.80818, early: true },
-      { name: 'Historic Buda Elementary School', addr: '300 N. San Marcos St., Buda', lat: 30.08394, lng: -97.84505, early: false },
-      { name: 'Texan Academy at Scudder', addr: '400 Green Acres Drive, Wimberley', lat: 30.00251, lng: -98.11082, early: true },
-      { name: 'VFW Post 6441', addr: '401 Jacobs Well Road, Wimberley', lat: 30.0424, lng: -98.10835, early: false },
-      { name: 'Wimberley Community Center', addr: '14068 Ranch Road 12, Wimberley', lat: 29.99897, lng: -98.10063, early: true },
-      { name: 'Belterra Centre', addr: '151 Trinity Hills Drive, Austin', lat: 30.19354, lng: -97.98911, early: false },
-      { name: 'Dripping Springs Ranch Park', addr: '1042 Event Center Drive, Dripping Springs', lat: 30.22055, lng: -98.09038, early: false },
-      { name: 'North Hays County Fire Rescue Station 3', addr: '7520 Creek Road, Dripping Springs', lat: 30.18854, lng: -98.21254, early: false },
-      { name: "Patriots' Hall of Dripping Springs", addr: "231 Patriots' Hall Blvd, Dripping Springs", lat: 30.19329, lng: -98.02851, early: true },
-      { name: 'Hays County Precinct 4 Office', addr: '195 Roger Hanks Parkway, Dripping Springs', lat: 30.19567, lng: -98.10606, early: true },
+      { name: 'Broadway Polling Location', addr: '401 Broadway Street #A, San Marcos', lat: 29.861592, lng: -97.942956, early: true },
+      { name: 'Pegasus Landing of San Marcos', addr: '1720 Old Ranch Road 12, San Marcos', lat: 29.897353, lng: -97.965609, early: false },
+      { name: 'Centro Cultural Hispano de San Marcos', addr: '211 Lee Street, San Marcos', lat: 29.874883, lng: -97.938118, early: false },
+      { name: 'Dunbar Center', addr: '801 West Martin Luther King Drive, San Marcos', lat: 29.876355, lng: -97.946876, early: false },
+      { name: 'First Baptist Church San Marcos', addr: '325 West McCarty Lane, San Marcos', lat: 29.847855, lng: -97.984424, early: false },
+      { name: 'Hays County Elections Office', addr: '120 Stagecoach Trail, San Marcos', lat: 29.864822, lng: -97.965381, early: true },
+      { name: 'La Cima Amenity Center', addr: '301 A Central Park Loop, San Marcos', lat: 29.889915, lng: -98.007189, early: false },
+      { name: 'LBJ Student Center – TXST', addr: '301 Student Center Drive, San Marcos', lat: 29.889498, lng: -97.944514, early: true },
+      { name: 'Promiseland Church', addr: '1650 Lime Kiln Road, San Marcos', lat: 29.918086, lng: -97.9329, early: false },
+      { name: 'San Marcos Fire Department Station #5', addr: '100 Carlson Circle, San Marcos', lat: 29.905619, lng: -97.904467, early: false },
+      { name: 'San Marcos Housing Authority / C.M. Allen Homes', addr: '820 Sturgeon Drive, San Marcos', lat: 29.87408, lng: -97.922623, early: false },
+      { name: 'San Marcos Public Library', addr: '625 East Hopkins Street, San Marcos', lat: 29.885471, lng: -97.931325, early: false },
+      { name: 'Sinai Pentecostal Church', addr: '208 Laredo Street, San Marcos', lat: 29.864775, lng: -97.936737, early: false },
+      { name: 'South Hays Fire Department Station #12', addr: '8301 Ranch Road 12, San Marcos', lat: 29.93482, lng: -98.079575, early: false },
+      { name: 'Gemstone Palace', addr: '1101 Bunton Creek Road, Suite 200, Kyle', lat: 30.003843, lng: -97.85434, early: false },
+      { name: 'HCISD Academic Support Center', addr: '21003 Interstate 35 Frontage Road, Kyle', lat: 30.008452, lng: -97.862544, early: true },
+      { name: 'Kyle City Hall', addr: '100 West Center Street, Kyle', lat: 29.988752, lng: -97.875744, early: true },
+      { name: 'Kyle Fire Department Station #4 – Hays County ESD #5', addr: '110 High Road, Kyle', lat: 29.998521, lng: -97.819935, early: true },
+      { name: 'The Philomena: Assisted Living and Memory Care', addr: '350 Philomena Drive, Kyle', lat: 29.995554, lng: -97.866113, early: false },
+      { name: 'Plum Creek North Amenity Center', addr: '350 Jack Ryan, Kyle', lat: 30.03306, lng: -97.881207, early: false },
+      { name: 'Precinct 2 Office – Hays County', addr: '5458 FM 2770, Kyle', lat: 30.018822, lng: -97.889527, early: false },
+      { name: 'Yarrington – Hays County Transportation Department', addr: '2171 Yarrington Road, Kyle', lat: 29.935049, lng: -97.871263, early: true },
+      { name: 'Buda City Hall and Library Multipurpose Room', addr: '405 East Loop Street, Building 100, Buda', lat: 30.078695, lng: -97.84204, early: true },
+      { name: 'Child Nutrition – HCISD Support Services', addr: '5750 Dacy Lane, Buda', lat: 30.055098, lng: -97.827856, early: false },
+      { name: 'Hays Hills Baptist Church', addr: '1401 North FM 1626, Buda', lat: 30.11768, lng: -97.873637, early: false },
+      { name: 'Southern Hills Church of Christ', addr: '3740 FM 967, Buda', lat: 30.096036, lng: -97.883455, early: false },
+      { name: 'Sunfield Station', addr: '2610 Main Street, #100, Buda', lat: 30.089715, lng: -97.808184, early: true },
+      { name: 'Texan Academy at Scudder', addr: '400 Green Acres Drive, Wimberley', lat: 30.002507, lng: -98.110817, early: true },
+      { name: 'VFW Post #6441', addr: '401 Jacobs Well Road, Wimberley', lat: 30.042401, lng: -98.108349, early: false },
+      { name: 'Wimberley Community Center – Blanco Room', addr: '14068 Ranch Road 12, Wimberley', lat: 29.998972, lng: -98.100629, early: true },
+      { name: 'Belterra Centre', addr: '151 Trinity Hills Drive, Austin', lat: 30.193539, lng: -97.989114, early: false },
+      { name: 'Dripping Springs Ranch Park and Event Center', addr: '1042 Event Center Drive, Dripping Springs', lat: 30.220552, lng: -98.090385, early: false },
+      { name: 'Patriots\' Hall of Dripping Springs – Veterans Hall', addr: '231 Patriots\' Hall Boulevard, Dripping Springs', lat: 30.193295, lng: -98.028514, early: true },
+      { name: 'Precinct 4 Office – Hays County', addr: '195 Roger Hanks Parkway, Dripping Springs', lat: 30.195666, lng: -98.106063, early: true },
     ];
 
     // Travis County vote centers (countywide — any Travis voter may use any center; `early: true`
@@ -5220,6 +5218,7 @@
                   </div>
                 </div>
               </div>
+              <div style={{fontSize:'10px', color:'#94a3b8', marginBottom:'10px', lineHeight:1.3}}>Locations per Hays County's August 2026 list — confirm before you go.</div>
               {/* Locations — 2-column grid. Real nearest vote centers when we have the voter's
                   coordinates (Hays countywide vote centers: any center works on Election Day;
                   `early` sites also host early voting). TBA placeholders otherwise. Each real box
@@ -5913,7 +5912,7 @@
       const [dataSource, setDataSource] = useState(SHEETS.master ? 'loading' : 'demo');
       const [userDistricts, setUserDistricts] = useState(() => {
         if (new URLSearchParams(window.location.search).get('testDistricts') === '1')
-          return { congressionalDistrict:'21', stateSenate:'25', stateHouse:'73', commissionerPrecinct:'4', jpPrecinct:'4' };
+          return { congressionalDistrict:'21', stateSenate:'25', stateHouse:'73', commissionerPrecinct:'4', jpPrecinct:'4', lat: 29.8833, lng: -97.9414 };
         try { return JSON.parse(store.getItem('vyv_districts') || 'null'); } catch(e) { return null; }
       });
       // District-first race lookup: once the voter's districts are known, make sure THEIR
