@@ -1086,7 +1086,10 @@
             districtType: 'jpPrecinct',
             districtNumber: 2,
             description: '**Justice of the Peace** courts handle small claims (under $20,000), Class C misdemeanors, and perform marriages. JP judges do not need to be licensed attorneys in Texas. 4-year term.',
-            candidates: [UNCONTESTED('Beth Smith', 'D', 'Incumbent JP. No Republican filed — running unopposed in November.')]
+            candidates: [
+              { name: 'Beth Smith', party: 'D', photo: null, website: 'https://www.judgebeth.com/', confirmed: true, summary: 'Incumbent Justice of the Peace for Precinct 2, Place 1.', positions: POS_D },
+              { name: 'Janie Flores', party: 'R', photo: null, website: 'https://www.facebook.com/JanieFloresJP2P1/', confirmed: true, hook: 'Flores is running to unseat a Justice of the Peace who has held the Kyle court since 1999. Her campaign lives on a Facebook page, and she ran unopposed in the Republican primary.', summary: 'Republican nominee, unopposed in the March 3 primary. Challenging the incumbent JP who has held the seat since 1999.', positions: POS_R }
+            ]
           },
           {
             office: 'Hays County Justice of the Peace — Precinct 5',
@@ -1168,7 +1171,10 @@
             office: 'Hays County District Court — 428th',
             category: 'judicial',
             description: '**District Courts** are the primary trial courts in Texas, handling civil cases, felony criminal cases, family law, and juvenile matters. Judges serve 4-year terms.',
-            candidates: [UNCONTESTED('Cassie Benoist-Templeton', 'D', 'Democratic nominee. No Republican filed — running unopposed in November.')]
+            candidates: [
+              { name: 'Cassie Benoist-Templeton', party: 'D', photo: null, website: 'https://cassieforjudge.com/', confirmed: true, summary: 'Democratic nominee for the 428th District Court.', positions: POS_D },
+              { name: 'Paul Still', party: 'R', photo: null, website: 'https://www.stillforjudge.com/', confirmed: true, hook: "Still has never been a judge. He's spent 12 years as a prosecutor in Harris County and then a staff attorney at the state's top criminal court, and wants to move to the bench that tries Hays County's felonies, divorces and custody cases.", summary: 'Republican nominee, unopposed in the March 3 primary. 12 years as a prosecutor and state appellate staff attorney.', positions: POS_R }
+            ]
           },
           {
             office: 'Hays County Court at Law No. 1',
@@ -1360,7 +1366,18 @@
         // If Google rejects the key/domain or an API isn't enabled, it calls this.
         // We swallow it so the screen never freezes — manual entry + the button
         // still work via Geocodio.
-        window.gm_authFailure = () => {};
+        // Google's Places auth failure (e.g. legacy Autocomplete refused for this
+        // project) DISABLES the input and paints a tiled "!" background. Undo that
+        // so typing + Geocodio still work (Aug 19 2026 live outage on iPhone).
+        window.gm_authFailure = () => {
+          const restore = () => {
+            const el = inputRef.current; if (!el) return;
+            el.disabled = false; el.readOnly = false;
+            el.style.backgroundImage = 'none';
+            if (/can't load|cannot load/i.test(el.placeholder || '')) el.placeholder = 'Enter your home address';
+          };
+          restore(); setTimeout(restore, 300); setTimeout(restore, 1500);
+        };
         function initAutocomplete() {
           try {
             if (!inputRef.current || !window.google?.maps?.places?.Autocomplete) return;
@@ -1624,7 +1641,18 @@
         // If Google rejects the key/domain or an API isn't enabled, it calls this.
         // We swallow it so the modal never freezes — manual entry + the button
         // still work via Geocodio.
-        window.gm_authFailure = () => {};
+        // Google's Places auth failure (e.g. legacy Autocomplete refused for this
+        // project) DISABLES the input and paints a tiled "!" background. Undo that
+        // so typing + Geocodio still work (Aug 19 2026 live outage on iPhone).
+        window.gm_authFailure = () => {
+          const restore = () => {
+            const el = inputRef.current; if (!el) return;
+            el.disabled = false; el.readOnly = false;
+            el.style.backgroundImage = 'none';
+            if (/can't load|cannot load/i.test(el.placeholder || '')) el.placeholder = 'Enter your home address';
+          };
+          restore(); setTimeout(restore, 300); setTimeout(restore, 1500);
+        };
         function initAutocomplete() {
           try {
             if (!inputRef.current || !window.google?.maps?.places?.Autocomplete) return;
