@@ -1404,6 +1404,7 @@
         list.style.cssText = 'position:absolute; left:0; right:0; top:100%; z-index:80; background:#fff; border:2px solid #191919; border-radius:10px; margin-top:6px; box-shadow:0 12px 30px rgba(0,0,0,.25); overflow:hidden; display:none; text-align:left;';
         wrap.appendChild(list);
         const hide = () => { list.style.display = 'none'; };
+        let justPicked = false;   // the post-pick input event must NOT reopen the dropdown
         const pick = async (pred) => {
           hide();
           try {
@@ -1411,11 +1412,13 @@
             await place.fetchFields({ fields: ['formattedAddress'] });
             input.value = place.formattedAddress || input.value;
             token = new Token();   // fresh session per selection (Google billing rules)
+            justPicked = true;
             input.dispatchEvent(new Event('input', { bubbles: true }));
           } catch (_) {}
         };
         let seq = 0, timer = null;
         input.addEventListener('input', () => {
+          if (justPicked) { justPicked = false; hide(); return; }
           const q = input.value.trim();
           clearTimeout(timer);
           if (q.length < 3) { hide(); return; }
