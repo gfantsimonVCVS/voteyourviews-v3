@@ -20,7 +20,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
   <!-- Google tag (gtag.js) — GA4 property "VoteYourViews", measurement G-LGM37W4CYE -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LGM37W4CYE"></script>
+  <script>
+  /* Owner opt-out (Gina, Aug 21 2026): visit any page with ?me=1 once on a browser and that
+     browser stops sending Google Analytics for good (?me=0 turns it back on). Keeps her own
+     testing out of the dashboards on phones/cellular, where the GA internal-IP filter can't see her. */
+  (function(){try{var q=new URLSearchParams(location.search);if(q.has('me'))localStorage.setItem('vg_me',q.get('me')==='0'?'':'1');if(localStorage.getItem('vg_me')==='1')window['ga-disable-G-LGM37W4CYE']=true;}catch(e){}})();
+</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-LGM37W4CYE"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
