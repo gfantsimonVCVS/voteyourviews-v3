@@ -1425,7 +1425,7 @@
               const { suggestions } = await AS.fetchAutocompleteSuggestions({ input: q, sessionToken: token, includedRegionCodes: ['us'] });
               if (mySeq !== seq) return;   // superseded by a newer keystroke
               list.innerHTML = '';
-              const preds = (suggestions || []).map(su => su.placePrediction).filter(Boolean).slice(0, 5);
+              const preds = (suggestions || []).map(su => su.placePrediction).filter(Boolean).slice(0, window.innerHeight < 760 ? 3 : 5);   // short screens: keep the CTA visible below
               if (!preds.length) { hide(); return; }
               preds.forEach(pred => {
                 const row = document.createElement('button');
@@ -1460,7 +1460,8 @@
 
       // VTV/VYV run on an old Google project where legacy still works — it stays the default.
       // ?newplaces=1 tests the NEW PlaceAutocompleteElement on the live site before we flip.
-      const ladder = params.get('newplaces') === '1' ? [tryNewElement, tryLegacy] : [tryLegacy, tryNewElement];
+      // Data-API dropdown is the default (verified on VTV live Aug 21); ?oldplaces=1 forces legacy for debugging.
+      const ladder = params.get('oldplaces') === '1' ? [tryLegacy, tryNewElement] : [tryNewElement, tryLegacy];
       for (const step of ladder) {
         try { await step(); return; } catch (e) { log('path failed: ' + (e && e.message)); }
       }
