@@ -188,13 +188,89 @@ details[open] .chev{transform:rotate(180deg)}
 .oppbody p.hk1{font-size:var(--fs-hook1);line-height:1.35;margin-bottom:var(--s2)}
 .oppbody p:last-child{margin-bottom:0}
 
-/* ── directory listing ── */
-.raceblock{background:var(--card);border:1px solid var(--line);border-radius:10px;
- padding:12px 14px}
-.raceblock h3 a{color:var(--navy);text-decoration:none}
-.raceblock h3 a:hover{text-decoration:underline}
-.raceblock p{margin:6px 0 0;color:var(--muted);font-size:var(--fs-hook2);max-width:none}
-.racegrid{display:grid;gap:10px}
+/* ── directory: ordered by what's at stake, not by alphabet ──
+   Each section is a native <details>; the marquee races get photo cards, everything
+   else gets a compact tappable row. */
+.dsec{margin:0}
+.dsec>summary{list-style:none;cursor:pointer}
+.dsec>summary::-webkit-details-marker{display:none}
+.dsec>summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.dsec>summary h2.sec{margin:var(--s4) 0 var(--s2)}
+.dsec:first-of-type>summary h2.sec{margin-top:var(--s2)}
+.dsec .dchev{flex:0 0 auto;width:28px;height:28px;border-radius:6px;background:var(--amber);
+ color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:var(--fs-min);
+ font-weight:800;line-height:1;transition:transform .18s cubic-bezier(.22,1,.36,1)}
+.dsec[open] .dchev{transform:rotate(180deg)}
+@media (prefers-reduced-motion:reduce){.dsec .dchev{transition:none}}
+.dsec>summary:hover .dchev{background:var(--navy);color:var(--amber)}
+
+/* marquee cards */
+.mcards{display:grid;gap:12px;margin:0 0 var(--s3)}
+.mcard{display:block;background:var(--card);border:1px solid var(--line);
+ border-top:3px solid var(--navy);border-radius:12px;padding:14px}
+a.mcard{text-decoration:none;color:inherit;
+ transition:transform .18s cubic-bezier(.22,1,.36,1),border-color .18s}
+a.mcard:hover{border-color:var(--navy);transform:translateY(-2px)}
+@media (prefers-reduced-motion:reduce){a.mcard{transition:none}a.mcard:hover{transform:none}}
+.faces{display:flex;padding-left:7px;margin:0 0 11px}
+.faces img{width:44px;height:44px;margin-left:-7px;border-radius:50%;object-fit:cover;
+ object-position:top center;background:#e7ebf0;
+ box-shadow:0 0 0 2px #fff,0 0 0 4px var(--amber)}
+.mname{display:block;font-family:'Barlow Condensed','Inter',sans-serif;font-weight:700;
+ font-size:var(--fs-h3);line-height:1.12;text-transform:uppercase;letter-spacing:.01em;
+ color:var(--navy);margin:0;text-wrap:balance}
+.mname a{color:var(--navy);text-decoration:none}
+.mname a:hover{text-decoration:underline}
+.mmeta{display:flex;align-items:center;gap:8px;margin:6px 0 0;max-width:none;
+ font-size:var(--fs-label);color:var(--muted)}
+.mmeta .mchev{color:var(--navy);font-weight:800;font-size:var(--fs-h3);line-height:1}
+ul.mpeople{list-style:none;padding:0;margin:11px 0 0;display:flex;flex-wrap:wrap;gap:8px}
+ul.mpeople a{display:inline-flex;align-items:center;gap:9px;min-height:44px;padding:3px 12px 3px 3px;
+ background:#f8fafc;border:1px solid var(--line);border-radius:999px;text-decoration:none;
+ color:var(--navy);font-weight:700;font-size:var(--fs-label);line-height:1.2}
+ul.mpeople a:hover{border-color:var(--navy)}
+ul.mpeople img{width:38px;height:38px;flex:0 0 auto;border-radius:50%;object-fit:cover;
+ object-position:top center;background:#e7ebf0;box-shadow:0 0 0 2px var(--amber)}
+ul.mpeople .nophoto{display:inline-flex;align-items:center;justify-content:center;width:38px;
+ height:38px;flex:0 0 auto;border-radius:50%;background:#e7ebf0;color:var(--slate);
+ font-family:'Barlow Condensed','Inter',sans-serif;font-size:var(--fs-label);font-weight:700;
+ box-shadow:0 0 0 2px var(--amber)}
+
+/* compact rows */
+.rows{display:grid;gap:8px;margin:0 0 var(--s3)}
+.rrow{display:flex;align-items:center;gap:12px;min-height:58px;padding:10px 13px;
+ background:var(--card);border:1px solid var(--line);border-radius:10px}
+a.rrow{text-decoration:none;color:inherit}
+a.rrow:hover{border-color:var(--navy);background:#f8fafc}
+.rfaces{flex:0 0 auto;display:flex;padding-left:6px}
+.rfaces>*{width:32px;height:32px;margin-left:-6px;border-radius:50%;flex:0 0 auto;
+ box-shadow:0 0 0 2px #fff,0 0 0 3px var(--amber)}
+.rfaces img{object-fit:cover;object-position:top center;background:#e7ebf0}
+.rfaces .ini{display:flex;align-items:center;justify-content:center;background:#e7ebf0;
+ color:var(--slate);font-family:'Barlow Condensed','Inter',sans-serif;font-size:var(--fs-min);
+ font-weight:700;line-height:1}
+.rrow .rr{flex:1 1 auto;min-width:0;overflow-wrap:anywhere}
+.rrow .rn{display:block;font-weight:700;font-size:var(--fs-body);line-height:1.25;color:var(--navy)}
+.rrow .rc{display:block;margin-top:3px;font-size:var(--fs-label);line-height:1.35;color:var(--muted)}
+.rchev{flex:0 0 auto;color:var(--navy);font-weight:800;font-size:var(--fs-h3);line-height:1}
+.rrow .pn{display:flex;flex-wrap:wrap;gap:0 14px;margin:0;max-width:none}
+.rrow .pn a{display:inline-flex;align-items:center;min-height:44px;font-weight:700;
+ font-size:var(--fs-body);line-height:1.25;color:var(--navy);text-decoration:none}
+.rrow .pn a:hover{text-decoration:underline}
+.rrow .po{margin:0;max-width:none;font-size:var(--fs-label);line-height:1.35}
+.rrow .po a{color:var(--muted)}
+
+/* the point of the page: answer the nine questions, then see who actually matches */
+.midband{background:var(--card);border:1px solid var(--line);border-top:4px solid var(--amber);
+ border-radius:12px;padding:var(--s3) 18px;margin:0 0 var(--s2)}
+.midband h2{margin:0;font-family:'Barlow Condensed','Inter',sans-serif;font-weight:700;
+ font-size:clamp(24px,5.4vw,32px);line-height:1.05;text-transform:uppercase;color:var(--navy);
+ text-wrap:balance}
+.midband p{margin:10px 0 0;color:var(--muted);max-width:52ch;font-size:var(--fs-body)}
+.midband .actions{margin-top:var(--s2)}
+.secfoot{margin:0 0 var(--s2)}
+.secfoot a{display:inline-flex;align-items:center;min-height:44px;font-weight:700;
+ font-size:var(--fs-label)}
 
 /* ── prev / next ── */
 .pager{display:grid;gap:10px;margin:var(--s4) 0 0}
@@ -227,7 +303,8 @@ footer.disc a{color:#cfdcee}
  .hero .wrap{padding-top:var(--s3);padding-bottom:var(--s4)}
  .avatar{width:116px;height:116px}
  ul.cards{grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
- .racegrid{grid-template-columns:1fr 1fr}
+ .mcards{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+ .rows{grid-template-columns:1fr 1fr}
  .pager{grid-template-columns:1fr 1fr}
 }
 </style>

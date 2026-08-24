@@ -67,7 +67,6 @@ PHOTO_FALLBACK = {
 
 CATEGORY_IMG = {'federal': '/icons/Federal.png', 'state': '/icons/State.png',
                 'county': '/icons/County.png', 'judicial': '/icons/Judicial.png'}
-CATEGORY_LABEL = {'federal': 'Federal', 'state': 'State', 'county': 'County', 'judicial': 'Judicial'}
 CATEGORY_ORDER = ['federal', 'state', 'county', 'judicial', 'other']
 
 canonical_slug = lambda name: re.sub(r'[^a-z0-9]', '', (name or '').lower())
@@ -331,13 +330,89 @@ details[open] .chev{transform:rotate(180deg)}
 .oppbody p.hk1{font-size:var(--fs-hook1);line-height:1.35;margin-bottom:var(--s2)}
 .oppbody p:last-child{margin-bottom:0}
 
-/* ── directory listing ── */
-.raceblock{background:var(--card);border:1px solid var(--line);border-radius:10px;
- padding:12px 14px}
-.raceblock h3 a{color:var(--navy);text-decoration:none}
-.raceblock h3 a:hover{text-decoration:underline}
-.raceblock p{margin:6px 0 0;color:var(--muted);font-size:var(--fs-hook2);max-width:none}
-.racegrid{display:grid;gap:10px}
+/* ── directory: ordered by what's at stake, not by alphabet ──
+   Each section is a native <details>; the marquee races get photo cards, everything
+   else gets a compact tappable row. */
+.dsec{margin:0}
+.dsec>summary{list-style:none;cursor:pointer}
+.dsec>summary::-webkit-details-marker{display:none}
+.dsec>summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.dsec>summary h2.sec{margin:var(--s4) 0 var(--s2)}
+.dsec:first-of-type>summary h2.sec{margin-top:var(--s2)}
+.dsec .dchev{flex:0 0 auto;width:28px;height:28px;border-radius:6px;background:var(--amber);
+ color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:var(--fs-min);
+ font-weight:800;line-height:1;transition:transform .18s cubic-bezier(.22,1,.36,1)}
+.dsec[open] .dchev{transform:rotate(180deg)}
+@media (prefers-reduced-motion:reduce){.dsec .dchev{transition:none}}
+.dsec>summary:hover .dchev{background:var(--navy);color:var(--amber)}
+
+/* marquee cards */
+.mcards{display:grid;gap:12px;margin:0 0 var(--s3)}
+.mcard{display:block;background:var(--card);border:1px solid var(--line);
+ border-top:3px solid var(--navy);border-radius:12px;padding:14px}
+a.mcard{text-decoration:none;color:inherit;
+ transition:transform .18s cubic-bezier(.22,1,.36,1),border-color .18s}
+a.mcard:hover{border-color:var(--navy);transform:translateY(-2px)}
+@media (prefers-reduced-motion:reduce){a.mcard{transition:none}a.mcard:hover{transform:none}}
+.faces{display:flex;padding-left:7px;margin:0 0 11px}
+.faces img{width:44px;height:44px;margin-left:-7px;border-radius:50%;object-fit:cover;
+ object-position:top center;background:#e7ebf0;
+ box-shadow:0 0 0 2px #fff,0 0 0 4px var(--amber)}
+.mname{display:block;font-family:'Barlow Condensed','Inter',sans-serif;font-weight:700;
+ font-size:var(--fs-h3);line-height:1.12;text-transform:uppercase;letter-spacing:.01em;
+ color:var(--navy);margin:0;text-wrap:balance}
+.mname a{color:var(--navy);text-decoration:none}
+.mname a:hover{text-decoration:underline}
+.mmeta{display:flex;align-items:center;gap:8px;margin:6px 0 0;max-width:none;
+ font-size:var(--fs-label);color:var(--muted)}
+.mmeta .mchev{color:var(--navy);font-weight:800;font-size:var(--fs-h3);line-height:1}
+ul.mpeople{list-style:none;padding:0;margin:11px 0 0;display:flex;flex-wrap:wrap;gap:8px}
+ul.mpeople a{display:inline-flex;align-items:center;gap:9px;min-height:44px;padding:3px 12px 3px 3px;
+ background:#f8fafc;border:1px solid var(--line);border-radius:999px;text-decoration:none;
+ color:var(--navy);font-weight:700;font-size:var(--fs-label);line-height:1.2}
+ul.mpeople a:hover{border-color:var(--navy)}
+ul.mpeople img{width:38px;height:38px;flex:0 0 auto;border-radius:50%;object-fit:cover;
+ object-position:top center;background:#e7ebf0;box-shadow:0 0 0 2px var(--amber)}
+ul.mpeople .nophoto{display:inline-flex;align-items:center;justify-content:center;width:38px;
+ height:38px;flex:0 0 auto;border-radius:50%;background:#e7ebf0;color:var(--slate);
+ font-family:'Barlow Condensed','Inter',sans-serif;font-size:var(--fs-label);font-weight:700;
+ box-shadow:0 0 0 2px var(--amber)}
+
+/* compact rows */
+.rows{display:grid;gap:8px;margin:0 0 var(--s3)}
+.rrow{display:flex;align-items:center;gap:12px;min-height:58px;padding:10px 13px;
+ background:var(--card);border:1px solid var(--line);border-radius:10px}
+a.rrow{text-decoration:none;color:inherit}
+a.rrow:hover{border-color:var(--navy);background:#f8fafc}
+.rfaces{flex:0 0 auto;display:flex;padding-left:6px}
+.rfaces>*{width:32px;height:32px;margin-left:-6px;border-radius:50%;flex:0 0 auto;
+ box-shadow:0 0 0 2px #fff,0 0 0 3px var(--amber)}
+.rfaces img{object-fit:cover;object-position:top center;background:#e7ebf0}
+.rfaces .ini{display:flex;align-items:center;justify-content:center;background:#e7ebf0;
+ color:var(--slate);font-family:'Barlow Condensed','Inter',sans-serif;font-size:var(--fs-min);
+ font-weight:700;line-height:1}
+.rrow .rr{flex:1 1 auto;min-width:0;overflow-wrap:anywhere}
+.rrow .rn{display:block;font-weight:700;font-size:var(--fs-body);line-height:1.25;color:var(--navy)}
+.rrow .rc{display:block;margin-top:3px;font-size:var(--fs-label);line-height:1.35;color:var(--muted)}
+.rchev{flex:0 0 auto;color:var(--navy);font-weight:800;font-size:var(--fs-h3);line-height:1}
+.rrow .pn{display:flex;flex-wrap:wrap;gap:0 14px;margin:0;max-width:none}
+.rrow .pn a{display:inline-flex;align-items:center;min-height:44px;font-weight:700;
+ font-size:var(--fs-body);line-height:1.25;color:var(--navy);text-decoration:none}
+.rrow .pn a:hover{text-decoration:underline}
+.rrow .po{margin:0;max-width:none;font-size:var(--fs-label);line-height:1.35}
+.rrow .po a{color:var(--muted)}
+
+/* the point of the page: answer the nine questions, then see who actually matches */
+.midband{background:var(--card);border:1px solid var(--line);border-top:4px solid var(--amber);
+ border-radius:12px;padding:var(--s3) 18px;margin:0 0 var(--s2)}
+.midband h2{margin:0;font-family:'Barlow Condensed','Inter',sans-serif;font-weight:700;
+ font-size:clamp(24px,5.4vw,32px);line-height:1.05;text-transform:uppercase;color:var(--navy);
+ text-wrap:balance}
+.midband p{margin:10px 0 0;color:var(--muted);max-width:52ch;font-size:var(--fs-body)}
+.midband .actions{margin-top:var(--s2)}
+.secfoot{margin:0 0 var(--s2)}
+.secfoot a{display:inline-flex;align-items:center;min-height:44px;font-weight:700;
+ font-size:var(--fs-label)}
 
 /* ── prev / next ── */
 .pager{display:grid;gap:10px;margin:var(--s4) 0 0}
@@ -370,7 +445,8 @@ footer.disc a{color:#cfdcee}
  .hero .wrap{padding-top:var(--s3);padding-bottom:var(--s4)}
  .avatar{width:116px;height:116px}
  ul.cards{grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
- .racegrid{grid-template-columns:1fr 1fr}
+ .mcards{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+ .rows{grid-template-columns:1fr 1fr}
  .pager{grid-template-columns:1fr 1fr}
 }
 """
@@ -390,7 +466,8 @@ END_BLURB = ('Answer nine quick questions, then print the ballot for your addres
 FOOTER = ('VoteYourViews.org is free and nonpartisan. Candidate information comes from public '
           'records and campaign websites. Corrections: '
           '<a href="mailto:gina@fantsimon.com">gina@fantsimon.com</a>.')
-MAIN_CTA = '<a class="cta" href="/">Answer 9 questions and see who matches you →</a>'
+MAIN_CTA_LABEL = 'Answer 9 questions and see who matches you →'
+MAIN_CTA = f'<a class="cta" href="/">{MAIN_CTA_LABEL}</a>'
 
 
 def nav_html(current=''):
@@ -647,6 +724,117 @@ def race_page(race, prev_r=None, next_r=None):
 
 # ─────────────────────────────────────────────────────────────────── index pages
 
+# The directory is ordered by what is at stake, not by the alphabet. `SECTIONS` is the
+# published order; `classify()` decides which one a race belongs to, from the office name
+# first and the source sheet tab (Statewide / Districts / a county tab) as the fallback.
+SECTIONS = [
+    ('marquee',   'The big ones',      True,  None),
+    ('ushouse',   'U.S. House',        True,  'federal'),
+    ('txsenate',  'Texas Senate',      False, 'state'),
+    ('txhouse',   'Texas House',       False, 'state'),
+    ('highcourt', 'Statewide courts',  False, 'judicial'),
+    ('appeals',   'Courts of Appeals', False, 'judicial'),
+    ('local',     'County & local',    False, 'county'),
+    ('other',     'Other races',       False, None),
+]
+
+# Order inside "The big ones": the offices a voter recognises, in ballot order.
+MARQUEE_ORDER = ['U.S. Senate', 'Governor of Texas', 'Lieutenant Governor', 'Attorney General',
+                 'Comptroller of Public Accounts', 'Commissioner of General Land Office',
+                 'Commissioner of Agriculture', 'Railroad Commissioner']
+MARQUEE_RANK = {o: i for i, o in enumerate(MARQUEE_ORDER)}
+
+# natural sort so District 9 lands before District 10, not after District 1
+natkey = lambda s: [int(p) if p.isdigit() else p.lower() for p in re.split(r'(\d+)', s)]
+
+
+def classify(office, tab):
+    o = office.strip()
+    if o in MARQUEE_RANK or o.startswith('State Board of Education'):
+        return 'marquee'
+    if o.startswith('U.S. House'):
+        return 'ushouse'
+    if o.startswith('TX State Senate'):
+        return 'txsenate'
+    if o.startswith('TX State House'):
+        return 'txhouse'
+    if o.startswith('TX Supreme Court') or o.startswith('Court of Criminal Appeals'):
+        return 'highcourt'
+    if 'Court of Appeals' in o:
+        return 'appeals'
+    if tab not in ('Statewide', 'Districts') or 'County' in o:
+        return 'local'
+    return 'other'
+
+
+def section_groups(races):
+    """[(label, open?, icon, [race, ...]), ...] in published order; empty sections dropped."""
+    buckets = {}
+    for r in races:
+        buckets.setdefault(classify(r['office'], r['tab']), []).append(r)
+    out = []
+    for key, label, is_open, icon in SECTIONS:
+        group = buckets.get(key)
+        if not group:
+            continue
+        group.sort(key=lambda r: (MARQUEE_RANK.get(r['office'], 99), natkey(r['office']))
+                   if key == 'marquee' else natkey(r['office']))
+        out.append((label, is_open, icon, group))
+    return out
+
+
+def faces_html(race):
+    imgs = ''.join(f'<img src="{E(c["photo"])}" alt="" aria-hidden="true" width="44" height="44" '
+                   f'loading="lazy">' for c in race['candidates'][:5] if c['photo'])
+    return f'<span class="faces">{imgs}</span>' if imgs else ''
+
+
+def marquee_card(r, kind):
+    n = len(r['candidates'])
+    meta = f'{n} candidate{"s" if n != 1 else ""}'
+    if kind == 'races':
+        return (f'<a class="mcard" href="/races/{r["slug"]}/">{faces_html(r)}'
+                f'<span class="mname">{E(r["office"])}</span>'
+                f'<span class="mmeta">{meta}<span class="mchev" aria-hidden="true">›</span>'
+                f'</span></a>')
+    people = ''
+    for c in r['candidates']:
+        face = (f'<img src="{E(c["photo"])}" alt="" aria-hidden="true" width="38" height="38" '
+                f'loading="lazy">') if c['photo'] else (
+                f'<span class="nophoto" aria-hidden="true">{E(c["name"][:1])}</span>')
+        people += (f'<li><a href="/candidates/{c["slug"]}/">{face}'
+                   f'<span>{E(c["name"])}</span></a></li>')
+    return (f'<div class="mcard"><h3 class="mname">'
+            f'<a href="/races/{r["slug"]}/">{E(r["office"])}</a></h3>'
+            f'<p class="mmeta">{meta}</p><ul class="mpeople">{people}</ul></div>')
+
+
+def row_faces(race, size=32):
+    """Overlapping faces for a compact row — a real photo, or the candidate's initial."""
+    out = ''
+    for c in race['candidates'][:5]:
+        if c['photo']:
+            out += (f'<img src="{E(c["photo"])}" alt="" aria-hidden="true" width="{size}" '
+                    f'height="{size}" loading="lazy">')
+        else:
+            out += f'<span class="ini" aria-hidden="true">{E(c["name"][:1])}</span>'
+    return f'<span class="rfaces">{out}</span>' if out else ''
+
+
+def compact_row(r, kind):
+    if kind == 'races':
+        names = ' · '.join(E(c['name']) for c in r['candidates'])
+        return (f'<a class="rrow" href="/races/{r["slug"]}/">{row_faces(r)}<span class="rr">'
+                f'<span class="rn">{E(r["office"])}</span>'
+                f'<span class="rc">{names}</span></span>'
+                f'<span class="rchev" aria-hidden="true">›</span></a>')
+    links = ''.join(f'<a href="/candidates/{c["slug"]}/">{E(c["name"])}</a>'
+                    for c in r['candidates'])
+    return (f'<div class="rrow">{row_faces(r)}<span class="rr"><span class="pn">{links}</span>'
+            f'<p class="po"><a href="/races/{r["slug"]}/">{E(r["office"])} ›</a></p>'
+            f'</span></div>')
+
+
 def directory_page(races, kind, n_cands):
     if kind == 'candidates':
         canonical = f'{SITE}/candidates/'
@@ -662,31 +850,31 @@ def directory_page(races, kind, n_cands):
     hero = (f'<p class="crumb"><a href="/">Home</a> › {E(h1)}</p>'
             f'<p class="kicker">VoteYourViews.org · Texas Midterm 2026</p>'
             f'<h1>{E(h1)}</h1><div class="hrule"></div>'
-            f'<p class="role">{len(races)} races · {n_cands} candidates</p>'
+            # the point of the page: answer honestly, then discover who actually matches —
+            # the surprise works in every direction, so the line never implies a right answer
+            f'<p class="role"><span class="role-l">Answer nine quick questions honestly, then see '
+            f'who matches your views — you may be surprised. Free, nonpartisan, about two '
+            f'minutes.</span>'
+            f'<span class="party-l">{len(races)} races · {n_cands} candidates</span></p>'
             f'<div class="actions">{MAIN_CTA}{other}</div>' + tiles_html())
 
+    midband = (f'<section class="midband"><h2>{E(END_TITLE)}</h2>'
+               f'<div class="actions">{MAIN_CTA}</div></section>')
     parts = []
-    by_cat = {}
-    for r in races:
-        by_cat.setdefault(r['category'] if r['category'] in CATEGORY_IMG else 'other', []).append(r)
-    for cat in CATEGORY_ORDER:
-        group = by_cat.get(cat)
-        if not group:
-            continue
-        label = CATEGORY_LABEL.get(cat, 'Other')
-        img = (f'<img src="{CATEGORY_IMG[cat]}" alt="" aria-hidden="true" width="30" height="30" '
-               f'style="height:30px;width:auto">' if cat in CATEGORY_IMG else '')
-        parts.append(f'<h2 class="sec">{img}<span class="lab">{E(label)}</span>'
-                     f'<span class="rl"></span>'
-                     f'<span class="chip">{len(group)} race{"s" if len(group) != 1 else ""}</span></h2>')
-        blocks = []
-        for r in group:
-            links = ' · '.join(f'<a href="/candidates/{c["slug"]}/">{E(c["name"])}</a>'
-                               for c in r['candidates'])
-            blocks.append(f'<div class="raceblock">'
-                          f'<h3><a href="/races/{r["slug"]}/">{E(r["office"])}</a></h3>'
-                          f'<p>{links}</p></div>')
-        parts.append('<div class="racegrid">' + ''.join(blocks) + '</div>')
+    for label, is_open, icon, group in section_groups(races):
+        marquee = label == 'The big ones'
+        img = (f'<img src="{CATEGORY_IMG[icon]}" alt="" aria-hidden="true" width="30" height="30" '
+               f'style="height:30px;width:auto">' if icon in CATEGORY_IMG else '')
+        items = ''.join((marquee_card if marquee else compact_row)(r, kind) for r in group)
+        parts.append(
+            f'<details class="dsec"{" open" if is_open else ""}><summary>'
+            f'<h2 class="sec">{img}<span class="lab">{E(label)}</span><span class="rl"></span>'
+            f'<span class="chip">{len(group)} race{"s" if len(group) != 1 else ""}</span>'
+            f'<span class="dchev" aria-hidden="true">▾</span></h2></summary>'
+            f'<div class="{"mcards" if marquee else "rows"}">{items}</div>'
+            f'<p class="secfoot"><a href="/">{MAIN_CTA_LABEL}</a></p></details>')
+        if marquee:
+            parts.append(midband)
     crumbs = breadcrumbs([("Home", f"{SITE}/"), (h1, canonical)])
     return page(title, desc, canonical, DEFAULT_OG, hero, '\n'.join(parts), [crumbs],
                 nav_current=canonical.replace(SITE, ''))
@@ -727,7 +915,7 @@ def main():
             seen[slug] = c
             rs = race_slug(office)
             r = races.setdefault(rs, {'office': office, 'slug': rs, 'description': '',
-                                      'category': category, 'candidates': []})
+                                      'category': category, 'tab': tab, 'candidates': []})
             r['candidates'].append(c)
             if not r['description'] and (row.get('description') or '').strip():
                 r['description'] = row['description'].strip()
@@ -735,8 +923,6 @@ def main():
     # Nonpartisan ordering: alphabetical by name inside every race — never party-first.
     for r in races.values():
         r['candidates'].sort(key=lambda c: c['name'].lower())
-    # natural sort so District 9 lands before District 10, not after District 1
-    natkey = lambda s: [int(p) if p.isdigit() else p.lower() for p in re.split(r'(\d+)', s)]
     race_list = sorted(races.values(),
                        key=lambda r: (CATEGORY_ORDER.index(r['category'])
                                       if r['category'] in CATEGORY_ORDER else 99,
