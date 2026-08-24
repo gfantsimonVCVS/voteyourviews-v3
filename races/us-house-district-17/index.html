@@ -27,12 +27,26 @@
  --slate:#334155;--focus:#1d4ed8;
  --s1:8px;--s2:16px;--s3:24px;--s4:32px;--s5:48px;
  --z-header:10;
+ /* ── type scale (mirrors HaysVotes). One place to resize the whole site.
+    Nothing on the page is allowed below --fs-min. ── */
+ --fs-min:13px;      /* absolute floor — never prose */
+ --fs-small:14px;    /* footer, disclaimer, breadcrumb, pager direction */
+ --fs-eyebrow:15px;  /* small-caps kickers, tile labels */
+ --fs-label:16px;    /* chips, buttons, nav, section-head chips */
+ --fs-hook2:17px;    /* hook2 / "About <First>" story paragraphs */
+ --fs-why:17px;      /* office descriptions */
+ --fs-body:18px;     /* body copy floor (line-height 1.55) */
+ --fs-hook1:20px;    /* hook1 pull-quotes */
+ --fs-name:21px;     /* candidate names */
+ --fs-h3:22px;       /* h3 */
+ --fs-h2:22px;       /* h2 + amber section-head chips */
+ --fs-tile:24px;     /* date-strip values */
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);
  font-family:'Inter',system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
- font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
+ font-size:var(--fs-body);line-height:1.55;-webkit-font-smoothing:antialiased}
 img{max-width:100%}
 a{color:#1d4ed8}
 a:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px}
@@ -46,8 +60,8 @@ header.bar .wrap{padding:11px 18px}
 header.bar img{height:32px;width:auto;display:block}
 header.bar a:focus-visible{outline-color:#fff}
 nav.top{margin-top:9px;display:flex;flex-wrap:wrap;gap:6px}
-nav.top a{display:inline-flex;align-items:center;min-height:38px;padding:4px 11px;
- font-family:'Barlow Condensed','Inter',sans-serif;font-size:15px;font-weight:700;
+nav.top a{display:inline-flex;align-items:center;min-height:40px;padding:4px 12px;
+ font-family:'Barlow Condensed','Inter',sans-serif;font-size:var(--fs-label);font-weight:700;
  letter-spacing:.09em;text-transform:uppercase;color:#dbe4f2;text-decoration:none;
  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.2);border-radius:6px}
 nav.top a:hover{background:rgba(245,158,11,.16);color:#fff;border-color:var(--amber)}
@@ -57,15 +71,20 @@ nav.top a[aria-current="page"]{background:var(--amber);color:var(--navy);border-
 .hero{background:linear-gradient(165deg,var(--navy-3) 0%,var(--navy) 100%);color:#fff;
  border-bottom:4px solid var(--amber)}
 .hero .wrap{padding-top:var(--s2);padding-bottom:var(--s3)}
-.hero .crumb{font-size:.82rem;color:#a8b8d0;margin:0 0 12px}
+.hero .crumb{font-size:var(--fs-small);color:#b9c8dd;margin:0 0 12px}
 .hero .crumb a{color:#cfdcee}
-.kicker{font-family:'Barlow Condensed','Inter',sans-serif;font-weight:700;font-size:12px;
- letter-spacing:.2em;text-transform:uppercase;color:var(--amber-soft);margin:0 0 var(--s1)}
+.kicker{font-family:'Barlow Condensed','Inter',sans-serif;font-weight:700;font-size:var(--fs-eyebrow);
+ letter-spacing:.18em;text-transform:uppercase;color:var(--amber-soft);margin:0 0 var(--s1)}
 .hero h1{font-family:'Barlow Condensed','Inter',sans-serif;font-weight:700;
  font-size:clamp(32px,7.4vw,52px);line-height:.98;letter-spacing:-.02em;text-transform:uppercase;
  color:#fff;margin:0;text-wrap:balance;overflow-wrap:break-word}
 .hrule{width:52px;height:4px;background:var(--amber);margin:12px 0 0;border-radius:2px}
-.role{color:#c3d1e5;font-size:17px;margin:12px 0 0;max-width:56ch;overflow-wrap:break-word}
+.role{color:#ccd9ea;font-size:var(--fs-body);margin:12px 0 0;max-width:56ch;overflow-wrap:break-word}
+/* subline: office on its own line, party on the next — never wrapping mid-sentence */
+.role .role-l{display:block}
+.role .party-l{display:block;margin-top:6px;font-family:'Barlow Condensed','Inter',sans-serif;
+ font-size:var(--fs-label);font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+ color:var(--amber-soft)}
 .idrow{display:flex;gap:var(--s2);align-items:center;flex-wrap:wrap}
 .idrow>div{flex:1 1 240px;min-width:0}
 .avatar{width:92px;height:92px;flex:0 0 auto;border-radius:50%;object-fit:cover;
@@ -77,22 +96,22 @@ nav.top a[aria-current="page"]{background:var(--amber);color:var(--navy);border-
  background:rgba(255,255,255,.06);border-top:2px solid rgba(245,158,11,.45);max-width:560px}
 .tiles li{flex:1 1 40%;min-width:118px;padding:10px 13px;border-right:1px solid rgba(255,255,255,.14)}
 .tiles li:last-child{border-right:none}
-.tiles b{display:block;font-size:10px;font-weight:800;letter-spacing:.12em;
- text-transform:uppercase;color:var(--amber-soft)}
-.tiles span{display:block;font-family:'Barlow Condensed','Inter',sans-serif;font-size:23px;
+.tiles b{display:block;font-size:var(--fs-eyebrow);font-weight:800;letter-spacing:.1em;
+ text-transform:uppercase;color:var(--amber-soft);line-height:1.2}
+.tiles span{display:block;font-family:'Barlow Condensed','Inter',sans-serif;font-size:var(--fs-tile);
  font-weight:700;color:#fff;line-height:1.05;margin-top:2px}
 
 /* ── actions ── */
 .cta{display:inline-flex;align-items:center;justify-content:center;min-height:54px;
  padding:0 22px;background:linear-gradient(180deg,#fbbf24,#f59e0b);color:#0f172a!important;
- text-decoration:none;font-family:'Barlow Condensed','Inter',sans-serif;font-size:19px;
+ text-decoration:none;font-family:'Barlow Condensed','Inter',sans-serif;font-size:var(--fs-hook1);
  font-weight:700;letter-spacing:.04em;text-transform:uppercase;border:none;border-radius:8px;
  box-shadow:0 4px 0 #a16207,0 8px 18px rgba(0,0,0,.28);
  transition:transform .18s cubic-bezier(.22,1,.36,1),box-shadow .18s cubic-bezier(.22,1,.36,1)}
 .cta:hover{transform:translateY(-2px);box-shadow:0 6px 0 #a16207,0 12px 24px rgba(0,0,0,.32)}
 .cta:active{transform:translateY(2px);box-shadow:0 2px 0 #a16207,0 5px 12px rgba(0,0,0,.26)}
 .cta.ghost{background:transparent;color:var(--navy)!important;border:2px solid var(--navy);
- box-shadow:none;min-height:46px;font-size:16px;letter-spacing:.07em}
+ box-shadow:none;min-height:48px;font-size:var(--fs-label);letter-spacing:.07em}
 .cta.ghost:hover{background:#e8ecf1;transform:none;box-shadow:none}
 .hero .cta.ghost,.endband .cta.ghost{color:var(--amber-soft)!important;
  border-color:rgba(245,158,11,.6)}
@@ -103,25 +122,27 @@ nav.top a[aria-current="page"]{background:var(--amber);color:var(--navy);border-
 /* ── paper content ── */
 main{padding:var(--s3) 0 var(--s5)}
 h2.sec{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:var(--s4) 0 var(--s2);
- font-family:'Barlow Condensed','Inter',sans-serif;font-weight:700;font-size:17px;color:var(--navy)}
+ font-family:'Barlow Condensed','Inter',sans-serif;font-weight:700;font-size:var(--fs-h2);color:var(--navy)}
 h2.sec .lab{flex:0 1 auto;max-width:100%;overflow-wrap:anywhere;background:var(--amber);color:var(--navy);padding:4px 11px;
- line-height:1.15;letter-spacing:.14em;text-transform:uppercase;border-radius:4px}
+ font-size:var(--fs-label);line-height:1.15;letter-spacing:.12em;text-transform:uppercase;border-radius:4px}
 h2.sec .rl{flex:1 1 auto;height:3px;background:var(--navy);border-radius:2px}
 h2.sec:first-child{margin-top:var(--s2)}
-h3{font-size:1.05rem;margin:0}
+h3{font-size:var(--fs-h3);line-height:1.2;margin:0}
 p{margin:0 0 var(--s2);max-width:70ch;text-wrap:pretty}
 .chip{display:inline-block;background:#eef1f5;color:var(--slate);border:1px solid #d7dee6;
- font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
- padding:3px 9px;border-radius:999px;white-space:nowrap}
+ font-size:var(--fs-label);font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+ padding:3px 11px;border-radius:999px;white-space:nowrap;line-height:1.35}
 
 /* hook typography: hook1 is the pull-quote, hook2 the story under an ABOUT chip */
-p.hk1{font-weight:800;color:var(--navy);font-size:20px;line-height:1.32;max-width:40ch;
+p.hk1{font-weight:800;color:var(--navy);font-size:var(--fs-hook1);line-height:1.32;max-width:40ch;
  margin:0 0 var(--s3)}
 p.abouthd{display:inline-block;max-width:none;margin:0 0 6px;background:var(--amber-soft);
- color:#7c4a03;font-family:'Barlow Condensed','Inter',sans-serif;font-size:13px;font-weight:700;
- letter-spacing:.14em;text-transform:uppercase;padding:2px 9px;border-radius:4px;white-space:nowrap}
-p.hk2{color:var(--muted);line-height:1.5;margin:0 0 var(--s2)}
-.sitelink{display:inline-flex;align-items:center;min-height:44px;font-weight:700}
+ color:#7c4a03;font-family:'Barlow Condensed','Inter',sans-serif;font-size:var(--fs-eyebrow);font-weight:700;
+ letter-spacing:.12em;text-transform:uppercase;padding:3px 10px;border-radius:4px;white-space:nowrap}
+p.hk2{color:var(--muted);font-size:var(--fs-hook2);line-height:1.5;margin:0 0 var(--s2)}
+p.why{font-size:var(--fs-why);color:#42474f}
+.sitelink{display:inline-flex;align-items:center;min-height:44px;font-weight:700;
+ font-size:var(--fs-body)}
 
 /* ── where they stand card ── */
 .standcard{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
@@ -131,9 +152,9 @@ ul.stands li{display:flex;align-items:center;gap:12px;padding:11px 14px;
 ul.stands li:first-child{border-top:0}
 ul.stands li:nth-child(even){background:#fafbfc}
 ul.stands img{width:26px;height:26px;flex:0 0 auto;object-fit:contain}
-ul.stands .lbl{flex:1 1 auto;min-width:0;font-weight:600}
-.v{flex:0 0 auto;width:104px;text-align:center;font-size:12px;font-weight:700;letter-spacing:.06em;
- text-transform:uppercase;padding:4px 0;border-radius:999px}
+ul.stands .lbl{flex:1 1 auto;min-width:0;font-weight:600;font-size:var(--fs-body)}
+.v{flex:0 0 auto;width:118px;text-align:center;font-size:var(--fs-eyebrow);font-weight:700;
+ letter-spacing:.05em;text-transform:uppercase;padding:5px 0;border-radius:999px;line-height:1.25}
 .v.agree{background:var(--slate);color:#fff;border:1px solid var(--slate)}
 .v.disagree{background:#fff;color:var(--slate);border:1px solid #94a3b8}
 .v.unknown{background:#eef1f5;color:var(--muted);border:1px solid #dbe1e8}
@@ -144,7 +165,7 @@ ul.cards li{display:flex;background:var(--card);border:1px solid var(--line);
  border-radius:12px;overflow:hidden}
 .rail{flex:0 0 34px;background:var(--slate);color:#fff;display:flex;align-items:center;
  justify-content:center;font-family:'Barlow Condensed','Inter',sans-serif;font-weight:700;
- font-size:19px}
+ font-size:var(--fs-name)}
 ul.cards details{flex:1 1 auto;min-width:0}
 summary{list-style:none;cursor:pointer}
 summary::-webkit-details-marker{display:none}
@@ -155,16 +176,16 @@ summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .oppface{flex:0 0 auto;width:46px;height:46px;border-radius:50%;object-fit:cover;
  object-position:top center;background:#e7ebf0;box-shadow:0 0 0 2px #fff,0 0 0 3px var(--line)}
 .oppsum .who{flex:1 1 auto;min-width:0}
-.oppsum .nm{display:block;font-weight:700;color:var(--navy);line-height:1.18}
-.oppsum .meta{margin-top:5px;display:flex;flex-wrap:wrap;gap:6px}
-.chev{flex:0 0 auto;width:26px;height:26px;border-radius:6px;background:var(--amber);
- color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:13px;
+.oppsum .nm{display:block;font-weight:700;font-size:var(--fs-name);color:var(--navy);line-height:1.18}
+.oppsum .meta{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px}
+.chev{flex:0 0 auto;width:28px;height:28px;border-radius:6px;background:var(--amber);
+ color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:var(--fs-min);
  font-weight:800;line-height:1;transition:transform .18s cubic-bezier(.22,1,.36,1)}
 details[open] .chev{transform:rotate(180deg)}
 @media (prefers-reduced-motion:reduce){.chev{transition:none}}
 .oppbody{padding:var(--s2) 18px 18px;border-top:1px solid var(--line)}
-.oppbody p{max-width:62ch}
-.oppbody p.hk1{font-size:17px;line-height:1.35;margin-bottom:var(--s2)}
+.oppbody p{max-width:62ch;font-size:var(--fs-hook2)}
+.oppbody p.hk1{font-size:var(--fs-hook1);line-height:1.35;margin-bottom:var(--s2)}
 .oppbody p:last-child{margin-bottom:0}
 
 /* ── directory listing ── */
@@ -172,7 +193,7 @@ details[open] .chev{transform:rotate(180deg)}
  padding:12px 14px}
 .raceblock h3 a{color:var(--navy);text-decoration:none}
 .raceblock h3 a:hover{text-decoration:underline}
-.raceblock p{margin:6px 0 0;color:var(--muted);font-size:.95rem;max-width:none}
+.raceblock p{margin:6px 0 0;color:var(--muted);font-size:var(--fs-hook2);max-width:none}
 .racegrid{display:grid;gap:10px}
 
 /* ── prev / next ── */
@@ -180,9 +201,9 @@ details[open] .chev{transform:rotate(180deg)}
 .pager a{display:block;background:var(--card);border:1px solid var(--line);border-radius:10px;
  padding:11px 14px;text-decoration:none;min-height:44px}
 .pager a:hover{border-color:var(--navy)}
-.pager .dir{display:block;font-family:'Barlow Condensed','Inter',sans-serif;font-size:12px;
- font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
-.pager .nm{font-weight:700;color:var(--navy)}
+.pager .dir{display:block;font-family:'Barlow Condensed','Inter',sans-serif;font-size:var(--fs-small);
+ font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.pager .nm{font-weight:700;font-size:var(--fs-body);color:var(--navy)}
 .pager .nx{text-align:right}
 
 /* ── closing band + footer ── */
@@ -191,12 +212,13 @@ details[open] .chev{transform:rotate(180deg)}
 .endband .wrap{padding:var(--s4) 18px var(--s4)}
 .endband h2{margin:0;font-family:'Barlow Condensed','Inter',sans-serif;font-weight:700;
  font-size:clamp(26px,6vw,36px);line-height:1;letter-spacing:-.01em;text-transform:uppercase}
-.endband p{color:#c3d1e5;margin:11px 0 0;max-width:52ch}
-footer.disc{background:var(--navy-3);color:#9db0c9;font-size:.8rem}
+.endband p{color:#ccd9ea;font-size:var(--fs-body);margin:11px 0 0;max-width:52ch}
+footer.disc{background:var(--navy-3);color:#b3c3d7;font-size:var(--fs-small);line-height:1.6}
 footer.disc .wrap{padding:var(--s2) 18px var(--s3)}
 footer.disc a{color:#cfdcee}
 
 @media(min-width:760px){
+ :root{--fs-hook1:21px;--fs-name:22px;--fs-h2:24px;--fs-h3:22px;--fs-tile:26px}
  .wrap{padding:0 24px}
  header.bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:18px;
   padding:13px 24px}
@@ -226,7 +248,7 @@ footer.disc a{color:#cfdcee}
 <p class="crumb"><a href="/">Home</a> › <a href="/races/">Races</a> › U.S. House — District 17</p><p class="kicker">VoteYourViews.org · Texas Midterm 2026</p><h1>U.S. House — District 17</h1><div class="hrule"></div><p class="role">2 candidates on the ballot · Election Day November 3, 2026</p><div class="actions"><a class="cta" href="/">Answer 9 questions and see who matches you →</a><a class="cta ghost" href="/races/">All races</a></div><ul class="tiles"><li><b>Early voting</b><span>Oct 19–30</span></li><li><b>Election Day</b><span>Nov 3</span></li><li><b>Register by</b><span>Oct 5</span></li><li><b>Polls open</b><span>7A–7P</span></li></ul>
 </div></section>
 <main><div class="wrap">
-<h2 class="sec"><span class="lab">About this office</span><span class="rl"></span></h2><p>Texas is divided into 38 areas called districts, each with about 800,000 people. Every two years your district elects one U.S. Representative — one of 435 in Washington, and the only one who answers to you. They vote on laws that touch your health care, your taxes and your rights.</p>
+<h2 class="sec"><span class="lab">About this office</span><span class="rl"></span></h2><p class="why">Texas is divided into 38 areas called districts, each with about 800,000 people. Every two years your district elects one U.S. Representative — one of 435 in Washington, and the only one who answers to you. They vote on laws that touch your health care, your taxes and your rights.</p>
 <h2 class="sec"><span class="lab">Candidates</span><span class="rl"></span></h2><ul class="cards"><li><span class="rail" aria-hidden="true">D</span><details><summary><span class="oppsum"><img class="oppface" src="/images/candidates/statewide/D/casey-shepard.png" alt="Casey Shepard" width="46" height="46" loading="lazy"><span class="who"><span class="nm">Casey Shepard</span><span class="meta"><span class="chip">Democrat</span></span></span><span class="chev" aria-hidden="true">▾</span></span></summary><div class="oppbody"><p class="hk1">Shepard spends his workdays as a public defender in Waco, representing people who can&#x27;t afford a lawyer when they&#x27;re charged with a crime.</p><p class="abouthd">About Casey</p><p class="hk2">Casey Shepard is a Waco attorney who works as a criminal defense lawyer for indigent clients in McLennan County. He entered the crowded Democratic primary for Texas&#x27;s 17th Congressional District, then won a runoff after his opponent dropped out and endorsed him. He says his top priorities are making sure people have enough food, healthcare, and stable housing, along with reining in what he calls executive-branch overreach.</p><p><a class="sitelink" href="https://caseyshepardforcongress.com" rel="nofollow noopener" target="_blank">Campaign website ↗</a></p><p><a class="sitelink" href="/candidates/caseyshepard/">Casey Shepard →</a></p></div></details></li><li><span class="rail" aria-hidden="true">R</span><details><summary><span class="oppsum"><img class="oppface" src="/images/candidates/statewide/R/pete-sessions.png" alt="Pete Sessions" width="46" height="46" loading="lazy"><span class="who"><span class="nm">Pete Sessions</span><span class="meta"><span class="chip">Republican</span></span></span><span class="chev" aria-hidden="true">▾</span></span></summary><div class="oppbody"><p class="hk1">Sessions&#x27;s father ran the FBI — he was appointed the bureau&#x27;s director by President Reagan — and Pete himself spent 16 years working for the phone company before entering politics.</p><p class="abouthd">About Pete</p><p class="hk2">Pete Sessions grew up in Waco, the son of former FBI Director William Sessions, and worked for Southwestern Bell Telephone for 16 years before going into politics. He previously represented a Dallas-based congressional district from 1997 to 2019, chairing the powerful House Rules Committee, then returned to Congress in 2021 representing the current 17th District centered on Waco. He&#x27;s running for re-election as a self-described proven conservative.</p><p><a class="sitelink" href="https://www.petesessions.com" rel="nofollow noopener" target="_blank">Campaign website ↗</a></p><p><a class="sitelink" href="/candidates/petesessions/">Pete Sessions →</a></p></div></details></li></ul>
 <nav class="pager" aria-label="Nearby races"><a href="/races/us-house-district-16/"><span class="dir">← Previous race</span><span class="nm">U.S. House — District 16</span></a><a class="nx" href="/races/us-house-district-18/"><span class="dir">Next race →</span><span class="nm">U.S. House — District 18</span></a></nav>
 </div></main>
