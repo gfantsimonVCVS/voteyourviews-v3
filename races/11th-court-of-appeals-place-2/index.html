@@ -178,11 +178,12 @@ summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .oppsum .who{flex:1 1 auto;min-width:0}
 .oppsum .nm{display:block;font-weight:700;font-size:var(--fs-name);color:var(--navy);line-height:1.18}
 .oppsum .meta{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px}
-.chev{flex:0 0 auto;width:28px;height:28px;border-radius:6px;background:var(--amber);
- color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:var(--fs-min);
- font-weight:800;line-height:1;transition:transform .18s cubic-bezier(.22,1,.36,1)}
-details[open] .chev{transform:rotate(180deg)}
-@media (prefers-reduced-motion:reduce){.chev{transition:none}}
+.chev{flex:0 0 auto;display:inline-flex;align-items:center;min-height:36px;padding:0 12px;
+ border-radius:8px;background:var(--amber, #f5c145);color:#1a1a1a;font-family:'Barlow Condensed','Barlow',sans-serif;
+ font-weight:800;font-size:var(--fs-label);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.chev .chev-less{display:none}
+details[open] .chev .chev-more{display:none}
+details[open] .chev .chev-less{display:inline}
 .oppbody{padding:var(--s2) 18px 18px;border-top:1px solid var(--line)}
 .oppbody p{max-width:62ch;font-size:var(--fs-hook2)}
 .oppbody p.hk1{font-size:var(--fs-hook1);line-height:1.35;margin-bottom:var(--s2)}
@@ -302,7 +303,7 @@ footer.disc a{color:#cfdcee}
  header.bar img{height:38px}
  .hero .wrap{padding-top:var(--s3);padding-bottom:var(--s4)}
  .avatar{width:116px;height:116px}
- ul.cards{grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
+ ul.cards{grid-template-columns:repeat(auto-fit,minmax(330px,1fr));align-items:start}
  .mcards{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
  .rows{grid-template-columns:1fr 1fr}
  .pager{grid-template-columns:1fr 1fr}
@@ -326,7 +327,7 @@ footer.disc a{color:#cfdcee}
 </div></section>
 <main><div class="wrap">
 <h2 class="sec"><span class="lab">About this office</span><span class="rl"></span></h2><p class="why">It&#x27;s very difficult for a case to reach the Supreme Court. So for most Texans who appeal — a custody ruling, a lawsuit, a conviction — the Court of Appeals is the last court that will ever hear it. Texas has 14 of these courts, each covering a share of the 254 counties, and Hays County&#x27;s cases go to the 3rd Court of Appeals in Austin. The Chief Justice runs that court — and this year the seat is on your ballot.</p>
-<h2 class="sec"><span class="lab">Candidates</span><span class="rl"></span></h2><ul class="cards"><li><span class="rail" aria-hidden="true">R</span><details><summary><span class="oppsum"><img class="oppface" src="/images/candidates/statewide/R/bruce-williams.png" alt="Bruce Williams" width="46" height="46" loading="lazy"><span class="who"><span class="nm">Bruce Williams</span><span class="meta"><span class="chip">Republican</span></span></span><span class="chev" aria-hidden="true">▾</span></span></summary><div class="oppbody"><p class="hk1">Before he ever put on a judge&#x27;s robe, Bruce Williams spent 37 years as a trial lawyer arguing cases in courtrooms across Texas.</p><p class="abouthd">About Bruce</p><p class="hk2">Williams earned his law degree from Texas Tech University School of Law in 1982 and built a long career trying business litigation cases, earning recognition as one of Texas&#x27; Top Attorneys in Business Litigation every year since 2015. He took office as Place 2 Justice on the 11th Court of Appeals on January 1, 2021, and is now seeking re-election. He ran unopposed in the 2026 Republican primary, and the Democratic primary for the seat was canceled.</p><p><a class="sitelink" href="https://www.facebook.com/Bruceforjustice/" rel="nofollow noopener" target="_blank">Campaign website ↗</a></p><p><a class="sitelink" href="/candidates/brucewilliams/">Bruce Williams →</a></p></div></details></li></ul>
+<h2 class="sec"><span class="lab">Candidates</span><span class="rl"></span></h2><ul class="cards"><li><span class="rail" aria-hidden="true">R</span><details><summary><span class="oppsum"><img class="oppface" src="/images/candidates/statewide/R/bruce-williams.png" alt="Bruce Williams" width="46" height="46" loading="lazy"><span class="who"><span class="nm">Bruce Williams</span><span class="meta"><span class="chip">Republican</span></span></span><span class="chev" aria-hidden="true"><span class="chev-more">More ▾</span><span class="chev-less">Hide ▴</span></span></span></summary><div class="oppbody"><p class="hk1">Before he ever put on a judge&#x27;s robe, Bruce Williams spent 37 years as a trial lawyer arguing cases in courtrooms across Texas.</p><p class="abouthd">About Bruce</p><p class="hk2">Williams earned his law degree from Texas Tech University School of Law in 1982 and built a long career trying business litigation cases, earning recognition as one of Texas&#x27; Top Attorneys in Business Litigation every year since 2015. He took office as Place 2 Justice on the 11th Court of Appeals on January 1, 2021, and is now seeking re-election. He ran unopposed in the 2026 Republican primary, and the Democratic primary for the seat was canceled.</p><p><a class="sitelink" href="https://www.facebook.com/Bruceforjustice/" rel="nofollow noopener" target="_blank">Campaign website ↗</a></p><p><a class="sitelink" href="/candidates/brucewilliams/">Bruce Williams →</a></p></div></details></li></ul>
 <nav class="pager" aria-label="Nearby races"><a href="/races/10th-court-of-appeals-place-2/"><span class="dir">← Previous race</span><span class="nm">10th Court of Appeals — Place 2</span></a><a class="nx" href="/races/12th-court-of-appeals-chief-justice/"><span class="dir">Next race →</span><span class="nm">12th Court of Appeals — Chief Justice</span></a></nav>
 </div></main>
 <section class="endband"><div class="wrap">

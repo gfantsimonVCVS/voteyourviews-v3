@@ -178,11 +178,12 @@ summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .oppsum .who{flex:1 1 auto;min-width:0}
 .oppsum .nm{display:block;font-weight:700;font-size:var(--fs-name);color:var(--navy);line-height:1.18}
 .oppsum .meta{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px}
-.chev{flex:0 0 auto;width:28px;height:28px;border-radius:6px;background:var(--amber);
- color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:var(--fs-min);
- font-weight:800;line-height:1;transition:transform .18s cubic-bezier(.22,1,.36,1)}
-details[open] .chev{transform:rotate(180deg)}
-@media (prefers-reduced-motion:reduce){.chev{transition:none}}
+.chev{flex:0 0 auto;display:inline-flex;align-items:center;min-height:36px;padding:0 12px;
+ border-radius:8px;background:var(--amber, #f5c145);color:#1a1a1a;font-family:'Barlow Condensed','Barlow',sans-serif;
+ font-weight:800;font-size:var(--fs-label);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.chev .chev-less{display:none}
+details[open] .chev .chev-more{display:none}
+details[open] .chev .chev-less{display:inline}
 .oppbody{padding:var(--s2) 18px 18px;border-top:1px solid var(--line)}
 .oppbody p{max-width:62ch;font-size:var(--fs-hook2)}
 .oppbody p.hk1{font-size:var(--fs-hook1);line-height:1.35;margin-bottom:var(--s2)}
@@ -302,7 +303,7 @@ footer.disc a{color:#cfdcee}
  header.bar img{height:38px}
  .hero .wrap{padding-top:var(--s3);padding-bottom:var(--s4)}
  .avatar{width:116px;height:116px}
- ul.cards{grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
+ ul.cards{grid-template-columns:repeat(auto-fit,minmax(330px,1fr));align-items:start}
  .mcards{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
  .rows{grid-template-columns:1fr 1fr}
  .pager{grid-template-columns:1fr 1fr}
@@ -326,7 +327,7 @@ footer.disc a{color:#cfdcee}
 </div></section>
 <main><div class="wrap">
 <h2 class="sec"><span class="lab">About this office</span><span class="rl"></span></h2><p class="why">Your State Representative is one of 150 people who write Texas law, and yours is elected to represent your area of Hays County. Every two years they decide how much money your kids&#x27; school gets, whether your property tax bill goes up or down, and whether Texas takes federal money for health care or turns it away. Big decisions, made by a small group — and one seat is yours to fill.</p>
-<h2 class="sec"><span class="lab">Candidates</span><span class="rl"></span></h2><ul class="cards"><li><span class="rail" aria-hidden="true">D</span><details><summary><span class="oppsum"><img class="oppface" src="/images/candidates/statewide/D/amelia-rabroker.png" alt="Amelia Rabroker" width="46" height="46" loading="lazy"><span class="who"><span class="nm">Amelia Rabroker</span><span class="meta"><span class="chip">Democrat</span></span></span><span class="chev" aria-hidden="true">▾</span></span></summary><div class="oppbody"><p class="hk1">Rabroker owns The Art Space, a small business in Harker Heights, and is running her first campaign for public office.</p><p class="abouthd">About Amelia</p><p class="hk2">She&#x27;s campaigning against school vouchers, calling them a plan that pulls money away from local public schools.</p><p><a class="sitelink" href="https://www.ameliafortexas.com" rel="nofollow noopener" target="_blank">Campaign website ↗</a></p><p><a class="sitelink" href="/candidates/ameliarabroker/">Amelia Rabroker →</a></p></div></details></li><li><span class="rail" aria-hidden="true">R</span><details><summary><span class="oppsum"><img class="oppface" src="/images/candidates/statewide/R/hillary-hickland.png" alt="Hillary Hickland" width="46" height="46" loading="lazy"><span class="who"><span class="nm">Hillary Hickland</span><span class="meta"><span class="chip">Republican</span></span></span><span class="chev" aria-hidden="true">▾</span></span></summary><div class="oppbody"><p class="hk1">Hickland, a Belton mom of four, has been a volunteer mentor at a crisis pregnancy center for over a decade.</p><p class="abouthd">About Hillary</p><p class="hk2">She unseated the Republican incumbent in the 2024 primary and is now seeking reelection to a second term.</p><p><a class="sitelink" href="https://hillaryhickland.com/" rel="nofollow noopener" target="_blank">Campaign website ↗</a></p><p><a class="sitelink" href="/candidates/hillaryhickland/">Hillary Hickland →</a></p></div></details></li></ul>
+<h2 class="sec"><span class="lab">Candidates</span><span class="rl"></span></h2><ul class="cards"><li><span class="rail" aria-hidden="true">D</span><details><summary><span class="oppsum"><img class="oppface" src="/images/candidates/statewide/D/amelia-rabroker.png" alt="Amelia Rabroker" width="46" height="46" loading="lazy"><span class="who"><span class="nm">Amelia Rabroker</span><span class="meta"><span class="chip">Democrat</span></span></span><span class="chev" aria-hidden="true"><span class="chev-more">More ▾</span><span class="chev-less">Hide ▴</span></span></span></summary><div class="oppbody"><p class="hk1">Rabroker owns The Art Space, a small business in Harker Heights, and is running her first campaign for public office.</p><p class="abouthd">About Amelia</p><p class="hk2">She&#x27;s campaigning against school vouchers, calling them a plan that pulls money away from local public schools.</p><p><a class="sitelink" href="https://www.ameliafortexas.com" rel="nofollow noopener" target="_blank">Campaign website ↗</a></p><p><a class="sitelink" href="/candidates/ameliarabroker/">Amelia Rabroker →</a></p></div></details></li><li><span class="rail" aria-hidden="true">R</span><details><summary><span class="oppsum"><img class="oppface" src="/images/candidates/statewide/R/hillary-hickland.png" alt="Hillary Hickland" width="46" height="46" loading="lazy"><span class="who"><span class="nm">Hillary Hickland</span><span class="meta"><span class="chip">Republican</span></span></span><span class="chev" aria-hidden="true"><span class="chev-more">More ▾</span><span class="chev-less">Hide ▴</span></span></span></summary><div class="oppbody"><p class="hk1">Hickland, a Belton mom of four, has been a volunteer mentor at a crisis pregnancy center for over a decade.</p><p class="abouthd">About Hillary</p><p class="hk2">She unseated the Republican incumbent in the 2024 primary and is now seeking reelection to a second term.</p><p><a class="sitelink" href="https://hillaryhickland.com/" rel="nofollow noopener" target="_blank">Campaign website ↗</a></p><p><a class="sitelink" href="/candidates/hillaryhickland/">Hillary Hickland →</a></p></div></details></li></ul>
 <nav class="pager" aria-label="Nearby races"><a href="/races/tx-state-house-district-54/"><span class="dir">← Previous race</span><span class="nm">TX State House — District 54</span></a><a class="nx" href="/races/tx-state-house-district-56/"><span class="dir">Next race →</span><span class="nm">TX State House — District 56</span></a></nav>
 </div></main>
 <section class="endband"><div class="wrap">

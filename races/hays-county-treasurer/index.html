@@ -178,11 +178,12 @@ summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .oppsum .who{flex:1 1 auto;min-width:0}
 .oppsum .nm{display:block;font-weight:700;font-size:var(--fs-name);color:var(--navy);line-height:1.18}
 .oppsum .meta{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px}
-.chev{flex:0 0 auto;width:28px;height:28px;border-radius:6px;background:var(--amber);
- color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:var(--fs-min);
- font-weight:800;line-height:1;transition:transform .18s cubic-bezier(.22,1,.36,1)}
-details[open] .chev{transform:rotate(180deg)}
-@media (prefers-reduced-motion:reduce){.chev{transition:none}}
+.chev{flex:0 0 auto;display:inline-flex;align-items:center;min-height:36px;padding:0 12px;
+ border-radius:8px;background:var(--amber, #f5c145);color:#1a1a1a;font-family:'Barlow Condensed','Barlow',sans-serif;
+ font-weight:800;font-size:var(--fs-label);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.chev .chev-less{display:none}
+details[open] .chev .chev-more{display:none}
+details[open] .chev .chev-less{display:inline}
 .oppbody{padding:var(--s2) 18px 18px;border-top:1px solid var(--line)}
 .oppbody p{max-width:62ch;font-size:var(--fs-hook2)}
 .oppbody p.hk1{font-size:var(--fs-hook1);line-height:1.35;margin-bottom:var(--s2)}
@@ -302,7 +303,7 @@ footer.disc a{color:#cfdcee}
  header.bar img{height:38px}
  .hero .wrap{padding-top:var(--s3);padding-bottom:var(--s4)}
  .avatar{width:116px;height:116px}
- ul.cards{grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
+ ul.cards{grid-template-columns:repeat(auto-fit,minmax(330px,1fr));align-items:start}
  .mcards{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
  .rows{grid-template-columns:1fr 1fr}
  .pager{grid-template-columns:1fr 1fr}
@@ -326,7 +327,7 @@ footer.disc a{color:#cfdcee}
 </div></section>
 <main><div class="wrap">
 <h2 class="sec"><span class="lab">About this office</span><span class="rl"></span></h2><p class="why">The County Treasurer is the county&#x27;s bank account. Every dollar Hays County takes in — your property taxes, fees, state money — is deposited by this office, and every county bill and every county paycheck goes out through it: deputies, road crews, clerks. Small office, all the money. A good Treasurer also brings the county&#x27;s money into this century — online payments, direct deposit, safe investing of the funds sitting in the account — and your vote decides who&#x27;s holding the checkbook.</p>
-<h2 class="sec"><span class="lab">Candidates</span><span class="rl"></span></h2><ul class="cards"><li><span class="rail" aria-hidden="true">D</span><details><summary><span class="oppsum"><img class="oppface" src="/images/candidates/hays/D/daphne-tenorio.png" alt="Daphne Tenorio" width="46" height="46" loading="lazy"><span class="who"><span class="nm">Daphne Tenorio</span><span class="meta"><span class="chip">Democrat</span></span></span><span class="chev" aria-hidden="true">▾</span></span></summary><div class="oppbody"><p class="hk1">Tenorio spent 25 years as an accountant and small-business owner before Hays County put her in charge of its bank account in 2022 — and she hopes this election means four more years serving the people of Hays County.</p><p class="abouthd">About Daphne</p><p class="hk2">On the Kyle City Council she was known for voting for smaller budgets, and she was the first woman to lead the Association of Municipal Hispanic Officials. Outside of office she started Kyle&#x27;s partnership with the Central Texas Food Bank and helped Kyle provide COVID testing during the pandemic. She lives in Kyle with her husband Willie, who chairs the Hays County Democratic Party.</p><p><a class="sitelink" href="https://www.facebook.com/TenorioForHays/" rel="nofollow noopener" target="_blank">Campaign website ↗</a></p><p><a class="sitelink" href="/candidates/daphnetenorio/">Daphne Tenorio →</a></p></div></details></li></ul>
+<h2 class="sec"><span class="lab">Candidates</span><span class="rl"></span></h2><ul class="cards"><li><span class="rail" aria-hidden="true">D</span><details><summary><span class="oppsum"><img class="oppface" src="/images/candidates/hays/D/daphne-tenorio.png" alt="Daphne Tenorio" width="46" height="46" loading="lazy"><span class="who"><span class="nm">Daphne Tenorio</span><span class="meta"><span class="chip">Democrat</span></span></span><span class="chev" aria-hidden="true"><span class="chev-more">More ▾</span><span class="chev-less">Hide ▴</span></span></span></summary><div class="oppbody"><p class="hk1">Tenorio spent 25 years as an accountant and small-business owner before Hays County put her in charge of its bank account in 2022 — and she hopes this election means four more years serving the people of Hays County.</p><p class="abouthd">About Daphne</p><p class="hk2">On the Kyle City Council she was known for voting for smaller budgets, and she was the first woman to lead the Association of Municipal Hispanic Officials. Outside of office she started Kyle&#x27;s partnership with the Central Texas Food Bank and helped Kyle provide COVID testing during the pandemic. She lives in Kyle with her husband Willie, who chairs the Hays County Democratic Party.</p><p><a class="sitelink" href="https://www.facebook.com/TenorioForHays/" rel="nofollow noopener" target="_blank">Campaign website ↗</a></p><p><a class="sitelink" href="/candidates/daphnetenorio/">Daphne Tenorio →</a></p></div></details></li></ul>
 <nav class="pager" aria-label="Nearby races"><a href="/races/hays-county-judge/"><span class="dir">← Previous race</span><span class="nm">Hays County Judge</span></a><a class="nx" href="/races/travis-county-clerk/"><span class="dir">Next race →</span><span class="nm">Travis County Clerk</span></a></nav>
 </div></main>
 <section class="endband"><div class="wrap">

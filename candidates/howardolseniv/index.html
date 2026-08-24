@@ -178,11 +178,12 @@ summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .oppsum .who{flex:1 1 auto;min-width:0}
 .oppsum .nm{display:block;font-weight:700;font-size:var(--fs-name);color:var(--navy);line-height:1.18}
 .oppsum .meta{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px}
-.chev{flex:0 0 auto;width:28px;height:28px;border-radius:6px;background:var(--amber);
- color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:var(--fs-min);
- font-weight:800;line-height:1;transition:transform .18s cubic-bezier(.22,1,.36,1)}
-details[open] .chev{transform:rotate(180deg)}
-@media (prefers-reduced-motion:reduce){.chev{transition:none}}
+.chev{flex:0 0 auto;display:inline-flex;align-items:center;min-height:36px;padding:0 12px;
+ border-radius:8px;background:var(--amber, #f5c145);color:#1a1a1a;font-family:'Barlow Condensed','Barlow',sans-serif;
+ font-weight:800;font-size:var(--fs-label);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.chev .chev-less{display:none}
+details[open] .chev .chev-more{display:none}
+details[open] .chev .chev-less{display:inline}
 .oppbody{padding:var(--s2) 18px 18px;border-top:1px solid var(--line)}
 .oppbody p{max-width:62ch;font-size:var(--fs-hook2)}
 .oppbody p.hk1{font-size:var(--fs-hook1);line-height:1.35;margin-bottom:var(--s2)}
@@ -302,7 +303,7 @@ footer.disc a{color:#cfdcee}
  header.bar img{height:38px}
  .hero .wrap{padding-top:var(--s3);padding-bottom:var(--s4)}
  .avatar{width:116px;height:116px}
- ul.cards{grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
+ ul.cards{grid-template-columns:repeat(auto-fit,minmax(330px,1fr));align-items:start}
  .mcards{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
  .rows{grid-template-columns:1fr 1fr}
  .pager{grid-template-columns:1fr 1fr}
@@ -327,7 +328,7 @@ footer.disc a{color:#cfdcee}
 <main><div class="wrap">
 <h2 class="sec"><span class="lab">Who Howard is</span><span class="rl"></span></h2><p class="hk1">The Republican running in fast-growing, Democratic-leaning Pflugerville.</p><p class="abouthd">About Howard</p><p class="hk2">Olsen is the Republican nominee for House District 50, advancing from the 2026 primary to compete in the Pflugerville-area seat.</p><p><a class="sitelink" href="https://www.howardolsen4texas.com/" rel="nofollow noopener" target="_blank">Campaign website ↗</a></p>
 <h2 class="sec"><span class="lab">Where they stand</span><span class="rl"></span></h2><div class="standcard"><ul class="stands"><li><img src="/icons/reproductiveRights.png" alt="" aria-hidden="true" width="26" height="26"><span class="lbl">Reproductive Rights</span><span class="v unknown">Unknown</span></li><li><img src="/icons/immigration.png" alt="" aria-hidden="true" width="26" height="26"><span class="lbl">Immigration &amp; Border</span><span class="v unknown">Unknown</span></li><li><img src="/icons/affordability.png" alt="" aria-hidden="true" width="26" height="26"><span class="lbl">Housing &amp; Affordability</span><span class="v unknown">Unknown</span></li><li><img src="/icons/education.png" alt="" aria-hidden="true" width="26" height="26"><span class="lbl">Public Education</span><span class="v unknown">Unknown</span></li><li><img src="/icons/electionIntegrity.png" alt="" aria-hidden="true" width="26" height="26"><span class="lbl">Election Integrity</span><span class="v unknown">Unknown</span></li><li><img src="/icons/healthcare.png" alt="" aria-hidden="true" width="26" height="26"><span class="lbl">Healthcare</span><span class="v unknown">Unknown</span></li><li><img src="/icons/socialSecurity.png" alt="" aria-hidden="true" width="26" height="26"><span class="lbl">Social Security &amp; Medicare</span><span class="v unknown">Unknown</span></li><li><img src="/icons/gunPolicy.png" alt="" aria-hidden="true" width="26" height="26"><span class="lbl">Gun Policy</span><span class="v unknown">Unknown</span></li><li><img src="/icons/climate.png" alt="" aria-hidden="true" width="26" height="26"><span class="lbl">Climate &amp; Energy</span><span class="v unknown">Unknown</span></li></ul></div>
-<h2 class="sec"><span class="lab">Also on the ballot for TX State House — District 50</span><span class="rl"></span></h2><p>Every candidate on this ballot line appears here, in alphabetical order. Tap a name to read more.</p><ul class="cards"><li><span class="rail" aria-hidden="true">D</span><details><summary><span class="oppsum"><img class="oppface" src="/images/candidates/statewide/D/samantha-lopez-resendez.png" alt="Samantha Lopez-Resendez" width="46" height="46" loading="lazy"><span class="who"><span class="nm">Samantha Lopez-Resendez</span><span class="meta"><span class="chip">Democrat</span></span></span><span class="chev" aria-hidden="true">▾</span></span></summary><div class="oppbody"><p class="hk1">A former school librarian and longtime Capitol staffer running on the public schools she once worked in.</p><p class="abouthd">About Samantha</p><p class="hk2">An RGV native and daughter of immigrants, Lopez-Resendez was a bilingual public-school librarian before serving as chief of staff to Rep. Donna Howard. She won the 2026 Democratic primary in this Pflugerville-area seat.</p><p><a class="sitelink" href="https://samanthafortexas.com/index.html" rel="nofollow noopener" target="_blank">Campaign website ↗</a></p><p><a class="sitelink" href="/candidates/samanthalopezresendez/">Samantha Lopez-Resendez →</a></p></div></details></li></ul>
+<h2 class="sec"><span class="lab">Also on the ballot for TX State House — District 50</span><span class="rl"></span></h2><p>Every candidate on this ballot line appears here, in alphabetical order. Tap a name to read more.</p><ul class="cards"><li><span class="rail" aria-hidden="true">D</span><details><summary><span class="oppsum"><img class="oppface" src="/images/candidates/statewide/D/samantha-lopez-resendez.png" alt="Samantha Lopez-Resendez" width="46" height="46" loading="lazy"><span class="who"><span class="nm">Samantha Lopez-Resendez</span><span class="meta"><span class="chip">Democrat</span></span></span><span class="chev" aria-hidden="true"><span class="chev-more">More ▾</span><span class="chev-less">Hide ▴</span></span></span></summary><div class="oppbody"><p class="hk1">A former school librarian and longtime Capitol staffer running on the public schools she once worked in.</p><p class="abouthd">About Samantha</p><p class="hk2">An RGV native and daughter of immigrants, Lopez-Resendez was a bilingual public-school librarian before serving as chief of staff to Rep. Donna Howard. She won the 2026 Democratic primary in this Pflugerville-area seat.</p><p><a class="sitelink" href="https://samanthafortexas.com/index.html" rel="nofollow noopener" target="_blank">Campaign website ↗</a></p><p><a class="sitelink" href="/candidates/samanthalopezresendez/">Samantha Lopez-Resendez →</a></p></div></details></li></ul>
 <nav class="pager" aria-label="Other candidates in this race"><span></span><a class="nx" href="/candidates/samanthalopezresendez/"><span class="dir">Next candidate →</span><span class="nm">Samantha Lopez-Resendez</span></a></nav>
 </div></main>
 <section class="endband"><div class="wrap">

@@ -178,11 +178,12 @@ summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .oppsum .who{flex:1 1 auto;min-width:0}
 .oppsum .nm{display:block;font-weight:700;font-size:var(--fs-name);color:var(--navy);line-height:1.18}
 .oppsum .meta{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px}
-.chev{flex:0 0 auto;width:28px;height:28px;border-radius:6px;background:var(--amber);
- color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:var(--fs-min);
- font-weight:800;line-height:1;transition:transform .18s cubic-bezier(.22,1,.36,1)}
-details[open] .chev{transform:rotate(180deg)}
-@media (prefers-reduced-motion:reduce){.chev{transition:none}}
+.chev{flex:0 0 auto;display:inline-flex;align-items:center;min-height:36px;padding:0 12px;
+ border-radius:8px;background:var(--amber, #f5c145);color:#1a1a1a;font-family:'Barlow Condensed','Barlow',sans-serif;
+ font-weight:800;font-size:var(--fs-label);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.chev .chev-less{display:none}
+details[open] .chev .chev-more{display:none}
+details[open] .chev .chev-less{display:inline}
 .oppbody{padding:var(--s2) 18px 18px;border-top:1px solid var(--line)}
 .oppbody p{max-width:62ch;font-size:var(--fs-hook2)}
 .oppbody p.hk1{font-size:var(--fs-hook1);line-height:1.35;margin-bottom:var(--s2)}
@@ -302,7 +303,7 @@ footer.disc a{color:#cfdcee}
  header.bar img{height:38px}
  .hero .wrap{padding-top:var(--s3);padding-bottom:var(--s4)}
  .avatar{width:116px;height:116px}
- ul.cards{grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
+ ul.cards{grid-template-columns:repeat(auto-fit,minmax(330px,1fr));align-items:start}
  .mcards{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
  .rows{grid-template-columns:1fr 1fr}
  .pager{grid-template-columns:1fr 1fr}
@@ -326,7 +327,7 @@ footer.disc a{color:#cfdcee}
 </div></section>
 <main><div class="wrap">
 <h2 class="sec"><span class="lab">About this office</span><span class="rl"></span></h2><p class="why">The County Court at Law judge handles the everyday cases: a DWI or other misdemeanor charge, a parent&#x27;s will and estate (probate), a guardianship for a family member who can no longer manage, mental-health commitments — and some custody hearings, to help the District Courts keep up. Not the high-profile cases, but the important cases that happen to all of us. Hays County has three of these courts; two are on the ballot this year, and your vote ensures our residents are represented fairly.</p>
-<h2 class="sec"><span class="lab">Candidates</span><span class="rl"></span></h2><ul class="cards"><li><span class="rail" aria-hidden="true">D</span><details><summary><span class="oppsum"><img class="oppface" src="/images/candidates/hays/D/jimmy-alan-hall.png" alt="Jimmy Alan Hall" width="46" height="46" loading="lazy"><span class="who"><span class="nm">Jimmy Alan Hall</span><span class="meta"><span class="chip">Democrat</span></span></span><span class="chev" aria-hidden="true">▾</span></span></summary><div class="oppbody"><p class="hk1">Hall practiced law for more than 40 years — redistricting fights, environmental cases for the State, municipal prosecutor — then in 2022 unseated the Republican judge of County Court at Law No. 1. Now he&#x27;s asking Hays County to vote to keep him there.</p><p class="abouthd">About Jimmy</p><p class="hk2">He holds three UT degrees — architecture, public affairs and law — is a certified mediator, and lives in Wimberley, where he serves on the boards of Imagine Wimberley and Wimberley Valley Radio and mentors students at Texas State and Wimberley ISD.</p><p><a class="sitelink" href="https://votehallforall.com/" rel="nofollow noopener" target="_blank">Campaign website ↗</a></p><p><a class="sitelink" href="/candidates/jimmyalanhall/">Jimmy Alan Hall →</a></p></div></details></li></ul>
+<h2 class="sec"><span class="lab">Candidates</span><span class="rl"></span></h2><ul class="cards"><li><span class="rail" aria-hidden="true">D</span><details><summary><span class="oppsum"><img class="oppface" src="/images/candidates/hays/D/jimmy-alan-hall.png" alt="Jimmy Alan Hall" width="46" height="46" loading="lazy"><span class="who"><span class="nm">Jimmy Alan Hall</span><span class="meta"><span class="chip">Democrat</span></span></span><span class="chev" aria-hidden="true"><span class="chev-more">More ▾</span><span class="chev-less">Hide ▴</span></span></span></summary><div class="oppbody"><p class="hk1">Hall practiced law for more than 40 years — redistricting fights, environmental cases for the State, municipal prosecutor — then in 2022 unseated the Republican judge of County Court at Law No. 1. Now he&#x27;s asking Hays County to vote to keep him there.</p><p class="abouthd">About Jimmy</p><p class="hk2">He holds three UT degrees — architecture, public affairs and law — is a certified mediator, and lives in Wimberley, where he serves on the boards of Imagine Wimberley and Wimberley Valley Radio and mentors students at Texas State and Wimberley ISD.</p><p><a class="sitelink" href="https://votehallforall.com/" rel="nofollow noopener" target="_blank">Campaign website ↗</a></p><p><a class="sitelink" href="/candidates/jimmyalanhall/">Jimmy Alan Hall →</a></p></div></details></li></ul>
 <nav class="pager" aria-label="Nearby races"><a href="/races/court-of-criminal-appeals-place-9/"><span class="dir">← Previous race</span><span class="nm">Court of Criminal Appeals — Place 9</span></a><a class="nx" href="/races/hays-county-court-at-law-no-2/"><span class="dir">Next race →</span><span class="nm">Hays County Court at Law No. 2</span></a></nav>
 </div></main>
 <section class="endband"><div class="wrap">
