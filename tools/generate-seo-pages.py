@@ -411,6 +411,11 @@ def page(title, desc, canonical, og_image, hero, body, extra_ld=(), nav_current=
 {FONTS}
 <style>{CSS}</style>
 {ld}
+<script>
+  (function(){{try{{var q=new URLSearchParams(location.search);if(q.has('me'))localStorage.setItem('vg_me',q.get('me')==='0'?'':'1');if(localStorage.getItem('vg_me')==='1')window['ga-disable-G-LGM37W4CYE']=true;}}catch(e){{}}}})();
+</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-LGM37W4CYE"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments);}}gtag('js',new Date());gtag('config','G-LGM37W4CYE');</script>
 </head>
 <body>
 <header class="bar"><div class="wrap">
