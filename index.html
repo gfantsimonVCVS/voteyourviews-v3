@@ -700,9 +700,9 @@
                       // Court groups: name each court once (no Place/seat suffixes) to keep the preview short.
                       // Senate & House group: "State Senate: District N", Senate first.
                       const names = /courts/i.test(g.label)
-                        ? [...new Set(g.races.map(r => r.office.split(/\s*[—–]\s*/)[0].trim().replace(/^TX /,'Texas ').replace(/^\d+(?:st|nd|rd|th)\s+(Court of Appeals)/i,'$1')))]
+                        ? [...new Set(g.races.map(r => r.office.split(/\s*[—–•]\s*/)[0].trim().replace(/^TX /,'Texas ').replace(/^\d+(?:st|nd|rd|th)\s+(Court of Appeals)/i,'$1')))]
                         : g.label === 'State House & Senate'
-                        ? [...g.races].sort(a => a.districtType === 'stateHouse' ? -1 : 1).map(r => r.office.replace(/^TX\s+/,'').replace(/\s*[—–]\s*/, ': '))
+                        ? [...g.races].sort(a => a.districtType === 'stateHouse' ? -1 : 1).map(r => r.office.replace(/^TX\s+/,'').replace(/\s*[—–•]\s*/, ': '))
                         : g.races.map(r => r.office.replace(/ of Texas$/i,''));
                       const shown = names.length <= 4 ? names.length : 3;
                       const Dot = () => <span style={{fontSize:'2em', lineHeight:0, verticalAlign:'-0.13em', margin:'0 3px'}}>·</span>;
@@ -901,7 +901,7 @@
             ]
           },
           {
-            office: 'U.S. House — District 21',
+            office: 'U.S. House • District 21',
             category: 'federal',
             districtType: 'congressional',
             districtNumber: 21,
@@ -912,7 +912,7 @@
             ]
           },
           {
-            office: 'U.S. House — District 27',
+            office: 'U.S. House • District 27',
             category: 'federal',
             districtType: 'congressional',
             districtNumber: 27,
@@ -997,7 +997,7 @@
             ]
           },
           {
-            office: 'TX State Senate — District 21',
+            office: 'TX State Senate • District 21',
             category: 'state',
             districtType: 'stateSenate',
             districtNumber: 21,
@@ -1008,7 +1008,7 @@
             ]
           },
           {
-            office: 'TX State House — District 45',
+            office: 'TX State House • District 45',
             category: 'state',
             districtType: 'stateHouse',
             districtNumber: 45,
@@ -1019,7 +1019,7 @@
             ]
           },
           {
-            office: 'TX State House — District 73',
+            office: 'TX State House • District 73',
             category: 'state',
             districtType: 'stateHouse',
             districtNumber: 73,
@@ -1336,7 +1336,7 @@
       const county = rest.match(/^(.+? County)\s+(.+)$/);
       if (county) { lines.push(county[1]); rest = county[2]; }
       // Remaining parts split on the em/en-dash separator (office on its own line, Place/Precinct/seat on the last)
-      rest.split(/\s*[—–]\s*/).forEach(p => {
+      rest.split(/\s*[—–•]\s*/).forEach(p => {
         const t = p.trim().replace(/\bPl\b/gi, 'Place').replace(/\bPct\b/gi, 'Precinct');
         if (!t) return;
         // Pull a trailing "No. N" / "Place N" / "Precinct N" onto its own line so e.g.
@@ -4690,7 +4690,7 @@
                             if (/^.+? County\s/.test(o))
                               return formatOfficeLines(race.office).map((line, i) => <span key={i} className="block">{line}</span>);
                             // Break only at the bullets, never inside a segment ("Chief Justice" stays whole).
-                            return o.split(/\s*[—–]\s*/).map((seg, i) => (
+                            return o.split(/\s*[—–•]\s*/).map((seg, i) => (
                               <React.Fragment key={i}>{i > 0 && ' • '}<span style={{whiteSpace:'nowrap'}}>{seg}</span></React.Fragment>
                             ));
                           })()}
@@ -5136,7 +5136,7 @@
                   && SENATORS_NOT_UP[userDistricts.stateSenate]
                   && !sectionRaces.some(r => r.districtType === 'stateSenate')) {
                 const info = { kind: 'senateInfo', senator: SENATORS_NOT_UP[userDistricts.stateSenate],
-                  race: { office: `TX State Senate — District ${userDistricts.stateSenate}` } };
+                  race: { office: `TX State Senate • District ${userDistricts.stateSenate}` } };
                 let at = sectionRows.findIndex(r => /state house/i.test(r.race.office));
                 if (at < 0) at = sectionRows.findIndex(r => /court|justice/i.test(r.race.office));
                 sectionRows.splice(at < 0 ? sectionRows.length : at, 0, info);

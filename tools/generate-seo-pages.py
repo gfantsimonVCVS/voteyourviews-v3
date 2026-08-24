@@ -88,7 +88,7 @@ def pretty_slug(name):
 def race_slug(office):
     # drop the dots inside abbreviations first so "U.S. Senate" -> us-senate (not u-s-senate)
     s = re.sub(r'\b([A-Za-z])\.', r'\1', office)
-    s = s.replace('—', ' ').replace('–', ' ').replace('&', ' and ')
+    s = s.replace('—', ' ').replace('–', ' ').replace('•', ' ').replace('&', ' and ')
     s = re.sub(r'[^A-Za-z0-9]+', '-', s).strip('-').lower()
     return re.sub(r'-+', '-', s)
 
