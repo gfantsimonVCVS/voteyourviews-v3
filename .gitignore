@@ -13,6 +13,10 @@ images/travis-photos.zip
 # Local Netlify folder
 .netlify
 
+# Precompile build artifacts (see vyv-build/build.js)
+vyv-build/node_modules/
+vyv-build/dist/
+
 # Local design-tool snapshots + safety backups (never commit)
 .impeccable/
 Backups/

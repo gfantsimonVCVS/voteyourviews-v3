@@ -1,3 +1,14 @@
+# Build: precompile the JSX in index.html so visitors never download or run
+# Babel Standalone. build.js reads index.html, compiles the <script type="text/babel">
+# block, strips the Babel CDN tag, and (with --emit-to) writes the result back over
+# index.html inside the disposable build container. The repo's index.html is the
+# source of truth and is never modified locally by this.
+# Publish is the repo root, so _redirects, candidates/, races/, icons/, images/,
+# sitemap.xml, robots.txt, analytics.html, statements.html etc. all ship as before.
+[build]
+  command = "npm install --prefix vyv-build --no-audit --no-fund && node vyv-build/build.js --emit-to index.html"
+  publish = "."
+
 # Edge function: per-candidate OG tags on clean candidate URLs.
 # The function itself early-returns on anything that isn't a bare /<slug> path
 # (see netlify/edge-functions/candidate-og.js).

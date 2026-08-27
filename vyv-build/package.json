@@ -1,0 +1,14 @@
+{
+  "name": "vyv-build",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Precompiles the JSX in index.html so visitors don't run Babel in the browser.",
+  "type": "commonjs",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "dependencies": {
+    "@babel/core": "^7.29.7",
+    "@babel/preset-react": "^7.29.7"
+  }
+}
