@@ -219,6 +219,8 @@ async function tryProxy(card){
       card.png=dataUrl; el.querySelector('.cut').src=dataUrl; el.querySelector('.orig').src=dataUrl;
       card.faces = await countFaces(await loadImg(dataUrl)); card.state='ready';
       flag(card,'⚠ auto (Google) — VERIFY it’s the right person','text-amber-600');
+      // found photos wait at the top for review; guided mode scrolls on to the next missing one
+      el.parentNode.prepend(el);
       // persist so a reload doesn't lose auto-fetched photos
       saveFix($('#county').value, card.candidate?slugify(card.candidate.name):slugify(card.name), card.name, dataUrl);
       updateCounts(); return true;
