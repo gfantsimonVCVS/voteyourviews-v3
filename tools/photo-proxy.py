@@ -5,7 +5,7 @@ photo-proxy.py — local helper for the photo tool's "Get missing photos".
 Source: Searlo (Google-results SERP API, image search) — one key, no Google Cloud / CSE / org.
 Flow: candidate name -> Searlo top image results -> FACE GATE (must be exactly one face;
 rejects blobs/logos/group shots/NSFW) -> rembg background removal -> square 512 PNG.
-The tool fetches http://localhost:8770/find?name=... per missing candidate; you still verify.
+The tool fetches http://localhost:8771/find?name=... per missing candidate; you still verify.
 
 Config: tools/photo-proxy.config.json = { "searlo_key": "sk_..." }  (gitignored)
 RUN:  PATH="$HOME/Library/Python/3.9/bin:$PATH" python3 tools/photo-proxy.py
@@ -14,7 +14,7 @@ Requires: rembg, Pillow, opencv (all already installed with rembg).
 import io, os, json, urllib.request, urllib.parse
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
-PORT = 8770
+PORT = 8771
 HERE = os.path.dirname(os.path.abspath(__file__))
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
 _cfg = json.load(open(os.path.join(HERE, "photo-proxy.config.json")))

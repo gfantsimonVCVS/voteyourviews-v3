@@ -207,12 +207,12 @@ function guidedNext(){
 }
 
 // local photo proxy (tools/photo-proxy.py): Google image -> bg-removed square PNG. Best coverage.
-async function proxyUp(){ try{ const r=await fetch('http://localhost:8770/health'); return r.ok; }catch(e){ return false; } }
+async function proxyUp(){ try{ const r=await fetch('http://localhost:8771/health'); return r.ok; }catch(e){ return false; } }
 async function tryProxy(card){
   const name = card.candidate ? card.candidate.name : card.name;
   const site = (card.candidate && card.candidate.website) ? card.candidate.website : '';
   try{
-    const r = await fetch(`http://localhost:8770/find?name=${encodeURIComponent(name)}&site=${encodeURIComponent(site)}`);
+    const r = await fetch(`http://localhost:8771/find?name=${encodeURIComponent(name)}&site=${encodeURIComponent(site)}`);
     if(r.ok && (r.headers.get('content-type')||'').includes('png')){
       const dataUrl = await blobToDataURL(await r.blob());
       const el = document.getElementById(card.id);
