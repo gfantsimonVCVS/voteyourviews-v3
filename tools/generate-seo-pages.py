@@ -462,7 +462,7 @@ NAV_ITEMS = [('/', 'Home'), ('/candidates/', 'All candidates'), ('/races/', 'All
 
 # Closing band + footer copy (same on every generated page).
 END_TITLE = 'See who matches your views'
-END_BLURB = ('Answer nine quick questions, then print the ballot for your address — '
+END_BLURB = ('Answer nine quick questions, then print the Pocket Poll for your address — '
              'free, about two minutes.')
 FOOTER = ('VoteYourViews.org is a voter guide built around matching users’ views about political issues '
           'to candidates who share those views. Our goal is to help people vote, and to help people vote '

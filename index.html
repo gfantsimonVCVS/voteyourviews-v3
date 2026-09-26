@@ -1590,7 +1590,7 @@
             <div className="max-w-lg w-full">
               {!districts ? (
                 <>
-                  <h1 className="text-2xl font-black text-slate-900 mb-2">Build Your Ballot</h1>
+                  <h1 className="text-2xl font-black text-slate-900 mb-2">Build Your Pocket Poll</h1>
                   <p className="text-slate-500 text-sm mb-8 leading-relaxed">
                     Your ballot is built by the congressional, state and local districts you live in. Enter your address to see your matching candidates.
                   </p>
@@ -3862,7 +3862,7 @@
                                 style={isOnBallot
                                   ? {background:'rgba(34,197,94,0.2)', color:'#22c55e', border:'1px solid rgba(34,197,94,0.5)'}
                                   : {background:'rgba(255,255,255,0.08)', color:'rgba(255,255,255,0.9)', border:'1px solid rgba(255,255,255,0.35)'}}>
-                                {isOnBallot ? '✓ On Ballot' : '+ Add to Ballot'}
+                                {isOnBallot ? '✓ On Pocket Poll' : '+ Add to Pocket Poll'}
                               </button>
                             </div>
                             {rival && (
@@ -3954,7 +3954,7 @@
                                   style={{...(isOnBallot
                                     ? {background:'rgba(34,197,94,0.2)', color:'#22c55e', border:'1px solid rgba(34,197,94,0.5)'}
                                     : {background:'rgba(255,255,255,0.08)', color:'rgba(255,255,255,0.9)', border:'1px solid rgba(255,255,255,0.35)'}), letterSpacing:'0.04em'}}>
-                                  {isOnBallot ? '✓ On Ballot' : '+ Add to Ballot'}
+                                  {isOnBallot ? '✓ On Pocket Poll' : '+ Add to Pocket Poll'}
                                 </button>
                               </div>
                             </div>
@@ -3980,7 +3980,7 @@
               className="ballot-cta-pulse w-full sm:w-auto sm:min-w-[340px] sm:px-10 max-w-md mx-auto flex items-center justify-center gap-2 py-3.5 rounded-full font-black text-sm uppercase tracking-widest text-white transition-all hover:brightness-110 active:scale-[0.99]"
               style={{background: ctaColors.grad, border: `1px solid ${ctaColors.border}`, letterSpacing:'0.12em', boxShadow: `0 8px 24px ${ctaColors.glow}`}}>
               <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-              Build My Ballot →
+              Build My Pocket Poll →
             </button>
           </div>
         </div>
@@ -4185,7 +4185,7 @@
                 {onSelect ? (
                   <button onClick={() => { setShowBadgeTip(false); onSelect(); }}
                     onMouseEnter={() => setShowBadgeTip(true)} onMouseLeave={() => setShowBadgeTip(false)}
-                    className="relative active:scale-95 hover:scale-105 transition-transform" title={isSelected ? 'Remove from ballot' : 'Add to ballot'}>
+                    className="relative active:scale-95 hover:scale-105 transition-transform" title={isSelected ? 'Remove from Pocket Poll' : 'Add to Pocket Poll'}>
                     <div className={`w-[84px] h-[84px] lg:w-[125px] lg:h-[125px] rounded-full border-4 overflow-hidden bg-white/20 transition-colors ${candidate.party === 'D' ? 'border-blue-400' : candidate.party === 'R' ? 'border-red-500' : candidate.party === 'G' ? 'border-green-500' : 'border-slate-400'}`}>
                       <img src={candidate.photo || '/icons/candidate-undefined.png'} alt={candidate.name} className="w-full h-full object-cover object-top" onError={e => { e.target.src='/icons/candidate-undefined.png'; e.target.className='w-full h-full object-contain object-bottom'; e.target.style.opacity='0.6'; }} />
                     </div>
@@ -4194,7 +4194,7 @@
                     </span>
                     {showBadgeTip && (
                       <span className="hidden md:block absolute -bottom-8 left-0 pointer-events-none whitespace-nowrap text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-white text-slate-900 shadow-lg z-30">
-                        {isSelected ? '✓ On your ballot — click to remove' : '+ Add to ballot'}
+                        {isSelected ? '✓ On your Pocket Poll — click to remove' : '+ Add to Pocket Poll'}
                       </span>
                     )}
                   </button>
@@ -4756,7 +4756,7 @@
                                   style={isCandSelected
                                     ? {background:'#10b981', color:'#fff', whiteSpace:'nowrap'}
                                     : {background:'rgba(255,255,255,0.1)', color:'rgba(255,255,255,0.9)', border:'1px solid rgba(255,255,255,0.35)', whiteSpace:'nowrap'}}>
-                                  {isCandSelected ? '✓ On Ballot' : '+ Add to Ballot'}
+                                  {isCandSelected ? '✓ On Pocket Poll' : '+ Add to Pocket Poll'}
                                 </button>
                               );
                             })()}
@@ -4796,7 +4796,7 @@
               className="ballot-cta-pulse w-full sm:w-auto sm:min-w-[340px] sm:px-10 max-w-md mx-auto flex items-center justify-center gap-2 py-3.5 rounded-full font-black text-sm uppercase tracking-widest text-white transition-all hover:brightness-110 active:scale-[0.99]"
               style={{background: ctaColors.grad, border: `1px solid ${ctaColors.border}`, letterSpacing:'0.12em', boxShadow: `0 8px 24px ${ctaColors.glow}`}}>
               <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-              {selectedCount > 0 ? `Build My Ballot · ${selectedCount} race${selectedCount !== 1 ? 's' : ''} →` : 'Build My Ballot →'}
+              {selectedCount > 0 ? `Build My Ballot · ${selectedCount} race${selectedCount !== 1 ? 's' : ''} →` : 'Build My Pocket Poll →'}
             </button>
           </div>
 
@@ -4868,7 +4868,7 @@
       // Share the guide — native share sheet when available, else copy-link, else a manual-copy prompt (never silently fails).
       async function handleShareGuide() {
         const url = 'https://voteyourviews.org';
-        const data = { title: 'VoteYourViews — My 2026 Texas Ballot', text: 'Rank your beliefs, see which candidates match, and build your ballot:', url };
+        const data = { title: 'VoteYourViews — My 2026 Texas Pocket Poll', text: 'Rank your beliefs, see which candidates match, and build your Pocket Poll:', url };
         if (navigator.share) {
           try { await navigator.share(data); return; }
           catch (e) { if (e && e.name === 'AbortError') return; }   // user dismissed; on a real error, fall through
@@ -5213,7 +5213,7 @@
                                 </React.Fragment>
                               ))}
                             </div>
-                            <div style={{fontSize:'9px', fontWeight:700, color:'#16a34a', lineHeight:1.3}}>Both match the Issue(s) you chose for this ballot</div>
+                            <div style={{fontSize:'9px', fontWeight:700, color:'#16a34a', lineHeight:1.3}}>Both match the Issue(s) you chose for this Pocket Poll</div>
                           </div>
                         );
                       }
@@ -5356,7 +5356,7 @@
                 <div style={{background:'#fffbeb', border:'1px solid #fde68a', borderRadius:'10px', padding:'10px 14px'}}>
                   <div style={{fontSize:'11px', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.06em', color:'#0f172a', marginBottom:'7px'}}>Good to know:</div>
                   {[
-                    'Bring this printed ballot — it\'s legal to use it in the booth',
+                    'Bring this printed Pocket Poll — it\'s legal to use it in the booth',
                     'Any line at closing time? Stay in it — you can still vote',
                     'No photo ID? Ask for a "Reasonable Impediment Declaration"',
                     'Phones must stay in your pocket inside the polling place',
@@ -5375,7 +5375,7 @@
             <div className="no-print mt-8 mb-6 rounded-2xl overflow-hidden relative"
                  style={{background:'linear-gradient(135deg,#1e1b4b 0%,#0f172a 70%)', border:'1.5px solid rgba(251,191,36,0.5)', boxShadow:'0 12px 32px rgba(0,0,0,0.35)'}}>
               <div className="flex items-center gap-4 p-5">
-                <img src="/icons/illustrations/Email%20Me%202.png" alt="Email my ballot"
+                <img src="/icons/illustrations/Email%20Me%202.png" alt="Email my Pocket Poll"
                   className="shrink-0 w-[116px] h-[116px] sm:w-[134px] sm:h-[134px] object-contain"
                   onError={e => { e.currentTarget.style.display='none'; }} />
                 <div className="flex-1 min-w-0">
@@ -5413,8 +5413,8 @@
                    style={{background:'linear-gradient(160deg,#1e1b4b,#0f172a)', border:'1.5px solid rgba(251,191,36,0.5)', boxShadow:'0 24px 60px rgba(0,0,0,0.6)'}}>
                 <img src="/icons/illustrations/Email%20Me%202.png" alt="" className="mx-auto w-24 h-24 object-contain mb-3" onError={e => { e.currentTarget.style.display='none'; }} />
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5" style={{color:'#f59e0b'}}>Coming soon</p>
-                <p className="text-white font-black uppercase leading-tight text-[20px] mb-2" style={{fontFamily:"'Barlow Condensed',sans-serif", letterSpacing:'0.03em'}}>Ballot email reminders</p>
-                <p className="text-slate-300 text-sm leading-relaxed mb-5">We're building this now! Soon you'll be able to get your ballot emailed to you one week before early voting starts. For now, save the PDF or print your ballot above.</p>
+                <p className="text-white font-black uppercase leading-tight text-[20px] mb-2" style={{fontFamily:"'Barlow Condensed',sans-serif", letterSpacing:'0.03em'}}>Pocket Poll email reminders</p>
+                <p className="text-slate-300 text-sm leading-relaxed mb-5">We're building this now! Soon you'll be able to get your Pocket Poll emailed to you one week before early voting starts. For now, save the PDF or print your Pocket Poll above.</p>
                 <button onClick={() => setShowEmailTBA(false)}
                   className="w-full py-3 rounded-full font-black text-xs uppercase tracking-widest transition-all hover:brightness-110 active:scale-[0.98]"
                   style={{letterSpacing:'0.14em', color:'#0f172a', background:'linear-gradient(135deg,#fbbf24,#d97706)'}}>
