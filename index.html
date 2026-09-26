@@ -1918,11 +1918,6 @@
               )}
             </div>
 
-            {/* Beta disclaimer — footer */}
-            <div className="flex items-center justify-center gap-2.5 px-5 py-3 mt-2" style={{background:'rgba(255,255,255,0.03)', borderTop:'1px solid rgba(255,255,255,0.08)'}}>
-              <span className="text-sm leading-none" role="img" aria-label="yield">⚠️</span>
-              <p className="text-slate-400 text-xs leading-snug"><span className="text-amber-300/90 font-black uppercase tracking-[0.14em]">Beta</span> · Hays &amp; Travis Counties now · more coming soon</p>
-            </div>
           </div>
         </div>
       );
@@ -3334,16 +3329,6 @@
       );
     }
 
-    // Small "Beta V3" pill — moved out of the county label so the corner is a clean switcher.
-    function BetaChip() {
-      return (
-        <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0"
-          style={{ background: 'rgba(217,119,6,0.16)', color: '#f59e0b', border: '1px solid rgba(217,119,6,0.35)' }}>
-          Beta V3
-        </span>
-      );
-    }
-
     // ─── RESULTS ───
     const RACE_SECTIONS = [
       { key: 'federal', label: 'Federal Races' },
@@ -3686,6 +3671,9 @@
       const [showAddr, setShowAddr] = React.useState(false);
       const [pendingBallot, setPendingBallot] = React.useState(false);
       const [collapsedGroups, setCollapsedGroups] = React.useState({});
+      // 'mine' = each race shows your closest match; 'other' = the candidate furthest from your views
+      // (Gina, Sep 26: let voters see where the other side stands). A view only; ballot picks don't change.
+      const [sideView, setSideView] = React.useState('mine');
 
       const answeredCount = Object.keys(answers).filter(id => answers[id] !== 'D').length;
 
@@ -3721,7 +3709,6 @@
               <div className="flex items-center justify-between gap-2">
                 <button onClick={onBack} className="text-sm font-medium flex items-center gap-1 shrink-0" style={{color:'#94a3b8'}}>← Back</button>
                 <CountyBanner county={county} counties={counties} onMyCandidates={() => setShowAddr(true)} />
-                <BetaChip />
               </div>
               <div className="mt-3">
                 <CategoryTabs tabs={TABS} activeTab={activeTab} setActiveTab={setActiveTab} size="mobile" />
@@ -3731,7 +3718,6 @@
             <div className="hidden lg:flex items-center h-16 px-8 relative max-w-6xl mx-auto">
               <div className="absolute left-8 flex items-center gap-2.5">
                 <button onClick={onBack} className="text-sm font-semibold flex items-center gap-1.5 transition-colors" style={{color:'#94a3b8'}}>← Back</button>
-                <BetaChip />
               </div>
               <div className="mx-auto">
                 <CategoryTabs tabs={TABS} activeTab={activeTab} setActiveTab={setActiveTab} size="desktop" />
@@ -3780,6 +3766,20 @@
                 We checked your answers against every candidate and pre-checked your closest match — tap a candidate to learn more, or change any pick.
                 {answeredCount > 0 && <span style={{color:'#8494ab'}}> % = how closely they match your views, based on your {answeredCount} answered issue{answeredCount !== 1 ? 's' : ''}.</span>}
               </p>
+              {answeredCount > 0 && (
+                <div role="group" aria-label="Show in each race" className="mt-2 inline-flex overflow-hidden" style={{border:'1.5px solid rgba(255,255,255,0.35)', borderRadius:'8px'}}>
+                  {[['mine','Closest to my views'],['other','See the other side']].map(([k, label], i) => (
+                    <button key={k} type="button" aria-pressed={sideView === k}
+                      onClick={() => { setSideView(k); if (typeof vyvTrack === 'function') vyvTrack('side_view', { view: k }); }}
+                      className="px-3 text-[13px] font-black uppercase"
+                      style={{minHeight:'36px', fontFamily:"'Barlow Condensed',sans-serif", letterSpacing:'0.06em',
+                        borderLeft: i ? '1.5px solid rgba(255,255,255,0.35)' : 'none',
+                        background: sideView === k ? '#f59e0b' : 'transparent', color: sideView === k ? '#0f172a' : '#e2e8f0'}}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -3802,7 +3802,10 @@
                     const cand = best ? best.c : null;
                     if (!cand) return null;
                     const isOverridden = selected[race.office] && selected[race.office] !== cand.name;
-                    const displayCand = isOverridden ? cands.find(c => c.name === selected[race.office]) : cand;
+                    const mineCand = isOverridden ? cands.find(c => c.name === selected[race.office]) : cand;
+                    const otherSide = sideView === 'other'
+                      ? scores.filter(x => x.c !== mineCand && x.s !== null).sort((a, b) => a.s - b.s)[0] : null;
+                    const displayCand = otherSide ? otherSide.c : mineCand;
                     const displayScore = displayCand ? calcMatch(displayCand, answers, checkedStatements, ranks) : match;
                     const partyColor = displayCand?.party === 'R' ? '#ef4444' : displayCand?.party === 'D' ? '#3b82f6' : displayCand?.party === 'G' ? '#22c55e' : '#94a3b8';
                     const ISSUE_KEYS = ['reproductiveRights','immigration','gunPolicy','education','healthcare','climate','electionIntegrity','socialSecurity','affordability'];
@@ -3892,7 +3895,7 @@
                           <div className="flex flex-col justify-center px-6 py-6 border-r border-white/10">
                             {race.description && <p className="text-[13px] leading-relaxed mb-3" style={{color:'rgba(255,255,255,0.7)'}}>{formatDescription(race.description)}</p>}
                             {displayCand && (
-                              <p className="text-[12px] font-black uppercase tracking-widest" style={{color:'#22c55e'}}>✓ {displayCand.name}</p>
+                              <p className="text-[12px] font-black uppercase tracking-widest" style={{color: isOnBallot ? '#22c55e' : '#cbd5e1'}}>{isOnBallot ? '✓ ' : ''}{displayCand.name}</p>
                             )}
                             {rival && (
                               <p className="text-[12px] mt-1.5" style={{color:'rgba(255,255,255,0.55)'}}>
@@ -4611,7 +4614,6 @@
               <div className="flex items-center justify-between gap-2">
                 <button onClick={onBack} className="text-sm text-slate-400 hover:text-white font-medium flex items-center gap-1 transition-colors shrink-0">{backLabel === 'home' ? HOME_LABEL : backLabel}</button>
                 <CountyBanner county={county} counties={counties} onMyCandidates={() => setShowAddr(true)} />
-                <BetaChip />
               </div>
               <div className="mt-3">
                 <CategoryTabs tabs={tabsWithCounts} activeTab={activeTab} setActiveTab={setActiveTab} size="mobile" />
@@ -4622,7 +4624,6 @@
             <div className="hidden md:flex items-center h-16 px-4 lg:px-8 gap-3 max-w-6xl mx-auto">
               <div className="flex items-center gap-2.5 shrink-0">
                 <button onClick={onBack} className="text-sm text-slate-400 hover:text-white font-semibold flex items-center gap-1.5 transition-colors">{backLabel === 'home' ? HOME_LABEL : backLabel}</button>
-                <BetaChip />
               </div>
               <div className="flex-1 flex justify-center min-w-0">
                 <CategoryTabs tabs={tabsWithCounts} activeTab={activeTab} setActiveTab={setActiveTab} size="desktop" />
