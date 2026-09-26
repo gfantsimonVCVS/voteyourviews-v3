@@ -463,8 +463,10 @@ NAV_ITEMS = [('/', 'Home'), ('/candidates/', 'All candidates'), ('/races/', 'All
 # Closing band + footer copy (same on every generated page).
 END_TITLE = 'See who matches your views'
 END_BLURB = ('Answer nine quick questions, then print the ballot for your address — '
-             'free, nonpartisan, about two minutes.')
-FOOTER = ('VoteYourViews.org is free and nonpartisan. Candidate information comes from public '
+             'free, about two minutes.')
+FOOTER = ('VoteYourViews.org is a voter guide built around matching users’ views about political issues '
+          'to candidates who share those views. Our goal is to help people vote, and to help people vote '
+          'for candidates based on more than just party. Candidate information comes from public '
           'records and campaign websites. Corrections: '
           '<a href="mailto:gina@fantsimon.com">gina@fantsimon.com</a>.')
 MAIN_CTA_LABEL = 'Answer 9 questions and see who matches you →'
@@ -854,7 +856,7 @@ def directory_page(races, kind, n_cands):
             # the point of the page: answer honestly, then discover who actually matches —
             # the surprise works in every direction, so the line never implies a right answer
             f'<p class="role"><span class="role-l">Answer nine quick questions honestly, then see '
-            f'who matches your views — you may be surprised. Free, nonpartisan, about two '
+            f'who matches your views — you may be surprised. Free, about two '
             f'minutes.</span>'
             f'<span class="party-l">{len(races)} races · {n_cands} candidates</span></p>'
             f'<div class="actions">{MAIN_CTA}{other}</div>' + tiles_html())

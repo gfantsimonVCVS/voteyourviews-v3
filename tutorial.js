@@ -53,7 +53,7 @@
       key: 'facts',
       eyebrow: 'Step 3',
       title: 'Get the Facts.',
-      body: 'Not sure where you stand? Every issue has a short, nonpartisan fact box — one tap away.',
+      body: 'Not sure where you stand? Every issue has a short fact box — one tap away.',
       render: () => shot('/images/Tutorial%20Shots/Get%20the%20Facts.png', 'Issue Fact Example'),
     },
     {
